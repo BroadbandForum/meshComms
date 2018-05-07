@@ -31,6 +31,7 @@
 #include <poll.h>        // poll()
 #include <sys/inotify.h> // inotify_*()
 #include <unistd.h>      // read(), sleep()
+#include <signal.h>      // struct sigevent, SIGEV_*
 
 ////////////////////////////////////////////////////////////////////////////////
 // Private functions, structures and macros
