@@ -70,10 +70,12 @@ pthread_mutex_t printf_mutex = PTHREAD_MUTEX_INITIALIZER;
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
+#ifndef ENABLE_COLOR
 #ifndef _FLAVOUR_X86_WINDOWS_MINGW_
 #    define ENABLE_COLOR (1)
 #else
 #    define ENABLE_COLOR (0)
+#endif
 #endif
 
 char *_enableColor(void)
