@@ -1,4 +1,9 @@
 language: c
-script:
- - make
- - make unit_tests
+
+addons:
+  apt:
+    packages:
+    - libpcap-dev
+    - libssl-dev
+
+script: make && make unit_tests
