@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -61,12 +61,12 @@ struct CMDU
     INT16U  message_type;          // Any of the CMDU_TYPE_* types
 
     INT16U  message_id;            // Identifies the message
-    
+
     INT8U   relay_indicator;       // Set to '1' to indicate that his packet
                                    // must be relayed by 1905 AL to its
                                    // neighbors.
 
-    INT8U   **list_of_TLVs;        // NULL-terminated list of pointers to TLV 
+    INT8U   **list_of_TLVs;        // NULL-terminated list of pointers to TLV
                                    // structures.
                                    // The "end of message" TLV is not included
                                    // in this list.
@@ -82,7 +82,7 @@ struct CMDU
 // containing ETH layer packet data (ie. offset +14 in a raw network packet,
 // just after the source MAC address, destination MAC address and ETH type
 // fields).
-// 
+//
 // The payload of each stream must contain a 1905 CMDU as detailed in ""IEEE
 // Std 1905.1-2013, Section 6.2 (Table 6-3 and beyond)"
 //
@@ -102,7 +102,7 @@ struct CMDU
 // all of them share the same 'message_id'.
 //
 // For each possible CMDU message type, the following list of TLVs is returned:
-// 
+//
 //   CMDU_TYPE_TOPOLOGY_DISCOVERY
 //     - 1 TLV_TYPE_AL_MAC_ADDRESS_TYPE
 //     - 1 TLV_TYPE_MAC_ADDRESS_TYPE
@@ -153,7 +153,7 @@ struct CMDU
 //     - 1 TLV_TYPE_AL_MAC_ADDRESS_TYPE
 //     - 1 TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION
 //
-//   CMDU_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION    
+//   CMDU_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION
 //     - 1 TLV_TYPE_AL_MAC_ADDRESS_TYPE
 //     - 1 TLV_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION
 //
@@ -163,7 +163,7 @@ struct CMDU
 // If the aggregated payload of all the streams does not contain one of the TLVs
 // required for its 'message_type', this function returns an error (a NULL
 // pointer).
-// 
+//
 // If the aggregated payload of all the streams contains more TLVs than those
 // required for its 'message_type', they are ignored (ie. not contained in the
 // returned structure)

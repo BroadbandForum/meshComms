@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -69,76 +69,76 @@
 #define ATTR_SERIAL_NUMBER     (0x1042)
 #define ATTR_PRIMARY_DEV_TYPE  (0x1054)
     #define WPS_DEV_COMPUTER                           (1)
-        #define WPS_DEV_COMPUTER_PC                       (1)                                                                          
-        #define WPS_DEV_COMPUTER_SERVER                   (2)                                                                              
-        #define WPS_DEV_COMPUTER_MEDIA_CENTER             (3)                                                                                    
-        #define WPS_DEV_COMPUTER_ULTRA_MOBILE             (4)                                                                                    
-        #define WPS_DEV_COMPUTER_NOTEBOOK                 (5)                                                                                
-        #define WPS_DEV_COMPUTER_DESKTOP                  (6)                                                                               
-        #define WPS_DEV_COMPUTER_MID                      (7)                                                                           
-        #define WPS_DEV_COMPUTER_NETBOOK                  (8)                                                                               
-        #define WPS_DEV_COMPUTER_TABLET                   (9)                                                                              
-    #define WPS_DEV_INPUT                              (2)                      
-        #define WPS_DEV_INPUT_KEYBOARD                    (1)                                                                             
-        #define WPS_DEV_INPUT_MOUSE                       (2)                                                                          
-        #define WPS_DEV_INPUT_JOYSTICK                    (3)                                                                             
-        #define WPS_DEV_INPUT_TRACKBALL                   (4)                                                                              
-        #define WPS_DEV_INPUT_GAMING                      (5)                                                                           
-        #define WPS_DEV_INPUT_REMOTE                      (6)                                                                           
-        #define WPS_DEV_INPUT_TOUCHSCREEN                 (7)                                                                                
-        #define WPS_DEV_INPUT_BIOMETRIC_READER            (8)                                                                                     
-        #define WPS_DEV_INPUT_BARCODE_READER              (9)                                                                                   
+        #define WPS_DEV_COMPUTER_PC                       (1)
+        #define WPS_DEV_COMPUTER_SERVER                   (2)
+        #define WPS_DEV_COMPUTER_MEDIA_CENTER             (3)
+        #define WPS_DEV_COMPUTER_ULTRA_MOBILE             (4)
+        #define WPS_DEV_COMPUTER_NOTEBOOK                 (5)
+        #define WPS_DEV_COMPUTER_DESKTOP                  (6)
+        #define WPS_DEV_COMPUTER_MID                      (7)
+        #define WPS_DEV_COMPUTER_NETBOOK                  (8)
+        #define WPS_DEV_COMPUTER_TABLET                   (9)
+    #define WPS_DEV_INPUT                              (2)
+        #define WPS_DEV_INPUT_KEYBOARD                    (1)
+        #define WPS_DEV_INPUT_MOUSE                       (2)
+        #define WPS_DEV_INPUT_JOYSTICK                    (3)
+        #define WPS_DEV_INPUT_TRACKBALL                   (4)
+        #define WPS_DEV_INPUT_GAMING                      (5)
+        #define WPS_DEV_INPUT_REMOTE                      (6)
+        #define WPS_DEV_INPUT_TOUCHSCREEN                 (7)
+        #define WPS_DEV_INPUT_BIOMETRIC_READER            (8)
+        #define WPS_DEV_INPUT_BARCODE_READER              (9)
     #define WPS_DEV_PRINTER                            (3)
-        #define WPS_DEV_PRINTER_PRINTER                   (1)                                                                              
-        #define WPS_DEV_PRINTER_SCANNER                   (2)                                                                              
-        #define WPS_DEV_PRINTER_FAX                       (3)                                                                          
-        #define WPS_DEV_PRINTER_COPIER                    (4)                                                                             
-        #define WPS_DEV_PRINTER_ALL_IN_ONE                (5)                                                                                 
+        #define WPS_DEV_PRINTER_PRINTER                   (1)
+        #define WPS_DEV_PRINTER_SCANNER                   (2)
+        #define WPS_DEV_PRINTER_FAX                       (3)
+        #define WPS_DEV_PRINTER_COPIER                    (4)
+        #define WPS_DEV_PRINTER_ALL_IN_ONE                (5)
     #define WPS_DEV_CAMERA                             (4)
-        #define WPS_DEV_CAMERA_DIGITAL_STILL_CAMERA       (1)                                                                                          
-        #define WPS_DEV_CAMERA_VIDEO                      (2)                                                                           
-        #define WPS_DEV_CAMERA_WEB                        (3)                                                                         
-        #define WPS_DEV_CAMERA_SECURITY                   (4)                                                                              
+        #define WPS_DEV_CAMERA_DIGITAL_STILL_CAMERA       (1)
+        #define WPS_DEV_CAMERA_VIDEO                      (2)
+        #define WPS_DEV_CAMERA_WEB                        (3)
+        #define WPS_DEV_CAMERA_SECURITY                   (4)
     #define WPS_DEV_STORAGE                            (5)
-        #define WPS_DEV_STORAGE_NAS                       (1)                                                                          
+        #define WPS_DEV_STORAGE_NAS                       (1)
     #define WPS_DEV_NETWORK_INFRA                      (6)
-        #define WPS_DEV_NETWORK_INFRA_AP                  (1)                                                                               
-        #define WPS_DEV_NETWORK_INFRA_ROUTER              (2)                                                                                   
-        #define WPS_DEV_NETWORK_INFRA_SWITCH              (3)                                                                                   
-        #define WPS_DEV_NETWORK_INFRA_GATEWAY             (4)                                                                                    
-        #define WPS_DEV_NETWORK_INFRA_BRIDGE              (5)                                                                                   
+        #define WPS_DEV_NETWORK_INFRA_AP                  (1)
+        #define WPS_DEV_NETWORK_INFRA_ROUTER              (2)
+        #define WPS_DEV_NETWORK_INFRA_SWITCH              (3)
+        #define WPS_DEV_NETWORK_INFRA_GATEWAY             (4)
+        #define WPS_DEV_NETWORK_INFRA_BRIDGE              (5)
     #define WPS_DEV_DISPLAY                            (7)
-        #define WPS_DEV_DISPLAY_TV                        (1)                                                                         
-        #define WPS_DEV_DISPLAY_PICTURE_FRAME             (2)                                                                                    
-        #define WPS_DEV_DISPLAY_PROJECTOR                 (3)                                                                                
-        #define WPS_DEV_DISPLAY_MONITOR                   (4)                                                                              
+        #define WPS_DEV_DISPLAY_TV                        (1)
+        #define WPS_DEV_DISPLAY_PICTURE_FRAME             (2)
+        #define WPS_DEV_DISPLAY_PROJECTOR                 (3)
+        #define WPS_DEV_DISPLAY_MONITOR                   (4)
     #define WPS_DEV_MULTIMEDIA                         (8)
-        #define WPS_DEV_MULTIMEDIA_DAR                    (1)                                                                             
-        #define WPS_DEV_MULTIMEDIA_PVR                    (2)                                                                             
-        #define WPS_DEV_MULTIMEDIA_MCX                    (3)                                                                             
-        #define WPS_DEV_MULTIMEDIA_SET_TOP_BOX            (4)                                                                                     
-        #define WPS_DEV_MULTIMEDIA_MEDIA_SERVER           (5)                                                                                      
-        #define WPS_DEV_MULTIMEDIA_PORTABLE_VIDEO_PLAYER  (6)                                                                                               
+        #define WPS_DEV_MULTIMEDIA_DAR                    (1)
+        #define WPS_DEV_MULTIMEDIA_PVR                    (2)
+        #define WPS_DEV_MULTIMEDIA_MCX                    (3)
+        #define WPS_DEV_MULTIMEDIA_SET_TOP_BOX            (4)
+        #define WPS_DEV_MULTIMEDIA_MEDIA_SERVER           (5)
+        #define WPS_DEV_MULTIMEDIA_PORTABLE_VIDEO_PLAYER  (6)
     #define WPS_DEV_GAMING                             (9)
-        #define WPS_DEV_GAMING_XBOX                       (1)                                                                          
-        #define WPS_DEV_GAMING_XBOX360                    (2)                                                                             
-        #define WPS_DEV_GAMING_PLAYSTATION                (3)                                                                                 
-        #define WPS_DEV_GAMING_GAME_CONSOLE               (4)                                                                                  
-        #define WPS_DEV_GAMING_PORTABLE_DEVICE            (5)                                                                                     
+        #define WPS_DEV_GAMING_XBOX                       (1)
+        #define WPS_DEV_GAMING_XBOX360                    (2)
+        #define WPS_DEV_GAMING_PLAYSTATION                (3)
+        #define WPS_DEV_GAMING_GAME_CONSOLE               (4)
+        #define WPS_DEV_GAMING_PORTABLE_DEVICE            (5)
     #define WPS_DEV_PHONE                             (10)
-        #define WPS_DEV_PHONE_WINDOWS_MOBILE              (1)                                                                                   
-        #define WPS_DEV_PHONE_SINGLE_MODE                 (2)                                                                                
-        #define WPS_DEV_PHONE_DUAL_MODE                   (3)                                                                              
-        #define WPS_DEV_PHONE_SP_SINGLE_MODE              (4)                                                                                   
-        #define WPS_DEV_PHONE_SP_DUAL_MODE                (5)                                                                                 
+        #define WPS_DEV_PHONE_WINDOWS_MOBILE              (1)
+        #define WPS_DEV_PHONE_SINGLE_MODE                 (2)
+        #define WPS_DEV_PHONE_DUAL_MODE                   (3)
+        #define WPS_DEV_PHONE_SP_SINGLE_MODE              (4)
+        #define WPS_DEV_PHONE_SP_DUAL_MODE                (5)
     #define WPS_DEV_AUDIO                             (11)
-        #define WPS_DEV_AUDIO_TUNER_RECV                  (1)                                                                               
-        #define WPS_DEV_AUDIO_SPEAKERS                    (2)                                                                             
-        #define WPS_DEV_AUDIO_PMP                         (3)                                                                        
-        #define WPS_DEV_AUDIO_HEADSET                     (4)                                                                            
-        #define WPS_DEV_AUDIO_HEADPHONES                  (5)                                                                               
-        #define WPS_DEV_AUDIO_MICROPHONE                  (6)                                                                               
-        #define WPS_DEV_AUDIO_HOME_THEATRE                (7)                                                                                 
+        #define WPS_DEV_AUDIO_TUNER_RECV                  (1)
+        #define WPS_DEV_AUDIO_SPEAKERS                    (2)
+        #define WPS_DEV_AUDIO_PMP                         (3)
+        #define WPS_DEV_AUDIO_HEADSET                     (4)
+        #define WPS_DEV_AUDIO_HEADPHONES                  (5)
+        #define WPS_DEV_AUDIO_MICROPHONE                  (6)
+        #define WPS_DEV_AUDIO_HOME_THEATRE                (7)
 #define ATTR_DEV_NAME          (0x1011)
 #define ATTR_RF_BANDS          (0x103c)
     #define WPS_RF_24GHZ           (0x01)
@@ -187,7 +187,7 @@ INT16U         last_m1_size = 0;
 struct wscKey *last_key     = NULL;
 
 // This is the key derivation function used in the WPS standard to obtain a
-// final hash that is later used for encryption. 
+// final hash that is later used for encryption.
 //
 // The output is stored in the memory buffer pointed by 'res', which must be
 // "SHA256_MAC_LEN" bytes long (ie. 're_len' must always be "SHA256_MAC_LEN",
@@ -282,7 +282,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
         PLATFORM_PRINTF_DEBUG_WARNING("Could not retrieve info of interface %s\n", interface_name);
         return 0;
     }
-            
+
     buffer = (INT8U *)PLATFORM_MALLOC(sizeof(INT8U)*1000);
     p      = buffer;
 
@@ -329,7 +329,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
     {
         INT8U  *priv, *pub;
         INT16U  priv_len, pub_len;
-            
+
         PLATFORM_GENERATE_DH_KEY_PAIR(&priv, &priv_len, &pub, &pub_len);
         // TODO: ZERO PAD the pub key (doesn't seem to be really needed though)
 
@@ -376,7 +376,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
         aux16 = 2;                                                        _I2B(&aux16,      &p);
                                                                           _I2B(&auth_types, &p);
     }
-   
+
     // ENCRYPTION TYPES
     {
         INT16U  encryption_types;
@@ -400,7 +400,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
         aux16 = 2;                                                        _I2B(&aux16,            &p);
                                                                           _I2B(&encryption_types, &p);
     }
-    
+
     // CONNECTION TYPES
     {
         // Two possible types: ESS or IBSS. In the 1905 context, enrollees will
@@ -421,7 +421,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
         aux16 = 2;                                                        _I2B(&aux16,     &p);
         aux16 = WPS_CONFIG_PHY_PUSHBUTTON | WPS_CONFIG_VIRT_PUSHBUTTON;   _I2B(&aux16,     &p);
     }
-    
+
     // WPS STATE
     {
         aux16 = ATTR_WPS_STATE;                                           _I2B(&aux16,     &p);
@@ -435,7 +435,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
         aux16 = PLATFORM_STRLEN(x->manufacturer_name);                    _I2B(&aux16,                &p);
                                                                           _InB( x->manufacturer_name, &p, PLATFORM_STRLEN(x->manufacturer_name));
     }
-    
+
     // MODEL NAME
     {
 
@@ -462,7 +462,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
     {
         // In the 1905 context, they node sending a M1 message will always be
         // (at least) a "network router"
-        
+
         INT8U oui[4]      = {0x00, 0x50, 0xf2, 0x00}; // Fixed value from the
                                                       // WSC spec
 
@@ -665,7 +665,7 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
         {
             m2_pubkey_len = attr_len;
             m2_pubkey     = p;
-            
+
             p += attr_len;
             m2_pubkey_present = 1;
         }
@@ -673,7 +673,7 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
         {
             m2_encrypted_settings_len = attr_len;
             m2_encrypted_settings     = p;
-            
+
             p += attr_len;
             m2_encrypted_settings_present = 1;
         }
@@ -685,7 +685,7 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
                 return 0;
             }
             m2_authenticator = p;
-            
+
             p += attr_len;
             m2_authenticator_present = 1;
         }
@@ -698,7 +698,7 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
          0 == m2_nonce_present              ||
          0 == m2_pubkey_present             ||
          0 == m2_encrypted_settings_present ||
-         0 == m2_authenticator_present 
+         0 == m2_authenticator_present
        )
     {
         PLATFORM_PRINTF_DEBUG_WARNING("Missing attributes in the received M2 message\n");
@@ -734,7 +734,7 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
         {
             m1_pubkey_len = attr_len;
             /*m1_pubkey     = p;*/
-            
+
             p += m1_pubkey_len;
             m1_pubkey_present = 1;
         }
@@ -785,7 +785,7 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
         PLATFORM_SHA256(1, addr, len, dhkey);
         PLATFORM_FREE(shared_secret);
 
-        // Next, concatenate three things (the enrolle nonce contained in M1, 
+        // Next, concatenate three things (the enrolle nonce contained in M1,
         // the enrolle MAC address, and the nonce we just generated before, and
         // calculate its HMAC (hash message authentication code) using "dhkey"
         // as the secret key.
@@ -848,7 +848,7 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
         }
     }
 
-    
+
     // With the just computed keys, decrypt the message and check the keywrap
     {
         INT8U   *plain;
@@ -863,7 +863,7 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
         PLATFORM_PRINTF_DEBUG_DETAIL("IV (%d bytes)                           : 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", AES_BLOCK_SIZE, m2_encrypted_settings[0], m2_encrypted_settings[1], m2_encrypted_settings[2], m2_encrypted_settings[AES_BLOCK_SIZE-3], m2_encrypted_settings[AES_BLOCK_SIZE-2], m2_encrypted_settings[AES_BLOCK_SIZE-1]);
         PLATFORM_AES_DECRYPT(keywrapkey, m2_encrypted_settings, plain, plain_len);
         PLATFORM_PRINTF_DEBUG_DETAIL("AP settings after  decryption (%d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", plain_len, plain[0], plain[1], plain[2], plain[plain_len-3], plain[plain_len-2], plain[plain_len-1]);
-        
+
 
         // Remove padding
         //
@@ -968,7 +968,7 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
 
     PLATFORM_FREE(m1);      last_m1 = NULL;
     PLATFORM_FREE(k->key);  k->key  = NULL;  last_key->key = NULL;
-    PLATFORM_FREE(k);       k       = NULL;  last_key      = NULL; 
+    PLATFORM_FREE(k);       k       = NULL;  last_key      = NULL;
 
     return 1;
 }
@@ -1042,7 +1042,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
                 return 0;
             }
             m1_mac_address = p;
-            
+
             p += attr_len;
             m1_mac_address_present = 1;
         }
@@ -1088,7 +1088,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         PLATFORM_PRINTF_DEBUG_WARNING("Could not retrieve info of interface %s\n", registrar_interface_name );
         return 0;
     }
-            
+
     buffer = (INT8U *)PLATFORM_MALLOC(sizeof(INT8U)*1000);
     p      = buffer;
 
@@ -1121,19 +1121,19 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         aux16 = 16;                                                       _I2B(&aux16,           &p);
                                                                           _InB( registrar_nonce, &p, 16);
     }
-   
+
     // UUID
     {
         aux16 = ATTR_UUID_R;                                              _I2B(&aux16,     &p);
         aux16 = 16;                                                       _I2B(&aux16,     &p);
                                                                           _InB( x->uuid,   &p, 16);
     }
-    
+
     // PUBLIC KEY
     {
         INT8U  *priv, *pub;
         INT16U  priv_len, pub_len;
-            
+
         PLATFORM_GENERATE_DH_KEY_PAIR(&priv, &priv_len, &pub, &pub_len);
         // TODO: ZERO PAD the pub key (doesn't seem to be really needed though)
 
@@ -1181,7 +1181,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         PLATFORM_SHA256(1, addr, len, dhkey);
         PLATFORM_FREE(shared_secret);
 
-        // Next, concatenate three things (the enrollee nonce contained in M1, 
+        // Next, concatenate three things (the enrollee nonce contained in M1,
         // the enrolle MAC address -also contained in M1-, and the nonce we just
         // generated before and calculate its HMAC (hash message authentication
         // code) using "dhkey" as the secret key.
@@ -1247,7 +1247,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         aux16 = 2;                                                        _I2B(&aux16,      &p);
                                                                           _I2B(&auth_types, &p);
     }
-   
+
     // ENCRYPTION TYPES
     {
         encryption_types = 0;
@@ -1268,7 +1268,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         aux16 = 2;                                                        _I2B(&aux16,            &p);
                                                                           _I2B(&encryption_types, &p);
     }
-    
+
     // CONNECTION TYPES
     {
         // Two possible types: ESS or IBSS. In the 1905 context, registrars
@@ -1297,7 +1297,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         aux16 = PLATFORM_STRLEN(x->manufacturer_name);                    _I2B(&aux16,                &p);
                                                                           _InB( x->manufacturer_name, &p, PLATFORM_STRLEN(x->manufacturer_name));
     }
-    
+
     // MODEL NAME
     {
         aux16 = ATTR_MODEL_NAME;                                          _I2B(&aux16,         &p);
@@ -1323,7 +1323,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
     {
         // In the 1905 context, they node sending a M2 message will always be
         // (at least) a "network router"
-        
+
         INT8U oui[4]      = {0x00, 0x50, 0xf2, 0x00}; // Fixed value from the
                                                       // WSC spec
 
@@ -1489,7 +1489,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         addr[0] = plain;
         len[0]  = r-plain;
         PLATFORM_HMAC_SHA256(authkey, WPS_AUTHKEY_LEN, 1, addr, len, hash);
-        
+
         // ...and add it to the same plain buffer (well, only the first 8 bytes
         // of the hash)
         //

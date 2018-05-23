@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -82,7 +82,7 @@ struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(INT8U *packet_stream)
         {
             ret->list_of_TLVs[i] = tlv;
         }
-        
+
         // All LLDP TLVs start with the same two bytes:
         //
         //   |byte #1 |byte #2 |
@@ -103,7 +103,7 @@ struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(INT8U *packet_stream)
 
         p += len;
         i++;
-    } 
+    }
 
     // Before returning, we must make sure that this packet contained all the
     // needed TLVs (ie. "chassis ID", "port ID" and "time to live")
@@ -279,7 +279,7 @@ INT8U *forge_lldp_PAYLOAD_from_structure(struct PAYLOAD *memory_structure, INT16
 }
 
 
-    
+
 void free_lldp_PAYLOAD_structure(struct PAYLOAD *memory_structure)
 {
     INT8U i;

@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -70,7 +70,7 @@ struct _ieee1905DmExtension
 // - process1905CmduExtensions(): Run through all the registered entities to
 //                                process the non-standard data embedded in the
 //                                incoming CMDU
-// - send1905CmduExtensions()   : Run through all the registered entities to 
+// - send1905CmduExtensions()   : Run through all the registered entities to
 //                                extend the outgoing CMDU with the
 //                                non-standard data
 // - free1905CmduExtensions()   : Free no longer used resources allocated by
@@ -169,12 +169,12 @@ INT8U free1905CmduExtensions(struct CMDU *c)
 // Public functions (data model callback processing).
 ////////////////////////////////////////////////////////////////////////////////
 
-// - obtainExtendedLocalInfo(): Run through all the registered entities to 
+// - obtainExtendedLocalInfo(): Run through all the registered entities to
 //                              obtain the local non-standard data (embedded in
 //                              Vendor Specific TLVs)
-// - updateExtendedInfo()     : Run through all the registered entities to 
+// - updateExtendedInfo()     : Run through all the registered entities to
 //                              update the non-standard data in the datamodel.
-// - dumpExtendedInfo()       : Run through all the registered entities to 
+// - dumpExtendedInfo()       : Run through all the registered entities to
 //                              extend the 'dnd' ALME response (non-standard
 //                              data from datamodel)
 // - freeExtendedLocalInfo()  : Free no longer used resources allocated by
@@ -188,7 +188,7 @@ INT8U obtainExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U *nr)
 
     struct vendorSpecificTLV **total_tlvs;      // The returned TLVs from all
                                                 // the registered actors
-    INT8U                      total_tlvs_nr;  
+    INT8U                      total_tlvs_nr;
 
     struct vendorSpecificTLV **tlvs;            // TLVs returned by some
                                                 // registered actor

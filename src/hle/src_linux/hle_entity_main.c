@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -256,7 +256,7 @@ int _sendAlmeRequestAndWaitForReply(char *server_ip_and_port, INT8U *alme_reques
         PLATFORM_PRINTF_DEBUG_ERROR("Invalid address format. Must follow this template: '<ip_address>:<port_number>'\n");
         return 0;
     }
-     
+
     //Create socket
     //
     sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -274,13 +274,13 @@ int _sendAlmeRequestAndWaitForReply(char *server_ip_and_port, INT8U *alme_reques
     server.sin_port        = htons(atoi(port));
 
     free(aux);
- 
+
     if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0)
     {
         PLATFORM_PRINTF_DEBUG_ERROR("connect() failed with errno=%d (%s)\n", errno, strerror(errno));
         return 0;
     }
-     
+
     // Send the ALME REQUEST message
     //
     PLATFORM_PRINTF_DEBUG_INFO("Sending ALME request message (%d byte(s) long)...\n", alme_request_len);
@@ -322,7 +322,7 @@ int _sendAlmeRequestAndWaitForReply(char *server_ip_and_port, INT8U *alme_reques
         PLATFORM_PRINTF_DEBUG_ERROR("shutdown(\"SHUT_WR\") failed with errno=%d (%s)\n", errno, strerror(errno));
         return 0;
     }
-         
+
     // Receive a reply from the server
     //
     PLATFORM_PRINTF_DEBUG_INFO("Waiting for the ALME reply...\n");
@@ -350,7 +350,7 @@ int _sendAlmeRequestAndWaitForReply(char *server_ip_and_port, INT8U *alme_reques
 
         if (total_received >= *alme_reply_len)
         {
-            // This message is too big. 
+            // This message is too big.
             //
             PLATFORM_PRINTF_DEBUG_ERROR("Error! Received message is too big\n");
             return 0;
@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
                 // <ip address>:<tcp port> where the AL is waiting for HLE
                 // messages (ex: "10.8.34.3:8970")
                 //
-                al_ip_address_and_tcp_port = optarg; 
+                al_ip_address_and_tcp_port = optarg;
                 break;
             }
 
@@ -440,7 +440,7 @@ int main(int argc, char *argv[])
                 // ALME REQUEST message that we want to send the AL entity
                 // (ex: "ALME-GET-INTF-LIST.request")
                 //
-                alme_request_type = optarg; 
+                alme_request_type = optarg;
                 break;
             }
             case 'h':

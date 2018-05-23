@@ -1,13 +1,13 @@
 # Broadband Forum IEEE 1905.1/1a stack
-# 
+#
 # Copyright (c) 2017, Broadband Forum
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,7 @@
 #   COMMON_INC ----> Absolute path to the folder containing common (to all
 #                    sub-projects) header files
 
-#   FACTORY_LIB   -> Absolute path to the "factory library" *.a file 
+#   FACTORY_LIB   -> Absolute path to the "factory library" *.a file
 #   FACTORY_INC   -> Absolute path to the folder containing the "factory
 #                    library" header files
 #
@@ -70,7 +70,7 @@ TESTS      := $(addprefix UNITTEST_,$(basename $(UNITS)))
 ################################################################################
 
 .PHONY: all
-all: $(TESTS) 
+all: $(TESTS)
 
 
 .PHONY: $(TESTS)
@@ -82,7 +82,7 @@ $(EXE) : $(OUTPUT_FOLDER)/UNITTEST_% : $(OUTPUT_FOLDER)/tmp/$(UNIT_TESTS_DIRECTO
 	$(foreach directory, $(UNITS), $(MKDIR) $(OUTPUT_FOLDER)/UNITTEST_$(shell dirname $(directory);))
 	$(CC) $(LDFLAGS) $^ -o $@
 
-$(OBJ) : $(OUTPUT_FOLDER)/tmp/$(UNIT_TESTS_DIRECTORY)/%.o : %.c 
+$(OBJ) : $(OUTPUT_FOLDER)/tmp/$(UNIT_TESTS_DIRECTORY)/%.o : %.c
 	$(foreach directory, $(sort $(dir $(wildcard $(SRC)))), $(MKDIR) $(OUTPUT_FOLDER)/tmp/$(UNIT_TESTS_DIRECTORY)/$(directory);)
 	$(CC)  $(CCFLAGS) -c $(addprefix -I,$(INTERNAL_INC) $(EXTERNAL_INC)) $< -o $@;
 

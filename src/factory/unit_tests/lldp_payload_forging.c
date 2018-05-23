@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ INT8U _check(const char *test_description, struct PAYLOAD *input, INT8U *expecte
     INT8U  result;
     INT8U *real_output;
     INT16U real_output_len;
-    
+
     real_output = forge_lldp_PAYLOAD_from_structure(input, &real_output_len);
 
     if (NULL == real_output)
@@ -53,7 +53,7 @@ INT8U _check(const char *test_description, struct PAYLOAD *input, INT8U *expecte
     {
         INT16U i;
 
-        result = 1; 
+        result = 1;
         PLATFORM_PRINTF("%-100s: KO !!!\n", test_description);
         PLATFORM_PRINTF("  Expected output: ");
         for (i=0; i<expected_output_len; i++)

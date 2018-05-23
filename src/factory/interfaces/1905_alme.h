@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -147,10 +147,10 @@ struct _vendorSpecificInfoEntries
 
     INT16U  length_field;          // Must always be set to 'n' + 3 (see below)
 
-    INT8U   oui[3];                // 24 bits globally unique IEEE-RA assigned 
+    INT8U   oui[3];                // 24 bits globally unique IEEE-RA assigned
                                    // number to the vendor
 
-    INT8U   *vendor_si;            // Here goes the actual vendor specific 
+    INT8U   *vendor_si;            // Here goes the actual vendor specific
                                    // stuff, which takes 'n' bytes.
 };
 
@@ -171,7 +171,7 @@ struct _intfDescriptorEntries
                                    //     bridges (TRUE)
                                    //   - Otherwise (FALSE)
 
-    INT8U                                vendor_specific_info_nr;  
+    INT8U                                vendor_specific_info_nr;
     struct  _vendorSpecificInfoEntries  *vendor_specific_info;
                                    // Zero or more information elements
 };
@@ -195,7 +195,7 @@ struct setIntfPwrStateRequestALME
 {
     INT8U  alme_type;              // Must always be set to
                                    // ALME_TYPE_SET_INTF_PWR_STATE_REQUEST
-                                  
+
     INT8U  interface_address[6];   // MAC address of the interface
 
     INT8U  power_state;             // One of the values from "POWER_STATE_*"
@@ -223,7 +223,7 @@ struct getIntfPwrStateRequestALME
 {
     INT8U  alme_type;              // Must always be set to
                                    // ALME_TYPE_GET_INTF_PWR_STATE_REQUEST
-                                  
+
     INT8U  interface_address[6];   // MAC address of the interface
 };
 
@@ -235,7 +235,7 @@ struct getIntfPwrStateResponseALME
 {
     INT8U  alme_type;              // Must always be set to
                                    // ALME_TYPE_GET_INTF_PWR_STATE_RESPONSE
-                                  
+
     INT8U  interface_address[6];   // MAC address of the interface
 
     INT8U  power_state;            // One of the values from "POWER_STATE_*"
@@ -249,7 +249,7 @@ struct setFwdRuleRequestALME
 {
     INT8U  alme_type;              // Must always be set to
                                    // ALME_TYPE_SET_FWD_RULE_REQUEST
-                                  
+
     struct _classificationSet  classification_set;
                                    // Bit matching pattern
 
@@ -268,7 +268,7 @@ struct setFwdRuleConfirmALME
 {
     INT8U  alme_type;              // Must always be set to
                                    // ALME_TYPE_SET_FWD_RULE_CONFIRM
-                                  
+
     INT16U rule_id;                // Unique ID of the added forwarding rule
 
     INT8U  reason_code;            // One of the values from "REASON_CODE_*"
@@ -352,7 +352,7 @@ struct modifyFwdRuleConfirmALME
 {
     INT8U  alme_type;              // Must always be set to
                                    // ALME_TYPE_MODIFY_FWD_RULE_CONFIRM
-                                  
+
     INT16U rule_id;                // Rule ID of the modified forwarding rule
 
     INT8U  reason_code;            // One of the values from "REASON_CODE_*"
@@ -378,7 +378,7 @@ struct removeFwdRuleConfirmALME
 {
     INT8U  alme_type;              // Must always be set to
                                    // ALME_TYPE_MODIFY_FWD_RULE_CONFIRM
-                                  
+
     INT16U rule_id;                // Rule ID of the modified forwarding rule
 
     INT8U  reason_code;            // One of the values from "REASON_CODE_*"
@@ -407,7 +407,7 @@ struct _metricDescriptorsEntries
                                      // device associated with the 1905 link
                                      // metrics
 
-    char   local_intf_address[6];    // MAC address of the local interface 
+    char   local_intf_address[6];    // MAC address of the local interface
                                      // associated with the 1905 link metrics
 
     INT8U  bridge_flag;              // Boolean flag to indicate that the 1905

@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -288,7 +288,7 @@
 // Private (non-standarized) packet structure for custom (not present in the
 // standard) ALME primitives:
 ////////////////////////////////////////////////////////////////////////////////
-// 
+//
 // NOTE: We are using "reserved" 'alme_type' values. We might have to remove
 // these new "custom" ALMEs if the standard is ever updated to make use of these
 // types.
@@ -883,7 +883,7 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
                     _I2B(&m->interface_descriptors[i].vendor_specific_info[j].ie_type,      &p);
                     _I2B(&m->interface_descriptors[i].vendor_specific_info[j].length_field, &p);
                     _InB( m->interface_descriptors[i].vendor_specific_info[j].oui,          &p, 3);
-                    
+
                     if (m->interface_descriptors[i].vendor_specific_info[j].length_field > 3)
                     {
                         _InB( m->interface_descriptors[i].vendor_specific_info[j].vendor_si, &p, m->interface_descriptors[i].vendor_specific_info[j].length_field - 3);
@@ -1322,7 +1322,7 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
             _I1B(&m->alme_type, &p);
             _I2B(&m->bytes_nr,  &p);
-            
+
             if (m->bytes_nr > 0)
             {
                 _InB( m->bytes,  &p, m->bytes_nr);
@@ -1584,10 +1584,10 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
                     {
                         return 1;
                     }
-                   
+
                 }
             }
-                 
+
             return 0;
         }
 
@@ -1699,7 +1699,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
                     return 1;
                 }
             }
-                 
+
             return 0;
         }
 
@@ -1783,7 +1783,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
                     }
                 }
             }
-                 
+
             return 0;
         }
 
@@ -1817,7 +1817,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
                     return 1;
                 }
             }
-                 
+
             return 0;
         }
 
@@ -1883,7 +1883,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             {
                 return 1;
             }
-                 
+
             return 0;
         }
 
@@ -1925,7 +1925,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
                     return 1;
                 }
             }
-                 
+
             return 0;
         }
 
@@ -1940,7 +1940,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             {
                 return 1;
             }
-                 
+
             return 0;
         }
 
@@ -1959,7 +1959,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             {
                 return 1;
             }
-                 
+
             return 0;
         }
 

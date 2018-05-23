@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -90,7 +90,7 @@ struct deviceInfo *PLATFORM_GET_DEVICE_INFO(void);
 //         while (1)
 //         {
 //             PLATFORM_READ_QUEUE(queue_id, &message_buffer[0]);
-//             
+//
 //             <process event>
 //         }
 //
@@ -108,7 +108,7 @@ INT8U PLATFORM_CREATE_QUEUE(const char *name);
 // This function takes:
 //
 //   1. a 'queue_id' (previously obtained with 'PLATFORM_CREATE_QUEUE()")
-//   2. an 'event_type' (valid values are explained below) 
+//   2. an 'event_type' (valid values are explained below)
 //   3. a pointer to (optional) aditional data associated to the type of event
 //
 // ...and then, from that point on, platform events that match 'event_type'
@@ -230,7 +230,7 @@ INT8U PLATFORM_CREATE_QUEUE(const char *name);
 //
 //       "Message length" (bytes 0x01 and 0x02) makes reference to how many
 //       bytes come after the third one. Ie. 1 + length of "ALME payload".
-//       
+//
 //       "ALME client ID" is some number that will be used when the AL entity
 //       calls "PLATFORM_SEND_ALME_REPLY()". It works like this:
 //
@@ -365,7 +365,7 @@ INT8U PLATFORM_CREATE_QUEUE(const char *name);
 //
 // In all cases, if there is a problem registering the event, this function
 // returns "0", otherwise it returns "1"
-//     
+//
 #define PLATFORM_QUEUE_EVENT_NEW_1905_PACKET              (0x00)
 #define PLATFORM_QUEUE_EVENT_NEW_ALME_MESSAGE             (0x01)
 #define PLATFORM_QUEUE_EVENT_TIMEOUT                      (0x02)

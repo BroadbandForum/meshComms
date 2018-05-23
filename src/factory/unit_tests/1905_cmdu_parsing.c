@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,7 @@ INT8U _check(const char *test_description, INT8U **input, struct CMDU *expected_
 {
     INT8U  result;
     struct CMDU *real_output;
-    
+
     real_output = parse_1905_CMDU_from_packets(input);
 
     if (0 == compare_1905_CMDU_structures(real_output, expected_output))
@@ -42,7 +42,7 @@ INT8U _check(const char *test_description, INT8U **input, struct CMDU *expected_
     }
     else
     {
-        result = 1; 
+        result = 1;
         PLATFORM_PRINTF("%-100s: KO !!!\n", test_description);
         PLATFORM_PRINTF("  Expected output:\n");
         visit_1905_CMDU_structure(expected_output, print_callback, PLATFORM_PRINTF, "");

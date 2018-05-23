@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,7 +42,7 @@
 // 6.3"
 //
 //
-// TODO: 
+// TODO:
 //     Right now this mechanism only considers either "zero or more" or "exactly
 //     one" possibilities... however, in the "1a" update of the standard, there
 //     are new types of TLVs that can appear "zero or one" and "one or more"
@@ -62,7 +62,7 @@
 //
 //
 //
-static INT32U _zeroormore_tlvs_for_cmdu[] = 
+static INT32U _zeroormore_tlvs_for_cmdu[] =
 {
     /* CMDU_TYPE_TOPOLOGY_DISCOVERY             */  0x00000000,
     /* CMDU_TYPE_TOPOLOGY_NOTIFICATION          */  0x00000000,
@@ -136,7 +136,7 @@ static INT8U _relayed_CMDU[] = \
     /* CMDU_TYPE_INTERFACE_POWER_CHANGE_REQUEST */  0,
     /* CMDU_TYPE_INTERFACE_POWER_CHANGE_RESPONSE*/  0,
     /* CMDU_TYPE_GENERIC_PHY_QUERY              */  0,
-    /* CMDU_TYPE_GENERIC_PHY_RESPONSE           */  0, 
+    /* CMDU_TYPE_GENERIC_PHY_RESPONSE           */  0,
 };
 
 
@@ -144,7 +144,7 @@ static INT8U _relayed_CMDU[] = \
 // Auxiliary static functions
 ////////////////////////////////////////////////////////////////////////////////
 
-// Each CMDU must follow some rules regarding which TLVs they can contain 
+// Each CMDU must follow some rules regarding which TLVs they can contain
 // depending on their type.
 //
 // This is extracted from "IEEE Std 1905.1-2013, Section 6.2":
@@ -224,7 +224,7 @@ static INT8U _check_CMDU_rules(struct CMDU *p, INT8U rules_type)
         counter[*(p->list_of_TLVs[i])]++;
         i++;
     }
-    
+
     // Rules 1.a and 2.c check the same thing : make sure the structure
     // contains, *at least*, the required TLVs
     //
@@ -252,10 +252,10 @@ static INT8U _check_CMDU_rules(struct CMDU *p, INT8U rules_type)
     //   * In case 'rules_type' == CHECK_CMDU_RX_RULES, remove the unexpected
     //     TLVs (and later, when all other checks have been performed, return
     //     '1' to indicate that the structure has been modified)
-    //  
+    //
     // Unexpected TLVs are those that do not appear in neither the
     // "_exactlyone_tlvs_for_cmdu" nor the "_zeroormore_tlvs_for_cmdu" tables
-    // 
+    //
     for (i=0; i<=TLV_TYPE_LAST; i++)
     {
         if (
@@ -360,7 +360,7 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
         PLATFORM_PRINTF_DEBUG_ERROR("NULL packet_streams\n");
         return NULL;
     }
-    
+
     // Find out how many streams/fragments we have received
     //
     fragments_nr = 0;
@@ -415,7 +415,7 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
 
             // The 'fragment_id' field is the 7th byte (offset 6)
             //
-            if (current_fragment == *(p+6)) 
+            if (current_fragment == *(p+6))
             {
                 break;
             }
@@ -598,7 +598,7 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
             ret->list_of_TLVs = (INT8U **)PLATFORM_REALLOC(ret->list_of_TLVs, sizeof(INT8U *) * (tlvs_nr+1));
             ret->list_of_TLVs[tlvs_nr-1] = parsed;
             ret->list_of_TLVs[tlvs_nr]   = NULL;
-        } 
+        }
         if (0 != error)
         {
             break;
@@ -747,7 +747,7 @@ INT8U **forge_1905_CMDU_from_structure(struct CMDU *memory_structure, INT16U **l
     (*lens)[0] = 0;
 
     fragments_nr = 0;
-    
+
     // Let's create as many streams as needed so that all of them fit in
     // MAX_NETWORK_SEGMENT_SIZE bytes.
     //
@@ -779,7 +779,7 @@ INT8U **forge_1905_CMDU_from_structure(struct CMDU *memory_structure, INT16U **l
         INT8U  i;
 
         INT16U current_X_size;
-        
+
         INT8U reserved_field;
         INT8U fragment_id;
         INT8U indicators;
@@ -913,7 +913,7 @@ INT8U **forge_1905_CMDU_from_structure(struct CMDU *memory_structure, INT16U **l
         tlv_start = tlv_stop;
 
     } while(memory_structure->list_of_TLVs[tlv_start]);
-   
+
     // Finally! If we get this far without errors we are already done, otherwise
     // free everything and return NULL
     //

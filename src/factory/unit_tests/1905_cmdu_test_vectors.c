@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,7 +50,7 @@
 //
 //   A) stream = forge_1905_CMDU_from_structure(tlv_xxx, &stream_len);
 //
-//   B) tlv = parse_1905_CMDU_from_packets(stream_xxx); 
+//   B) tlv = parse_1905_CMDU_from_packets(stream_xxx);
 //
 
 
@@ -235,7 +235,7 @@ INT8U *x1905_cmdu_streams_004[] =
         0x00, 0x05,
         0x09, 0x2c,
         0x00,
-        0x80, 
+        0x80,
 
         0x08,
         0x00, 0x08,
@@ -276,7 +276,7 @@ INT8U *x1905_cmdu_streams_005[] =
         0x00, 0x02,
         0x00, 0x09,
         0x00,
-        0x80, 
+        0x80,
 
         0x00,
         0x00, 0x00,

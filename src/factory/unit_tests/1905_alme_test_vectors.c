@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,7 +51,7 @@
 //
 //   A) stream = forge_1905_ALME_from_structure(alme_xxx, &stream_len);
 //
-//   B) tlv = parse_1905_ALME_from_packet(stream_xxx); 
+//   B) tlv = parse_1905_ALME_from_packet(stream_xxx);
 //
 
 // NOTE: The translation from/to ALME primitive to/from packet stream is not
@@ -88,7 +88,7 @@ struct getIntfListResponseALME x1905_alme_structure_002 =
     .interface_descriptors     =
         (struct _intfDescriptorEntries[]){
             {
-                .interface_address       = {0x01, 0x02, 0x03, 0x01, 0x02, 0x03}, 
+                .interface_address       = {0x01, 0x02, 0x03, 0x01, 0x02, 0x03},
                 .interface_type          = MEDIA_TYPE_IEEE_802_11AF_GHZ,
                 .bridge_flag             = 0x01,
                 .vendor_specific_info_nr = 0,
@@ -121,7 +121,7 @@ struct getIntfListResponseALME x1905_alme_structure_003 =
     .interface_descriptors     =
         (struct _intfDescriptorEntries[]){
             {
-                .interface_address       = {0x01, 0x02, 0x03, 0x01, 0x02, 0x03}, 
+                .interface_address       = {0x01, 0x02, 0x03, 0x01, 0x02, 0x03},
                 .interface_type          = MEDIA_TYPE_IEEE_802_11AF_GHZ,
                 .bridge_flag             = 0x01,
                 .vendor_specific_info_nr = 2,
@@ -142,7 +142,7 @@ struct getIntfListResponseALME x1905_alme_structure_003 =
                     },
             },
             {
-                .interface_address       = {0x01, 0x02, 0x03, 0x01, 0x02, 0x04}, 
+                .interface_address       = {0x01, 0x02, 0x03, 0x01, 0x02, 0x04},
                 .interface_type          = MEDIA_TYPE_IEEE_1901_WAVELET,
                 .bridge_flag             = 0x00,
                 .vendor_specific_info_nr = 0,
@@ -330,9 +330,9 @@ struct setFwdRuleRequestALME x1905_alme_structure_011 =
     .classification_set        =
         {
             .mac_da            = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
-            .mac_da_flag       = 1, 
+            .mac_da_flag       = 1,
             .mac_sa            = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-            .mac_sa_flag       = 0, 
+            .mac_sa_flag       = 0,
             .ether_type        = 0x2020,
             .ether_type_flag   = 1,
             .vid               = 0x00,
@@ -377,9 +377,9 @@ struct setFwdRuleRequestALME x1905_alme_structure_012 =
     .classification_set        =
         {
             .mac_da            = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
-            .mac_da_flag       = 1, 
+            .mac_da_flag       = 1,
             .mac_sa            = {0xb0, 0xb0, 0xb0, 0xb0, 0xb0, 0xb0},
-            .mac_sa_flag       = 1, 
+            .mac_sa_flag       = 1,
             .ether_type        = 0x2020,
             .ether_type_flag   = 0,
             .vid               = 0x00,
@@ -490,9 +490,9 @@ struct getFwdRulesResponseALME x1905_alme_structure_016 =
                 .classification_set        =
                     {
                         .mac_da            = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
-                        .mac_da_flag       = 1, 
+                        .mac_da_flag       = 1,
                         .mac_sa            = {0xb0, 0xb0, 0xb0, 0xb0, 0xb0, 0xb0},
-                        .mac_sa_flag       = 1, 
+                        .mac_sa_flag       = 1,
                         .ether_type        = 0x2020,
                         .ether_type_flag   = 0,
                         .vid               = 0x00,
@@ -550,9 +550,9 @@ struct getFwdRulesResponseALME x1905_alme_structure_017 =
                 .classification_set        =
                     {
                         .mac_da            = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
-                        .mac_da_flag       = 1, 
+                        .mac_da_flag       = 1,
                         .mac_sa            = {0xb0, 0xb0, 0xb0, 0xb0, 0xb0, 0xb0},
-                        .mac_sa_flag       = 1, 
+                        .mac_sa_flag       = 1,
                         .ether_type        = 0x2020,
                         .ether_type_flag   = 0,
                         .vid               = 0x00,
@@ -573,9 +573,9 @@ struct getFwdRulesResponseALME x1905_alme_structure_017 =
                 .classification_set        =
                     {
                         .mac_da            = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-                        .mac_da_flag       = 0, 
+                        .mac_da_flag       = 0,
                         .mac_sa            = {0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa},
-                        .mac_sa_flag       = 1, 
+                        .mac_sa_flag       = 1,
                         .ether_type        = 0x0000,
                         .ether_type_flag   = 0,
                         .vid               = 0x00,
@@ -803,7 +803,7 @@ struct getMetricResponseALME x1905_alme_structure_024 =
                             .local_al_address            = {0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0x01},
                             .neighbor_al_address         = {0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0x02},
                             .receiver_link_metrics_nr    = 1,
-                            .receiver_link_metrics       = 
+                            .receiver_link_metrics       =
                                 (struct _receiverLinkMetricEntries[]){
                                     {
                                         .local_interface_address    = {0x00, 0x00, 0x00, 0x00, 0x00, 0x01},
@@ -852,7 +852,7 @@ INT8U x1905_alme_stream_024[] =
     0x01, 0x01,
     0x01, 0xa0, 0x00, 0x86,
     0x01, 0xa0, 0x00, 0x87,
-    0x02, 
+    0x02,
 
     0x00,
 };

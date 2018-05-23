@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,8 +26,8 @@
 struct PAYLOAD
 {
     #define MAX_LLDP_TLVS 10
-    INT8U   *list_of_TLVs[MAX_LLDP_TLVS+1]; 
-                                   // NULL-terminated list of pointers to TLV 
+    INT8U   *list_of_TLVs[MAX_LLDP_TLVS+1];
+                                   // NULL-terminated list of pointers to TLV
                                    // structures.
                                    // The "end of lldppdu" TLV is not included
                                    // in this list.
@@ -42,7 +42,7 @@ struct PAYLOAD
 // This function receives a pointer to a streams containing ETH layer packet
 // data (ie. offset +14 in a raw network packet, just after the source MAC
 // address, destination MAC address and ETH type fields).
-// 
+//
 // The payload of this stream must contain a LLDP bridge discovery message, as
 // detailed in "IEEE Std 1905.1-2013, Section 6.1"
 //
@@ -55,7 +55,7 @@ struct PAYLOAD
 //
 // The stream must always finish with a "TLV_TYPE_END_OF_LLDPPDU" TLV, but this
 // one won't be contained in the returned PAYLOAD structure.
-// 
+//
 // If any type of error/inconsistency is found, a NULL pointer is returned
 // instead, otherwise remember to free the received structure once you don't
 // need it anymore (using the "free_lldp_PAYLOAD_structure()" function)
@@ -104,7 +104,7 @@ void free_lldp_PAYLOAD_structure(struct PAYLOAD *memory_structure);
 
 
 // This function receives a pointer to a  streams returned by
-// "forge_lldp_PAYLOAD_from_structure()" 
+// "forge_lldp_PAYLOAD_from_structure()"
 //
 #define  free_lldp_PAYLOAD_packet  PLATFORM_FREE
 

@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -121,7 +121,7 @@ INT8U PLATFORM_MEMCMP(const void *s1, const void *s2, INT32U n);
 INT32U PLATFORM_STRLEN(const char *s);
 
 // Return ca copy of the provided string 's', that can later be freed with
-// "PLATFORM_FREE()" 
+// "PLATFORM_FREE()"
 //
 char *PLATFORM_STRDUP(const char *s);
 
@@ -187,7 +187,7 @@ INT32U PLATFORM_GET_TIMESTAMP(void);
 //
 // [PLATFORM PORTING NOTE]
 //   Use this function to reserve memory, initialize semaphores, etc...
-//   
+//
 INT8U PLATFORM_INIT(void);
 
 #endif

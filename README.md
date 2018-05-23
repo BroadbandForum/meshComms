@@ -36,11 +36,11 @@
         1. Files structure
         2. Register a group
         3. Code overview
-           1. TLVs 
+           1. TLVs
            2. Callbacks
               1. CMDU extension
               2. Datamodel extension
-           
+
 
   8. Testing
      1. Unit tests
@@ -219,7 +219,7 @@ As of today (February 2016) the standard consists of two documents:
 
   2. The later "**IEEE P1905.1a/D1, July 2014**" update.
 
-Unfortunately they are *not* freely available. 
+Unfortunately they are *not* freely available.
 
 The source code contained in this repository implements all the functionality
 detailed in both of these documents.
@@ -257,7 +257,7 @@ components:
      then sends it **control messages** to modify its state (basically by
      creating/deleting new routing rules and/or changing the power state of one
      or more interfaces).
-     
+
      These messages sent/received between one HLE and one AL are called
      "**ALMEs**" and, unfortunately, their bit structure or transport mechanism
      is **not** defined in the standard (only their content, in a more or less
@@ -269,7 +269,7 @@ database containing all types of information.
 This communication takes place by using level-2 Ethernet frames precisely
 defined in the IEEE 1905 standard.
 ```
-  ----------              ----------       ---------- 
+  ----------              ----------       ----------
   | Node#1 |              | Node#2 |       | Node#3 |
   |--------|              |--------|       |--------|
   | AL#1   |              | AL#2   |       | AL#3   |
@@ -292,7 +292,7 @@ network performance.
 The bit structure and transport mechanism for these messages is, unfortunately,
 left undefined in the standard.
 ```
-  ----------              ----------       ---------- 
+  ----------              ----------       ----------
   | Node#1 |              | Node#2 |       | Node#3 |
   |--------|              |--------|       |--------|
   | AL#1   | <...         | AL#2   |       | AL#3   |
@@ -340,7 +340,7 @@ I bring up this for three reasons:
   3. To introduce the next list of specific problems that affect the current
      implementation (found on this repository) in some way
 
-From all the issues discovered, some of them are worth discussing as they somehow 
+From all the issues discovered, some of them are worth discussing as they somehow
 affected my implementation. Let's review them:
 
 
@@ -386,7 +386,7 @@ accepted.
 
 ### Control CMDUs
 
-The 1905 standard has both redundant messages and security issues. 
+The 1905 standard has both redundant messages and security issues.
 
 Let me explain this in more detail.
 
@@ -476,12 +476,12 @@ In this implementation I have decided to issue a "WARNING" on STDOUT and then
 send the response using the Ethernet source address (i.e. option "2" from above)
 
 > Proposed standard improvement: If the standard said that "unicast CMDUs can be
-> sent to either the AL MAC address or the interface MAC address" of the 
+> sent to either the AL MAC address or the interface MAC address" of the
 > receiving  1905 entity, this problem would disappear.
 
 
 
-# Build instructions 
+# Build instructions
 
 Before detailing platform specific compilation procedures, let me list some
 platform independent compilation flags.
@@ -528,12 +528,12 @@ them depending on the desired runtime behavior:
     **define** this flag.
 
   * **REGISTER_EXTENSION_xxx**: When this flag is set, the protocol extensions
-    belonging to the group 'xxx' are registered. 'xxx' identifies a particular 
+    belonging to the group 'xxx' are registered. 'xxx' identifies a particular
     group (ex. REGISTER_EXTENSION_BBF). Each group defines a set of non-
     standard TLVs which fill a gap in the standard. This is the current group's
     list:
     - REGISTER_EXTENSION_BBF: add non-1905 link metrics info
-    
+
 
 Remember that for maximum standard compliance you must:
 
@@ -566,7 +566,7 @@ command:
 
 Note that the Linux port depends on the following libraries:
 
-  * "**libpthread**" and "**librt**" to create threads this are typically 
+  * "**libpthread**" and "**librt**" to create threads this are typically
     already installed in all Linux systems.
 
   * "**libpcap**"  to capture 1905 and LLDP packets. Usually you will have to
@@ -784,7 +784,7 @@ This is how they work:
 
   * **output** is where intermediate objects, libraries and executables are
     placed by the build process.
-    
+
     Initially the folder is empty... well, it actually contains another folder
     named "**tmp**" which itself contains an empty (and hidden) file called
     **.place_holder**, which is needed because "git" (the version control tool
@@ -819,7 +819,7 @@ This is how they work:
     These are only needed at runtime and you should consider them as basic
     templates that require modifications for your particular use cases.
     This folder contains another 'README.md' file with more details.
-  
+
 
 Let's next then dive into the "*src*" folder.
 
@@ -909,7 +909,7 @@ following sub-subfolders:
     platform dependent and platform independent code.
 
   * "**interfaces**": contains header files with the declaration of functions
-    that are meant to be used from other components. 
+    that are meant to be used from other components.
 
 This is the actual folders layout:
 ```
@@ -944,14 +944,14 @@ In particular, "*common*" interfaces are used by everyone (even by the
 ```
    Components dependencies:
    =======================
-   
+
    hle ---------------------------
                 |                |
                 V                V
                factory ------> common
                 ^                ^
                 |                |
-   al --------------------------- 
+   al ---------------------------
 ```
 
 At the file level, this is how dependencies interconnect the different
@@ -964,7 +964,7 @@ in a way that the dependency structure is respected.
         |-- al         V                                 |
         |   |-- internal_interfaces                      |
         |   |          |                               __|_____
-        |   |          V       _                      |        |  
+        |   |          V       _                      |        |
         |   |-- src_independent | <---. Use code from each other
         |   |                   |     | and also from "factory" ------
         |   `-- src_linux      _| <---' and "common" -------         |
@@ -1059,7 +1059,7 @@ Each of these files contains, in addition to the functions prototype, the
 structures definitions for each type of supported "payload/blob".
 For example, file "*1905_tlvs.h*" contains the following structure
 declaration:
-``` 
+```
      struct deviceIdentificationTypeTLV
      {
          INT8U  tlv_type;
@@ -1127,7 +1127,7 @@ times out, etc...).
 ```
    platform independent code          platform dependent code
    =========================          =======================
-   start1905AL()             <------  main() 
+   start1905AL()             <------  main()
    |
    |--> register queue events ------> start thread #1 (capture 1905 packets on interface #1)
    |                                  start thread #2 (capture 1905 packets on interface #2)
@@ -1214,8 +1214,8 @@ actually end up doing is creating a new "flavour" for an already existing
         be as generic as possible (and a good start point for creating new
         "flavours")
 
-      - "**arm_wrt1900ac**": A configuration that produces binaries that can run 
-        on a WRT1900AC (or WRT1900ACS) Linksys router flashed with an OpenWRT 
+      - "**arm_wrt1900ac**": A configuration that produces binaries that can run
+        on a WRT1900AC (or WRT1900ACS) Linksys router flashed with an OpenWRT
         linux distribution (i.e. replacing the original vendor firmware).
         When this flavour is selected, a cross-compiler is used. In addition,
         some tweaks in the source code are activated that deal with the way
@@ -1332,7 +1332,7 @@ These are the basic steps you should follow:
          what the function (to be implemented by you) does and what values it
          returns.
 
-       * You can use the current linux implementation (found in the 
+       * You can use the current linux implementation (found in the
          corresponding "src_linux" folder) as a guide/template for your new
          code.
 
@@ -1373,7 +1373,7 @@ protocol) specific" extensions (that do not require to modify anything in the
 original standard): "Vendor Specific TLVs"
 These TLV contain a variable length field, which can be used to include any
 type of information. Thus, new non-standard TLV can be embedded inside a
-standard Vendor Specific TLV. 
+standard Vendor Specific TLV.
 
 Protocol extensions support is implemented on top of this capability.
 
@@ -1382,14 +1382,14 @@ from the "Broad Band Forum", which other vendors can use as a reference to add
 their own.
 
 > NOTE: This BBF protocol extension (their first) defines a new set of TLVs
-> used to transmit non-1905 link metrics information. 
+> used to transmit non-1905 link metrics information.
 
 
 
 ### Files structure
 
 Protocol extension source files are spread over several directories, following
-the same structure than the IEEE1905 standard files. 
+the same structure than the IEEE1905 standard files.
 
 Only a bunch of new files need to be implemented in order to add a new
 extension:
@@ -1407,9 +1407,9 @@ extension:
 Each file has a particular purpose:
 - **\*_recv.c/h** process the incoming CMDU (and TLVs)
 - **\*_send.c/h** extend the outgoing CMDU with your new defined TLVs
-- **\*_tlv_forgind.c**, **\*_tlv_parsing.c** and **\*_tlv_test_vectors.c/h** implement 
+- **\*_tlv_forgind.c**, **\*_tlv_parsing.c** and **\*_tlv_test_vectors.c/h** implement
   unit_tests to check your new defined TLVs
-     
+
 Each protocol extension file must be placed inside an 'extension/\*'
 subdirectory (once again, '\*' identifies the group/vendor, ex.
 'extensions/bbf').
@@ -1446,7 +1446,7 @@ must be placed:
                          |-- bbf_tlv_test_vectors.c
                          `-- bbf_tlv_test_vectors.h
 ```
-  
+
 If BBF ever decides to add new messages, they won't need to create new files.
 Instead they will simply have to implement the new funcionality inside the
 already existing ones.
@@ -1514,12 +1514,12 @@ functionality. This is a two steps process:
      This is done in the 'al_extension_register.c' file.
 
      Take the BBF protocol extension as an example:
-     
+
      ```
          // BBF extensions
          #include "bbf_send.h"
          #include "bbf_recv.h"
-         
+
          INT8U start1905ALProtocolExtension(void)
          {
              // BBF protocol extension
@@ -1530,7 +1530,7 @@ functionality. This is a two steps process:
                  PLATFORM_PRINTF_DEBUG_ERROR("Could not register BBF protocol extension\n");
                  return 0;
              }
-             
+
              if (0 == register1905AlmeDumpExtension("BBF",
                                                     CBKObtainBBFExtendedLocalInfo,
                                                     CBKUpdateBBFExtendedInfo,
@@ -1539,7 +1539,7 @@ functionality. This is a two steps process:
                  PLATFORM_PRINTF_DEBUG_ERROR("Could not register BBF datamodel protocol extension\n");
                  return 0;
              }
-             
+
              // Please, register here your new functionality
              //
              // ...
@@ -1561,9 +1561,9 @@ functionality. This is a two steps process:
 
      Example:
 
-     ``` 
+     ```
        # Platform independent CONFIGs
-       
+
        #CCFLAGS += -DDO_NOT_ACCEPT_UNAUTHENTICATED_COMMANDS
        CCFLAGS += -DSEND_EMPTY_TLVS
        CCFLAGS += -DFIX_BROKEN_TLVS
@@ -1571,7 +1571,7 @@ functionality. This is a two steps process:
          #
          # These are special flags that change the way the implementation behaves.
          # The README file contains more information regarding them.
-       
+
        CCFLAGS += -D_BUILD_NUMBER_=\"$(shell cat version.txt)\"
          #
          # Version flag to identify the binaries
@@ -1587,17 +1587,17 @@ functionality. This is a two steps process:
 Each new protocol extension must:
 
   1. Define a set of TLVs
-     
+
      Each protocol extension group is responsible for defining the format of
      its own TLVs. As an example, the BBF group follows the same format defined
      for the standard TLVs (1-byte for TYPE, 2-bytes for LENGTH, and n bytes
      for data). You are, however, free to choose a different format (but why
      would you do that, anyway?)
-     
+
      TLV definitions and utilities are found in 'XXX_tlvs.c/h'
-  
+
   2. Implement a set of callbacks
-  
+
      Protocol extension callbacks are classified in two groups: CMDU extensions
      and Datamodel extensions. Registering the first group is mandatory, while
      the second is optional. Take the BBF implementation (see 'Register a
@@ -1608,7 +1608,7 @@ Each new protocol extension must:
        - CBKSend1905XXXExtensions   : Process the incoming CMDU
        - CBKprocess1905XXXExtensions: Extend the outgoing CMDU
 
-     - The second group is registered via 'register1905AlmeDumpExtension()'. 
+     - The second group is registered via 'register1905AlmeDumpExtension()'.
        Callbacks belonging to this group are meant to extended the datamodel
        info when generating a datamodel report (included as response in the
        'dnd' ALME).
@@ -1619,9 +1619,9 @@ Each new protocol extension must:
        >
        > Registering the second group of callbacks is optional (ie. you might
        > not need to extend the non-standard 'dnd' ALME for your purposes.
-       
 
-Check the previous ('Register a group') section to find a registration 
+
+Check the previous ('Register a group') section to find a registration
 procedure example.
 
 
@@ -1649,15 +1649,15 @@ The definitions from (1) and (2) must be placed inside 'XXX_tlvs.h'.
 The implementations from (3) and (4) must be placed inside 'XXX_tlvs.c'.
 
 Next, define a set of unit_tests to test your TLVs definitions:
-  - **XXX_tlv_test_vectors.c**: define a set of test vectors. Each test vector 
-    comprises a filled structure and a stream 
+  - **XXX_tlv_test_vectors.c**: define a set of test vectors. Each test vector
+    comprises a filled structure and a stream
   - **XXX_tlv_forging.c:** define a set of 'forge' tests. Using the functions
     implemented in 'XXX_tlvs.c' converts an input stream in a TLV struture, and
     compare it with the expected result.
   - **XXX_tlv_parsing.c:** define a set of 'parse' tests. Using the functions
     implemented in 'XXX_tlvs.c' converts an input structure in an output
     stream, and compare it with the expected result.
-                            
+
 Finally, you need to add your unit_tests to the Makefile found at
 'src/factory/unit_tests/Makefile'. Add the next lines:
 ```
@@ -1710,34 +1710,34 @@ To make this possible, you must implement three callbacks:
   * **Obtain local info**: get non-standard information belonging to the
     current device, build the appropriate TLVs, and embed each one inside a
     standard Vendor Specific TLV.
-      
+
     > The stack provides the API to embed your TLV inside a Vendor Specific
     > TLV and to insert this Vendor Specific TLV in the outgoing CMDU
     > ('vendorSpecificTLVEmbedExtension()' and
     > 'vendorSpecificTLVInsertInCDMU()')
-      
+
   * **Update the datamodel info**: update the datamodel with the received
     protocol extension TLVs. The datamodel simply provides a pointer to a list
     of Vendor Specific TLVs. Each registered Protocol extension is responsible
     for managing this list.
-      
-    The received TLVs are related to a particular device, so the AL mac of 
+
+    The received TLVs are related to a particular device, so the AL mac of
     this device is one of the arguments to this callback.
-      
+
     > Example:
     > BBF defines a set of TLVs to retrieve metrics information from non-1905
     > links. In this particular case, updating the datamodel consists of
     > removing the older TLV metrics and adding the new ones.
-               
+
     The main stack uses this callback both to update the datamodel local info
-    (current device) and the datamodel of neighbor devices. In the first 
+    (current device) and the datamodel of neighbor devices. In the first
     case, it obtains the info via the previous callback ("obtain local info"),
     and in the latter case, via the CMDU exchange.
-      
+
   * **Dump the datamodel**: the main stack calls this callback once for each
     device when generating the report. This function must run through the
     extension TLV's list and add extra information to this report.
-      
+
 These callbacks must be implemented in file 'XXX_send.c'.
 
 Take 'bbf_send.c' as an example, which implements these callbacks:
@@ -1751,7 +1751,7 @@ Take 'bbf_send.c' as an example, which implements these callbacks:
 > generating the datamodel report. The 'Dump' callback is executed once for
 > each device during this process. That means that the datamodel is expected to
 > be updated at this moment.
-> 
+>
 > The 'Update' callback is used to update both the neighbors datamodel section
 > when receiving a CMDU or the local datamodel section via the first callback
 > (Obtain local info)
@@ -1946,7 +1946,7 @@ like to automate them.
   1        Button is pressed                                 <nothing> (*)
            on [B]
 
-  2        PB timeout               
+  2        PB timeout
 
   (*) Already registered STAs do not start a new PB process
 ```
@@ -2029,7 +2029,7 @@ like to automate them.
        device_name                                   = Marvell eth phy x200
        uuid                                          = 0000000000810001
        interface_type                                = INTERFACE_TYPE_IEEE_802_3U_FAST_ETHERNET
-       is_secured                                    = 1      
+       is_secured                                    = 1
        push_button_on_going                          = 2
        push_button_new_mac_address                   = 00:00:00:00:00:00
        power_state                                   = INTERFACE_POWER_STATE_ON
@@ -2044,8 +2044,8 @@ like to automate them.
   2. Wait a few seconds, open a new terminal and execute this:
      ```
 
-       $ touch /tmp/virtual_push_button 
-     ``` 
+       $ touch /tmp/virtual_push_button
+     ```
   3. Finish the "al_entity" process with CTRL+c
 
 **Expected output:**
@@ -2069,7 +2069,7 @@ started only in eth0 (because eth1, being Ethernet, does not include support
 for this), however the notification CMDU is sent through both interfaces.
 
 
-  
+
 #### TC002
 
 **Setup:**
@@ -2110,7 +2110,7 @@ for this), however the notification CMDU is sent through both interfaces.
        device_name                                   = Marvell eth phy x200
        uuid                                          = 200000000001
        interface_type                                = INTERFACE_TYPE_IEEE_802_3U_FAST_ETHERNET
-       is_secured                                    = 1      
+       is_secured                                    = 1
        push_button_on_going                          = 2
        push_button_new_mac_address                   = 00:00:00:00:00:00
        power_state                                   = INTERFACE_POWER_STATE_ON
@@ -2125,7 +2125,7 @@ for this), however the notification CMDU is sent through both interfaces.
   2. Wait a few seconds, open a new terminal and execute this:
      ```
 
-       $ touch /tmp/virtual_push_button 
+       $ touch /tmp/virtual_push_button
      ```
   3. Finish the "al_entity" process with CTRL+c
 
@@ -2178,7 +2178,7 @@ for one new item:  because this node contains an unconfigured AP interface
   3. Wait a few seconds. On PC#2, open a new terminal and execute this:
      ```
 
-       $ touch /tmp/virtual_push_button 
+       $ touch /tmp/virtual_push_button
      ```
   4. Wait a few seconds.
   5. Finish the "al_entity" process on PC#1 and PC#2 with CTRL+c
@@ -2204,7 +2204,7 @@ for one new item:  because this node contains an unconfigured AP interface
    INFO    : <-- CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (eth1)                                 INFO    : Starting push button configuration process on interface eth0
    INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (forwarding from eth1 to eth0)         INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (eth1)
    INFO    : <-- CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (eth1)                              INFO    : --> CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (eth1)
-   INFO    : --> CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (forwarding from eth1 to eth0)      
+   INFO    : --> CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (forwarding from eth1 to eth0)
 ```
 
 **Explanation:**
@@ -2217,7 +2217,7 @@ there someone listening at the other end of eth1.
 
 When PC#1 receives the CMDU messages ("push button notification" and "AP
 autoconfiguration search"), this is what happens:
-  
+
     1. Because these CMDUs are of type "relayed multicast", they are forwarded
        to eth1.
 
@@ -2256,7 +2256,7 @@ appears it should be considered an error):
   1. The *same* as TC003, but when running "al_entity" on PC#1, add "-r eth0":
      ```
 
-       $ al_entity -m aa:aa:aa:aa:aa:00 -i eth1:simulated:interface.eth1.sim,eth0:simulated:interface.eth0.sim -r eth0 -v 
+       $ al_entity -m aa:aa:aa:aa:aa:00 -i eth1:simulated:interface.eth1.sim,eth0:simulated:interface.eth0.sim -r eth0 -v
      ```
 
 **Expected output:**
@@ -2278,25 +2278,25 @@ appears it should be considered an error):
    INFO    : <-- CMDU_TYPE_HIGHER_LAYER_RESPONSE (eth1)                                     INFO    : --> CMDU_TYPE_HIGHER_LAYER_RESPONSE (eth1)
 
 
-                                                                                            
+
    INFO    : <-- CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (eth1)                               INFO    : Starting push button configuration process on interface eth0
-   INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE (eth1)                             INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (eth1)             
-   INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (forwarding from eth1 to eth0)       INFO    : --> CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (eth1)          
-   INFO    : <-- CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (eth1)                            INFO    : <-- CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE (eth1)           
-   INFO    : Starting push button configuration process on interface eth0                   INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)                
-   INFO    : --> CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (forwarding from eth1 to eth0)    INFO    : <-- CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)                
-   INFO    : <-- CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)                                  INFO    : Applying WSC configuration (eth0):                           
-   INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)                                  INFO    :   - SSID            : My WIFI network                        
-                                                                                            INFO    :   - BSSID           : 00:16:08:01:8a:f1                      
-                                                                                            INFO    :   - AUTH_TYPE       : 0x0002                                 
-                                                                                            INFO    :   - ENCRYPTION_TYPE : 0x0008                                 
-                                                                                            INFO    :   - NETWORK_KEY     : Test network                           
+   INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE (eth1)                             INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (eth1)
+   INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (forwarding from eth1 to eth0)       INFO    : --> CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (eth1)
+   INFO    : <-- CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (eth1)                            INFO    : <-- CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE (eth1)
+   INFO    : Starting push button configuration process on interface eth0                   INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)
+   INFO    : --> CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (forwarding from eth1 to eth0)    INFO    : <-- CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)
+   INFO    : <-- CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)                                  INFO    : Applying WSC configuration (eth0):
+   INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)                                  INFO    :   - SSID            : My WIFI network
+                                                                                            INFO    :   - BSSID           : 00:16:08:01:8a:f1
+                                                                                            INFO    :   - AUTH_TYPE       : 0x0002
+                                                                                            INFO    :   - ENCRYPTION_TYPE : 0x0008
+                                                                                            INFO    :   - NETWORK_KEY     : Test network
 ```
-                                                                                            
+
 **Explanation:**
 
 This time PC#1 *is* the network registrar, thus when the CMDUs arrive:
-  
+
   1. Because these CMDUs are of type "relayed multicast", they are forwarded to
      eth1 (same as in TC003)
 
@@ -2309,7 +2309,7 @@ This time PC#1 *is* the network registrar, thus when the CMDUs arrive:
 When PC#2 receives the response, it then forges and sends a WSC message
 (containing a "M1" payload), and then PC#1 receives it and responds with a
 final WSC message (containing a "M2" payload).
-  
+
 After all of this, PC#2 should now contained a configured AP using the same
 parameters as those provided by the registrar.
 
@@ -2376,12 +2376,12 @@ Ignore the same "WARNING" messages as in TC003
   4. Wait a few seconds. On PC#1, open a new terminal and execute this:
      ```
 
-       $ touch /tmp/virtual_push_button 
+       $ touch /tmp/virtual_push_button
      ```
   5. Wait a few seconds. On PC#2, open a new terminal and execute this:
      ```
 
-       $ touch /tmp/virtual_push_button 
+       $ touch /tmp/virtual_push_button
      ```
   6. Wait a few seconds (or minutes) until the pairing process ends.
   7. Finish the "al_entity" process on PC#1 and PC#2 with CTRL+c
@@ -2395,7 +2395,7 @@ Ignore the same "WARNING" messages as in TC003
    INFO    : --> CMDU_TYPE_TOPOLOGY_DISCOVERY (eth0)
    INFO    : --> LLDP BRIDGE DISCOVERY (eth0)
 
-   INFO    : Starting push button configuration process on interface eth1                   
+   INFO    : Starting push button configuration process on interface eth1
    INFO    : Starting push button configuration process on interface eth0
    INFO    : --> CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (eth1)
    INFO    : --> CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (eth0)
@@ -2407,7 +2407,7 @@ Ignore the same "WARNING" messages as in TC003
    INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE (eth1)                             INFO    : <-- CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE (eth1)
    INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (forwarding from eth1 to eth0)       INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)
    INFO    : <-- CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)                                  INFO    : <-- CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)
-   INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)                                  INFO    : Applying WSC configuration: 
+   INFO    : --> CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (eth1)                                  INFO    : Applying WSC configuration:
                                                                                             INFO    :   - SSID            : My WIFI network
                                                                                             INFO    :   - BSSID           : 00:16:08:01:8a:f1
                                                                                             INFO    :   - AUTH_TYPE       : 0x0002
@@ -2419,7 +2419,7 @@ Ignore the same "WARNING" messages as in TC003
 
 As in TC004, PC#1 eth0 is the registrar, whose credentials are going to be
 cloned by PC#2 eth0.
-  
+
 In order for this to happen, the G.hn channel needs to be secured first. Then
 PC#2 sends an "AP autoconfiguration search packet" and credentials are cloned.
 
@@ -2427,7 +2427,7 @@ Differences to notice versus TC004:
 
     1. All the initial topology and metric queries are not being sent because
        initially there are no secured links.
-  
+
     2. The same thing happens to the "push button event notification" message
        from PC#2: it is never generated because at that point (when the button
        is pressed) the interface is not yet secured (while on TC004, Ethernet

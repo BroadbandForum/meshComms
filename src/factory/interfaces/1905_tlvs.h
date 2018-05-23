@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,16 +30,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 // TLV types as detailed in "Section 6.4"
 ////////////////////////////////////////////////////////////////////////////////
-#define TLV_TYPE_END_OF_MESSAGE                      (0) 
+#define TLV_TYPE_END_OF_MESSAGE                      (0)
 #define TLV_TYPE_VENDOR_SPECIFIC                     (11)
-#define TLV_TYPE_AL_MAC_ADDRESS_TYPE                 (1) 
-#define TLV_TYPE_MAC_ADDRESS_TYPE                    (2) 
-#define TLV_TYPE_DEVICE_INFORMATION_TYPE             (3) 
-#define TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES        (4) 
-#define TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST       (6) 
-#define TLV_TYPE_NEIGHBOR_DEVICE_LIST                (7) 
-#define TLV_TYPE_LINK_METRIC_QUERY                   (8) 
-#define TLV_TYPE_TRANSMITTER_LINK_METRIC             (9) 
+#define TLV_TYPE_AL_MAC_ADDRESS_TYPE                 (1)
+#define TLV_TYPE_MAC_ADDRESS_TYPE                    (2)
+#define TLV_TYPE_DEVICE_INFORMATION_TYPE             (3)
+#define TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES        (4)
+#define TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST       (6)
+#define TLV_TYPE_NEIGHBOR_DEVICE_LIST                (7)
+#define TLV_TYPE_LINK_METRIC_QUERY                   (8)
+#define TLV_TYPE_TRANSMITTER_LINK_METRIC             (9)
 #define TLV_TYPE_RECEIVER_LINK_METRIC                (10)
 #define TLV_TYPE_LINK_METRIC_RESULT_CODE             (12)
 #define TLV_TYPE_SEARCHED_ROLE                       (13)
@@ -245,7 +245,7 @@ struct _localInterfaceEntries
                                   // when 'media_type' is one of the valid
                                   // MEDIA_TYPE_IEEE_1901* values
                                   // It will be empty in the rest of cases
-                                  
+
 };
 struct deviceInformationTypeTLV
 {
@@ -353,7 +353,7 @@ struct linkMetricQueryTLV
     INT8U  specific_neighbor[6];  // Only significant when the 'destination'
                                   // field is set to
                                   // 'LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR'
-                         
+
     #define LINK_METRIC_QUERY_TLV_TX_LINK_METRICS_ONLY         (0x00)
     #define LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY         (0x01)
     #define LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS  (0x02)
@@ -370,7 +370,7 @@ struct _transmitterLinkMetricEntries
                                              // the receiving AL, which connects
                                              // to an interface in the neighbor
                                              // AL
-                                             
+
     INT8U   neighbor_interface_address[6];   // MAC addres of an interface in a
                                              // neighbor AL, which connects to
                                              // an interface in the receiving
@@ -414,7 +414,7 @@ struct transmitterLinkMetricTLV
 
     INT8U  neighbor_al_address[6]; // AL MAC address of the neighbor whose
                                    // link metric is reported in this TLV
-    
+
     INT8U                                  transmitter_link_metrics_nr;
     struct _transmitterLinkMetricEntries  *transmitter_link_metrics;
                                    // Link metric information for the above
@@ -432,7 +432,7 @@ struct  _receiverLinkMetricEntries
                                              // the receiving AL, which connects
                                              // to an interface in the neighbor
                                              // AL
-                                             
+
     INT8U   neighbor_interface_address[6];   // MAC addres of an interface in a
                                              // neighbor AL, which connects to
                                              // an interface in the receiving
@@ -463,7 +463,7 @@ struct receiverLinkMetricTLV
 
     INT8U neighbor_al_address[6];  // AL MAC address of the neighbor whose
                                    // link metric is reported in this TLV
-    
+
     INT8U                               receiver_link_metrics_nr;
     struct _receiverLinkMetricEntries  *receiver_link_metrics;
                                    // Link metric information for the above
@@ -548,7 +548,7 @@ struct wscTLV
     INT8U   tlv_type;             // Must always be set to
                                   // TLV_TYPE_WSC
 
-    INT16U  wsc_frame_size;      
+    INT16U  wsc_frame_size;
     INT8U  *wsc_frame;            // Pointer to a buffer containing the M1 or
                                   // M2 message.
 };
@@ -647,7 +647,7 @@ struct genericPhyDeviceInformationTypeTLV
                                       // TLV_TYPE_GENERIC_PHY_DEVICE_INFORMATION
 
     INT8U   al_mac_address[6];        // 1905 AL MAC address of the device
-                                             
+
 
     INT8U                            local_interfaces_nr;
     struct _genericPhyDeviceEntries *local_interfaces;
@@ -667,7 +667,7 @@ struct deviceIdentificationTypeTLV
 
     char  friendly_name[64];         // Friendly name UTF-8 string (NULL
                                       // terminated)
-                                             
+
     char  manufacturer_name[64];     // Manufacturer name UTF-8 string (NULL
                                       // terminated)
 
@@ -829,7 +829,7 @@ struct _powerOffInterfaceEntries
 {
     INT8U   interface_address[6];     // MAC address of an interface in the
                                       // "power off" state
-                                             
+
     INT16U  media_type;               // Underlaying network technology
                                       // One of the MEDIA_TYPE_* values
 
@@ -860,7 +860,7 @@ struct _powerChangeInformationEntries
 {
     INT8U   interface_address[6];     // MAC address of an interface in the
                                       // "power off" state
-                                             
+
     #define POWER_STATE_REQUEST_OFF  (0x00)
     #define POWER_STATE_REQUEST_ON   (0x01)
     #define POWER_STATE_REQUEST_SAVE (0x02)
@@ -885,7 +885,7 @@ struct _powerChangeStatusEntries
 {
     INT8U   interface_address[6];     // MAC address of an interface in the
                                       // "power off" state
-                                             
+
     #define POWER_STATE_RESULT_COMPLETED          (0x00)
     #define POWER_STATE_RESULT_NO_CHANGE          (0x01)
     #define POWER_STATE_RESULT_ALTERNATIVE_CHANGE (0x02)
@@ -950,7 +950,7 @@ struct l2NeighborDeviceTLV
 //
 // It then returns a pointer to a structure whose fields have already been
 // filled with the appropiate values extracted from the parsed stream.
-//   
+//
 // The actual type of the returned pointer structure depends on the value of
 // the first byte pointed by "packet_stream" (ie. the "Type" field of the TLV):
 //

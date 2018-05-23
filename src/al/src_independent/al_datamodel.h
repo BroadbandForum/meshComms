@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -138,7 +138,7 @@ INT8U (*DMgetListOfNeighbors(INT8U *al_mac_addresses_nr))[6];
 //        interfaces = ["eth1"]
 //        links_nr   = 1
 //
-// 
+//
 // The returned pointers, once they are no longer needed, must be freed by the
 // caller with "DMfreeListOfLinksWithNeighbor()". Example:
 //
@@ -301,11 +301,11 @@ INT8U *DMmacToAlMac(INT8U *mac_addresses);
 //            already existing link, in which case it is updated)
 //
 //  TODO: Would it be worth to merge these functions in the future?
-//            
+//
 // Return '0' if there was a problem, '1' otherwise
 //
 INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
-                                INT8U in_update,  struct deviceInformationTypeTLV             *info, 
+                                INT8U in_update,  struct deviceInformationTypeTLV             *info,
                                 INT8U br_update,  struct deviceBridgingCapabilityTLV         **bridges,           INT8U bridges_nr,
                                 INT8U no_update,  struct non1905NeighborDeviceListTLV        **non1905_neighbors, INT8U non1905_neighbors_nr,
                                 INT8U x1_update,  struct neighborDeviceListTLV               **x1905_neighbors,   INT8U x1905_neighbors_nr,
@@ -371,7 +371,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...));
 INT8U DMrunGarbageCollector(void);
 
 // Remove a neighbor from a particular local interface.
-// 
+//
 // 'al_mac_address' is the 1905 neighbour MAC address that you want to remove.
 //
 // 'interface_name' is the name of the local interface where you want to remove

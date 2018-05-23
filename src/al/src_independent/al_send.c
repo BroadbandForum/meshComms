@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -212,7 +212,7 @@ void _obtainLocalBridgingCapabilitiesTLV(struct deviceBridgingCapabilityTLV *bri
         for (i=0; i<br_nr; i++)
         {
             bridge_info->bridging_tuples[i].bridging_tuple_macs_nr = br[i].bridged_interfaces_nr;
-            
+
             if (0 == br[i].bridged_interfaces_nr)
             {
                 bridge_info->bridging_tuples[i].bridging_tuple_macs = NULL;
@@ -316,7 +316,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
 
         no  = (struct non1905NeighborDeviceListTLV *)PLATFORM_MALLOC(sizeof(struct non1905NeighborDeviceListTLV));
         yes = (struct neighborDeviceListTLV *)       PLATFORM_MALLOC(sizeof(struct neighborDeviceListTLV));
-        
+
         no->tlv_type              = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST;
         no->local_mac_address[0]  = x->mac_address[0];
         no->local_mac_address[1]  = x->mac_address[1];
@@ -365,9 +365,9 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                 if (NULL == al_mac)
                 {
                     // Non-1905 neighbor
-                    
+
                     INT8U already_added;
-                    
+
                     // Make sure it has not already been added
                     //
                     already_added = 0;
@@ -419,7 +419,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                             break;
                         }
                     }
-                    
+
                     // Make sure it has not already been added
                     //
                     already_added = 0;
@@ -472,7 +472,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                     DMremoveALNeighborFromInterface(al_mac_addresses[j], interfaces_names[i]);
                     DMrunGarbageCollector();
                 }
-            } 
+            }
             if (al_mac_addresses_nr > 0 && NULL != al_mac_address_has_been_reported)
             {
                 PLATFORM_FREE(al_mac_address_has_been_reported);
@@ -489,7 +489,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
             for (j=0; j<al_mac_addresses_nr; j++)
             {
                 INT8U already_added;
-                
+
                 // Make sure it has not already been added
                 //
                 already_added = 0;
@@ -665,7 +665,7 @@ void _obtainLocalPowerOffInterfacesTLV(struct powerOffInterfaceTLV *power_off)
 
         PLATFORM_MEMCPY(power_off->power_off_interfaces[power_off->power_off_interfaces_nr].interface_address,   x->mac_address, 6);
 
-        
+
         // "Translate" from "INTERFACE_TYPE_*" to "MEDIA_TYPE_*"
         //
         switch(x->interface_type)
@@ -806,7 +806,7 @@ void _freeLocalPowerOffInterfacesTLV(struct powerOffInterfaceTLV *power_off)
             {
                 if (
                      0    != power_off->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes_nr  &&
-                     NULL != power_off->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes 
+                     NULL != power_off->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes
                    )
                 {
                     free_media_specific_blob(power_off->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes);
@@ -828,7 +828,7 @@ void _obtainLocalL2NeighborsTLV(struct l2NeighborDeviceTLV *l2_neighbors)
 
     l2_neighbors->tlv_type                = TLV_TYPE_L2_NEIGHBOR_DEVICE;
     l2_neighbors->local_interfaces_nr     = 0;
-    
+
     interfaces_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&interfaces_names_nr);
 
     // Search for interfaces in "POWER OFF" mode
@@ -1253,8 +1253,8 @@ void _freeLocalMetricsTLVs(struct transmitterLinkMetricTLV ***tx_tlvs, struct re
 //   In this scenario, "AL 1" just has one neighbor ("AL 2") and thus only one
 //   TLV is needed (even if there are *two* possible links)
 //
-//          eth0 ---------- eth3 
-//                    |              
+//          eth0 ---------- eth3
+//                    |
 //     AL 1            -----eth2  AL 2
 //
 //          eth1 ---------- eth0
@@ -1548,7 +1548,7 @@ void _obtainLocalGenericPhyTLV(struct genericPhyDeviceInformationTypeTLV *generi
 
             INT16U  len;
             INT8U  *m;
-            
+
             if (0 == generic_phy->local_interfaces_nr)
             {
                 generic_phy->local_interfaces = (struct _genericPhyDeviceEntries *)PLATFORM_MALLOC(sizeof(struct _genericPhyDeviceEntries));
@@ -1605,7 +1605,7 @@ void _freeLocalGenericPhyTLV(struct genericPhyDeviceInformationTypeTLV *generic_
         {
             if (
                  0    != generic_phy->local_interfaces[i].generic_phy_common_data.media_specific_bytes_nr  &&
-                 NULL != generic_phy->local_interfaces[i].generic_phy_common_data.media_specific_bytes 
+                 NULL != generic_phy->local_interfaces[i].generic_phy_common_data.media_specific_bytes
                )
             {
                 free_media_specific_blob(generic_phy->local_interfaces[i].generic_phy_common_data.media_specific_bytes);
@@ -1919,7 +1919,7 @@ void _memoryBufferWriter(const char *fmt, ...)
         PLATFORM_PRINTF_DEBUG_WARNING("Memory buffer overflow.\n");
         return;
     }
-    
+
     va_start(arglist, fmt);
     PLATFORM_VSNPRINTF(memory_buffer + memory_buffer_i, MEMORY_BUFFER_SIZE - memory_buffer_i, fmt, arglist);
     va_end(arglist);
@@ -1967,7 +1967,7 @@ void _memoryBufferWriterEnd()
 //
 void _updateLocalDeviceData()
 {
-    struct deviceInformationTypeTLV            *info; 
+    struct deviceInformationTypeTLV            *info;
     struct deviceBridgingCapabilityTLV        **bridges;
     struct non1905NeighborDeviceListTLV       **non1905_neighbors; INT8U non1905_neighbors_nr;
     struct neighborDeviceListTLV              **x1905_neighbors;   INT8U x1905_neighbors_nr;
@@ -2228,7 +2228,7 @@ INT8U send1905TopologyDiscoveryPacket(char *interface_name, INT16U mid)
         PLATFORM_FREE(discovery_message.list_of_TLVs);
         return 0;
     }
-    
+
     // Free memory
     //
     _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
@@ -2268,7 +2268,7 @@ INT8U send1905TopologyQueryPacket(char *interface_name, INT16U mid, INT8U *desti
     {
         ret = 1;
     }
-    
+
     // Free memory
     //
     PLATFORM_FREE(query_message.list_of_TLVs);
@@ -2404,7 +2404,7 @@ INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U* de
     {
         ret = 1;
     }
-    
+
     // Free all allocated (and no longer needed) memory
     //
     _freeLocalDeviceInfoTLV          (&device_info);
@@ -2462,7 +2462,7 @@ INT8U send1905TopologyNotificationPacket(char *interface_name, INT16U mid)
     // Free all allocated (and no longer needed) memory
     //
     _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
-    
+
     PLATFORM_FREE(discovery_message.list_of_TLVs);
 
     return ret;
@@ -2512,7 +2512,7 @@ INT8U send1905MetricsQueryPacket(char *interface_name, INT16U mid, INT8U *destin
     {
         ret = 1;
     }
-    
+
     // Free all allocated (and no longer needed) memory
     //
     PLATFORM_FREE(query_message.list_of_TLVs);
@@ -2604,7 +2604,7 @@ INT8U send1905MetricsResponsePacket(char *interface_name, INT16U mid, INT8U *des
     {
         ret = 1;
     }
-    
+
     // Free all allocated (and no longer needed) memory
     //
     _freeLocalMetricsTLVs(&tx_tlvs, &rx_tlvs, &total_tlvs);
@@ -2620,7 +2620,7 @@ INT8U send1905PushButtonEventNotificationPacket(char *interface_name, INT16U mid
     //   - One AL MAC address type TLV
     //   - One push button event notification TLV
     //   - Zero or one push button generic phy event notification
-    
+
     INT8U ret;
 
     INT8U  mcast_address[] = MCAST_1905;
@@ -2652,7 +2652,7 @@ INT8U send1905PushButtonEventNotificationPacket(char *interface_name, INT16U mid
         }
     }
 
-    pb_event_tlv.tlv_type       = TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION; 
+    pb_event_tlv.tlv_type       = TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION;
     pb_event_tlv.media_types_nr = media_types_nr;
 
     if (media_types_nr > 0)
@@ -2832,7 +2832,7 @@ INT8U send1905PushButtonEventNotificationPacket(char *interface_name, INT16U mid
 
     // Fill the push button generic event notification TLV
     //
-    pbg_event_tlv.tlv_type            = TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION; 
+    pbg_event_tlv.tlv_type            = TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION;
     pbg_event_tlv.local_interfaces_nr = generic_media_types_nr;
 
     if (0 == generic_media_types_nr)
@@ -2925,7 +2925,7 @@ INT8U send1905PushButtonEventNotificationPacket(char *interface_name, INT16U mid
     {
         ret = 1;
     }
-    
+
     // Free memory
     //
     _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
@@ -2969,14 +2969,14 @@ INT8U send1905PushButtonJoinNotificationPacket(char *interface_name, INT16U mid,
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION (%s)\n", interface_name);
 
     PLATFORM_MEMCPY(al_mac_address, DMalMacGet(), 6);
-    
+
     // Fill the AL MAC address type TLV
     //
     _obtainLocalAlMacAddressTLV(&al_mac_addr_tlv);
 
     // Fill the push button join notification TLV
     //
-    pb_join_tlv.tlv_type           = TLV_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION; 
+    pb_join_tlv.tlv_type           = TLV_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION;
     pb_join_tlv.al_mac_address[0]  = original_al_mac_address[0];
     pb_join_tlv.al_mac_address[1]  = original_al_mac_address[1];
     pb_join_tlv.al_mac_address[2]  = original_al_mac_address[2];
@@ -3019,7 +3019,7 @@ INT8U send1905PushButtonJoinNotificationPacket(char *interface_name, INT16U mid,
     {
         ret = 1;
     }
-    
+
     // Free memory
     //
     _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
@@ -3060,7 +3060,7 @@ INT8U send1905APAutoconfigurationSearchPacket(char *interface_name, INT16U mid, 
     //
     ac_freq_band_tlv.tlv_type  = TLV_TYPE_AUTOCONFIG_FREQ_BAND;
     ac_freq_band_tlv.freq_band = freq_band;
-    
+
     // Build the CMDU
     //
     search_message.message_version = CMDU_MESSAGE_VERSION_1905_1_2013;
@@ -3086,7 +3086,7 @@ INT8U send1905APAutoconfigurationSearchPacket(char *interface_name, INT16U mid, 
     // Free memory
     //
     _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
-    
+
     PLATFORM_FREE(search_message.list_of_TLVs);
 
     return ret;
@@ -3115,7 +3115,7 @@ INT8U send1905APAutoconfigurationResponsePacket(char *interface_name, INT16U mid
     //
     supported_freq_band_tlv.tlv_type  = TLV_TYPE_SUPPORTED_FREQ_BAND;
     supported_freq_band_tlv.freq_band = freq_band;
-    
+
     // Build the CMDU
     //
     response_message.message_version = CMDU_MESSAGE_VERSION_1905_1_2013;
@@ -3136,7 +3136,7 @@ INT8U send1905APAutoconfigurationResponsePacket(char *interface_name, INT16U mid
     {
         ret = 1;
     }
-    
+
     // Free memory
     //
     PLATFORM_FREE(response_message.list_of_TLVs);
@@ -3162,7 +3162,7 @@ INT8U send1905APAutoconfigurationWSCPacket(char *interface_name, INT16U mid, INT
     wsc_tlv.wsc_frame_size = wsc_frame_size;
     wsc_tlv.wsc_frame      = (INT8U *)PLATFORM_MALLOC(wsc_frame_size);
     PLATFORM_MEMCPY(wsc_tlv.wsc_frame, wsc_frame, wsc_frame_size);
-    
+
     // Build the CMDU
     //
     data_message.message_version = CMDU_MESSAGE_VERSION_1905_1_2013;
@@ -3182,7 +3182,7 @@ INT8U send1905APAutoconfigurationWSCPacket(char *interface_name, INT16U mid, INT
     {
         ret = 1;
     }
-    
+
     // Free memory
     //
     PLATFORM_FREE(wsc_tlv.wsc_frame);
@@ -3222,7 +3222,7 @@ INT8U send1905GenericPhyQueryPacket(char *interface_name, INT16U mid, INT8U *des
     {
         ret = 1;
     }
-    
+
     // Free memory
     //
     PLATFORM_FREE(query_message.list_of_TLVs);
@@ -3268,7 +3268,7 @@ INT8U send1905GenericPhyResponsePacket(char *interface_name, INT16U mid, INT8U *
     {
         ret = 1;
     }
-    
+
     // Free all allocated (and no longer needed) memory
     //
     _freeLocalGenericPhyTLV(&generic_phy);
@@ -3309,7 +3309,7 @@ INT8U send1905HighLayerQueryPacket(char *interface_name, INT16U mid, INT8U *dest
     {
         ret = 1;
     }
-    
+
     // Free memory
     //
     PLATFORM_FREE(query_message.list_of_TLVs);
@@ -3406,7 +3406,7 @@ INT8U send1905HighLayerResponsePacket(char *interface_name, INT16U mid, INT8U *d
         PLATFORM_FREE(response_message.list_of_TLVs);
         return 0;
     }
-    
+
     // Free all allocated (and no longer needed) memory
     //
     _freeLocalAlMacAddressTLV         (&al_mac_addr_tlv);
@@ -3428,7 +3428,7 @@ INT8U send1905InterfacePowerChangeRequestPacket(char *interface_name, INT16U mid
     //       There should probably exist an HLE primitive that triggers this
     //       event, but there isn't.
     //       I'll just let this function here implemented for the future.
-   
+
     // The "high layer response" message is a CMDU with the following TLVs:
     //   - One or more interface power change information type TLVs
     //
@@ -3561,7 +3561,7 @@ INT8U send1905InterfacePowerChangeResponsePacket(char *interface_name, INT16U mi
     {
         ret = 1;
     }
-    
+
     // Free no longer needed memory
     //
     PLATFORM_FREE(power_change.power_change_interfaces);
@@ -3665,7 +3665,7 @@ INT8U send1905InterfaceListResponseALME(INT8U alme_client_id)
     //
     out = (struct getIntfListResponseALME *)PLATFORM_MALLOC(sizeof(struct getIntfListResponseALME));
     out->alme_type = ALME_TYPE_GET_INTF_LIST_RESPONSE;
-    
+
     ifs_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&ifs_nr);
     if (0 == ifs_nr)
     {
@@ -3732,7 +3732,7 @@ INT8U send1905InterfaceListResponseALME(INT8U alme_client_id)
                         out->interface_descriptors[i].vendor_specific_info[j].oui[2]       = x->vendor_specific_elements[j].oui[2];
 
                         out->interface_descriptors[i].vendor_specific_info[j].vendor_si    = (INT8U *)PLATFORM_MALLOC(x->vendor_specific_elements[j].vendor_data_len);
-                        PLATFORM_MEMCPY(out->interface_descriptors[i].vendor_specific_info[j].vendor_si, x->vendor_specific_elements[j].vendor_data, x->vendor_specific_elements[j].vendor_data_len);   
+                        PLATFORM_MEMCPY(out->interface_descriptors[i].vendor_specific_info[j].vendor_si, x->vendor_specific_elements[j].vendor_data, x->vendor_specific_elements[j].vendor_data_len);
                     }
                 }
             }

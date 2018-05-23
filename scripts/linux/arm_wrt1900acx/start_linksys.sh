@@ -1,13 +1,13 @@
 # Broadband Forum IEEE 1905.1/1a stack
-# 
+#
 # Copyright (c) 2017, Broadband Forum
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,15 +16,15 @@
 
 ##############################################################################
 #
-# Description: This script is an example of how to start the 1905 stack in a 
-#              Linksys 1900 AC device 
+# Description: This script is an example of how to start the 1905 stack in a
+#              Linksys 1900 AC device
 #
 #              The following binaries/scripts must be in the same directory :
 #                   - start_linksys.sh
 #                   - topology_change.sh
 #                   - al_entity
 #                   - configlayer
-#                    
+#
 #              This script will :
 #                   - configure the WIFI radio 1 with default configuration
 #                   - configure the ebtables to drop 1905 multicast MACs
@@ -35,7 +35,7 @@
 #              This script must be run with the following command :
 #                   - ./start_linksys.sh
 #
-#                
+#
 ###############################################################################
 
 AL_MAC=00:50:43:22:22:22
@@ -60,7 +60,7 @@ sleep 5
 ./configlayer -i $GHN_INTERFACE -m $GHN_INTERFACE_MAC -o SETLEGACY -p NODE.GENERAL.DOMAIN_NAME=$DEFAULT_DOMAIN_NAME -w paterna
 
 #Avoid duplicate 1905 multicast messages because of bridge
-ebtables -A FORWARD  -d 01:80:c2:00:00:13 -j DROP 
+ebtables -A FORWARD  -d 01:80:c2:00:00:13 -j DROP
 
 #Kill previous topology_change process if exsit
 process_id=`ps | grep topology_change | grep exe | awk '{print $1}'`

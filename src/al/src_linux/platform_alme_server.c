@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -122,7 +122,7 @@ void *almeServerThread(void *p)
         PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *ALME server thread* setsockopt() failed with errno=%d (%s)\n", errno, strerror(errno));
         return NULL;
     }
-     
+
     // Prepare the sockaddr_in structure
     //
     if (0 == alme_server_port)
@@ -134,7 +134,7 @@ void *almeServerThread(void *p)
     server_addr.sin_family      = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port        = htons(alme_server_port);
-     
+
     // Bind
     //
     if(bind(socketfd,(struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
@@ -142,7 +142,7 @@ void *almeServerThread(void *p)
         PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *ALME server thread* bind() failed\n");
         return NULL;
     }
-     
+
     // Listen
     //
     if (-1 == listen(socketfd, 3))
@@ -150,7 +150,7 @@ void *almeServerThread(void *p)
         PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *ALME server thread* listen() failed with errno=%d (%s)\n", errno, strerror(errno));
         return NULL;
     }
-     
+
     // Accept connections from an incoming clients
     //
     while (1)
@@ -164,11 +164,11 @@ void *almeServerThread(void *p)
 
         memset(&client_addr, 0, sizeof(client_addr));
         addrlen = sizeof(client_addr);
-        
+
         // Accept an incoming connection
         //
         PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] *ALME server thread* Waiting for incoming connections...\n");
-     
+
         new_socketfd = accept(socketfd, (struct sockaddr *)&client_addr, (socklen_t*)&addrlen);
         if (new_socketfd < 0)
         {
@@ -176,7 +176,7 @@ void *almeServerThread(void *p)
             continue;
         }
         PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] *ALME server thread* New connection established from HLE.\n");
-         
+
         // Receive a message from client
         //
         total_size = 0;
@@ -198,7 +198,7 @@ void *almeServerThread(void *p)
                 break;
             }
         }
-         
+
         if(0 == read_size)
         {
             // Connection closed, forward ALME message to the AL entity
@@ -282,7 +282,7 @@ void *almeServerThread(void *p)
             PLATFORM_PRINTF_DEBUG_WARNING("[PLATFORM] *ALME server thread* recv() failed.\n");
         }
     }
-     
+
     return NULL;
 }
 

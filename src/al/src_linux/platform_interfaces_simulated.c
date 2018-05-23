@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -86,14 +86,14 @@
 //   uuid                                          = 1111000020100204
 //   interface_type                                = INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ
 //   ieee80211.bssid                               = 00:00:00:00:00:00
-//   ieee80211.ssid                                = 
+//   ieee80211.ssid                                =
 //   ieee80211.role                                = IEEE80211_ROLE_NON_AP_NON_PCP_STA
 //   ieee80211.ap_channel_band                     = 0
 //   ieee80211.ap_channel_center_frequency_index_1 = 0
 //   ieee80211.ap_channel_center_frequency_index_2 = 0
 //   ieee80211.authentication_mode                 = IEEE80211_AUTH_MODE_OPEN | IEEE80211_AUTH_MODE_WPAPSK
 //   ieee80211.encryption_mode                     = IEEE80211_ENCRYPTION_MODE_AES
-//   ieee80211.network_key                         = 
+//   ieee80211.network_key                         =
 //   is_secured                                    = 0
 //   push_button_on_going                          = 0
 //   push_button_new_mac_address                   = 00:00:00:00:00:00
@@ -470,7 +470,7 @@ void _getInterfaceInfoFromSimulatedDevice(__attribute__((unused)) char *interfac
                        m->interface_type_data.other.media_specific.unsupported.bytes     = (INT8U *)realloc(m->interface_type_data.other.media_specific.unsupported.bytes, sizeof(INT8U) * (m->interface_type_data.other.media_specific.unsupported.bytes_nr + 1));
                    }
 
-                   sscanf(p, "%02hhx", &(m->interface_type_data.other.media_specific.unsupported.bytes[m->interface_type_data.other.media_specific.unsupported.bytes_nr])); 
+                   sscanf(p, "%02hhx", &(m->interface_type_data.other.media_specific.unsupported.bytes[m->interface_type_data.other.media_specific.unsupported.bytes_nr]));
 
                    m->interface_type_data.other.media_specific.unsupported.bytes_nr++;
 
@@ -721,7 +721,7 @@ void _getMetricsFromSimulatedDevice(__attribute__((unused)) char *interface_name
 {
     FILE  *fp;
     char  *simulation_filename;
-   
+
     if (NULL == (simulation_filename = index(simulated_extended_params, ':')))
     {
         PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Missing simulation file name in extended params string (%s)\n", simulated_extended_params);
@@ -819,7 +819,7 @@ void _startPushButtonOnSimulatedDevice(__attribute__((unused)) char *interface_n
     fclose(fp2);
 
     rename(simulation_filename_tmp, simulation_filename);
-    
+
     return;
 }
 

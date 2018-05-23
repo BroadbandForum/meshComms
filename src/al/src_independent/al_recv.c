@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -326,7 +326,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // When a "topology response" is received we must update our
             // internal database (that keeps track of which 1905 devices are
             // present in the network)
-            
+
             INT8U *p;
             INT8U  i;
 
@@ -344,7 +344,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             INT8U l2_neighbors_nr;
 
             INT8U xi, yi, zi, qi, ri;
-            
+
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_TOPOLOGY_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
             if (NULL == c->list_of_TLVs)
@@ -515,7 +515,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             //
             //   3. Setting "C->list_of_TLVs" to NULL will cause
             //      "free_1905_CMDU_structure()" to ignore this list.
-            //      
+            //
             PLATFORM_FREE(c->list_of_TLVs);
             c->list_of_TLVs = NULL;
 
@@ -731,7 +731,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             }
 
             // And finally, send a "metrics response" to the requesting neighbor
-            
+
             // We must send the response to the AL MAC of the node who sent the
             // query, however, this AL MAC is *not* contained in the query.
             // The only thing we can do at this point is try to search our AL
@@ -771,7 +771,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // When a "metrics response" is received we must update our
             // internal database (that keeps track of which 1905 devices are
             // present in the network)
-            
+
             INT8U *p;
             INT8U  i;
 
@@ -823,7 +823,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             //
             PLATFORM_FREE(c->list_of_TLVs);
             c->list_of_TLVs = NULL;
-            
+
             // Show all network devices (ie. print them through the logging
             // system)
             //
@@ -913,7 +913,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                 }
                 i++;
             }
-            
+
             // Make sure that all needed parameters were present in the message
             //
             if (
@@ -1059,7 +1059,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                 }
                 i++;
             }
-           
+
             // Make sure that all needed parameters were present in the message
             //
             if (
@@ -1193,7 +1193,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // if the contained message is M1 or M2.
             // If it is M1, send an M2 response.
             // If it is M2, apply the received configuration.
-            
+
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
             if (NULL == c->list_of_TLVs)
@@ -1226,7 +1226,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                 }
                 i++;
             }
-           
+
             // Make sure there was a WSC TLV in the message
             //
             if ( NULL == wsc_frame)
@@ -1234,7 +1234,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                 PLATFORM_PRINTF_DEBUG_WARNING("More TLVs were expected inside this CMDU\n");
                 return PROCESS_CMDU_KO;
             }
- 
+
             wsc_type = wscGetType(wsc_frame, wsc_frame_size);
 
             if (WSC_TYPE_M2 == wsc_type)
@@ -1449,7 +1449,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                     PLATFORM_FREE_1905_INTERFACE_INFO(x);
                     continue;
                 }
-                    
+
                 if (
                      INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ == x->interface_type   ||
                      INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ == x->interface_type   ||
@@ -1555,7 +1555,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // present in the network)
 
             struct genericPhyDeviceInformationTypeTLV *t;
-            
+
             INT8U *p;
             INT8U  i;
 
@@ -1627,7 +1627,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             //
             PLATFORM_FREE(c->list_of_TLVs);
             c->list_of_TLVs = NULL;
-            
+
             // Show all network devices (ie. print them through the logging
             // system)
             //
@@ -1693,7 +1693,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
 
             INT8U  al_mac_address[6];
             INT8U  al_mac_address_is_present;
-            
+
             INT8U *p;
             INT8U  i;
 
@@ -1793,7 +1793,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             //
             PLATFORM_FREE(c->list_of_TLVs);
             c->list_of_TLVs = NULL;
-            
+
             // Show all network devices (ie. print them through the logging
             // system)
             //
@@ -1808,7 +1808,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // back with the result of these operations
 
             struct interfacePowerChangeInformationTLV *t;
-            
+
             INT8U *p;
             INT8U  i;
 
@@ -1913,7 +1913,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // need to do anything special. Simply log the event.
 
             struct interfacePowerChangeStatusTLV *t;
-            
+
             INT8U *p;
             INT8U  i;
 

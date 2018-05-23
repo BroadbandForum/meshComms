@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -76,7 +76,7 @@ struct interfaceInfo
                                     // registrar APs which have not yet cloned
                                     // the credentiales from the registrar) this
                                     // parameter must be set to all zeros.
-                                    
+
             char   ssid[50];        // This is the "friendly" name of the wifi
                                     // network created by the registrar AP
                                     // identified by 'bssid'
@@ -173,7 +173,7 @@ struct interfaceInfo
                            // For example, a wifi AP interface is considered
                            // "secured" if there is at least one STA connected
                            // to it by means of an encrypted channel.
-    
+
     INT8U push_button_on_going;
                            // Some types of interfaces support a technology-
                            // specific "push button" configuration mechanism
@@ -205,7 +205,7 @@ struct interfaceInfo
                            //
                            //   C) The underlying technology does not offer this
                            //      information
-                           
+
     #define INTERFACE_POWER_STATE_ON     (0x00)
     #define INTERFACE_POWER_STATE_SAVE   (0x01)
     #define INTERFACE_POWER_STATE_OFF    (0x02)
@@ -244,7 +244,7 @@ struct interfaceInfo
                              // variable holds the IPv4 of the server
                              // (if known). Set to all zeros otherwise
 
-    } *ipv4;                 // Array of 'ipv4_nr' elements. Each 
+    } *ipv4;                 // Array of 'ipv4_nr' elements. Each
                              // element represents one of the IPv4 of
                              // this device.
 
@@ -267,7 +267,7 @@ struct interfaceInfo
                              // In any other case this field is set to all
                              // zeros.
 
-    } *ipv6;                 // Array of 'ipv6_nr' elements. Each 
+    } *ipv6;                 // Array of 'ipv6_nr' elements. Each
                              // element represents one of the IPv6 of
                              // this device.
 
@@ -277,7 +277,7 @@ struct interfaceInfo
 
     struct _vendorSpecificInfoElement
     {
-        INT8U    oui[3];    // 24 bits globally unique IEEE-RA assigned 
+        INT8U    oui[3];    // 24 bits globally unique IEEE-RA assigned
                             // number to the vendor
 
         INT16U   vendor_data_len;  // Number of bytes in "vendor_data"
@@ -350,7 +350,7 @@ struct linkMetrics
     INT8U   local_interface_address[6];     // A MAC address belonging to one of
                                             // the local interfaces.
                                             // Let's call this MAC "A"
-                                             
+
     INT8U   neighbor_interface_address[6];  // A MAC address belonging to a
                                             // neighbor interface that is
                                             // directly reachable from "A".
@@ -361,7 +361,7 @@ struct linkMetrics
                                // this interface.
                                // For example, if this value is set to "5" and
                                // 'tx_packet_ok' is set to "7", it means that
-                               // in the last 5 seconds 7 packets have been 
+                               // in the last 5 seconds 7 packets have been
                                // transmitted OK between "A" and "B".
                                //
                                // [PLATFORM PORTING NOTE]
@@ -372,7 +372,7 @@ struct linkMetrics
     INT32U  tx_packet_ok;      // Estimated number of transmitted packets from
                                // "A" to "B" in the last 'measures_window'
                                // seconds.
-    
+
     INT32U  tx_packet_errors;  // Estimated number of packets with errors
                                // transmitted from "A" to "B" in the last
                                // 'measures_window' seconds.
@@ -390,7 +390,7 @@ struct linkMetrics
     INT32U  rx_packet_ok;      // Estimated number of transmitted packets from
                                // "B" to "A" in the last 'measures_window'
                                // seconds.
-    
+
     INT32U  rx_packet_errors;  // Estimated number of packets with errors
                                // transmitted from "B" to "A" i nthe last
                                // 'measures_window' seconds.
@@ -573,10 +573,10 @@ INT8U PLATFORM_START_PUSH_BUTTON_CONFIGURATION(char *interface_name, INT8U queue
 //   INTERFACE_POWER_RESULT_EXPECTED
 //     The power mode has been applied as expected (ie. the new "power mode" is
 //     the specified in the call)
-//   INTERFACE_POWER_RESULT_NO_CHANGE   
+//   INTERFACE_POWER_RESULT_NO_CHANGE
 //     There was no need to apply anything, because the interface *already* was
 //     in the requested mode
-//   INTERFACE_POWER_RESULT_ALTERNATIVE 
+//   INTERFACE_POWER_RESULT_ALTERNATIVE
 //     The interface power mode has changed as a result for this call, however
 //     the new state is *not* the given one.  Example: You said
 //     "INTERFACE_POWER_STATE_OFF", but the interface, due to maybe platform
@@ -615,7 +615,7 @@ INT8U PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, INT8U power_mode);
 //
 // 'network_key' is a NULL terminated string representing the "network key" the
 // AP is going to use.
-// 
+//
 INT8U PLATFORM_CONFIGURE_80211_AP(char *interface_name, INT8U *ssid, INT8U *bssid, INT16U auth_mode, INT16U encryption_mode, INT8U *network_key);
 
 #endif

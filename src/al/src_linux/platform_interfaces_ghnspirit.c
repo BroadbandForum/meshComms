@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,7 +48,7 @@ static char  itu_ghn_generic_phy_xml_url[] = "http://handle.itu.int/11.1002/3000
 #define VARIANT_POF       (0x04)
 
 static char *variant_names[] = {
-  "ITU-T G.996x Powerline", 
+  "ITU-T G.996x Powerline",
   "ITU-T G.996x Phoneline",
   "ITU-T G.996x Coax Baseband",
   "ITU-T G.996x Coax RF",
@@ -405,7 +405,7 @@ void _getInterfaceInfoFromGhnSpiritDevice(char *interface_name, char *ghnspirit_
                 PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Problems obtaining the IPv4 type. Check the order of parameters in the LCMP command!\n");
             }
 
-            m->ipv4_nr = 1; 
+            m->ipv4_nr = 1;
             m->ipv4    = (struct _ipv4 *)malloc(sizeof(struct _ipv4));
 
             sscanf(value, "%hhd.%hhd.%hhd.%hhd",
@@ -449,7 +449,7 @@ void _getInterfaceInfoFromGhnSpiritDevice(char *interface_name, char *ghnspirit_
                 PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Problems obtaining the IPv6 type. Check the order of parameters in the LCMP command!\n");
             }
 
-            m->ipv6_nr = 1; 
+            m->ipv6_nr = 1;
             m->ipv6    = (struct _ipv6 *)malloc(sizeof(struct _ipv6));
 
             sscanf(value, "%02hhx%02hhx:%02hhx%02hhx:%02hhx%02hhx:%02hhx%02hhx:%02hhx%02hhx:%02hhx%02hhx:%02hhx%02hhx:%02hhx%02hhx",
@@ -920,7 +920,7 @@ void _getMetricsFromGhnSpiritDevice(char *interface_name, char *ghnspirit_extend
 
     // TODO: Hardcoded value for now (9% is used for signalization).
     //
-    m->tx_link_availability = 91; 
+    m->tx_link_availability = 91;
 
     // According to the standard (Table 6-20), this field must be set to 0xff
     // for non IEEE 802.11 links
@@ -948,7 +948,7 @@ void _startPushButtonOnGhnSpiritDevice(char *interface_name, char *ghnspirit_ext
 
     char *ghn_mac_address;
     char *lcmp_password;
-   
+
     // Obtain G.hn/Spirit MAC address and LCMP password
     //
     if (0 == _extractMacAndPassword(ghnspirit_extended_params, &ghn_mac_address, &lcmp_password))

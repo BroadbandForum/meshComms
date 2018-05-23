@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,7 +48,7 @@ struct genericInterfaceType
                             // This document must conform to the "Generic Phy
                             // XML schema"
                             // ("http://standards.ieee.org/downloads/1905/GenericPhyInfoV1.xsd")
-                           
+
     INT8U variant_index;    // The "Generic Phy XML Description Document" might
                             // might contain more than one "class" of
                             // interfaces for each OUI. This variable is used

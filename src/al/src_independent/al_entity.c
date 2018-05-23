@@ -1,14 +1,14 @@
 /*
  *  Broadband Forum IEEE 1905.1/1a stack
- *  
+ *
  *  Copyright (c) 2017, Broadband Forum
- *  
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -71,7 +71,7 @@
 //         (ie. we haven't received all their fragments yet), and a new fragment
 //         for a new CMDU arrives, we will discard all fragments from the
 //         oldest one.
-// 
+//
 // Every time this function is called, two things can happen:
 //
 //   1. The just received fragment was the last one needed to complete a CMDU.
@@ -116,7 +116,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
                        //   - "1" means that fragment has been received
                        //   - "0" means no fragment with that number has been
                        //     received.
-                      
+
         INT8U last_fragment;
                        // Number of the fragment carrying the
                        // 'last_fragment_indicator' flag.
@@ -133,8 +133,8 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
                        // "MAX_FRAGMENTS_PER_MID" to store a final NULL entry
                        // (this makes it easier to later call
                        // "parse_1905_CMDU_header_from_packet()"
-                       
-        INT32U age;    // Used to keep track of which is the oldest CMDU for 
+
+        INT32U age;    // Used to keep track of which is the oldest CMDU for
                        // which a fragment was received (so that we can free
                        // it when the CMDUs buffer is full)
 
@@ -183,7 +183,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
         {
             // Fragments for this 'mid' have previously been received. Add this
             // new one to the set.
-            
+
             // ...but first check for errors
             //
             if (fragment_id > MAX_FRAGMENTS_PER_MID)
@@ -360,7 +360,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
 
         return c;
     }
-    
+
     PLATFORM_PRINTF_DEBUG_DETAIL("The last fragment has not yet been received\n");
     return NULL;
 }
@@ -433,8 +433,8 @@ INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
         //
         //        AL 1               AL 2
         //        ====               ====
-        //   t=0  --- MID=1 -->      
-        //   t=1  --- MID=2 -->      
+        //   t=0  --- MID=1 -->
+        //   t=1  --- MID=2 -->
         //   t=2  --- MID=3 -->      <-- MID=1 --
         //   t=3  --- MID=4 -->      <-- MID=2 --
         //   t=4  --- MID=5 -->      <-- MID=3 --
@@ -694,7 +694,7 @@ void _checkForwarding(INT8U *receiving_interface_addr, INT8U *destination_mac_ad
 // This function sends an "AP-autoconfig search" message on all authenticated
 // interfaces BUT ONLY if there is at least one unconfigured AP interface on
 // this node.
-// 
+//
 // A function has been created for this because the same code is executed from
 // three different places:
 //
@@ -854,7 +854,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
     INT8U    interfaces_nr;
 
     INT8U i;
-    
+
     // Initialize platform-specific code
     //
     if (0 == PLATFORM_INIT())
@@ -878,10 +878,10 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
     DMmapWholeNetworkSet(map_whole_network_flag);
     PLATFORM_PRINTF_DEBUG_DETAIL("Starting AL entity (AL MAC = %02x:%02x:%02x:%02x:%02x:%02x). Map whole network = %d...\n",
                                 al_mac_address[0],
-                                al_mac_address[1], 
-                                al_mac_address[2], 
-                                al_mac_address[3], 
-                                al_mac_address[4], 
+                                al_mac_address[1],
+                                al_mac_address[2],
+                                al_mac_address[3],
+                                al_mac_address[4],
                                 al_mac_address[5],
                                 map_whole_network_flag);
 
@@ -911,10 +911,10 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
         PLATFORM_PRINTF_DEBUG_DETAIL("    - %s --> %02x:%02x:%02x:%02x:%02x:%02x\n",
                                    x->name,
                                    x->mac_address[0],
-                                   x->mac_address[1], 
-                                   x->mac_address[2], 
-                                   x->mac_address[3], 
-                                   x->mac_address[4], 
+                                   x->mac_address[1],
+                                   x->mac_address[2],
+                                   x->mac_address[3],
+                                   x->mac_address[4],
                                    x->mac_address[5]);
 
         // If this interface is the designated 1905 network registrar
@@ -993,7 +993,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
         struct eventTimeOut aux;
 
         aux.timeout_ms = 60000;  // 60 seconds
-        aux.token      = TIMER_TOKEN_DISCOVERY; 
+        aux.token      = TIMER_TOKEN_DISCOVERY;
 
         if (0 == PLATFORM_REGISTER_QUEUE_EVENT(queue_id, PLATFORM_QUEUE_EVENT_TIMEOUT_PERIODIC, &aux))
         {
@@ -1001,7 +1001,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
             return AL_ERROR_OS;
         }
     }
-    
+
     // ...and a slighlty higher timeout to "clean" the database from nodes that
     // have left the network without notice
     //
@@ -1010,7 +1010,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
         struct eventTimeOut aux;
 
         aux.timeout_ms = 70000;  // 70 seconds
-        aux.token      = TIMER_TOKEN_GARBAGE_COLLECTOR; 
+        aux.token      = TIMER_TOKEN_GARBAGE_COLLECTOR;
 
         if (0 == PLATFORM_REGISTER_QUEUE_EVENT(queue_id, PLATFORM_QUEUE_EVENT_TIMEOUT_PERIODIC, &aux))
         {
@@ -1033,7 +1033,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
         struct eventTimeOut aux;
 
         aux.timeout_ms = 1;
-        aux.token      = TIMER_TOKEN_DISCOVERY; 
+        aux.token      = TIMER_TOKEN_DISCOVERY;
 
         if (0 == PLATFORM_REGISTER_QUEUE_EVENT(queue_id, PLATFORM_QUEUE_EVENT_TIMEOUT, &aux))
         {
@@ -1051,7 +1051,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
         PLATFORM_PRINTF_DEBUG_ERROR("Could not register ALME messages callback\n");
         return AL_ERROR_OS;
     }
-    
+
     // ...and the "push button" event, so that when the platform detects that
     // the user has pressed the button associated to the "push button"
     // configuration mechanism, we are notified.
@@ -1072,7 +1072,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
         PLATFORM_PRINTF_DEBUG_ERROR("Could not register 'authenticated link' event\n");
         return AL_ERROR_OS;
     }
-    
+
     // ...and the "topology change notification" event, needed to inform the
     // other 1905 nodes that some aspect of our local topology has changed.
     //
@@ -1091,12 +1091,12 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
         PLATFORM_PRINTF_DEBUG_ERROR("Could not register all 1905 protocol extensions\n");
         return AL_ERROR_PROTOCOL_EXTENSION;
     }
-       
+
     // Prepare the message queue
     //
     PLATFORM_PRINTF_DEBUG_DETAIL("Allocating memory to hold a queue message...\n");
     queue_message = (INT8U *)PLATFORM_MALLOC(MAX_NETWORK_SEGMENT_SIZE+3);
-    
+
     PLATFORM_PRINTF_DEBUG_DETAIL("Entering read-process loop...\n");
     while(1)
     {
@@ -1304,7 +1304,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                 // four bytes with the "timer ID" that expired.
                 //
                 _E4B(&p, &timer_id);
-               
+
                 PLATFORM_PRINTF_DEBUG_DETAIL("New queue message arrived: timer 0x%08x expired\n", timer_id);
 
                 switch(timer_id)
@@ -1678,7 +1678,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                 //      process is triggered.
 
                 INT16U mid;
-                
+
                 INT8U   local_mac_addr[6];
                 INT8U   new_mac_addr[6];
                 INT8U   original_al_mac_addr[6];
@@ -1697,7 +1697,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                 // successfully authenticated at the other end.
                 //
                 _EnB(&p, new_mac_addr, 6);
-                
+
                 // The next six bytes contain the original AL MAC address that
                 // started everything.
                 //
