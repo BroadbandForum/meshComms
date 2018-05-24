@@ -6,4 +6,9 @@ addons:
     - libpcap-dev
     - libssl-dev
 
-script: make && make unit_tests
+sudo: required
+
+script:
+  - make
+  - "[ -e output/libfactory.a ] && make unit_tests"
+  - "[ -e output/al_entity ] && make ale_tests"

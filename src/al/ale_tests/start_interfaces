@@ -1,0 +1,29 @@
+#! /bin/sh
+
+# Make sure we are root
+test $(id -u) = 0 || exec sudo "$0" "$@"
+
+al_entity_exec="$1"; shift
+test -x "${al_entity_exec}" || {
+  echo "$0: $al_entity_exec not executable" 1>&2
+  exit 1
+}
+
+interfaces=""
+for num in 0 1 2 3; do
+  ip link add aletest$num type veth peer name aletestpeer$num
+  ip link set dev aletest$num up address 00:ee:ff:33:44:${num}0
+  ip link set dev aletestpeer$num up address 00:ee:ff:33:44:${num}1
+  interfaces="${interfaces}${interfaces:+,}aletest${num}:simulated:aletest${num}.sim"
+done
+
+"$al_entity_exec" -m 02:ee:ff:33:44:00 -i "$interfaces" -v &
+
+"$@"
+
+kill %1
+wait %1 2>/dev/null # Suppress "Terminated" output
+
+for num in 0 1 2 3; do
+  ip link delete aletest$num
+done

@@ -179,6 +179,9 @@ $(HLE_EXE): $(COMMON_LIB) $(FACTORY_LIB)
 unit_tests: all
 	$(MAKE) -C src/factory unit_tests
 
+.PHONY: ale_tests
+ale_tests: all
+	$(MAKE) -C src/al/ale_tests
 
 .PHONY: clean
 clean:

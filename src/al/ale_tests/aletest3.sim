@@ -1,0 +1,12 @@
+mac_address                                   = 38:ea:a7:11:84:dc
+manufacturer_name                             = Marvell
+model_name                                    = ETH PHY x200
+model_number                                  = 99999
+serial_number                                 = 100000000001
+device_name                                   = Marvell eth phy x200
+uuid                                          = 0000000000810001
+interface_type                                = INTERFACE_TYPE_IEEE_802_3U_FAST_ETHERNET
+is_secured                                    = 1
+push_button_on_going                          = 2
+push_button_new_mac_address                   = 00:00:00:00:00:00
+power_state                                   = INTERFACE_POWER_STATE_ON
