@@ -39,7 +39,7 @@
 
 ALETEST_DIRECTORY               := al/test
 
-UNITS := nop
+UNITS := topology_discovery
 
 EXE  := $(addprefix $(OUTPUT_FOLDER)/ALETEST_, $(UNITS))
 SRC  := $(addsuffix .c, $(UNITS))
@@ -50,7 +50,7 @@ EXTERNAL_INC := $(COMMON_INC) $(FACTORY_INC)
 
 HDR := $(shell find $(INTERNAL_INC) $(EXTERNAL_INC) -name "*.h")
 
-SHARED_SRC := $(wildcard shared*.c)
+SHARED_SRC := aletest.c
 SHARED_OBJ := $(addprefix $(OUTPUT_FOLDER)/tmp/$(ALETEST_DIRECTORY)/,$(patsubst %.c,%.o,$(SHARED_SRC)))
 SHARED_HDR := $(patsubst %.c,%.h,$(SHARED_SRC))
 
