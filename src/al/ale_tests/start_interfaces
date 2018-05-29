@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # Make sure we are root
 test $(id -u) = 0 || exec sudo "$0" "$@"
@@ -8,6 +8,17 @@ test -x "${al_entity_exec}" || {
   echo "$0: $al_entity_exec not executable" 1>&2
   exit 1
 }
+
+stop_interfaces() {
+  # If there is a background job, kill it
+  kill %1 2>/dev/null || true
+  wait %1 2>/dev/null # Suppress "Terminated" output
+  for num in 0 1 2 3; do
+    ip link delete aletest$num
+  done
+}
+
+trap stop_interfaces EXIT
 
 interfaces=""
 for num in 0 1 2 3; do
@@ -19,11 +30,5 @@ done
 
 "$al_entity_exec" -m 02:ee:ff:33:44:00 -i "$interfaces" -v &
 
-"$@"
+"$@" || exit $?
 
-kill %1
-wait %1 2>/dev/null # Suppress "Terminated" output
-
-for num in 0 1 2 3; do
-  ip link delete aletest$num
-done
