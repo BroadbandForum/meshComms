@@ -61,6 +61,8 @@ bool compare_masked(const uint8_t *buf, size_t buf_len, const maskedbyte_t *expe
     size_t i;
 
     if (buf_len < expected_len) {
+        PLATFORM_PRINTF_DEBUG_DETAIL("Buffer shorter than expected: %llu < %llu\n", (unsigned long long)buf_len,
+                                     (unsigned long long)expected_len);
         return false;
     }
 
@@ -69,6 +71,8 @@ bool compare_masked(const uint8_t *buf, size_t buf_len, const maskedbyte_t *expe
         /* Note: the mask implicitly has the effect of converting expected[i] to uint8_t */
         if ((buf[i] & mask) != (expected[i] & mask))
         {
+            PLATFORM_PRINTF_DEBUG_DETAIL("Buffer differs at %llu: 0x%02x != 0x%02x mask 0x%02x\n",
+                                         (unsigned long long)i, buf[i], expected[i], mask);
             return false;
         }
     }
@@ -77,6 +81,8 @@ bool compare_masked(const uint8_t *buf, size_t buf_len, const maskedbyte_t *expe
     for (; i < buf_len; i++) {
         if (buf[i] != 0)
         {
+            PLATFORM_PRINTF_DEBUG_DETAIL("Buffer padding byte is not 0 at %llu: 0x%02x\n",
+                                         (unsigned long long)i, buf[i]);
             return false;
         }
     }
