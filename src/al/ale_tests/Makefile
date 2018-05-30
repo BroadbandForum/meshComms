@@ -75,7 +75,7 @@ $(EXE) : $(OUTPUT_FOLDER)/ALETEST_% : $(OUTPUT_FOLDER)/tmp/$(ALETEST_DIRECTORY)/
 	$(foreach directory, $(UNITS), $(MKDIR) $(OUTPUT_FOLDER)/ALETEST_$(shell dirname $(directory);))
 	$(CC) $(LDFLAGS) $^ -o $@
 
-$(OBJ) : $(OUTPUT_FOLDER)/tmp/$(ALETEST_DIRECTORY)/%.o : %.c
+$(OBJ) : $(OUTPUT_FOLDER)/tmp/$(ALETEST_DIRECTORY)/%.o : %.c $(HDR)
 	$(foreach directory, $(sort $(dir $(wildcard $(SRC)))), $(MKDIR) $(OUTPUT_FOLDER)/tmp/$(ALETEST_DIRECTORY)/$(directory);)
 	$(CC)  $(CCFLAGS) -c $(addprefix -I,$(INTERNAL_INC) $(EXTERNAL_INC)) $< -o $@;
 
