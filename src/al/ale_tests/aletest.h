@@ -91,10 +91,10 @@ int openPacketSocket(const char *interface_name, INT16U eth_type, struct sockadd
 bool expect_packet(int s, const maskedbyte_t *expected, size_t expected_len, unsigned timeout_ms);
 
 /** Wrapper around expect_packet() that covers the common case */
-#define CHECK_EXPECT_PACKET(s, expected, timeout_s, result) \
+#define CHECK_EXPECT_PACKET(s, expected, timeout_ms, result) \
     do { \
-        if (!expect_packet(s, expected, ARRAY_SIZE(expected), timeout_s * 1000)) { \
-            PLATFORM_PRINTF_DEBUG_ERROR("<- Did not receive " #expected " within " #timeout_s " seconds\n"); \
+        if (!expect_packet(s, expected, ARRAY_SIZE(expected), timeout_ms)) { \
+            PLATFORM_PRINTF_DEBUG_ERROR("<- Did not receive " #expected " within " #timeout_ms " ms\n"); \
             (result)++; \
         } \
     } while (0)

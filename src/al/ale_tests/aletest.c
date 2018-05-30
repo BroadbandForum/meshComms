@@ -156,9 +156,9 @@ static int64_t get_time_ns()
     return (int64_t)t.tv_sec * 1000000000 + (int64_t)t.tv_nsec;
 }
 
-bool expect_packet(int s, const maskedbyte_t *expected, size_t expected_len, unsigned timeout)
+bool expect_packet(int s, const maskedbyte_t *expected, size_t expected_len, unsigned timeout_ms)
 {
-    int64_t deadline = get_time_ns() + (int64_t)timeout * 1000000000;
+    int64_t deadline = get_time_ns() + (int64_t)timeout_ms * 1000000;
     int64_t remaining_ns;
     int remaining_ms;
     struct pollfd p = { .fd = s, .events = POLLIN, .revents = 0, };
@@ -168,7 +168,7 @@ bool expect_packet(int s, const maskedbyte_t *expected, size_t expected_len, uns
 
     while (true) {
         remaining_ns = (deadline - get_time_ns());
-        if (timeout > 0) {
+        if (timeout_ms > 0) {
             if (remaining_ns <= 0)
             {
                 PLATFORM_PRINTF_DEBUG_INFO("Timed out while expecting packet\n");

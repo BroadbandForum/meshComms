@@ -63,7 +63,8 @@ int main()
         return 1;
     }
 
-    CHECK_EXPECT_PACKET(s, aletest_cmdu_topology_discovery, 61, result);
+    /* The AL MUST send a topology discovery CMDU every 60 seconds (+1s jitter). */
+    CHECK_EXPECT_PACKET(s, aletest_expect_cmdu_topology_discovery, 61000, result);
 
     close(s);
     return result;
