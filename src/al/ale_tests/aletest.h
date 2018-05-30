@@ -19,6 +19,8 @@
 #ifndef _ALETEST_H_
 #define _ALETEST_H_
 
+#include <platform.h> /* PLATFORM_PRINTF_* */
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h> /* size_t */
@@ -93,7 +95,9 @@ bool expect_packet(int s, const maskedbyte_t *expected, size_t expected_len, uns
 /** Wrapper around expect_packet() that covers the common case */
 #define CHECK_EXPECT_PACKET(s, expected, timeout_ms, result) \
     do { \
-        if (!expect_packet(s, expected, ARRAY_SIZE(expected), timeout_ms)) { \
+        if (expect_packet(s, expected, ARRAY_SIZE(expected), timeout_ms)) { \
+            PLATFORM_PRINTF_DEBUG_INFO("Received expected " #expected "\n"); \
+        } else { \
             PLATFORM_PRINTF_DEBUG_ERROR("<- Did not receive " #expected " within " #timeout_ms " ms\n"); \
             (result)++; \
         } \
