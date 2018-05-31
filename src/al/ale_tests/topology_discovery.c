@@ -84,7 +84,7 @@ static uint8_t aletest_send_cmdu_topology_query[] = {
     0x89, 0x3a,                             /* Protocol number */
     0x00, 0x00,                             /* Version, reserved */
     0x00, 0x02,                             /* Message type */
-    0x42, 0x25,                             /* MID (incremented) */
+    0x42, 0x26,                             /* MID (incremented) */
     0x00,                                   /* Fragment ID */
     0x80,                                   /* last fragment, relay indicator */
     0x00, 0x00, 0x00, /* End of message TLV */
@@ -96,7 +96,7 @@ static maskedbyte_t aletest_expect_cmdu_topology_response[] = {
     0x89, 0x3a,                             /* Protocol number */
     0x00, 0x00,                             /* Version, reserved */
     0x00, 0x03,                             /* Message type */
-    0x42, 0x25,                             /* MID (same as query) */
+    0x42, 0x26,                             /* MID (same as query) */
     0x00,                                   /* Fragment ID */
     0x80,                                   /* last fragment, relay indicator */
     /* TLV 0 */ 0x03,                               /* 1905.1 device information type TLV */
@@ -157,6 +157,25 @@ static uint8_t aletest_send_cmdu_topology_discovery2[] = {
     0x00, 0x00, 0x00, /* End of message TLV */
 };
 
+static maskedbyte_t aletest_expect_cmdu_topology_discovery2[] = {
+    0x01, 0x80, 0xc2, 0x00, 0x00, 0x13,     /* 1905.1 multicast MAC address */
+    0x0202, 0xee, 0xff, 0x33, 0x44, 0x1000, /* AL MAC address OR interface address */
+    0x89, 0x3a,                             /* Protocol number */
+    0x00, 0x00,                             /* Version, reserved */
+    0x00, 0x00,                             /* Message type */
+    0xffff, 0xffff,                         /* MID (may be anything) */
+    0x00,                                   /* Fragment ID */
+    0x80,                                   /* last fragment, relay indicator */
+    /* TLV 0 */ 0x01,                               /* 1905.1 AL MAC address type TLV */
+                0x00, 0x06,
+                0x02, 0xee, 0xff, 0x33, 0x44, 0x00, /* AL MAC address */
+    /* TLV 1 */ 0x02,                               /* MAC address type TLV */
+                0x00, 0x06,
+                0x00, 0xee, 0xff, 0x33, 0x44, 0x10, /* inteface MAC address (from .sim file) */
+    0x00, 0x00, 0x00, /* End of message TLV */
+};
+
+
 static maskedbyte_t aletest_expect_cmdu_topology_query2[] = {
     0x02, 0xaa, 0xbb, 0x33, 0x44, 0x10,     /* my AL MAC address */
     0x0202, 0xee, 0xff, 0x33, 0x44, 0x1000, /* AL MAC address OR interface address */
@@ -214,6 +233,7 @@ int main()
     struct sockaddr_ll addr;
     int result = 0;
     int s0, s1;
+    uint8_t buf[10];
 
     PLATFORM_INIT();
     PLATFORM_PRINTF_DEBUG_SET_VERBOSITY_LEVEL(3);
@@ -231,9 +251,27 @@ int main()
     if (-1 == send(s0, aletest_send_cmdu_topology_discovery, sizeof(aletest_send_cmdu_topology_discovery), 0)) {
         PLATFORM_PRINTF_DEBUG_ERROR("Failed to send topology discovery: %d (%s)\n", errno, strerror(errno));
     } else {
-        /* Note: the AL also sends another topology discovery, but that is not needed so we don't do an expect for it. */
+#ifdef SPEED_UP_DISCOVERY
+        /* The AL also sends another topology discovery. */
+        CHECK_EXPECT_PACKET(s0, aletest_expect_cmdu_topology_discovery, 3000, result);
+#endif
         CHECK_EXPECT_PACKET(s0, aletest_expect_cmdu_topology_query, 3000, result);
         /* No need to respond to the query. */
+#ifdef SPEED_UP_DISCOVERY
+        /* A second topology discovery (with a new MID) must not re-trigger discovery. */
+        aletest_send_cmdu_topology_discovery[19]++;
+        if (-1 == send(s0, aletest_send_cmdu_topology_discovery, sizeof(aletest_send_cmdu_topology_discovery), 0)) {
+            PLATFORM_PRINTF_DEBUG_ERROR("Failed to send topology discovery: %d (%s)\n", errno, strerror(errno));
+            result++;
+        } else {
+            /* Don't expect anything on that interface. */
+            sleep(1);
+            if (-1 != recv(s0, buf, sizeof(buf), MSG_DONTWAIT) || EAGAIN != errno) {
+                PLATFORM_PRINTF_DEBUG_ERROR("Got a response on second topology discovery\n");
+                result++;
+            }
+        }
+#endif
     }
 
     /* Send a topology query. The AL MUST send a response. */
@@ -257,7 +295,10 @@ int main()
         PLATFORM_PRINTF_DEBUG_ERROR("Failed to send topology discovery: %d (%s)\n", errno, strerror(errno));
         result++;
     } else {
-        /* Note: the AL also sends another topology discovery, but that is not needed so we don't do an expect for it. */
+#ifdef SPEED_UP_DISCOVERY
+        /* The AL also sends another topology discovery. */
+        CHECK_EXPECT_PACKET(s1, aletest_expect_cmdu_topology_discovery2, 3000, result);
+#endif
         CHECK_EXPECT_PACKET(s1, aletest_expect_cmdu_topology_query2, 3000, result);
         if (-1 == send(s1, aletest_send_cmdu_topology_response2, sizeof(aletest_send_cmdu_topology_response2), 0)) {
             PLATFORM_PRINTF_DEBUG_ERROR("Failed to send topology response: %d (%s)\n", errno, strerror(errno));
@@ -283,6 +324,7 @@ int main()
     /* The AL MUST send a topology discovery CMDU every 60 seconds (+1s jitter). */
     /* FIXME we should subtract the time spent since the last topology discovery message */
     CHECK_EXPECT_PACKET(s0, aletest_expect_cmdu_topology_discovery, 61000, result);
+    CHECK_EXPECT_PACKET(s1, aletest_expect_cmdu_topology_discovery2, 61000, result);
 
     close(s0);
     close(s1);
