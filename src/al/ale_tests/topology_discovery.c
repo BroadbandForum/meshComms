@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <utime.h>             // utime()
 
 static maskedbyte_t aletest_expect_cmdu_topology_discovery[] = {
     0x01, 0x80, 0xc2, 0x00, 0x00, 0x13,     /* 1905.1 multicast MAC address */
@@ -267,6 +268,16 @@ int main()
             /* TODO Currently this doesn't trigger a topology change! So ignore this error for now. */
             result--;
         }
+    }
+
+    /* Force a topology notification with the virtual file. */
+    if (-1 == utime("/tmp/topology_change", NULL)) {
+        PLATFORM_PRINTF_DEBUG_ERROR("Failed to trigger topology change: %d (%s)\n", errno, strerror(errno));
+        result++;
+    } else {
+        /* Notification should appear on both interfaces. */
+        CHECK_EXPECT_PACKET(s0, aletest_expect_cmdu_topology_notification, 1000, result);
+        CHECK_EXPECT_PACKET(s1, aletest_expect_cmdu_topology_notification, 1000, result);
     }
 
     /* The AL MUST send a topology discovery CMDU every 60 seconds (+1s jitter). */
