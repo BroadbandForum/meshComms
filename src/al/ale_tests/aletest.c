@@ -195,7 +195,7 @@ bool expect_packet(int s, const maskedbyte_t *expected, size_t expected_len, uns
             }
             else
             {
-                PLATFORM_PRINTF_DEBUG_DETAIL("Received something else than expected:");
+                PLATFORM_PRINTF_DEBUG_DETAIL("Received something else than expected:\n");
                 dump_bytes(buf, (size_t)received, " ");
             }
         }
