@@ -9,6 +9,7 @@ addons:
 sudo: required
 
 script:
+  - cd src && doxygen
   - make
   - "[ -e output/libfactory.a ] && make unit_tests"
   - "[ -e output/al_entity ] && make ale_tests"
