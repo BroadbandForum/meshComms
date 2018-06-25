@@ -1757,6 +1757,14 @@ Take 'bbf_send.c' as an example, which implements these callbacks:
 > (Obtain local info)
 
 
+## Coding style
+
+  * Everything must be documented with Doxygen comments.
+    - Use Javadoc-style comments, so /** @command */
+    - Always use @brief, even if there is only a @brief.
+    - Always use full sentences, i.e. start with Capital and terminate with a .
+    - Always document all arguments and return value.
+
 
 # Testing
 

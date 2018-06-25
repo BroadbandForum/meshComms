@@ -30,10 +30,10 @@
  * get statistics from an interface and to control it.
  */
 
-/** @brief Definition of a MAC address */
+/** @brief Definition of a MAC address. */
 typedef INT8U mac_address[6];
 
-/** @brief Defintion of a BSS */
+/** @brief Defintion of a BSS. */
 struct bss_info {
     mac_address bssid;
     const char *ssid;
@@ -45,21 +45,21 @@ struct bss_info {
  */
 struct interface
 {
-    /** @brief Interface name, e.g. eth0 */
+    /** @brief Interface name, e.g. eth0. */
     char  *name;
-    /** @brief Interface address or Radio Unique Identifier */
+    /** @brief Interface address or Radio Unique Identifier. */
     mac_address addr;
-    /** @brief List of BSS for which this interface is an AP
+    /** @brief List of BSS for which this interface is an AP.
      *
      * The number of elements in this list is given by num_bss.
      *
      * If the interface is not an AP or no BSS are configured on it, this is NULL and num_bss is 0.
      */
     struct bss_info *bss_info;
-    /** @brief number of elements in bss_info */
+    /** @brief Number of elements in bss_info. */
     size_t num_bss;
 
-    /** @brief Implementation callback to fill bss_info
+    /** @brief Implementation callback to fill bss_info.
      *
      * The implementation of this function must set or update the bss_info and num_bss fields of @a interface.
      *
@@ -67,9 +67,10 @@ struct interface
      *
      * Interfaces that are not access points can leave this as NULL, in which case bss_info will stay NULL as well.
      *
-     * @return true if bss_info was updated, false if not.
+     * @param interface The interface for which to get BSS info.
+     * @return true If bss_info was updated, false if not.
      *
-     * @todo foresee a way to update BSS info dynamically.
+     * @todo Foresee a way to update BSS info dynamically.
      */
     bool (*get_bss_info) (struct interface *interface);
 
@@ -77,10 +78,10 @@ struct interface
      *
      * This function is called when an authenticated controller sends a Client steering request to block clients.
      *
-     * @param interface the interface to which the steering request applies.
-     * @param bss the BSS to which the steering request applies.
-     * @param clients list of clients to block.
-     * @param num_clients number of elements in @clients.
+     * @param interface The interface to which the steering request applies.
+     * @param bss The BSS to which the steering request applies.
+     * @param clients The list of clients to block.
+     * @param num_clients The number of elements in @a clients.
      *
      * @return true if the block request succeeded, false if it failed.
      */
