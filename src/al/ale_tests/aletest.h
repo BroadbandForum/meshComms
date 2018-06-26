@@ -24,7 +24,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h> /* size_t */
-#include <linux/if_packet.h> /* sockaddr_ll */
 
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof(*(a)))
 
@@ -63,23 +62,6 @@ bool compare_masked(const uint8_t *buf, size_t buf_len, const maskedbyte_t *expe
  */
 bool check_expected_bytes(const uint8_t *buf, size_t buf_len, const maskedbyte_t *expected, size_t expected_len,
                           const char *message, ...) __attribute__((format(printf, 5, 6)));
-
-/** @brief Open a socket suitable for raw ethernet packets.
- *
- * @param[in] interface_name The name of the interface on which to listen.
- * @param[in] eth_type The protocol number (in network byte order)
- * @param[out] socket_address The socket address to use in further communication.
- * @return The socket file descriptor on success, or -1 on error (errno will be set).
- *
- * The socket is created as SOCK_RAW, so the ethernet header must be added to / removed from the payload.
- *
- * The created socket will be bound to the given interface and protocol.
- *
- * Close the socket with close() when done.
- *
- * @todo factor with the AL server itself.
- */
-int openPacketSocket(const char *interface_name, INT16U eth_type, struct sockaddr_ll *socket_address);
 
 /** @brief Expect a packet on socket @a s, with timeout.
  *

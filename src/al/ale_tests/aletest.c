@@ -21,14 +21,11 @@
 #include <platform.h>
 #include <utils.h>
 
-#include <linux/if_packet.h>  // sockaddr_ll
-#include <net/if.h>           // struct ifreq, IFNAZSIZE
-#include <netinet/ether.h>    // ETH_P_ALL, ETH_A_LEN
 #include <poll.h>             // poll()
-#include <sys/ioctl.h>        // ioctl(), SIOCGIFINDEX
-#include <sys/socket.h>       // socket()
 #include <time.h>             // clock_gettime()
 #include <unistd.h>           // close()
+#include <sys/types.h>        // recv()
+#include <sys/socket.h>       // recv()
 
 #include <errno.h>
 #include <stdarg.h>
@@ -104,48 +101,6 @@ bool check_expected_bytes(const uint8_t *buf, size_t buf_len, const maskedbyte_t
     } else {
         return true;
     }
-}
-
-int openPacketSocket(const char *interface_name, INT16U eth_type, struct sockaddr_ll *socket_address)
-{
-    int                 s;
-    struct ifreq        ifr;
-    int                 ifindex;
-
-    PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Opening interface '%s'\n", interface_name);
-
-    s = socket(AF_PACKET, SOCK_RAW, eth_type);
-    if (-1 == s)
-    {
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] socket('%s') returned with errno=%d (%s) while opening a RAW socket\n",
-                                    interface_name, errno, strerror(errno));
-        return -1;
-    }
-
-    strncpy(ifr.ifr_name, interface_name, IFNAMSIZ);
-    if (ioctl(s, SIOCGIFINDEX, &ifr) == -1)
-    {
-          PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] ioctl('%s',SIOCGIFINDEX) returned with errno=%d (%s) while opening a RAW socket\n",
-                                      interface_name, errno, strerror(errno));
-          close(s);
-          return -1;
-    }
-    ifindex = ifr.ifr_ifindex;
-
-    memset(socket_address, 0, sizeof(*socket_address));
-    socket_address->sll_family   = AF_PACKET;
-    socket_address->sll_ifindex  = ifindex;
-    socket_address->sll_protocol = eth_type;
-
-    if (-1 == bind(s, (struct sockaddr*)socket_address, sizeof(*socket_address)))
-    {
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] socket('%s') returned with errno=%d (%s) while binding a RAW socket\n",
-                                    interface_name, errno, strerror(errno));
-        close(s);
-        return -1;
-    }
-
-    return s;
 }
 
 static int64_t get_time_ns()
