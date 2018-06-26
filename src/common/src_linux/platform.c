@@ -18,6 +18,7 @@
  */
 
 #include "platform.h"
+#include "platform_linux.h"
 
 #include <stdlib.h>      // free(), malloc(), ...
 #include <string.h>      // memcpy(), memcmp(), ...
@@ -26,6 +27,7 @@
 #include <sys/time.h>    // gettimeofday()
 #include <errno.h>       // errno
 
+#include <arpa/inet.h>        // htons()
 #include <linux/if_packet.h>  // sockaddr_ll
 #include <net/if.h>           // struct ifreq, IFNAZSIZE
 #include <netinet/ether.h>    // ETH_P_ALL, ETH_A_LEN
@@ -406,11 +408,11 @@ int openPacketSocket(const char *interface_name, INT16U eth_type)
 
     PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Opening interface '%s'\n", interface_name);
 
-    s = socket(AF_PACKET, SOCK_RAW, eth_type);
+    s = socket(AF_PACKET, SOCK_RAW, htons(eth_type));
     if (-1 == s)
     {
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] socket('%s') returned with errno=%d (%s) while opening a RAW socket\n",
-                                    interface_name, errno, strerror(errno));
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] socket('%s' type 0x%04x) returned with errno=%d (%s) while opening a RAW socket\n",
+                                    interface_name, eth_type, errno, strerror(errno));
         return -1;
     }
 
@@ -427,12 +429,12 @@ int openPacketSocket(const char *interface_name, INT16U eth_type)
     memset(&socket_address, 0, sizeof(socket_address));
     socket_address.sll_family   = AF_PACKET;
     socket_address.sll_ifindex  = ifindex;
-    socket_address.sll_protocol = eth_type;
+    socket_address.sll_protocol = htons(eth_type);
 
     if (-1 == bind(s, (struct sockaddr*)&socket_address, sizeof(socket_address)))
     {
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] socket('%s') returned with errno=%d (%s) while binding a RAW socket\n",
-                                    interface_name, errno, strerror(errno));
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] socket('%s' type 0x%04x) returned with errno=%d (%s) while binding a RAW socket\n",
+                                    interface_name, eth_type, errno, strerror(errno));
         close(s);
         return -1;
     }

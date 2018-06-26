@@ -29,7 +29,7 @@
 /** @brief Open a socket suitable for raw ethernet packets.
  *
  * @param[in] interface_name The name of the interface on which to listen.
- * @param[in] eth_type The protocol number (in network byte order)
+ * @param[in] eth_type The protocol number (in host byte order)
  * @return The socket file descriptor on success, or -1 on error (errno will be set).
  *
  * The socket is created as SOCK_RAW, so the ethernet header must be added to / removed from the payload.
