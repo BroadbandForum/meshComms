@@ -569,10 +569,6 @@ Note that the Linux port depends on the following libraries:
   * "**libpthread**" and "**librt**" to create threads this are typically
     already installed in all Linux systems.
 
-  * "**libpcap**"  to capture 1905 and LLDP packets. Usually you will have to
-    manually install it first (ex: "sudo aptitude install libcap-dev" in
-    Debian based distros)
-
   * "**libcrypto**" for WPS stuff. As in the previous case you probably need to
     install it first (ex: "sudo aptitude install libssl-dev" in Debian based
     distros)

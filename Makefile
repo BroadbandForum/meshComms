@@ -42,7 +42,6 @@ ifeq ($(PLATFORM),linux)
         CCFLAGS   := -D_FLAVOUR_X86_GENERIC_
 
         LDFLAGS       += -lrt -lpthread   # For threads
-        LDFLAGS       += -lpcap           # For packet capture
         LDFLAGS       += -lcrypto         # For WPS crypto
 
         AL_SUPPORTED  := yes
@@ -56,7 +55,6 @@ ifeq ($(PLATFORM),linux)
         CCFLAGS   += -D_FLAVOUR_ARM_WRT1900ACX_
 
         LDFLAGS       += -lrt -lpthread   # For threads
-        LDFLAGS       += -lpcap           # For packet capture
         LDFLAGS       += -lcrypto         # For WPS crypto
 
         AL_SUPPORTED  := yes

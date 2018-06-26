@@ -3,7 +3,6 @@ language: c
 addons:
   apt:
     packages:
-    - libpcap-dev
     - libssl-dev
 
 sudo: required

@@ -27,24 +27,12 @@
 
 // 1905 multicast address ("01:80:C2:00:00:13")
 //
-#define MCAST_1905_B0 (0x01)
-#define MCAST_1905_B1 (0x80)
-#define MCAST_1905_B2 (0xC2)
-#define MCAST_1905_B3 (0x00)
-#define MCAST_1905_B4 (0x00)
-#define MCAST_1905_B5 (0x13)
-#define MCAST_1905  {MCAST_1905_B0, MCAST_1905_B1, MCAST_1905_B2, MCAST_1905_B3, MCAST_1905_B4, MCAST_1905_B5}
+#define MCAST_1905 "\x01\x80\xC2\x00\x00\x13"
 
 
 // LLDP nearest bridge multicast address ("01:80:C2:00:00:0E")
 //
-#define MCAST_LLDP_B0  (0x01)
-#define MCAST_LLDP_B1  (0x80)
-#define MCAST_LLDP_B2  (0xC2)
-#define MCAST_LLDP_B3  (0x00)
-#define MCAST_LLDP_B4  (0x00)
-#define MCAST_LLDP_B5  (0x0E)
-#define MCAST_LLDP  {MCAST_LLDP_B0, MCAST_LLDP_B1, MCAST_LLDP_B2, MCAST_LLDP_B3, MCAST_LLDP_B4, MCAST_LLDP_B5}
+#define MCAST_LLDP  "\x01\x80\xC2\x00\x00\x0E"
 
 #endif
 

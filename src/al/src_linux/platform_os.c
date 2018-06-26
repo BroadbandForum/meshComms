@@ -16,26 +16,49 @@
  *  limitations under the License.
  */
 
+#include <interface.h>
 #include "platform.h"
 #include "platform_os.h"
 #include "platform_os_priv.h"
 #include "platform_alme_server_priv.h"
+#include <platform_linux.h>
+#include <utils.h>
 #include "1905_l2.h"
 
 #include <stdlib.h>      // free(), malloc(), ...
+#include <stdio.h>       // fopen(), FILE, sprintf(), fwrite()
 #include <string.h>      // memcpy(), memcmp(), ...
 #include <pthread.h>     // threads and mutex functions
 #include <mqueue.h>      // mq_*() functions
-#include <pcap/pcap.h>   // pcap_*() functions
 #include <errno.h>       // errno
 #include <poll.h>        // poll()
 #include <sys/inotify.h> // inotify_*()
 #include <unistd.h>      // read(), sleep()
 #include <signal.h>      // struct sigevent, SIGEV_*
+#include <sys/types.h>   // recv(), setsockopt()
+#include <sys/socket.h>  // recv(), setsockopt()
+#include <linux/if_packet.h> // packet_mreq
 
 ////////////////////////////////////////////////////////////////////////////////
 // Private functions, structures and macros
 ////////////////////////////////////////////////////////////////////////////////
+
+/** @brief Linux-specific per-interface data. */
+struct linux_interface_info {
+    struct interface interface;
+
+    /** @brief Index of the interface, to be used for sockaddr_ll::sll_ifindex. */
+    int ifindex;
+
+    /** @brief File descriptor of the packet socket bound to the IEEE1905 protocol. */
+    int sock_1905_fd;
+
+    /** @brief File descriptor of the packet socket bound to the LLDP protocol. */
+    int sock_lldp_fd;
+
+    INT8U     al_mac_address[6];
+    INT8U     queue_id;
+};
 
 // *********** IPC stuff *******************************************************
 
@@ -51,62 +74,20 @@ static mqd_t           queues_id[MAX_QUEUE_IDS] = {[ 0 ... MAX_QUEUE_IDS-1 ] = (
 static pthread_mutex_t queues_id_mutex          = PTHREAD_MUTEX_INITIALIZER;
 
 
-// *********** Packet capture stuff ********************************************
+// *********** Receiving packets ********************************************
 
-// We use 'libpcap' to capture 1905 packets on all interfaces.
-// It works like this:
-//
-//   - When the PLATFORM API user calls "PLATFORM_REGISTER_QUEUE_EVENT()" with
-//     'PLATFORM_QUEUE_EVENT_NEW_1905_PACKET', 'libpcap' is used to set the
-//     corresponding interface into monitor mode.
-//
-//   - In addition, a new thread is created ('_pcapLoopThread()') which runs
-//     forever and, everytime a new packet is received on the corresponding
-//     interface, that thread calls '_pcapProcessPacket()'
-//
-//   - '_pcapProcessPacket()' simply post the whole contents of the received
-//     packet to a queue so that the user can later obtain it with a call to
-//     "PLATFORM_QUEUE_READ()"
-
-static pthread_mutex_t pcap_filters_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t  pcap_filters_cond  = PTHREAD_COND_INITIALIZER;
-static int             pcap_filters_flag  = 0;
-
-struct _pcapCaptureThreadData
+static void handlePacket(INT8U queue_id, const uint8_t *packet, size_t packet_len, mac_address interface_mac_address)
 {
-    INT8U     queue_id;
-    char     *interface_name;
-    INT8U     interface_mac_address[6];
-    INT8U     al_mac_address[6];
-};
-
-static void _pcapProcessPacket(u_char *arg, const struct pcap_pkthdr *pkthdr, const u_char *packet)
-{
-    // This function is executed (on a per-interface dedicated thread) every
-    // time a new 1905 packet arrives
-
-    struct _pcapCaptureThreadData *aux;
-
-    INT8U   message[3+MAX_NETWORK_SEGMENT_SIZE];
+    INT8U   message[9+MAX_NETWORK_SEGMENT_SIZE];
     INT16U  message_len;
     INT8U   message_len_msb;
     INT8U   message_len_lsb;
 
-    if (NULL == arg)
-    {
-        // Invalid argument
-        //
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Pcap thread* Invalid arguments in _pcapProcessPacket()\n");
-        return;
-    }
-
-    aux = (struct _pcapCaptureThreadData *)arg;
-
-    if (pkthdr->len > MAX_NETWORK_SEGMENT_SIZE)
+    if (packet_len > MAX_NETWORK_SEGMENT_SIZE)
     {
         // This should never happen
         //
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Pcap thread* Captured packet too big\n");
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Recv thread* Captured packet too big\n");
         return;
     }
 
@@ -114,7 +95,7 @@ static void _pcapProcessPacket(u_char *arg, const struct pcap_pkthdr *pkthdr, co
     // need to follow the "message format" defines in the documentation of
     // function 'PLATFORM_REGISTER_QUEUE_EVENT()'
     //
-    message_len = (INT16U)pkthdr->len + 6;
+    message_len = packet_len + 6;
 #if _HOST_IS_LITTLE_ENDIAN_ == 1
     message_len_msb = *(((INT8U *)&message_len)+1);
     message_len_lsb = *(((INT8U *)&message_len)+0);
@@ -126,167 +107,152 @@ static void _pcapProcessPacket(u_char *arg, const struct pcap_pkthdr *pkthdr, co
     message[0] = PLATFORM_QUEUE_EVENT_NEW_1905_PACKET;
     message[1] = message_len_msb;
     message[2] = message_len_lsb;
-    message[3] = aux->interface_mac_address[0];
-    message[4] = aux->interface_mac_address[1];
-    message[5] = aux->interface_mac_address[2];
-    message[6] = aux->interface_mac_address[3];
-    message[7] = aux->interface_mac_address[4];
-    message[8] = aux->interface_mac_address[5];
-
-    memcpy(&message[9], packet, pkthdr->len);
+    memcpy(&message[3], interface_mac_address, 6);
+    memcpy(&message[9], packet, packet_len);
 
     // Now simply send the message.
     //
-    PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] *Pcap thread* Sending %d bytes to queue (0x%02x, 0x%02x, 0x%02x, ...)\n", 3+message_len, message[0], message[1], message[2]);
+    PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] *Recv thread* Sending %d bytes to queue (0x%02x, 0x%02x, 0x%02x, ...)\n", 3+message_len, message[0], message[1], message[2]);
 
-    if (0 == sendMessageToAlQueue(aux->queue_id, message, 3 + message_len))
+    if (0 == sendMessageToAlQueue(queue_id, message, 3 + message_len))
     {
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Pcap thread* Error sending message to queue from _pcapProcessPacket()\n");
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Receive thread* Error sending message to queue\n");
         return;
     }
 
     return;
 }
 
-static void *_pcapLoopThread(void *p)
+static void *recvLoopThread(void *p)
 {
-    // This function will loop forever in the "pcap_loop()" function, which
-    // generates a callback to "_pcapProcessPacket()" every time a new 1905
-    // packet arrives
+    struct linux_interface_info *interface = (struct linux_interface_info *)p;
 
-    char errbuf[PCAP_ERRBUF_SIZE];
-    pcap_t *pcap_descriptor;
-
-    struct _pcapCaptureThreadData *aux;
-
-    char pcap_filter_expression[255] = "";
-    struct bpf_program fcode;
+    struct packet_mreq multicast_request;
 
     if (NULL == p)
     {
-        // 'p' must point to a valid 'struct _pcapCaptureThreadData'
+        // 'p' must point to a valid 'struct linux_interface_info'
         //
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Pcap thread* Invalid arguments in _pcapLoopThread()\n");
-
-        pthread_mutex_lock(&pcap_filters_mutex);
-        pcap_filters_flag = 1;
-        pthread_cond_signal(&pcap_filters_cond);
-        pthread_mutex_unlock(&pcap_filters_mutex);
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Recv thread* Invalid arguments in recvLoopThread()\n");
 
         return NULL;
     }
 
-    aux = (struct _pcapCaptureThreadData *)p;
-
-    // Open the interface in pcap.
-    // The third argument of 'pcap_open_live()' is set to '1' so that the
-    // interface is configured in 'monitor mode'. This is needed because we are
-    // not only interested in receiving packets addressed to the interface
-    // MAC address (or broadcast), but also those packets addressed to the
-    // "non-existent" (virtual?) AL MAC address of the AL entity (contained in
-    // 'aux->al_mac_address')
-    //
-    pcap_descriptor = pcap_open_live(aux->interface_name, MAX_NETWORK_SEGMENT_SIZE, 1, 512, errbuf);
-    if (NULL == pcap_descriptor)
+    interface->ifindex = getIfIndex(interface->interface.name);
+    if (-1 == interface->ifindex)
     {
-        // Could not configure interface to capture 1905 packets
-        //
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Pcap thread* Error opening interface %s\n", aux->interface_name);
-
-        pthread_mutex_lock(&pcap_filters_mutex);
-        pcap_filters_flag = 1;
-        pthread_cond_signal(&pcap_filters_cond);
-        pthread_mutex_unlock(&pcap_filters_mutex);
-
+        free(interface);
         return NULL;
     }
 
-    // If we started capturing now, we would receive *all* packets. This means
-    // *all* packets (even those that have nothing to do with 1905) would be
-    // copied from kernel space into user space (which is a very costly
-    // operation).
-    //
-    // To mitigate this effect (which takes place when enabling 'monitor mode'
-    // on an interface), 'pcap' let's us define "filtering rules" that take
-    // place in kernel space, thus limiting the amount of copies that need to
-    // be done to user space.
-    //
-    // Here we are going to configure a filter that only lets certain types of
-    // packets to get through. In particular those that meet any of these
-    // requirements:
-    //
-    //   1. Have ethertype == ETHERTYPE_1905 *and* are addressed to either the
-    //      interface MAC address, the AL MAC address or the broadcast AL MAC
-    //      address
-    //
-    //   2. Have ethertype == ETHERTYPE_LLDP *and* are addressed to the special
-    //      LLDP nearest bridge multicast MAC address
-    //
-    snprintf(
-              pcap_filter_expression,
-              sizeof(pcap_filter_expression),
-              "not ether src %02x:%02x:%02x:%02x:%02x:%02x "
-              " and "
-              "not ether src %02x:%02x:%02x:%02x:%02x:%02x "
-              " and "
-              "((ether proto 0x%04x and (ether dst %02x:%02x:%02x:%02x:%02x:%02x or ether dst %02x:%02x:%02x:%02x:%02x:%02x or ether dst %02x:%02x:%02x:%02x:%02x:%02x))"
-              " or "
-              "(ether proto 0x%04x and ether dst %02x:%02x:%02x:%02x:%02x:%02x))",
-              aux->interface_mac_address[0], aux->interface_mac_address[1], aux->interface_mac_address[2], aux->interface_mac_address[3], aux->interface_mac_address[4], aux->interface_mac_address[5],
-              aux->al_mac_address[0],        aux->al_mac_address[1],        aux->al_mac_address[2],        aux->al_mac_address[3],        aux->al_mac_address[4],        aux->al_mac_address[5],
-              ETHERTYPE_1905,
-              aux->interface_mac_address[0], aux->interface_mac_address[1], aux->interface_mac_address[2], aux->interface_mac_address[3], aux->interface_mac_address[4], aux->interface_mac_address[5],
-              MCAST_1905_B0,                 MCAST_1905_B1,                 MCAST_1905_B2,                 MCAST_1905_B3,                 MCAST_1905_B4,                 MCAST_1905_B5,
-              aux->al_mac_address[0],        aux->al_mac_address[1],        aux->al_mac_address[2],        aux->al_mac_address[3],        aux->al_mac_address[4],        aux->al_mac_address[5],
-              ETHERTYPE_LLDP,
-              MCAST_LLDP_B0,                 MCAST_LLDP_B1,                 MCAST_LLDP_B2,                 MCAST_LLDP_B3,                 MCAST_LLDP_B4,                 MCAST_LLDP_B5
-            );
+    memset(&multicast_request, 0, sizeof(multicast_request));
+    multicast_request.mr_ifindex = interface->ifindex;
+    multicast_request.mr_alen = 6;
 
-    if (pcap_compile(pcap_descriptor, &fcode, pcap_filter_expression, 1, 0xffffff) < 0)
+    interface->sock_1905_fd = openPacketSocket(interface->ifindex, ETHERTYPE_1905);
+    if (-1 == interface->sock_1905_fd)
     {
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Pcap thread* Cannot compile pcap filter (interface %s)\n", aux->interface_name);
-
-        pthread_mutex_lock(&pcap_filters_mutex);
-        pcap_filters_flag = 1;
-        pthread_cond_signal(&pcap_filters_cond);
-        pthread_mutex_unlock(&pcap_filters_mutex);
-
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] socket('%s' protocol 1905) returned with errno=%d (%s) while opening a RAW socket\n",
+                                    interface->interface.name, errno, strerror(errno));
+        free(interface);
         return NULL;
     }
 
-    PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] *Pcap thread* Installing pcap filter on interface %s: %s\n", aux->interface_name, pcap_filter_expression);
-    if (pcap_setfilter(pcap_descriptor, &fcode) < 0)
+    /* Add the AL address to this interface */
+    multicast_request.mr_type = PACKET_MR_UNICAST;
+    memcpy(multicast_request.mr_address, interface->al_mac_address, 6);
+    if (-1 == setsockopt(interface->sock_1905_fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &multicast_request, sizeof(multicast_request)))
     {
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Pcap thread* Cannot attach pcap filter to interface %s\n", aux->interface_name);
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Failed to add AL MAC address to interface '%s' with errno=%d (%s)\n",
+                                    interface->interface.name, errno, strerror(errno));
+    }
 
-        pthread_mutex_lock(&pcap_filters_mutex);
-        pcap_filters_flag = 1;
-        pthread_cond_signal(&pcap_filters_cond);
-        pthread_mutex_unlock(&pcap_filters_mutex);
+    /* Add the 1905 multicast address to this interface */
+    multicast_request.mr_type = PACKET_MR_MULTICAST;
+    memcpy(multicast_request.mr_address, MCAST_1905, 6);
+    if (-1 == setsockopt(interface->sock_1905_fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &multicast_request, sizeof(multicast_request)))
+    {
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Failed to add 1905 multicast address to interface '%s' with errno=%d (%s)\n",
+                                    interface->interface.name, errno, strerror(errno));
+    }
 
+    /** @todo Make LLDP optional, for when lldpd is also running on the same device. */
+    interface->sock_lldp_fd = openPacketSocket(interface->ifindex, ETHERTYPE_LLDP);
+    if (-1 == interface->sock_lldp_fd)
+    {
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] socket('%s' protocol 1905) returned with errno=%d (%s) while opening a RAW socket\n",
+                                    interface->interface.name, errno, strerror(errno));
+        close(interface->sock_1905_fd);
+        free(interface);
         return NULL;
     }
 
-    // Signal the main thread so that it can continue its work
-    //
-    pthread_mutex_lock(&pcap_filters_mutex);
-    pcap_filters_flag = 1;
-    pthread_cond_signal(&pcap_filters_cond);
-    pthread_mutex_unlock(&pcap_filters_mutex);
+    /* Add the LLDP multicast address to this interface */
+    multicast_request.mr_type = PACKET_MR_MULTICAST;
+    memcpy(multicast_request.mr_address, MCAST_LLDP, 6);
+    if (-1 == setsockopt(interface->sock_lldp_fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &multicast_request, sizeof(multicast_request)))
+    {
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Failed to add LLDP multicast address to interface '%s' with errno=%d (%s)\n",
+                                    interface->interface.name, errno, strerror(errno));
+    }
 
-    // Start the pcap loop. This goes on forever...
-    // Everytime a new packet (that meets the filtering rules defined above)
-    // arrives, the '_pcapProcessPacket()' callback is executed
-    //
-    pcap_loop(pcap_descriptor, -1, _pcapProcessPacket, (u_char *)aux);
 
-    // This point should never be reached
-    //
-    PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Pcap thread* Exiting thread (interface %s)\n", aux->interface_name);
-    free(aux);
+    PLATFORM_PRINTF_DEBUG_DETAIL("Starting recv on %s\n", interface->interface.name);
+    /** @todo move to libevent instead of threads + poll */
+    while(1)
+    {
+        struct pollfd fdset[2];
+        size_t i;
+
+        memset((void*)fdset, 0, sizeof(fdset));
+
+        fdset[0].fd = interface->sock_1905_fd;
+        fdset[0].events = POLLIN;
+        fdset[1].fd = interface->sock_lldp_fd;
+        fdset[1].events = POLLIN;
+        if (0 > poll(fdset, 2, -1))
+        {
+            PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Interface %s receive thread* poll() returned with errno=%d (%s)\n",
+                                        interface->interface.name, errno, strerror(errno));
+            break;
+        }
+
+        for (i = 0; i < ARRAY_SIZE(fdset); i++)
+        {
+            if (fdset[i].revents & (POLLIN|POLLERR))
+            {
+                uint8_t packet[MAX_NETWORK_SEGMENT_SIZE];
+                ssize_t recv_length;
+
+                recv_length = recv(fdset[i].fd, packet, sizeof(packet), MSG_DONTWAIT);
+                if (recv_length < 0)
+                {
+                    if (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR)
+                    {
+                        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Interface %s receive thread* recv failed with errno=%d (%s) \n",
+                                                    interface->interface.name, errno, strerror(errno));
+                        /* Probably not recoverable. */
+                        close(interface->sock_1905_fd);
+                        close(interface->sock_lldp_fd);
+                        free(interface);
+                        return NULL;
+                    }
+                }
+                else
+                {
+                    handlePacket(interface->queue_id, packet, (size_t)recv_length, interface->interface.addr);
+                }
+            }
+        }
+    }
+
+    // Unreachable
+    PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Recv thread* Exiting thread (interface %s)\n", interface->interface.name);
+    close(interface->sock_1905_fd);
+    close(interface->sock_lldp_fd);
+    free(interface);
     return NULL;
 }
-
 
 // *********** Timers stuff ****************************************************
 
@@ -859,7 +825,7 @@ INT8U PLATFORM_CREATE_QUEUE(const char *name)
     attr.mq_msgsize = MAX_NETWORK_SEGMENT_SIZE+3;
       //
       // NOTE: The biggest value in the queue is going to be a message from the
-      // "pcap" event, which is MAX_NETWORK_SEGMENT_SIZE+3 bytes long.
+      // "new packet" event, which is MAX_NETWORK_SEGMENT_SIZE+3 bytes long.
       // The "PLATFORM_CREATE_QUEUE()" documentation mentions
 
     if ((mqd_t) -1 == (mqdes = mq_open(name, O_RDWR | O_CREAT, 0666, &attr)))
@@ -885,7 +851,7 @@ INT8U PLATFORM_REGISTER_QUEUE_EVENT(INT8U queue_id, INT8U event_type, void *data
         {
             pthread_t                         thread;
             struct event1905Packet           *p1;
-            struct _pcapCaptureThreadData    *p2;
+            struct linux_interface_info      *interface;
 
             if (NULL == data)
             {
@@ -896,37 +862,27 @@ INT8U PLATFORM_REGISTER_QUEUE_EVENT(INT8U queue_id, INT8U event_type, void *data
 
             p1 = (struct event1905Packet *)data;
 
-            p2 = (struct _pcapCaptureThreadData *)malloc(sizeof(struct _pcapCaptureThreadData));
-            if (NULL == p2)
+            interface = (struct linux_interface_info *)malloc(sizeof(struct linux_interface_info));
+            if (NULL == interface)
             {
                 // Out of memory
                 //
                 return 0;
             }
 
-                   p2->queue_id              = queue_id;
-                   p2->interface_name        = strdup(p1->interface_name);
-            memcpy(p2->interface_mac_address,         p1->interface_mac_address, 6);
-            memcpy(p2->al_mac_address,                p1->al_mac_address,        6);
+            interface->queue_id              = queue_id;
+            interface->interface.name        = strdup(p1->interface_name);
+            memcpy(interface->interface.addr,         p1->interface_mac_address, 6);
+            memcpy(interface->al_mac_address,         p1->al_mac_address,        6);
 
-            pthread_mutex_lock(&pcap_filters_mutex);
-            pcap_filters_flag = 0;
-            pthread_mutex_unlock(&pcap_filters_mutex);
+            pthread_create(&thread, NULL, recvLoopThread, (void *)interface);
 
-            pthread_create(&thread, NULL, _pcapLoopThread, (void *)p2);
-
-            // While it is not strictly needed, we will now wait until the PCAP
-            // thread registers the needed capture filters.
-            //
-            pthread_mutex_lock(&pcap_filters_mutex);
-            while (0 == pcap_filters_flag)
-            {
-                pthread_cond_wait(&pcap_filters_cond, &pcap_filters_mutex);
-            }
-            pthread_mutex_unlock(&pcap_filters_mutex);
+            /** @todo This is a horrible hack to make sure the addresses are configured on the interfaces before we
+             * start sending raw packets. */
+            usleep(30000);
 
             // NOTE:
-            //   The memory allocated by "p2" will be lost forever at this
+            //   The memory allocated by "interface" will be lost forever at this
             //   point (well... until the application exits, that is).
             //   This is considered acceptable.
 
