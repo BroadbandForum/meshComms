@@ -399,20 +399,16 @@ INT8U PLATFORM_INIT(void)
     return 1;
 }
 
-int openPacketSocket(const char *interface_name, INT16U eth_type)
+int getIfIndex(const char *interface_name)
 {
     int                 s;
     struct ifreq        ifr;
-    int                 ifindex;
-    struct sockaddr_ll  socket_address;
 
-    PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Opening interface '%s'\n", interface_name);
-
-    s = socket(AF_PACKET, SOCK_RAW, htons(eth_type));
+    s = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if (-1 == s)
     {
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] socket('%s' type 0x%04x) returned with errno=%d (%s) while opening a RAW socket\n",
-                                    interface_name, eth_type, errno, strerror(errno));
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] socket('%s') returned with errno=%d (%s) while opening a RAW socket\n",
+                                    interface_name, errno, strerror(errno));
         return -1;
     }
 
@@ -424,7 +420,20 @@ int openPacketSocket(const char *interface_name, INT16U eth_type)
           close(s);
           return -1;
     }
-    ifindex = ifr.ifr_ifindex;
+    close(s);
+    return ifr.ifr_ifindex;
+}
+
+int openPacketSocket(int ifindex, INT16U eth_type)
+{
+    int                 s;
+    struct sockaddr_ll  socket_address;
+
+    s = socket(AF_PACKET, SOCK_RAW, htons(eth_type));
+    if (-1 == s)
+    {
+        return -1;
+    }
 
     memset(&socket_address, 0, sizeof(socket_address));
     socket_address.sll_family   = AF_PACKET;
@@ -433,8 +442,6 @@ int openPacketSocket(const char *interface_name, INT16U eth_type)
 
     if (-1 == bind(s, (struct sockaddr*)&socket_address, sizeof(socket_address)))
     {
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] socket('%s' type 0x%04x) returned with errno=%d (%s) while binding a RAW socket\n",
-                                    interface_name, eth_type, errno, strerror(errno));
         close(s);
         return -1;
     }

@@ -238,8 +238,9 @@ int main()
     PLATFORM_INIT();
     PLATFORM_PRINTF_DEBUG_SET_VERBOSITY_LEVEL(3);
 
-    s0 = openPacketSocket("aletestpeer0", ETHERTYPE_1905);
+    s0 = openPacketSocket(getIfIndex("aletestpeer0"), ETHERTYPE_1905);
     if (-1 == s0) {
+        PLATFORM_PRINTF_DEBUG_ERROR("Failed to open aletestpeer0");
         return 1;
     }
 
@@ -284,8 +285,9 @@ int main()
         CHECK_EXPECT_PACKET(s0, aletest_expect_cmdu_topology_response, 1000, result);
     }
 
-    s1 = openPacketSocket("aletestpeer1", ETHERTYPE_1905);
+    s1 = openPacketSocket(getIfIndex("aletestpeer1"), ETHERTYPE_1905);
     if (-1 == s1) {
+        PLATFORM_PRINTF_DEBUG_ERROR("Failed to open aletestpeer1");
         close(s0);
         return 1;
     }

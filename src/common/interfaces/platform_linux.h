@@ -26,9 +26,18 @@
  * Only linux-specific source files (i.e., files in the src_linux directory) may include this header.
  */
 
-/** @brief Open a socket suitable for raw ethernet packets.
+/** @brief Get the interface index by name.
  *
  * @param[in] interface_name The name of the interface on which to listen.
+ * @return The interface index on success, or -1 on error (errno will be set).
+ *
+ * The interface index can be used to set options on the interface and to bind a socket to the interface.
+ */
+int getIfIndex(const char *interface_name);
+
+/** @brief Open a socket suitable for raw ethernet packets.
+ *
+ * @param[in] ifindex The interface index on which to listen (as returned by getIfIndex()).
  * @param[in] eth_type The protocol number (in host byte order)
  * @return The socket file descriptor on success, or -1 on error (errno will be set).
  *
@@ -38,9 +47,11 @@
  *
  * Close the socket with close() when done.
  *
+ * No messages are printed in case of error, but errno will be set upon return.
+ *
  * @todo factor with the AL server itself.
  */
-int openPacketSocket(const char *interface_name, INT16U eth_type);
+int openPacketSocket(int ifindex, INT16U eth_type);
 
 
 
