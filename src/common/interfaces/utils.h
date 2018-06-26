@@ -19,6 +19,13 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+/** @brief Get the number of elements in an array.
+ *
+ * Note that this simpel macro may evaluate its argument 0, 1 or 2 times, and that it doesn't check at all if the
+ * parameter is indeed an array. Calling it with a pointer parameter will lead to incorrect results.
+ */
+#define ARRAY_SIZE(a) (sizeof(a)/sizeof(*(a)))
+
 // This is an auxiliary function which is used when calling the "visit_*()"
 // family of functions so that the contents of the memory structures can be
 // printed on screen for debugging/logging purposes.

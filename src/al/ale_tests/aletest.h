@@ -25,8 +25,6 @@
 #include <stdint.h>
 #include <stdlib.h> /* size_t */
 
-#define ARRAY_SIZE(a) (sizeof(a)/sizeof(*(a)))
-
 /** Print the contents of @a buf, wrapping at 80 characters, indent every line with @a indent + 1 space */
 void dump_bytes(const uint8_t *buf, size_t buf_len, const char *indent);
 
