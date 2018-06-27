@@ -21,6 +21,9 @@
 
 #include "platform.h"
 
+#include <stdint.h>
+#include <stdbool.h>
+
 ////////////////////////////////////////////////////////////////////////////////
 // CMDU message type as detailed in "IEEE Std 1905.1-2013, Table 6-4"
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +57,24 @@
 ////////////////////////////////////////////////////////////////////////////////
 // CMDU associated structures
 ////////////////////////////////////////////////////////////////////////////////
+
+/** @brief Definition of a MAC address. */
+typedef uint8_t mac_address[6];
+
+/** @brief Header information of a single CMDU packet.
+ *
+ * This structure contains the information parsed out of the CMDU header that is relevant to be able to handle
+ * relaying, duplicates, and fragmentation/reassembly.
+ */
+struct CMDU_header
+{
+    mac_address dst_addr; /**< @brief Destination MAC address of this packet. */
+    mac_address src_addr; /**< @brief Source MAC address of this packet. */
+    uint16_t    mid;      /**< @brief Message-ID (MID) value of this packet (in host byte order). */
+    uint8_t     fragment_id; /**< @brief Fragment-ID valud of this packet. */
+    bool        last_fragment_indicator; /**< @brief If true, this is the last (or only) fragment of this CMDU. */
+};
+
 struct CMDU
 {
     INT8U   message_version;       // One of "CMDU_MESSAGE_VERSION_*" values
@@ -239,12 +260,18 @@ INT8U **forge_1905_CMDU_from_structure(struct CMDU *memory_structure, INT16U **l
 // Utility API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-// Return the 'mid', 'fragment_id' and 'last_fragment_indicator' of the CMDU
-// contained in the given 'stream' in the provided output variables.
-//
-// Return "0" if an error preventing the parsing takes place, "1" otherwise.
-//
-INT8U parse_1905_CMDU_header_from_packet(INT8U *stream, INT16U *mid, INT8U *fragment_id, INT8U *last_fragment_indicator);
+
+/** @brief Parse the Ethernet and CMDU headers from a packet.
+ *
+ * Parse the ::CMDU_header information out of @a packet_buffer.
+ *
+ * @param[in] packet_buffer The packet to parse, including Ethernet header.
+ * @param[in] len The length of @a packet_buffer.
+ * @param[out] cmdu_header The parsed CMDU header information. Must not be NULL.
+ * @return @a true if a valid CMDU header was found (@a cmdu_header is filled with the header information), @a false
+ *         if not (@a cmdu_header may be partially overwritten).
+ */
+bool parse_1905_CMDU_header_from_packet(INT8U *packet_buffer, INT16U len, struct CMDU_header *cmdu_header);
 
 
 // This function receives a pointer to a CMDU structure and then traverses it

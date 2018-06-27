@@ -20,6 +20,7 @@
 
 #include "1905_cmdus.h"
 #include "1905_tlvs.h"
+#include "1905_l2.h"
 #include "packet_tools.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -928,32 +929,48 @@ INT8U **forge_1905_CMDU_from_structure(struct CMDU *memory_structure, INT16U **l
 }
 
 
-INT8U parse_1905_CMDU_header_from_packet(INT8U *stream, INT16U *mid, INT8U *fragment_id, INT8U *last_fragment_indicator)
+bool parse_1905_CMDU_header_from_packet(INT8U *packet_buffer, INT16U len, struct CMDU_header *cmdu_header)
 {
+    INT16U  ether_type;
     INT8U   message_version;
     INT8U   reserved_field;
     INT16U  message_type;
     INT8U   indicators;
 
-    if ((NULL == stream) || (NULL == mid) || (NULL == fragment_id) || (NULL == last_fragment_indicator))
+    if (NULL == packet_buffer || NULL == cmdu_header)
     {
         // Invalid params
         //
-        return 0;
+        return false;
+    }
+
+    if (len < 6+6+2+1+1+2+2+1+1)
+    {
+        // Not a valid CMDU, too small
+        return false;
     }
 
     // Let's parse the header fields
     //
-    _E1B(&stream, &message_version);
-    _E1B(&stream, &reserved_field);
-    _E2B(&stream, &message_type);
-    _E2B(&stream, mid);
-    _E1B(&stream, fragment_id);
-    _E1B(&stream, &indicators);
+    _EnB(&packet_buffer, cmdu_header->dst_addr, 6);
+    _EnB(&packet_buffer, cmdu_header->src_addr, 6);
+    _E2B(&packet_buffer, &ether_type);
+    if (ether_type != ETHERTYPE_1905)
+    {
+        // Wrong ether type, can't be a CMDU
+        return false;
+    }
 
-    *last_fragment_indicator = (indicators & 0x80) >> 7; // MSB and 2nd MSB
+    _E1B(&packet_buffer, &message_version);
+    _E1B(&packet_buffer, &reserved_field);
+    _E2B(&packet_buffer, &message_type);
+    _E2B(&packet_buffer, &cmdu_header->mid);
+    _E1B(&packet_buffer, &cmdu_header->fragment_id);
+    _E1B(&packet_buffer, &indicators);
 
-    return 1;
+    cmdu_header->last_fragment_indicator = (indicators & 0x80) >> 7; // MSB and 2nd MSB
+
+    return true;
 }
 
 

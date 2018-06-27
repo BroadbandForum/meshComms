@@ -143,31 +143,21 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
 
     static INT32U current_age = 0;
 
-    INT8U  dst_addr[6];
-    INT8U  src_addr[6];
-    INT16U ether_type;
-
-    INT16U mid;
-    INT8U  fragment_id;
-    INT8U  last_fragment_indicator;
-
     INT8U  i, j;
     INT8U *p;
+    struct CMDU_header cmdu_header;
 
-    p = packet_buffer;
-
-    _EnB(&p, dst_addr, 6);
-    _EnB(&p, src_addr, 6);
-    _E2B(&p, &ether_type);
-
-    len -= (6+6+2);
-
-    if (0 == parse_1905_CMDU_header_from_packet(p, &mid, &fragment_id, &last_fragment_indicator))
+    if (!parse_1905_CMDU_header_from_packet(packet_buffer, len, &cmdu_header))
     {
         PLATFORM_PRINTF_DEBUG_ERROR("Could not retrieve CMDU header from bit stream\n");
         return NULL;
     }
-    PLATFORM_PRINTF_DEBUG_DETAIL("mid = %d, fragment_id = %d, last_fragment_indicator = %d\n", mid, fragment_id, last_fragment_indicator);
+    PLATFORM_PRINTF_DEBUG_DETAIL("mid = %d, fragment_id = %d, last_fragment_indicator = %d\n",
+                                 cmdu_header.mid, cmdu_header.fragment_id, cmdu_header.last_fragment_indicator);
+
+    // Skip over ethernet header
+    p = packet_buffer + (6+6+2);
+    len -= (6+6+2);
 
     // Find the set of streams associated to this 'mid' and add the just
     // received stream to its set of streams
@@ -175,10 +165,10 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
     for (i = 0; i<MAX_MIDS_IN_FLIGHT; i++)
     {
         if (
-                                  1        ==  mids_in_flight[i].in_use          &&
-                                  mid      ==  mids_in_flight[i].mid             &&
-             0 == PLATFORM_MEMCMP(dst_addr,    mids_in_flight[i].dst_addr, 6)    &&
-             0 == PLATFORM_MEMCMP(src_addr,    mids_in_flight[i].src_addr, 6)
+                                              1        ==  mids_in_flight[i].in_use          &&
+                                  cmdu_header.mid      ==  mids_in_flight[i].mid             &&
+             0 == PLATFORM_MEMCMP(cmdu_header.dst_addr,    mids_in_flight[i].dst_addr, 6)    &&
+             0 == PLATFORM_MEMCMP(cmdu_header.src_addr,    mids_in_flight[i].src_addr, 6)
            )
         {
             // Fragments for this 'mid' have previously been received. Add this
@@ -186,44 +176,58 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
 
             // ...but first check for errors
             //
-            if (fragment_id > MAX_FRAGMENTS_PER_MID)
+            if (cmdu_header.fragment_id > MAX_FRAGMENTS_PER_MID)
             {
-                PLATFORM_PRINTF_DEBUG_ERROR("Too many fragments (%d) for one same CMDU (max supported is %d)\n",fragment_id, MAX_FRAGMENTS_PER_MID);
-                PLATFORM_PRINTF_DEBUG_ERROR("  mid      = %d\n", mid);
-                PLATFORM_PRINTF_DEBUG_ERROR("  src_addr = %02x:%02x:%02x:%02x:%02x:%02x\n", src_addr[0], src_addr[1], src_addr[2], src_addr[3], src_addr[4], src_addr[5]);
-                PLATFORM_PRINTF_DEBUG_ERROR("  dst_addr = %02x:%02x:%02x:%02x:%02x:%02x\n", dst_addr[0], dst_addr[1], dst_addr[2], dst_addr[3], dst_addr[4], dst_addr[5]);
+                PLATFORM_PRINTF_DEBUG_ERROR("Too many fragments (%d) for one same CMDU (max supported is %d)\n",
+                                            cmdu_header.fragment_id, MAX_FRAGMENTS_PER_MID);
+                PLATFORM_PRINTF_DEBUG_ERROR("  mid      = %d\n", cmdu_header.mid);
+                PLATFORM_PRINTF_DEBUG_ERROR("  src_addr = %02x:%02x:%02x:%02x:%02x:%02x\n",
+                                            cmdu_header.src_addr[0], cmdu_header.src_addr[1], cmdu_header.src_addr[2],
+                                            cmdu_header.src_addr[3], cmdu_header.src_addr[4], cmdu_header.src_addr[5]);
+                PLATFORM_PRINTF_DEBUG_ERROR("  dst_addr = %02x:%02x:%02x:%02x:%02x:%02x\n",
+                                            cmdu_header.dst_addr[0], cmdu_header.dst_addr[1], cmdu_header.dst_addr[2],
+                                            cmdu_header.dst_addr[3], cmdu_header.dst_addr[4], cmdu_header.dst_addr[5]);
                 return NULL;
             }
 
-            if (1 == mids_in_flight[i].fragments[fragment_id])
+            if (1 == mids_in_flight[i].fragments[cmdu_header.fragment_id])
             {
-                PLATFORM_PRINTF_DEBUG_WARNING("Ignoring duplicated fragment #%d\n",fragment_id);
-                PLATFORM_PRINTF_DEBUG_WARNING("  mid      = %d\n", mid);
-                PLATFORM_PRINTF_DEBUG_WARNING("  src_addr = %02x:%02x:%02x:%02x:%02x:%02x\n", src_addr[0], src_addr[1], src_addr[2], src_addr[3], src_addr[4], src_addr[5]);
-                PLATFORM_PRINTF_DEBUG_WARNING("  dst_addr = %02x:%02x:%02x:%02x:%02x:%02x\n", dst_addr[0], dst_addr[1], dst_addr[2], dst_addr[3], dst_addr[4], dst_addr[5]);
+                PLATFORM_PRINTF_DEBUG_WARNING("Ignoring duplicated fragment #%d\n", cmdu_header.fragment_id);
+                PLATFORM_PRINTF_DEBUG_WARNING("  mid      = %d\n", cmdu_header.mid);
+                PLATFORM_PRINTF_DEBUG_WARNING("  src_addr = %02x:%02x:%02x:%02x:%02x:%02x\n",
+                                              cmdu_header.src_addr[0], cmdu_header.src_addr[1], cmdu_header.src_addr[2],
+                                              cmdu_header.src_addr[3], cmdu_header.src_addr[4], cmdu_header.src_addr[5]);
+                PLATFORM_PRINTF_DEBUG_WARNING("  dst_addr = %02x:%02x:%02x:%02x:%02x:%02x\n",
+                                              cmdu_header.dst_addr[0], cmdu_header.dst_addr[1], cmdu_header.dst_addr[2],
+                                              cmdu_header.dst_addr[3], cmdu_header.dst_addr[4], cmdu_header.dst_addr[5]);
                 return NULL;
             }
 
-            if (1 == last_fragment_indicator && MAX_FRAGMENTS_PER_MID != mids_in_flight[i].last_fragment)
+            if (1 == cmdu_header.last_fragment_indicator && MAX_FRAGMENTS_PER_MID != mids_in_flight[i].last_fragment)
             {
-                PLATFORM_PRINTF_DEBUG_WARNING("This fragment (#%d) and a previously received one (#%d) both contain the 'last_fragment_indicator' flag set. Ignoring...\n", fragment_id, mids_in_flight[i].last_fragment);
-                PLATFORM_PRINTF_DEBUG_WARNING("  mid      = %d\n", mid);
-                PLATFORM_PRINTF_DEBUG_WARNING("  src_addr = %02x:%02x:%02x:%02x:%02x:%02x\n", src_addr[0], src_addr[1], src_addr[2], src_addr[3], src_addr[4], src_addr[5]);
-                PLATFORM_PRINTF_DEBUG_WARNING("  dst_addr = %02x:%02x:%02x:%02x:%02x:%02x\n", dst_addr[0], dst_addr[1], dst_addr[2], dst_addr[3], dst_addr[4], dst_addr[5]);
+                PLATFORM_PRINTF_DEBUG_WARNING("This fragment (#%d) and a previously received one (#%d) both contain the 'last_fragment_indicator' flag set. Ignoring...\n",
+                                              cmdu_header.fragment_id, mids_in_flight[i].last_fragment);
+                PLATFORM_PRINTF_DEBUG_WARNING("  mid      = %d\n", cmdu_header.mid);
+                PLATFORM_PRINTF_DEBUG_WARNING("  src_addr = %02x:%02x:%02x:%02x:%02x:%02x\n",
+                                              cmdu_header.src_addr[0], cmdu_header.src_addr[1], cmdu_header.src_addr[2],
+                                              cmdu_header.src_addr[3], cmdu_header.src_addr[4], cmdu_header.src_addr[5]);
+                PLATFORM_PRINTF_DEBUG_WARNING("  dst_addr = %02x:%02x:%02x:%02x:%02x:%02x\n",
+                                              cmdu_header.dst_addr[0], cmdu_header.dst_addr[1], cmdu_header.dst_addr[2],
+                                              cmdu_header.dst_addr[3], cmdu_header.dst_addr[4], cmdu_header.dst_addr[5]);
                 return NULL;
             }
 
             // ...and now actually save the stream for later
             //
-            mids_in_flight[i].fragments[fragment_id] = 1;
+            mids_in_flight[i].fragments[cmdu_header.fragment_id] = 1;
 
-            if (1 == last_fragment_indicator)
+            if (1 == cmdu_header.last_fragment_indicator)
             {
-                mids_in_flight[i].last_fragment = fragment_id;
+                mids_in_flight[i].last_fragment = cmdu_header.fragment_id;
             }
 
-            mids_in_flight[i].streams[fragment_id] = (INT8U *)PLATFORM_MALLOC((sizeof(INT8U) * len));
-            PLATFORM_MEMCPY(mids_in_flight[i].streams[fragment_id], p, len);
+            mids_in_flight[i].streams[cmdu_header.fragment_id] = (INT8U *)PLATFORM_MALLOC((sizeof(INT8U) * len));
+            PLATFORM_MEMCPY(mids_in_flight[i].streams[cmdu_header.fragment_id], p, len);
 
             mids_in_flight[i].age = current_age++;
 
@@ -289,10 +293,10 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
         // just received stream:
         //
         mids_in_flight[i].in_use = 1;
-        mids_in_flight[i].mid    = mid;
+        mids_in_flight[i].mid    = cmdu_header.mid;
 
-        PLATFORM_MEMCPY(mids_in_flight[i].src_addr, src_addr, 6);
-        PLATFORM_MEMCPY(mids_in_flight[i].dst_addr, dst_addr, 6);
+        PLATFORM_MEMCPY(mids_in_flight[i].src_addr, cmdu_header.src_addr, 6);
+        PLATFORM_MEMCPY(mids_in_flight[i].dst_addr, cmdu_header.dst_addr, 6);
 
         for (j=0; j<MAX_FRAGMENTS_PER_MID; j++)
         {
@@ -301,13 +305,13 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
         }
         mids_in_flight[i].streams[MAX_FRAGMENTS_PER_MID] = NULL;
 
-        mids_in_flight[i].fragments[fragment_id]  = 1;
-        mids_in_flight[i].streams[fragment_id]    = (INT8U *)PLATFORM_MALLOC((sizeof(INT8U) * len));
-        PLATFORM_MEMCPY(mids_in_flight[i].streams[fragment_id], p, len);
+        mids_in_flight[i].fragments[cmdu_header.fragment_id]  = 1;
+        mids_in_flight[i].streams[cmdu_header.fragment_id]    = (INT8U *)PLATFORM_MALLOC((sizeof(INT8U) * len));
+        PLATFORM_MEMCPY(mids_in_flight[i].streams[cmdu_header.fragment_id], p, len);
 
-        if (1 == last_fragment_indicator)
+        if (1 == cmdu_header.last_fragment_indicator)
         {
-            mids_in_flight[i].last_fragment = fragment_id;
+            mids_in_flight[i].last_fragment = cmdu_header.fragment_id;
         }
         else
         {
