@@ -42,4 +42,47 @@ extern struct CMDU   x1905_cmdu_structure_005;
 extern INT8U        *x1905_cmdu_streams_005[];
 extern INT16U        x1905_cmdu_streams_len_005[];
 
+/** @defgroup tv_cmdu_header CMDU header parsing test vectors
+ */
+
+/** @defgroup tv_cmdu_header_001 CMDU header with last fragment indicator
+ *
+ * @ingroup tv_cmdu_header
+ * @{
+ */
+extern struct CMDU_header x1905_cmdu_header_001;
+extern uint8_t            x1905_cmdu_packet_001[];
+extern size_t             x1905_cmdu_packet_len_001;
+/** @} */
+
+/** @defgroup tv_cmdu_header_002 CMDU header without last fragment indicator
+ *
+ * @ingroup tv_cmdu_header
+ * @{
+ */
+extern struct CMDU_header x1905_cmdu_header_002;
+extern uint8_t            x1905_cmdu_packet_002[];
+extern size_t             x1905_cmdu_packet_len_002;
+/** @} */
+
+/** @defgroup tv_cmdu_header_003 CMDU header with wrong ether type
+ *
+ * @ingroup tv_cmdu_header
+ * @{
+ */
+extern uint8_t            x1905_cmdu_packet_003[];
+extern size_t             x1905_cmdu_packet_len_003;
+/** @} */
+
+/** @defgroup tv_cmdu_header_004 CMDU header is too short
+ *
+ * @ingroup tv_cmdu_header
+ * @{
+ */
+extern uint8_t            x1905_cmdu_packet_004[];
+extern size_t             x1905_cmdu_packet_len_004;
+/** @} */
+
+
+
 #endif

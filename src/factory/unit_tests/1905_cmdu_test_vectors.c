@@ -18,6 +18,9 @@
 
 #include "1905_tlvs.h"
 #include "1905_cmdus.h"
+#include "1905_cmdu_test_vectors.h"
+
+#include <utils.h> // ARRAY_SIZE
 
 // This file contains test vectors than can be used to check the
 // "parse_1905_CMDU_from_packets()" and "forge_1905_CMDU_from_structure()"
@@ -289,3 +292,85 @@ INT16U x1905_cmdu_streams_len_005[] = {11, 0};
 
 // TODO: More tests for all types of CMDUs
 
+
+struct CMDU_header x1905_cmdu_header_001 =
+{
+    .dst_addr = "\x00\xb2\xc3\xd4\xe5\xf6",
+    .src_addr = "\x02\x22\x33\x44\x55\x66",
+    .mid      = 0x4321,
+    .fragment_id = 0x00,
+    .last_fragment_indicator = true,
+};
+
+uint8_t x1905_cmdu_packet_001[] =
+{
+    0x00, 0xb2, 0xc3, 0xd4, 0xe5, 0xf6,
+    0x02, 0x22, 0x33, 0x44, 0x55, 0x66,
+    0x89, 0x3a,
+    0x00,
+    0x00,
+    0x00, 0x02,
+    0x43, 0x21,
+    0x00,
+    0x80,
+
+    0x00,
+    0x00, 0x00,
+};
+size_t  x1905_cmdu_packet_len_001 = ARRAY_SIZE(x1905_cmdu_packet_001);
+
+struct CMDU_header x1905_cmdu_header_002 =
+{
+    .dst_addr = "\x00\xb2\xc3\xd4\xe5\xf6",
+    .src_addr = "\x02\x22\x33\x44\x55\x66",
+    .mid      = 0x4321,
+    .fragment_id = 0x01,
+    .last_fragment_indicator = false,
+};
+
+uint8_t x1905_cmdu_packet_002[] =
+{
+    0x00, 0xb2, 0xc3, 0xd4, 0xe5, 0xf6,
+    0x02, 0x22, 0x33, 0x44, 0x55, 0x66,
+    0x89, 0x3a,
+    0x00,
+    0x00,
+    0x00, 0x02,
+    0x43, 0x21,
+    0x01,
+    0x40,
+
+    0x00,
+    0x00, 0x00,
+};
+size_t  x1905_cmdu_packet_len_002 = ARRAY_SIZE(x1905_cmdu_packet_002);
+
+uint8_t x1905_cmdu_packet_003[] =
+{
+    0x00, 0xb2, 0xc3, 0xd4, 0xe5, 0xf6,
+    0x02, 0x22, 0x33, 0x44, 0x55, 0x66,
+    0x89, 0x3b,
+    0x00,
+    0x00,
+    0x00, 0x02,
+    0x43, 0x21,
+    0x02,
+    0x80,
+
+    0x00,
+    0x00, 0x00,
+};
+size_t  x1905_cmdu_packet_len_003 = ARRAY_SIZE(x1905_cmdu_packet_003);
+
+uint8_t x1905_cmdu_packet_004[] =
+{
+    0x00, 0xb2, 0xc3, 0xd4, 0xe5, 0xf6,
+    0x02, 0x22, 0x33, 0x44, 0x55, 0x66,
+    0x89, 0x3a,
+    0x00,
+    0x00,
+    0x00, 0x02,
+    0x43, 0x21,
+    0x01,
+};
+size_t  x1905_cmdu_packet_len_004 = ARRAY_SIZE(x1905_cmdu_packet_004);

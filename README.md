@@ -1755,6 +1755,15 @@ Take 'bbf_send.c' as an example, which implements these callbacks:
 
 ## Coding style
 
+In the project fork of the prpl foundation, the coding style has changed. All new code should comply to the following
+style guidelines. Existing code will be gradually converted.
+
+  * Use of scalar types:
+    - use `bool` for booleans
+    - use `size_t` or `ssize_t` for buffer lengths and sizes
+    - use `int` or `unsigned` for non-specific types
+    - use `char *` for opaque data (i.e. buffers)
+    - only use types from `stdint.h` for specific bit-widths, i.e. pretty much limited to protocol fields
   * Everything must be documented with Doxygen comments.
     - Use Javadoc-style comments, so /** @command */
     - Always use @brief, even if there is only a @brief.

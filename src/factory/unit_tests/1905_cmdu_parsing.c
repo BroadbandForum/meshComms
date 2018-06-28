@@ -28,9 +28,11 @@
 #include "1905_cmdus.h"
 #include "1905_cmdu_test_vectors.h"
 
-INT8U _check(const char *test_description, INT8U **input, struct CMDU *expected_output)
+#include <string.h> // memcmp
+
+static int check_parse_1905_cmdu(const char *test_description, INT8U **input, struct CMDU *expected_output)
 {
-    INT8U  result;
+    int result;
     struct CMDU *real_output;
 
     real_output = parse_1905_CMDU_from_packets(input);
@@ -53,22 +55,83 @@ INT8U _check(const char *test_description, INT8U **input, struct CMDU *expected_
     return result;
 }
 
+static int check_parse_1905_cmdu_header(const char *test_description, uint8_t *input, size_t input_len,
+                                        struct CMDU_header *expected_output)
+{
+    int result = 1;
+    struct CMDU_header real_output;
+
+    memset(&real_output, 0x42, sizeof(real_output));
+
+    if (parse_1905_CMDU_header_from_packet(input, input_len, &real_output))
+    {
+        if (NULL != expected_output)
+        {
+            if (0 == memcmp(expected_output, &real_output, sizeof(real_output)))
+            {
+                result = 0;
+            }
+        }
+        // Else failed because we expected parse to fail
+    }
+    else
+    {
+        if (NULL == expected_output)
+        {
+            result = 0;
+        }
+    }
+
+    if (0 == result)
+    {
+        PLATFORM_PRINTF("%-100s: OK\n", test_description);
+    }
+    else
+    {
+        PLATFORM_PRINTF("%-100s: KO !!!\n", test_description);
+        if (NULL != expected_output)
+        {
+            PLATFORM_PRINTF("  Expected output:\n    dst_addr: " MACSTR "\n    src_addr: " MACSTR "\n"
+                            "    MID: 0x%04x FID: 0x%02x Last fragment: %d\n",
+                            MAC2STR(expected_output->dst_addr), MAC2STR(expected_output->src_addr),
+                            expected_output->mid, expected_output->fragment_id, expected_output->last_fragment_indicator);
+        }
+        PLATFORM_PRINTF("  Real output:\n    dst_addr: " MACSTR "\n    src_addr: " MACSTR "\n"
+                        "    MID: 0x%04x FID: 0x%02x Last fragment: %d\n",
+                        MAC2STR(real_output.dst_addr), MAC2STR(real_output.src_addr),
+                        real_output.mid, real_output.fragment_id, real_output.last_fragment_indicator);
+    }
+
+    return result;
+}
 
 int main(void)
 {
-    INT8U result = 0;
+    int result = 0;
 
     #define x1905CMDUPARSE001 "x1905CMDUPARSE001 - Parse link metric query CMDU (x1905_cmdu_streams_001)"
-    result += _check(x1905CMDUPARSE001, x1905_cmdu_streams_001, &x1905_cmdu_structure_001);
+    result += check_parse_1905_cmdu(x1905CMDUPARSE001, x1905_cmdu_streams_001, &x1905_cmdu_structure_001);
 
     #define x1905CMDUPARSE002 "x1905CMDUPARSE002 - Parse link metric query CMDU (x1905_cmdu_streams_002)"
-    result += _check(x1905CMDUPARSE002, x1905_cmdu_streams_002, &x1905_cmdu_structure_002);
+    result += check_parse_1905_cmdu(x1905CMDUPARSE002, x1905_cmdu_streams_002, &x1905_cmdu_structure_002);
 
     #define x1905CMDUPARSE003 "x1905CMDUPARSE003 - Parse link metric query CMDU (x1905_cmdu_streams_004)"
-    result += _check(x1905CMDUPARSE003, x1905_cmdu_streams_004, &x1905_cmdu_structure_004);
+    result += check_parse_1905_cmdu(x1905CMDUPARSE003, x1905_cmdu_streams_004, &x1905_cmdu_structure_004);
 
     #define x1905CMDUPARSE004 "x1905CMDUPARSE004 - Parse topology query CMDU (x1905_cmdu_streams_005)"
-    result += _check(x1905CMDUPARSE004, x1905_cmdu_streams_005, &x1905_cmdu_structure_005);
+    result += check_parse_1905_cmdu(x1905CMDUPARSE004, x1905_cmdu_streams_005, &x1905_cmdu_structure_005);
+
+    result += check_parse_1905_cmdu_header("x1905CMDUPARSEHDR001 - Parse CMDU packet last fragment",
+                                           x1905_cmdu_packet_001, x1905_cmdu_packet_len_001, &x1905_cmdu_header_001);
+
+    result += check_parse_1905_cmdu_header("x1905CMDUPARSEHDR002 - Parse CMDU packet not last fragment",
+                                           x1905_cmdu_packet_002, x1905_cmdu_packet_len_002, &x1905_cmdu_header_002);
+
+    result += check_parse_1905_cmdu_header("x1905CMDUPARSEHDR003 - Parse CMDU packet wrong ethertype",
+                                           x1905_cmdu_packet_003, x1905_cmdu_packet_len_003, NULL);
+
+    result += check_parse_1905_cmdu_header("x1905CMDUPARSEHDR004 - Parse CMDU packet too short",
+                                           x1905_cmdu_packet_004, x1905_cmdu_packet_len_004, NULL);
 
     // Return the number of test cases that failed
     //

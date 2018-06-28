@@ -21,8 +21,9 @@
 
 #include "platform.h"
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h> // size_t
 
 ////////////////////////////////////////////////////////////////////////////////
 // CMDU message type as detailed in "IEEE Std 1905.1-2013, Table 6-4"
@@ -60,6 +61,13 @@
 
 /** @brief Definition of a MAC address. */
 typedef uint8_t mac_address[6];
+
+/* The following are copied from hostapd, Copyright (c) 2002-2007, Jouni Malinen <j@w1.fi>
+ * This software may be distributed under the terms of the BSD license.
+ */
+#define MAC2STR(a) (a)[0], (a)[1], (a)[2], (a)[3], (a)[4], (a)[5]
+#define MACSTR "%02x:%02x:%02x:%02x:%02x:%02x"
+
 
 /** @brief Header information of a single CMDU packet.
  *
@@ -271,7 +279,7 @@ INT8U **forge_1905_CMDU_from_structure(struct CMDU *memory_structure, INT16U **l
  * @return @a true if a valid CMDU header was found (@a cmdu_header is filled with the header information), @a false
  *         if not (@a cmdu_header may be partially overwritten).
  */
-bool parse_1905_CMDU_header_from_packet(INT8U *packet_buffer, INT16U len, struct CMDU_header *cmdu_header);
+bool parse_1905_CMDU_header_from_packet(INT8U *packet_buffer, size_t len, struct CMDU_header *cmdu_header);
 
 
 // This function receives a pointer to a CMDU structure and then traverses it

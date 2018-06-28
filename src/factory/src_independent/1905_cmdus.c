@@ -929,7 +929,7 @@ INT8U **forge_1905_CMDU_from_structure(struct CMDU *memory_structure, INT16U **l
 }
 
 
-bool parse_1905_CMDU_header_from_packet(INT8U *packet_buffer, INT16U len, struct CMDU_header *cmdu_header)
+bool parse_1905_CMDU_header_from_packet(INT8U *packet_buffer, size_t len, struct CMDU_header *cmdu_header)
 {
     INT16U  ether_type;
     INT8U   message_version;
