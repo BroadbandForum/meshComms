@@ -1016,7 +1016,7 @@ void free_1905_CMDU_packets(INT8U **packet_streams)
 }
 
 
-INT8U compare_1905_CMDU_structures(struct CMDU *memory_structure_1, struct CMDU *memory_structure_2)
+INT8U compare_1905_CMDU_structures(const struct CMDU *memory_structure_1, const struct CMDU *memory_structure_2)
 {
     INT8U i;
 

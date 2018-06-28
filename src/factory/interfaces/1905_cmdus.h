@@ -301,7 +301,7 @@ void free_1905_CMDU_packets(INT8U **packet_streams);
 // This function returns '0' if the two given pointers represent CMDU structures
 // that contain the same data
 //
-INT8U compare_1905_CMDU_structures(struct CMDU *memory_structure_1, struct CMDU *memory_structure_2);
+INT8U compare_1905_CMDU_structures(const struct CMDU *memory_structure_1, const struct CMDU *memory_structure_2);
 
 
 // The next function is used to call function "callback()" on each element of
