@@ -295,10 +295,11 @@ INT16U x1905_cmdu_streams_len_005[] = {11, 0};
 
 struct CMDU_header x1905_cmdu_header_001 =
 {
-    .dst_addr = "\x00\xb2\xc3\xd4\xe5\xf6",
-    .src_addr = "\x02\x22\x33\x44\x55\x66",
-    .mid      = 0x4321,
-    .fragment_id = 0x00,
+    .dst_addr                = "\x00\xb2\xc3\xd4\xe5\xf6",
+    .src_addr                = "\x02\x22\x33\x44\x55\x66",
+    .message_type            = 0x0002,
+    .mid                     = 0x4321,
+    .fragment_id             = 0x00,
     .last_fragment_indicator = true,
 };
 
@@ -321,10 +322,11 @@ size_t  x1905_cmdu_packet_len_001 = ARRAY_SIZE(x1905_cmdu_packet_001);
 
 struct CMDU_header x1905_cmdu_header_002 =
 {
-    .dst_addr = "\x00\xb2\xc3\xd4\xe5\xf6",
-    .src_addr = "\x02\x22\x33\x44\x55\x66",
-    .mid      = 0x4321,
-    .fragment_id = 0x01,
+    .dst_addr                = "\x00\xb2\xc3\xd4\xe5\xf6",
+    .src_addr                = "\x02\x22\x33\x44\x55\x66",
+    .message_type            = 0x0002,
+    .mid                     = 0x4321,
+    .fragment_id             = 0x01,
     .last_fragment_indicator = false,
 };
 

@@ -934,7 +934,6 @@ bool parse_1905_CMDU_header_from_packet(INT8U *packet_buffer, size_t len, struct
     INT16U  ether_type;
     INT8U   message_version;
     INT8U   reserved_field;
-    INT16U  message_type;
     INT8U   indicators;
 
     if (NULL == packet_buffer || NULL == cmdu_header)
@@ -963,7 +962,7 @@ bool parse_1905_CMDU_header_from_packet(INT8U *packet_buffer, size_t len, struct
 
     _E1B(&packet_buffer, &message_version);
     _E1B(&packet_buffer, &reserved_field);
-    _E2B(&packet_buffer, &message_type);
+    _E2B(&packet_buffer, &cmdu_header->message_type);
     _E2B(&packet_buffer, &cmdu_header->mid);
     _E1B(&packet_buffer, &cmdu_header->fragment_id);
     _E1B(&packet_buffer, &indicators);

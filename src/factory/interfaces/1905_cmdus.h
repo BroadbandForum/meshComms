@@ -76,10 +76,11 @@ typedef uint8_t mac_address[6];
  */
 struct CMDU_header
 {
-    mac_address dst_addr; /**< @brief Destination MAC address of this packet. */
-    mac_address src_addr; /**< @brief Source MAC address of this packet. */
-    uint16_t    mid;      /**< @brief Message-ID (MID) value of this packet (in host byte order). */
-    uint8_t     fragment_id; /**< @brief Fragment-ID valud of this packet. */
+    mac_address dst_addr;                /**< @brief Destination MAC address of this packet. */
+    mac_address src_addr;                /**< @brief Source MAC address of this packet. */
+    uint16_t    message_type;            /**< @brief Message type vlaue of this packet (in host byte order). */
+    uint16_t    mid;                     /**< @brief Message-ID (MID) value of this packet (in host byte order). */
+    uint8_t     fragment_id;             /**< @brief Fragment-ID valud of this packet. */
     bool        last_fragment_indicator; /**< @brief If true, this is the last (or only) fragment of this CMDU. */
 };
 
