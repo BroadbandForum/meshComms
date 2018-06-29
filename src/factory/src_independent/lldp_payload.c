@@ -331,7 +331,7 @@ INT8U compare_lldp_PAYLOAD_structures(struct PAYLOAD *memory_structure_1, struct
     return 1;
 }
 
-void visit_lldp_PAYLOAD_structure(struct PAYLOAD *memory_structure, void (*callback)(void (*write_function)(const char *fmt, ...), const char *prefix, INT8U size, const char *name, const char *fmt, void *p), void (*write_function)(const char *fmt, ...), const char *prefix)
+void visit_lldp_PAYLOAD_structure(struct PAYLOAD *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     // Buffer size to store a prefix string that will be used to show each
     // element of a structure on screen

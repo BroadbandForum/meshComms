@@ -1977,7 +1977,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
 }
 
 
-void visit_1905_ALME_structure(INT8U *memory_structure, void (*callback)(void (*write_function)(const char *fmt, ...), const char *prefix, INT8U size, const char *name, const char *fmt, void *p), void (*write_function)(const char *fmt, ...), const char *prefix)
+void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     // Buffer size to store a prefix string that will be used to show each
     // element of a structure on screen

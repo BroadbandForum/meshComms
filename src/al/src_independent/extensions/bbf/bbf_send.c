@@ -921,7 +921,7 @@ void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV **extensions, INT8U nr, I
 
 void CBKDumpBBFExtendedInfo(INT8U **memory_structure,
                             INT8U   structure_nr,
-                            void  (*callback)(void (*write_function)(const char *fmt, ...), const char *prefix, INT8U size, const char *name, const char *fmt, void *p),
+                            visitor_callback callback,
                             void  (*write_function)(const char *fmt, ...),
                             const char *prefix)
 {

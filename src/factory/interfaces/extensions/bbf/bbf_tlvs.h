@@ -20,7 +20,7 @@
 #define _BBF_TLVS_H_
 
 #include "platform.h"
-
+#include <utils.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // BBF TLV types
@@ -140,7 +140,7 @@ INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struct
 //     function prints before anything else to make it easy to follow the
 //     structure traversing order)
 //
-void visit_bbf_TLV_structure(INT8U *memory_structure, void (*callback)(void (*write_function)(const char *fmt, ...), const char *prefix, INT8U size, const char *name, const char *fmt, void *p), void (*write_function)(const char *fmt, ...), const char *prefix);
+void visit_bbf_TLV_structure(INT8U *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
 
 
 // Use this function for debug purposes. It turns a TLV_TYPE_* variable into its

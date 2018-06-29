@@ -19,6 +19,8 @@
 #ifndef _LLDP_PAYLOAD_H_
 #define _LLDP_PAYLOAD_H_
 
+#include <utils.h>
+
 ////////////////////////////////////////////////////////////////////////////////
 // PAYLOAD associated structures
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,6 +143,6 @@ INT8U compare_lldp_PAYLOAD_structures(struct PAYLOAD *memory_structure_1, struct
 //     function prints before anything else to make it easy to follow the
 //     structure traversing order)
 //
-void visit_lldp_PAYLOAD_structure(struct PAYLOAD *memory_structure, void (*callback)(void (*write_function)(const char *fmt, ...), const char *prefix, INT8U size, const char *name, const char *fmt, void *p), void (*write_function)(const char *fmt, ...), const char *prefix);
+void visit_lldp_PAYLOAD_structure(struct PAYLOAD *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
 
 #endif

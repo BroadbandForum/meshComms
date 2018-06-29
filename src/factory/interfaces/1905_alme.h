@@ -44,6 +44,7 @@
 #define _1905_ALME_H_
 
 #include "platform.h"
+#include <utils.h>
 
 #include "1905_tlvs.h" // Needed because some ALME messages (such as, for
                   // example, the one containing link metrics) have TLVs.  Note
@@ -628,7 +629,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
 //     function prints before anything else to make it easy to follow the
 //     structure traversing order)
 //
-void visit_1905_ALME_structure(INT8U *memory_structure, void (*callback)(void (*write_function)(const char *fmt, ...), const char *prefix, INT8U size, const char *name, const char *fmt, void *p), void (*write_function)(const char *fmt, ...), const char *prefix);
+void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
 
 
 // Use this function for debug purposes. It turns a ALME_TYPE_* variable into

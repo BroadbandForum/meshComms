@@ -43,7 +43,7 @@ typedef void  (*DM_UPDATE_LOCAL_INFO_CBK)(struct vendorSpecificTLV  **extensions
 // Dump third-party info
 typedef void  (*DM_EXTENSION_CBK)(INT8U **memory_structure,
                                   INT8U   structure_nr,
-                                  void  (*callback)(void (*write_function)(const char *fmt, ...), const char *prefix, INT8U size, const char *name, const char *fmt, void *p),
+                                  visitor_callback callback,
                                   void  (*write_function)(const char *fmt, ...),
                                   const char *prefix);
 
@@ -152,7 +152,7 @@ INT8U obtainExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U *nr)
 INT8U updateExtendedInfo(struct vendorSpecificTLV  **extensions, INT8U  nr, INT8U *al_mac_address);
 INT8U dumpExtendedInfo(INT8U **memory_structure,
                        INT8U   structure_nr,
-                       void  (*callback)(void (*write_function)(const char *fmt, ...), const char *prefix, INT8U size, const char *name, const char *fmt, void *p),
+                       visitor_callback callback,
                        void  (*write_function)(const char *fmt, ...),
                        const char *prefix);
 void freeExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U *nr);
