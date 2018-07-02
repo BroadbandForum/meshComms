@@ -28,8 +28,6 @@
 #include <arpa/inet.h>        // socket, AF_INTER, htons(), ...
 #include <errno.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <unistd.h>
 #include <utime.h>             // utime()
 
