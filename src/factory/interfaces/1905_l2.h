@@ -21,8 +21,8 @@
 
 // Ethernet types por 1905 and LLDP packets
 //
-#define ETHERTYPE_1905  (0x893a)
-#define ETHERTYPE_LLDP  (0x88cc)
+#define ETHERTYPE_1905  (0x893aU)
+#define ETHERTYPE_LLDP  (0x88ccU)
 
 
 // 1905 multicast address ("01:80:C2:00:00:13")
