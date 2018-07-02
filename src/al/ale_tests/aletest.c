@@ -20,6 +20,7 @@
 
 #include <platform.h>
 #include <utils.h>
+#include <1905_l2.h>
 
 #include <poll.h>             // poll()
 #include <time.h>             // clock_gettime()
@@ -167,5 +168,36 @@ int expect_cmdu_match(int s, unsigned timeout_ms, const char *testname, const st
         }
         free_1905_CMDU_structure(cmdu);
     }
+    return ret;
+}
+
+int send_cmdu(int s, mac_address dst_addr, mac_address src_addr, const struct CMDU *cmdu)
+{
+    INT8U  **streams;
+    INT16U  *streams_lens;
+    int i;
+    int ret = 0;
+
+    streams = forge_1905_CMDU_from_structure(cmdu, &streams_lens);
+
+    for (i = 0; streams[i] != NULL; i++)
+    {
+        char *buf = malloc(streams_lens[i] + 6 + 6 + 2);
+        memcpy (buf, dst_addr, 6);
+        memcpy (buf + 6, src_addr, 6);
+        buf[6+6] = 0xff & (ETHERTYPE_1905 >> 8);
+        buf[6+6+1] = 0xff & (ETHERTYPE_1905);
+        memcpy(buf + 6 + 6 + 2, streams[i], streams_lens[i]);
+
+        if (-1 == send(s, buf, streams_lens[i] + 6 + 6 + 2, 0))
+        {
+            PLATFORM_PRINTF_DEBUG_ERROR("Packet could not be sent!\n");
+            ret++;
+        }
+        free(buf);
+    }
+
+    free_1905_CMDU_packets(streams);
+    PLATFORM_FREE(streams_lens);
     return ret;
 }
