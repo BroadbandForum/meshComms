@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void dump_bytes(const uint8_t *buf, size_t buf_len, const char *indent)
+void dump_bytes(const void *buf, size_t buf_len, const char *indent)
 {
     size_t i;
     int bytes_per_line = (80 - 1 - (int)strlen(indent)) / 3;
@@ -47,59 +47,9 @@ void dump_bytes(const uint8_t *buf, size_t buf_len, const char *indent)
         PLATFORM_PRINTF("%s", indent);
         for (bytecount = 0; bytecount < bytes_per_line && i < buf_len; bytecount++, i++)
         {
-            PLATFORM_PRINTF(" %02x", buf[i]);
+            PLATFORM_PRINTF(" %02x", ((const uint8_t*)buf)[i]);
         }
         PLATFORM_PRINTF("\n");
-    }
-}
-
-bool compare_masked(const uint8_t *buf, size_t buf_len, const maskedbyte_t *expected, size_t expected_len)
-{
-    size_t i;
-
-    if (buf_len < expected_len) {
-        PLATFORM_PRINTF_DEBUG_DETAIL("Buffer shorter than expected: %llu < %llu\n", (unsigned long long)buf_len,
-                                     (unsigned long long)expected_len);
-        return false;
-    }
-
-    for (i = 0; i < expected_len; i++) {
-        uint8_t mask = ~((uint8_t)(expected[i] >> 8));
-        /* Note: the mask implicitly has the effect of converting expected[i] to uint8_t */
-        if ((buf[i] & mask) != (expected[i] & mask))
-        {
-            PLATFORM_PRINTF_DEBUG_DETAIL("Buffer differs at %llu: 0x%02x != 0x%02x mask 0x%02x\n",
-                                         (unsigned long long)i, buf[i], expected[i], mask);
-            return false;
-        }
-    }
-
-    /* Remaining padding bytes must be 0 */
-    for (; i < buf_len; i++) {
-        if (buf[i] != 0)
-        {
-            PLATFORM_PRINTF_DEBUG_DETAIL("Buffer padding byte is not 0 at %llu: 0x%02x\n",
-                                         (unsigned long long)i, buf[i]);
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool check_expected_bytes(const uint8_t *buf, size_t buf_len, const maskedbyte_t *expected, size_t expected_len,
-                          const char *message, ...)
-{
-    if (!compare_masked(buf, buf_len, expected, expected_len)) {
-        va_list ap;
-        PLATFORM_PRINTF_DEBUG_INFO("Buffer does not match with expected: ");
-        va_start(ap, message);
-        vprintf(message, ap);
-        va_end(ap);
-        dump_bytes(buf, buf_len, " ");
-        return false;
-    } else {
-        return true;
     }
 }
 
@@ -111,23 +61,25 @@ static int64_t get_time_ns()
     return (int64_t)t.tv_sec * 1000000000 + (int64_t)t.tv_nsec;
 }
 
-bool expect_packet(int s, const maskedbyte_t *expected, size_t expected_len, unsigned timeout_ms)
+struct CMDU *expect_cmdu(int s, unsigned timeout_ms, const char *testname, uint16_t expected_cmdu_type,
+                         mac_address expected_src_addr, mac_address expected_src_al_addr, mac_address expected_dst_address)
 {
     int64_t deadline = get_time_ns() + (int64_t)timeout_ms * 1000000;
     int64_t remaining_ns;
     int remaining_ms;
     struct pollfd p = { .fd = s, .events = POLLIN, .revents = 0, };
     int poll_result;
-    uint8_t buf[1500];
+    char buf[1500];
     ssize_t received;
+    struct CMDU_header cmdu_header;
 
     while (true) {
         remaining_ns = (deadline - get_time_ns());
         if (timeout_ms > 0) {
             if (remaining_ns <= 0)
             {
-                PLATFORM_PRINTF_DEBUG_INFO("Timed out while expecting packet\n");
-                return false;
+                PLATFORM_PRINTF_DEBUG_INFO("Timed out while expecting %s\n", testname);
+                return NULL;
             }
             remaining_ms = (int)(remaining_ns / 1000000);
             if (remaining_ms <= 0)
@@ -141,25 +93,79 @@ bool expect_packet(int s, const maskedbyte_t *expected, size_t expected_len, uns
             received = recv(s, buf, sizeof(buf), 0);
             if (-1 == received)
             {
-                PLATFORM_PRINTF_DEBUG_ERROR("Receive failed while expecting packet\n");
-                return false;
+                PLATFORM_PRINTF_DEBUG_ERROR("Receive failed while expecting %s\n", testname);
+                return NULL;
             }
-            if (compare_masked(buf, (size_t)received, expected, expected_len))
+            if (!parse_1905_CMDU_header_from_packet((uint8_t*)buf, (size_t) received, &cmdu_header))
             {
-                return true;
+                PLATFORM_PRINTF_DEBUG_ERROR("Failed to parse CMDU header while expecting %s\n", testname);
+                PLATFORM_PRINTF_DEBUG_DETAIL("  Received:\n");
+                dump_bytes(buf, (size_t)received, "   ");
+            }
+            else if (expected_cmdu_type != cmdu_header.message_type)
+            {
+                PLATFORM_PRINTF_DEBUG_INFO("Received CMDU of type 0x%04x while expecting %s\n",
+                                           cmdu_header.message_type, testname);
+            }
+            else if (0 != memcmp(expected_dst_address, cmdu_header.dst_addr, 6))
+            {
+                PLATFORM_PRINTF_DEBUG_INFO("Received CMDU with destination " MACSTR " while expecting %s\n",
+                                           MAC2STR(cmdu_header.dst_addr), testname);
+            }
+            else if (0 != memcmp(expected_src_addr, cmdu_header.src_addr, 6) &&
+                     0 != memcmp(expected_src_al_addr, cmdu_header.src_addr, 6))
+            {
+                PLATFORM_PRINTF_DEBUG_INFO("Received CMDU with source " MACSTR " while expecting %s\n",
+                                           MAC2STR(cmdu_header.src_addr), testname);
             }
             else
             {
-                PLATFORM_PRINTF_DEBUG_DETAIL("Received something else than expected:\n");
-                dump_bytes(buf, (size_t)received, " ");
+                INT8U *packets[] = {(INT8U *)buf + (6+6+2), NULL};
+                struct CMDU *cmdu = parse_1905_CMDU_from_packets(packets);
+                if (NULL == cmdu)
+                {
+                    PLATFORM_PRINTF_DEBUG_ERROR("Failed to parse CMDU %s\n", testname);
+                    return NULL;
+                }
+                else
+                {
+                    return cmdu;
+                }
             }
         }
         else if (poll_result < 0)
         {
             PLATFORM_PRINTF_DEBUG_ERROR("Poll error while expecting packet\n");
-            return false;
+            return NULL;
         }
         // else check timeout again, poll may not be accurate enough.
     }
     // Unreachable
+}
+
+int expect_cmdu_match(int s, unsigned timeout_ms, const char *testname, const struct CMDU *expected_cmdu,
+                      mac_address expected_src_addr, mac_address expected_src_al_addr, mac_address expected_dst_address)
+{
+    int ret = 1;
+    struct CMDU *cmdu = expect_cmdu(s, timeout_ms, testname, expected_cmdu->message_type,
+                                    expected_src_addr, expected_src_al_addr, expected_dst_address);
+    if (NULL != cmdu)
+    {
+        cmdu->message_id = expected_cmdu->message_id;
+        if (0 != compare_1905_CMDU_structures(cmdu, expected_cmdu))
+        {
+            PLATFORM_PRINTF_DEBUG_ERROR("Received something else than expected %s\n", testname);
+            PLATFORM_PRINTF_DEBUG_INFO("  Expected CMDU:\n");
+            visit_1905_CMDU_structure(expected_cmdu, print_callback, PLATFORM_PRINTF_DEBUG_INFO, "");
+            PLATFORM_PRINTF_DEBUG_INFO("  Received CMDU:\n");
+            visit_1905_CMDU_structure(cmdu, print_callback, PLATFORM_PRINTF_DEBUG_INFO, "");
+        }
+        else
+        {
+            PLATFORM_PRINTF_DEBUG_DETAIL("Received expected %s\n", testname);
+            ret = 0;
+        }
+        free_1905_CMDU_structure(cmdu);
+    }
+    return ret;
 }

@@ -20,68 +20,31 @@
 #define _ALETEST_H_
 
 #include <platform.h> /* PLATFORM_PRINTF_* */
+#include <1905_cmdus.h>
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h> /* size_t */
 
+#define ADDR_AL "\x02\xee\xff\x33\x44\x00"
+#define ADDR_MAC0 "\x00\xee\xff\x33\x44\x00"
+#define ADDR_MAC1 "\x00\xee\xff\x33\x44\x10"
+#define ADDR_MAC2 "\x00\xee\xff\x33\x44\x20"
+#define ADDR_MAC3 "\x00\xee\xff\x33\x44\x30"
+
+#define ADDR_AL_PEER0 "\x02\xaa\xbb\x33\x44\x00"
+#define ADDR_AL_PEER1 "\x02\xaa\xbb\x33\x44\x10"
+#define ADDR_AL_PEER2 "\x02\xaa\xbb\x33\x44\x20"
+#define ADDR_AL_PEER3 "\x02\xaa\xbb\x33\x44\x30"
+
 /** Print the contents of @a buf, wrapping at 80 characters, indent every line with @a indent + 1 space */
-void dump_bytes(const uint8_t *buf, size_t buf_len, const char *indent);
+void dump_bytes(const void *buf, size_t buf_len, const char *indent);
 
-/** @brief Byte + mask combination.
- *
- * The 8 most significant bits of this type are the inverse of a bitmask, the 8 LSB are the bits to mask against.
- *
- * This representation is very compact for the common case where we want to check all bits, because then the mask is 0
- * and we can just put the byte we want to check.
- */
-typedef uint16_t maskedbyte_t;
+struct CMDU *expect_cmdu(int s, unsigned timeout_ms, const char *testname, uint16_t expected_cmdu_type,
+                         mac_address expected_src_addr, mac_address expected_src_al_addr, mac_address expected_dst_address);
 
-/** @brief Compare masked bytes.
- *
- * @param buf The buffer to check.
- * @param buf_len Length of @a buf.
- * @param expected The expected bytes (including their mask).
- * @param expected_len The expected length. @a buf_len may be larger than @a expected_len, the rest must be 0 bytes.
- * @return false if @a buf differs from @a expected, taking intou account the mask.
- */
-bool compare_masked(const uint8_t *buf, size_t buf_len, const maskedbyte_t *expected, size_t expected_len);
-
-/** @brief Verify that received bytes are what is expected.
- *
- * @param buf The buffer to check.
- * @param buf_len Length of @a buf.
- * @param expected The expected bytes (including their mask).
- * @param expected_len The expected length. @a buf_len may be larger than @a expected_len, the rest must be 0 bytes.
- * @param message The message to be printed in case of failure, with additional printf arguments.
- * @return false in case of failure.
- *
- * In case of failure, the @a message is printed and @a buf is dumped.
- */
-bool check_expected_bytes(const uint8_t *buf, size_t buf_len, const maskedbyte_t *expected, size_t expected_len,
-                          const char *message, ...) __attribute__((format(printf, 5, 6)));
-
-/** @brief Expect a packet on socket @a s, with timeout.
- *
- * This function receives and discards packets from socket @a s, until either a packet is received that matches @a
- * expected with length @a expected_len, or the timeout is reached.
- *
- * @return true if the expected packet was received, @false if not.
- *
- * @note This function has no way to report that packets were discarded, or if there is an error on the socket.
- */
-bool expect_packet(int s, const maskedbyte_t *expected, size_t expected_len, unsigned timeout_ms);
-
-/** Wrapper around expect_packet() that covers the common case */
-#define CHECK_EXPECT_PACKET(s, expected, timeout_ms, result) \
-    do { \
-        if (expect_packet(s, expected, ARRAY_SIZE(expected), timeout_ms)) { \
-            PLATFORM_PRINTF_DEBUG_INFO("Received expected " #expected "\n"); \
-        } else { \
-            PLATFORM_PRINTF_DEBUG_ERROR("<- Did not receive " #expected " within " #timeout_ms " ms\n"); \
-            (result)++; \
-        } \
-    } while (0)
+int expect_cmdu_match(int s, unsigned timeout_ms, const char *testname, const struct CMDU *expected_cmdu,
+                      mac_address expected_src_addr, mac_address expected_src_al_addr, mac_address expected_dst_address);
 
 #endif
 
