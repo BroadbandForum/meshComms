@@ -262,7 +262,7 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams);
 //     be freed with 'free_1905_CMDU_packets()'
 //
 //
-INT8U **forge_1905_CMDU_from_structure(struct CMDU *memory_structure, INT16U **lens);
+INT8U **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, INT16U **lens);
 
 
 

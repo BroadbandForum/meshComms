@@ -195,7 +195,7 @@ static INT8U _relayed_CMDU[] = \
 //
 #define CHECK_CMDU_TX_RULES (1)
 #define CHECK_CMDU_RX_RULES (2)
-static INT8U _check_CMDU_rules(struct CMDU *p, INT8U rules_type)
+static INT8U _check_CMDU_rules(const struct CMDU *p, INT8U rules_type)
 {
     INT8U  i;
     INT8U  structure_has_been_modified;
@@ -700,7 +700,7 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
 }
 
 
-INT8U **forge_1905_CMDU_from_structure(struct CMDU *memory_structure, INT16U **lens)
+INT8U **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, INT16U **lens)
 {
     INT8U **ret;
 

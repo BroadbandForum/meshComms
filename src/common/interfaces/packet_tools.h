@@ -46,7 +46,7 @@ static inline void _E1B(INT8U **packet_ppointer, INT8U *memory_pointer)
     *memory_pointer     = **packet_ppointer;
     (*packet_ppointer) += 1;
 }
-static inline void _I1B(INT8U *memory_pointer, INT8U **packet_ppointer)
+static inline void _I1B(const INT8U *memory_pointer, INT8U **packet_ppointer)
 {
     **packet_ppointer   = *memory_pointer;
     (*packet_ppointer) += 1;
@@ -66,14 +66,14 @@ static inline void _E2B(INT8U **packet_ppointer, INT16U *memory_pointer)
 #error You must specify your architecture endianess
 #endif
 }
-static inline void _I2B(INT16U *memory_pointer, INT8U **packet_ppointer)
+static inline void _I2B(const INT16U *memory_pointer, INT8U **packet_ppointer)
 {
 #if _HOST_IS_BIG_ENDIAN_ == 1
-    **packet_ppointer = *(((INT8U *)memory_pointer)+0); (*packet_ppointer)++;
-    **packet_ppointer = *(((INT8U *)memory_pointer)+1); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+0); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+1); (*packet_ppointer)++;
 #elif _HOST_IS_LITTLE_ENDIAN_ == 1
-    **packet_ppointer = *(((INT8U *)memory_pointer)+1); (*packet_ppointer)++;
-    **packet_ppointer = *(((INT8U *)memory_pointer)+0); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+1); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+0); (*packet_ppointer)++;
 #else
 #error You must specify your architecture endianess
 #endif
@@ -97,18 +97,18 @@ static inline void _E4B(INT8U **packet_ppointer, INT32U *memory_pointer)
 #error You must specify your architecture endianess
 #endif
 }
-static inline void _I4B(INT32U *memory_pointer, INT8U **packet_ppointer)
+static inline void _I4B(const INT32U *memory_pointer, INT8U **packet_ppointer)
 {
 #if _HOST_IS_BIG_ENDIAN_ == 1
-    **packet_ppointer = *(((INT8U *)memory_pointer)+0); (*packet_ppointer)++;
-    **packet_ppointer = *(((INT8U *)memory_pointer)+1); (*packet_ppointer)++;
-    **packet_ppointer = *(((INT8U *)memory_pointer)+2); (*packet_ppointer)++;
-    **packet_ppointer = *(((INT8U *)memory_pointer)+3); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+0); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+1); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+2); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+3); (*packet_ppointer)++;
 #elif _HOST_IS_LITTLE_ENDIAN_ == 1
-    **packet_ppointer = *(((INT8U *)memory_pointer)+3); (*packet_ppointer)++;
-    **packet_ppointer = *(((INT8U *)memory_pointer)+2); (*packet_ppointer)++;
-    **packet_ppointer = *(((INT8U *)memory_pointer)+1); (*packet_ppointer)++;
-    **packet_ppointer = *(((INT8U *)memory_pointer)+0); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+3); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+2); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+1); (*packet_ppointer)++;
+    **packet_ppointer = *(((const INT8U *)memory_pointer)+0); (*packet_ppointer)++;
 #else
 #error You must specify your architecture endianess
 #endif
@@ -121,7 +121,7 @@ static inline void _EnB(INT8U **packet_ppointer, void *memory_pointer, INT32U n)
     PLATFORM_MEMCPY(memory_pointer, *packet_ppointer, n);
     (*packet_ppointer) += n;
 }
-static inline void _InB(void *memory_pointer, INT8U **packet_ppointer, INT32U n)
+static inline void _InB(const void *memory_pointer, INT8U **packet_ppointer, INT32U n)
 {
     PLATFORM_MEMCPY(*packet_ppointer, memory_pointer, n);
     (*packet_ppointer) += n;
