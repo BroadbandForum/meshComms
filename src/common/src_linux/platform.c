@@ -70,58 +70,6 @@ static int verbosity_level = 2;
 pthread_mutex_t printf_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-// Color codes to print messages from different threads in different colors
-//
-#define KNRM  "\x1B[0m"
-#define KRED  "\x1B[31m"
-#define KGRN  "\x1B[32m"
-#define KYEL  "\x1B[33m"
-#define KBLU  "\x1B[34m"
-#define KMAG  "\x1B[35m"
-#define KCYN  "\x1B[36m"
-#define KWHT  "\x1B[37m"
-
-#ifndef ENABLE_COLOR
-#ifndef _FLAVOUR_X86_WINDOWS_MINGW_
-#    define ENABLE_COLOR (1)
-#else
-#    define ENABLE_COLOR (0)
-#endif
-#endif
-
-char *_enableColor(void)
-{
-#if ENABLE_COLOR
-    static pthread_t  first_thread = 0;
-
-    if (0 == first_thread)
-    {
-        first_thread = pthread_self();
-    }
-
-    if (pthread_self() == first_thread)
-    {
-        return KWHT;
-    }
-    else
-    {
-        static char  *aux[] = {KRED, KGRN, KYEL, KBLU, KMAG, KCYN, KWHT};
-        return aux[(pthread_self()-first_thread) % 6];
-    }
-#else
-    return "";
-#endif
-}
-
-char *_disableColor(void)
-{
-#if ENABLE_COLOR
-    return KNRM;
-#else
-    return "";
-#endif
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Platform API: libc stuff
@@ -263,13 +211,11 @@ void PLATFORM_PRINTF_DEBUG_ERROR(const char *format, ...)
     pthread_mutex_lock(&printf_mutex);
 #endif
 
-    printf("%s", _enableColor());
     printf("[%03d.%03d] ", ts/1000, ts%1000);
     printf("ERROR   : ");
     va_start( arglist, format );
     vprintf( format, arglist );
     va_end( arglist );
-    printf("%s", _disableColor());
 
 #ifndef _FLAVOUR_X86_WINDOWS_MINGW_
     pthread_mutex_unlock(&printf_mutex);
@@ -294,13 +240,11 @@ void PLATFORM_PRINTF_DEBUG_WARNING(const char *format, ...)
     pthread_mutex_lock(&printf_mutex);
 #endif
 
-    printf("%s", _enableColor());
     printf("[%03d.%03d] ", ts/1000, ts%1000);
     printf("WARNING : ");
     va_start( arglist, format );
     vprintf( format, arglist );
     va_end( arglist );
-    printf("%s", _disableColor());
 
 #ifndef _FLAVOUR_X86_WINDOWS_MINGW_
     pthread_mutex_unlock(&printf_mutex);
@@ -325,13 +269,11 @@ void PLATFORM_PRINTF_DEBUG_INFO(const char *format, ...)
     pthread_mutex_lock(&printf_mutex);
 #endif
 
-    printf("%s", _enableColor());
     printf("[%03d.%03d] ", ts/1000, ts%1000);
     printf("INFO    : ");
     va_start( arglist, format );
     vprintf( format, arglist );
     va_end( arglist );
-    printf("%s", _disableColor());
 
 #ifndef _FLAVOUR_X86_WINDOWS_MINGW_
     pthread_mutex_unlock(&printf_mutex);
@@ -356,13 +298,11 @@ void PLATFORM_PRINTF_DEBUG_DETAIL(const char *format, ...)
     pthread_mutex_lock(&printf_mutex);
 #endif
 
-    printf("%s", _enableColor());
     printf("[%03d.%03d] ", ts/1000, ts%1000);
     printf("DETAIL  : ");
     va_start( arglist, format );
     vprintf( format, arglist );
     va_end( arglist );
-    printf("%s", _disableColor());
 
 #ifndef _FLAVOUR_X86_WINDOWS_MINGW_
     pthread_mutex_unlock(&printf_mutex);
