@@ -181,6 +181,10 @@ unit_tests: all
 ale_tests: all
 	$(MAKE) -C src/al/ale_tests
 
+.PHONY: ALETEST_%
+ALETEST_%: all
+	$(MAKE) -C src/al/ale_tests $@
+
 .PHONY: clean
 clean:
 	$(MAKE) -C src/common  clean

@@ -39,7 +39,9 @@
 
 ALETEST_DIRECTORY               := al/test
 
-UNITS := topology_discovery
+UNITS := \
+    ap_onboarding_controller \
+    topology_discovery
 
 EXE  := $(addprefix $(OUTPUT_FOLDER)/ALETEST_, $(UNITS))
 SRC  := $(addsuffix .c, $(UNITS))
