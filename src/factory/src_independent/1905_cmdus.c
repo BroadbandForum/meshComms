@@ -199,8 +199,8 @@ static INT8U _check_CMDU_rules(const struct CMDU *p, INT8U rules_type)
 {
     INT8U  i;
     INT8U  structure_has_been_modified;
-    INT8U  counter[TLV_TYPE_LAST];
-    INT8U  tlvs_to_remove[TLV_TYPE_LAST];
+    INT8U  counter[TLV_TYPE_LAST + 1];
+    INT8U  tlvs_to_remove[TLV_TYPE_LAST + 1];
 
     if ((NULL == p) || (NULL == p->list_of_TLVs))
     {
