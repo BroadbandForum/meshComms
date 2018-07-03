@@ -185,5 +185,9 @@ extern struct vendorSpecificTLV                        x1905_tlv_structure_041;
 extern INT8U                                           x1905_tlv_stream_041[];
 extern INT16U                                          x1905_tlv_stream_len_041;
 
+extern struct supportedServiceTLV                      x1905_tlv_structure_050;
+extern INT8U                                           x1905_tlv_stream_050[];
+extern INT16U                                          x1905_tlv_stream_len_050;
+
 #endif
 

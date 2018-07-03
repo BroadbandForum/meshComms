@@ -69,6 +69,12 @@
                                                      // standard, update this
                                                      // value so that it always
                                                      // points to the last one.
+                                                     // HOWEVER, it is used as
+                                                     // a 32-bit bitmask so we
+                                                     // can't actually add more
+                                                     // types...
+
+#define TLV_TYPE_SUPPORTED_SERVICE                   (0x80)
 
 
 
@@ -940,7 +946,23 @@ struct l2NeighborDeviceTLV
                                       // IPv4 assigned
 };
 
+/** @brief EasyMesh SupportedService TLV.
+ * @{
+ */
 
+enum serviceType {
+    SERVICE_MULTI_AP_CONTROLLER = 0x00U,
+    SERVICE_MULTI_AP_AGENT = 0x01U,
+};
+
+struct supportedServiceTLV
+{
+    INT8U  tlv_type; /**< @brief TLV type, must always be set to TLV_TYPE_SUPPORTED_SERVICE. */
+    INT8U  supported_service_nr; /**< @brief Number of supported_service. */
+    enum serviceType supported_service[]; /**< @brief List of supported services. */
+};
+
+/** @} */
 
 ////////////////////////////////////////////////////////////////////////////////
 // Main API functions

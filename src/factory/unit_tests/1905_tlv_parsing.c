@@ -177,6 +177,9 @@ int main(void)
     #define x1905TLVPARSE040 "x1905TLVPARSE040 - Parse vendor specific TLV (x1905_tlv_stream_041)"
     result += _check(x1905TLVPARSE040, x1905_tlv_stream_041, (INT8U *)&x1905_tlv_structure_041);
 
+    #define x1905TLVPARSE041 "x1905TLVPARSE041 - Parse vendor specific TLV (x1905_tlv_stream_050)"
+    result += _check(x1905TLVPARSE041, x1905_tlv_stream_050, (INT8U *)&x1905_tlv_structure_050);
+
 
     // Return the number of test cases that failed
     //

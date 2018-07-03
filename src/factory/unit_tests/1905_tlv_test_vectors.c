@@ -1509,3 +1509,20 @@ INT8U x1905_tlv_stream_041[] =
 };
 
 INT16U x1905_tlv_stream_len_041 = 27;
+
+struct supportedServiceTLV x1905_tlv_structure_050 =
+{
+    .tlv_type                    = TLV_TYPE_SUPPORTED_SERVICE,
+    .supported_service_nr        = 2,
+    .supported_service           = { SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT, },
+};
+
+INT8U x1905_tlv_stream_050[] =
+{
+    0x80,
+    0x00, 0x03,
+    0x02,
+    0x00, 0x01,
+};
+
+INT16U x1905_tlv_stream_len_050 = ARRAY_SIZE(x1905_tlv_stream_050);

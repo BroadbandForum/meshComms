@@ -179,6 +179,9 @@ int main(void)
     #define x1905TLVFORGE035 "x1905TLVFORGE035 - Forge vendor specific TLV (x1905_tlv_structure_041)"
     result += _check(x1905TLVFORGE035, (INT8U *)&x1905_tlv_structure_041, x1905_tlv_stream_041, x1905_tlv_stream_len_041);
 
+    #define x1905TLVFORGE036 "x1905TLVFORGE036 - Forge vendor specific TLV (x1905_tlv_structure_050)"
+    result += _check(x1905TLVFORGE036, (INT8U *)&x1905_tlv_structure_050, x1905_tlv_stream_050, x1905_tlv_stream_len_050);
+
 
     // Return the number of test cases that failed
     //

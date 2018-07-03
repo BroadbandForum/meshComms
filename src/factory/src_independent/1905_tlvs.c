@@ -21,6 +21,7 @@
 #include "1905_tlvs.h"
 #include "packet_tools.h"
 
+#include <stddef.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Actual API functions
@@ -1717,6 +1718,49 @@ INT8U *parse_1905_TLV_from_packet(INT8U *packet_stream)
             return (INT8U *)ret;
         }
 
+        case TLV_TYPE_SUPPORTED_SERVICE:
+        {
+            // This parsing is done according to the information detailed in
+            // "Multi-AP Technical Specification Version 171212" Section 17.2.1
+
+            struct supportedServiceTLV  *ret;
+
+            INT8U *p;
+            INT16U len;
+            INT8U  supported_service_nr;
+            INT8U  i;
+
+            p = packet_stream + 1;
+            _E2B(&p, &len);
+
+            /* Need at least "List of supported service(s)" */
+            if (len < 1)
+            {
+                return NULL;
+            }
+
+            _E1B(&p, &supported_service_nr);
+            if (supported_service_nr + 1 != len)
+            {
+                /* Malformed packet */
+                return NULL;
+            }
+
+            ret = (struct supportedServiceTLV *)PLATFORM_MALLOC(sizeof(struct supportedServiceTLV) +
+                                                                supported_service_nr * sizeof(enum serviceType));
+
+            ret->tlv_type = TLV_TYPE_SUPPORTED_SERVICE;
+            ret->supported_service_nr = supported_service_nr;
+            for (i = 0; i < supported_service_nr; i++)
+            {
+                INT8U service_type;
+                _E1B(&p, &service_type);
+                ret->supported_service[i] = (enum serviceType)service_type;
+            }
+
+            return (INT8U *)ret;
+        }
+
         default:
         {
             // Ignore
@@ -3004,6 +3048,40 @@ INT8U *forge_1905_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             return ret;
         }
 
+        case TLV_TYPE_SUPPORTED_SERVICE:
+        {
+            // This forging is done according to the information detailed in
+            // "Multi-AP Technical Specification Version 171212" Section 17.2.1
+
+            INT8U *ret, *p;
+            struct supportedServiceTLV *m;
+
+            INT16U tlv_length;
+
+            INT8U i;
+
+            m = (struct supportedServiceTLV *)memory_structure;
+
+            tlv_length  = 1;  // number of supported services (1 bytes)
+            tlv_length += (1) * m->supported_service_nr;
+
+            *len = 1 + 2 + tlv_length;
+
+            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 2  + tlv_length);
+
+            _I1B(&m->tlv_type,                   &p);
+            _I2B(&tlv_length,                    &p);
+            _I1B(&m->supported_service_nr, &p);
+
+            for (i=0; i<m->supported_service_nr; i++)
+            {
+                INT8U supported_service = (INT8U)m->supported_service[i];
+                _I1B(&supported_service, &p);
+            }
+
+            return ret;
+        }
+
         default:
         {
             // Ignore
@@ -3043,6 +3121,7 @@ void free_1905_TLV_structure(INT8U *memory_structure)
         case TLV_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION:
         case TLV_TYPE_DEVICE_IDENTIFICATION:
         case TLV_TYPE_1905_PROFILE_VERSION:
+        case TLV_TYPE_SUPPORTED_SERVICE:
         {
             PLATFORM_FREE(memory_structure);
 
@@ -4401,6 +4480,40 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             return 0;
         }
 
+        case TLV_TYPE_SUPPORTED_SERVICE:
+        {
+            struct supportedServiceTLV *p1, *p2;
+            INT8U i, j;
+
+            p1 = (struct supportedServiceTLV *)memory_structure_1;
+            p2 = (struct supportedServiceTLV *)memory_structure_2;
+
+            if (p1->supported_service_nr != p2->supported_service_nr)
+            {
+                return 1;
+            }
+
+            for (i = 0; i < p1->supported_service_nr; i++)
+            {
+                for (j = 0; j < p2->supported_service_nr; j++)
+                {
+                    if (p1->supported_service[i] == p2->supported_service[j])
+                    {
+                        break;
+                    }
+                }
+                if (j == p2->supported_service_nr)
+                {
+                    // Not found in p2
+                    return 1;
+                }
+            }
+
+            // All services of p1 were also found in p2, and they have the same number, so they are equal.
+            /// @todo this does not check against duplicates
+
+            return 0;
+        }
         default:
         {
             // Unknown structure type
@@ -5082,6 +5195,34 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             return;
         }
 
+        case TLV_TYPE_SUPPORTED_SERVICE:
+        {
+            struct supportedServiceTLV *m;
+            INT8U i;
+            char supported_services_list[80];
+            size_t supported_services_list_len = 0;
+
+            m = (struct supportedServiceTLV *)memory_structure;
+
+            callback(write_function, prefix, sizeof(m->supported_service_nr), "supported_service_nr", "%d",  &m->supported_service_nr);
+            for (i = 0; i < m->supported_service_nr; i++)
+            {
+                PLATFORM_SNPRINTF(supported_services_list + supported_services_list_len,
+                                  sizeof (supported_services_list) - supported_services_list_len,
+                                  "0x%02x ", m->supported_service[i]);
+                supported_services_list_len += 5;
+                if (supported_services_list_len >= sizeof (supported_services_list) - 5 ||
+                    i == m->supported_service_nr - 1)
+                {
+                    supported_services_list[supported_services_list_len] = '\0';
+                    callback(write_function, prefix, sizeof(m->supported_service[i]), "supported_services", "%s",
+                             supported_services_list);
+                }
+            }
+
+            return;
+        }
+
         default:
         {
             // Ignore
@@ -5159,6 +5300,8 @@ char *convert_1905_TLV_type_to_string(INT8U tlv_type)
             return "TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS";
         case TLV_TYPE_L2_NEIGHBOR_DEVICE:
             return "TLV_TYPE_L2_NEIGHBOR_DEVICE";
+        case TLV_TYPE_SUPPORTED_SERVICE:
+            return "TLV_TYPE_SUPPORTED_SERVICE";
         default:
             return "Unknown";
     }
