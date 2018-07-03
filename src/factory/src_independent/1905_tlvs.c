@@ -5236,7 +5236,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
     return;
 }
 
-char *convert_1905_TLV_type_to_string(INT8U tlv_type)
+const char *convert_1905_TLV_type_to_string(INT8U tlv_type)
 {
     switch (tlv_type)
     {
