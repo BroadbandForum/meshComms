@@ -53,6 +53,7 @@
 //   B) tlv = parse_1905_TLV_from_packet(stream_xxx);
 //
 
+#include "1905_tlv_test_vectors.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Test vector 001 (TLV <--> packet)
@@ -836,7 +837,7 @@ INT16U x1905_tlv_stream_len_023 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct searchedRoleTLV x1905_tlv_structure_024 =
+struct supportedRoleTLV x1905_tlv_structure_024 =
 {
     .tlv_type                    = TLV_TYPE_SUPPORTED_ROLE,
     .role                        = IEEE80211_ROLE_REGISTRAR,
@@ -858,7 +859,7 @@ INT16U x1905_tlv_stream_len_024 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct searchedRoleTLV x1905_tlv_structure_025 =
+struct supportedRoleTLV x1905_tlv_structure_025 =
 {
     .tlv_type                    = TLV_TYPE_SUPPORTED_ROLE,
     .role                        = 0x02,
@@ -880,7 +881,7 @@ INT16U x1905_tlv_stream_len_025 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct autoconfigFreqBandTLV x1905_tlv_structure_026 =
+struct supportedFreqBandTLV x1905_tlv_structure_026 =
 {
     .tlv_type                    = TLV_TYPE_SUPPORTED_FREQ_BAND,
     .freq_band                   = IEEE80211_FREQUENCY_BAND_5_GHZ,
@@ -902,7 +903,7 @@ INT16U x1905_tlv_stream_len_026 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct autoconfigFreqBandTLV x1905_tlv_structure_027 =
+struct supportedFreqBandTLV x1905_tlv_structure_027 =
 {
     .tlv_type                    = TLV_TYPE_SUPPORTED_FREQ_BAND,
     .freq_band                   = 0x07,

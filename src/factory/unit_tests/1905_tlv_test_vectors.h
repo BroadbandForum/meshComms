@@ -129,7 +129,7 @@ extern struct supportedFreqBandTLV                     x1905_tlv_structure_027;
 extern INT8U                                           x1905_tlv_stream_027[];
 extern INT16U                                          x1905_tlv_stream_len_027;
 
-extern struct supportedFreqBandTLV                     x1905_tlv_structure_028;
+extern struct pushButtonEventNotificationTLV           x1905_tlv_structure_028;
 extern INT8U                                           x1905_tlv_stream_028[];
 extern INT16U                                          x1905_tlv_stream_len_028;
 
