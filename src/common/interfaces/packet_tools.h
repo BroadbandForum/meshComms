@@ -21,6 +21,9 @@
 
 #include "platform.h"
 
+#include <stdbool.h> // bool
+#include <stddef.h>  // size_t
+#include <stdint.h>
 
 // Auxiliary functions to:
 //
@@ -46,15 +49,45 @@ static inline void _E1B(INT8U **packet_ppointer, INT8U *memory_pointer)
     *memory_pointer     = **packet_ppointer;
     (*packet_ppointer) += 1;
 }
+
 static inline void _I1B(const INT8U *memory_pointer, INT8U **packet_ppointer)
 {
     **packet_ppointer   = *memory_pointer;
     (*packet_ppointer) += 1;
 }
 
+static inline bool _E1BL(const uint8_t **packet_ppointer, uint8_t *memory_pointer, size_t *length)
+{
+    if (*length < 1)
+    {
+        return false;
+    }
+    else
+    {
+        _E1B((INT8U **)packet_ppointer, memory_pointer);
+        (*length) -= 1;
+        return true;
+    }
+}
+
+static inline bool _I1BL(const uint8_t *memory_pointer, uint8_t **packet_ppointer, size_t *length)
+{
+    if (*length < 1)
+    {
+        return false;
+    }
+    else
+    {
+        _I1B(memory_pointer, packet_ppointer);
+        (*length) -= 1;
+        return true;
+    }
+}
+
+
 // Extract/insert 2 bytes
 //
-static inline void _E2B(INT8U **packet_ppointer, INT16U *memory_pointer)
+static inline void _E2B(uint8_t **packet_ppointer, INT16U *memory_pointer)
 {
 #if _HOST_IS_BIG_ENDIAN_ == 1
     *(((INT8U *)memory_pointer)+0)  = **packet_ppointer; (*packet_ppointer)++;
@@ -66,7 +99,8 @@ static inline void _E2B(INT8U **packet_ppointer, INT16U *memory_pointer)
 #error You must specify your architecture endianess
 #endif
 }
-static inline void _I2B(const INT16U *memory_pointer, INT8U **packet_ppointer)
+
+static inline void _I2B(const INT16U *memory_pointer, uint8_t **packet_ppointer)
 {
 #if _HOST_IS_BIG_ENDIAN_ == 1
     **packet_ppointer = *(((const INT8U *)memory_pointer)+0); (*packet_ppointer)++;
@@ -78,6 +112,35 @@ static inline void _I2B(const INT16U *memory_pointer, INT8U **packet_ppointer)
 #error You must specify your architecture endianess
 #endif
 }
+
+static inline bool _E2BL(const uint8_t **packet_ppointer, uint16_t *memory_pointer, size_t *length)
+{
+    if (*length < 2)
+    {
+        return false;
+    }
+    else
+    {
+        _E2B((INT8U **)packet_ppointer, memory_pointer);
+        (*length) -= 2;
+        return true;
+    }
+}
+
+static inline bool _I2BL(const uint16_t *memory_pointer, uint8_t **packet_ppointer, size_t *length)
+{
+    if (*length < 2)
+    {
+        return false;
+    }
+    else
+    {
+        _I2B(memory_pointer, packet_ppointer);
+        (*length) -= 2;
+        return true;
+    }
+}
+
 
 // Extract/insert 4 bytes
 //
@@ -97,6 +160,7 @@ static inline void _E4B(INT8U **packet_ppointer, INT32U *memory_pointer)
 #error You must specify your architecture endianess
 #endif
 }
+
 static inline void _I4B(const INT32U *memory_pointer, INT8U **packet_ppointer)
 {
 #if _HOST_IS_BIG_ENDIAN_ == 1
@@ -114,6 +178,36 @@ static inline void _I4B(const INT32U *memory_pointer, INT8U **packet_ppointer)
 #endif
 }
 
+static inline bool _E4BL(const uint8_t **packet_ppointer, uint32_t *memory_pointer, size_t *length)
+{
+    if (*length < 4)
+    {
+        return false;
+    }
+    else
+    {
+        _E4B((INT8U **)packet_ppointer, memory_pointer);
+        (*length) -= 4;
+        return true;
+    }
+}
+
+static inline bool _I4BL(const uint32_t *memory_pointer, uint8_t **packet_ppointer, size_t *length)
+{
+    if (*length < 4)
+    {
+        return false;
+    }
+    else
+    {
+        _I4B(memory_pointer, packet_ppointer);
+        (*length) -= 4;
+        return true;
+    }
+}
+
+
+
 // Extract/insert N bytes (ignore endianess)
 //
 static inline void _EnB(INT8U **packet_ppointer, void *memory_pointer, INT32U n)
@@ -121,10 +215,39 @@ static inline void _EnB(INT8U **packet_ppointer, void *memory_pointer, INT32U n)
     PLATFORM_MEMCPY(memory_pointer, *packet_ppointer, n);
     (*packet_ppointer) += n;
 }
+
 static inline void _InB(const void *memory_pointer, INT8U **packet_ppointer, INT32U n)
 {
     PLATFORM_MEMCPY(*packet_ppointer, memory_pointer, n);
     (*packet_ppointer) += n;
+}
+
+static inline bool _EnBL(const uint8_t **packet_ppointer, void *memory_pointer, size_t n, size_t *length)
+{
+    if (*length < n)
+    {
+        return false;
+    }
+    else
+    {
+        _EnB((INT8U **)packet_ppointer, memory_pointer, n);
+        (*length) -= n;
+        return true;
+    }
+}
+
+static inline bool _InBL(const void *memory_pointer, uint8_t **packet_ppointer, size_t n, size_t *length)
+{
+    if (*length < n)
+    {
+        return false;
+    }
+    else
+    {
+        _InB(memory_pointer, packet_ppointer, n);
+        (*length) -= n;
+        return true;
+    }
 }
 
 #endif
