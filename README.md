@@ -1762,7 +1762,7 @@ style guidelines. Existing code will be gradually converted.
     - use `bool` for booleans
     - use `size_t` or `ssize_t` for buffer lengths and sizes
     - use `int` or `unsigned` for non-specific types
-    - use `char *` for opaque data (i.e. buffers)
+    - use `uint8_t *` for opaque data (i.e. buffers)
     - only use types from `stdint.h` for specific bit-widths, i.e. pretty much limited to protocol fields
   * Everything must be documented with Doxygen comments.
     - Use Javadoc-style comments, so /** @command */

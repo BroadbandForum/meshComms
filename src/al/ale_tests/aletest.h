@@ -42,7 +42,7 @@
 #define ADDR_MAC_PEER3 "\x00\xee\xff\x33\x44\x31"
 
 /** Print the contents of @a buf, wrapping at 80 characters, indent every line with @a indent + 1 space */
-void dump_bytes(const void *buf, size_t buf_len, const char *indent);
+void dump_bytes(const uint8_t *buf, size_t buf_len, const char *indent);
 
 struct CMDU *expect_cmdu(int s, unsigned timeout_ms, const char *testname, uint16_t expected_cmdu_type,
                          mac_address expected_src_addr, mac_address expected_src_al_addr, mac_address expected_dst_address);

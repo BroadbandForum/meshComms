@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void dump_bytes(const void *buf, size_t buf_len, const char *indent)
+void dump_bytes(const uint8_t *buf, size_t buf_len, const char *indent)
 {
     size_t i;
     int bytes_per_line = (80 - 1 - (int)strlen(indent)) / 3;
@@ -48,7 +48,7 @@ void dump_bytes(const void *buf, size_t buf_len, const char *indent)
         PLATFORM_PRINTF("%s", indent);
         for (bytecount = 0; bytecount < bytes_per_line && i < buf_len; bytecount++, i++)
         {
-            PLATFORM_PRINTF(" %02x", ((const uint8_t*)buf)[i]);
+            PLATFORM_PRINTF(" %02x", buf[i]);
         }
         PLATFORM_PRINTF("\n");
     }
@@ -70,7 +70,7 @@ struct CMDU *expect_cmdu(int s, unsigned timeout_ms, const char *testname, uint1
     int remaining_ms;
     struct pollfd p = { .fd = s, .events = POLLIN, .revents = 0, };
     int poll_result;
-    char buf[1500];
+    uint8_t buf[1500];
     ssize_t received;
     struct CMDU_header cmdu_header;
 
@@ -182,7 +182,7 @@ int send_cmdu(int s, mac_address dst_addr, mac_address src_addr, const struct CM
 
     for (i = 0; streams[i] != NULL; i++)
     {
-        char *buf = malloc(streams_lens[i] + 6 + 6 + 2);
+        uint8_t *buf = malloc(streams_lens[i] + 6 + 6 + 2);
         memcpy (buf, dst_addr, 6);
         memcpy (buf + 6, src_addr, 6);
         buf[6+6] = 0xff & (ETHERTYPE_1905 >> 8);
