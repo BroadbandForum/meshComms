@@ -26,6 +26,9 @@
 #include "1905_tlvs.h"
 #include "1905_cmdu_test_vectors.h"
 
+#include <string.h> // strcmp
+#include <stdio.h>  // vsnprintf
+#include <stdarg.h> // va_start etc.
 
 INT8U _check(const char *test_description, struct CMDU *input, INT8U **expected_output, INT16U *expected_output_lens)
 {
@@ -188,6 +191,28 @@ INT8U _check(const char *test_description, struct CMDU *input, INT8U **expected_
     return result;
 }
 
+static const char *x1905_cmdu_print_expected_001 =
+    "->message_version: 0\n"
+    "->message_type: 5\n"
+    "->message_id: 7\n"
+    "->relay_indicator: 0\n"
+    "->TLV(TLV_TYPE_LINK_METRIC_QUERY)->destination: 0\n"
+    "->TLV(TLV_TYPE_LINK_METRIC_QUERY)->specific_neighbor: 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \n"
+    "->TLV(TLV_TYPE_LINK_METRIC_QUERY)->link_metrics_type: 2\n";
+
+static char x1905_cmdu_print_real[4000];
+
+static void check_print(const char *format, ...)
+{
+    va_list arglist;
+    size_t offset = strlen(x1905_cmdu_print_real);
+
+    va_start(arglist, format);
+    vsnprintf(x1905_cmdu_print_real + offset, sizeof(x1905_cmdu_print_real) - offset - 1,
+              format, arglist);
+    va_end(arglist);
+}
+
 
 int main(void)
 {
@@ -204,6 +229,19 @@ int main(void)
 
     #define x1905CMDUFORGE004 "x1905CMDUFORGE004 - Forge topology query CMDU (x1905_cmdu_005)"
     result += _check(x1905CMDUFORGE004, &x1905_cmdu_structure_005, x1905_cmdu_streams_005, x1905_cmdu_streams_len_005);
+
+    x1905_cmdu_print_real[0] = '\0';
+    visit_1905_CMDU_structure(&x1905_cmdu_structure_001, print_callback, check_print, "->");
+    if (strcmp(x1905_cmdu_print_expected_001, x1905_cmdu_print_real) != 0)
+    {
+        PLATFORM_PRINTF("%-100s: KO !!!\n", "x1905CMDUPRINT001");
+        PLATFORM_PRINTF("  Expected output:\n%s\n  Real output:\n%s\n", x1905_cmdu_print_expected_001, x1905_cmdu_print_real);
+        result++;
+    }
+    else
+    {
+        PLATFORM_PRINTF("%-100s: OK\n", "x1905CMDUPRINT001");
+    }
 
     // Return the number of test cases that failed
     //
