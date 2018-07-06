@@ -28,6 +28,9 @@ for num in 0 1 2 3; do
   interfaces="${interfaces}${interfaces:+,}aletest${num}:simulated:aletest${num}.sim"
 done
 
+# Generate 8MB core files
+ulimit -c 8000
+
 "$al_entity_exec" -m 02:ee:ff:33:44:00 -i "$interfaces" -r aletest2 -v &
 
 "$@" || exit $?

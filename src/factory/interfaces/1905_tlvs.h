@@ -959,7 +959,7 @@ struct supportedServiceTLV
 {
     INT8U  tlv_type; /**< @brief TLV type, must always be set to TLV_TYPE_SUPPORTED_SERVICE. */
     INT8U  supported_service_nr; /**< @brief Number of supported_service. */
-    enum serviceType supported_service[]; /**< @brief List of supported services. */
+    enum serviceType *supported_service; /**< @brief List of supported services. */
 };
 
 /** @} */

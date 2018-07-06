@@ -1514,7 +1514,7 @@ struct supportedServiceTLV x1905_tlv_structure_050 =
 {
     .tlv_type                    = TLV_TYPE_SUPPORTED_SERVICE,
     .supported_service_nr        = 2,
-    .supported_service           = { SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT, },
+    .supported_service           = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT, },
 };
 
 INT8U x1905_tlv_stream_050[] =

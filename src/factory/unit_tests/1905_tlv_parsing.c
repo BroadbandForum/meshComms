@@ -48,10 +48,10 @@ INT8U _check(const char *test_description, INT8U *input, INT8U *expected_output)
         PLATFORM_PRINTF("  Real output    :\n");
         visit_1905_TLV_structure(real_output, print_callback, PLATFORM_PRINTF, "");
     }
+    free_1905_TLV_structure(real_output);
 
     return result;
 }
-
 
 int main(void)
 {

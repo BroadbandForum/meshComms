@@ -1093,18 +1093,7 @@ void visit_1905_CMDU_structure(const struct CMDU *memory_structure, visitor_call
     i = 0;
     while (NULL != memory_structure->list_of_TLVs[i])
     {
-        // In order to make it easier for the callback() function to present
-        // useful information, append the type of the TLV to the prefix
-        //
-        char new_prefix[MAX_PREFIX];
-
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sTLV(%s)->",
-                          prefix,
-                          /* Strip off the TLV_TYPE_ at the beginning of what is returned by convert_1905_TLV_type_to_string */
-                          convert_1905_TLV_type_to_string(*(memory_structure->list_of_TLVs[i])) + 9);
-        new_prefix[MAX_PREFIX-1] = 0x0;
-
-        visit_1905_TLV_structure(memory_structure->list_of_TLVs[i], callback, write_function, new_prefix);
+        visit_1905_TLV_structure(memory_structure->list_of_TLVs[i], callback, write_function, prefix);
         i++;
     }
 

@@ -196,9 +196,9 @@ static const char *x1905_cmdu_print_expected_001 =
     "->message_type: 5\n"
     "->message_id: 7\n"
     "->relay_indicator: 0\n"
-    "->TLV(TLV_TYPE_LINK_METRIC_QUERY)->destination: 0\n"
-    "->TLV(TLV_TYPE_LINK_METRIC_QUERY)->specific_neighbor: 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \n"
-    "->TLV(TLV_TYPE_LINK_METRIC_QUERY)->link_metrics_type: 2\n";
+    "->TLV(linkMetricQuery)->destination: 0\n"
+    "->TLV(linkMetricQuery)->specific_neighbor: 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \n"
+    "->TLV(linkMetricQuery)->link_metrics_type: 2\n";
 
 static char x1905_cmdu_print_real[4000];
 

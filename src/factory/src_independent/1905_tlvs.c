@@ -18,10 +18,393 @@
 
 #include "platform.h"
 
+#include "tlv.h"
 #include "1905_tlvs.h"
 #include "packet_tools.h"
 
 #include <stddef.h>
+
+
+/** This is a hack to get access to the internals of tlv_list, as a backward-compatibility measure until all of
+ * 1905_tlvs supports the new tlv definition interface.
+ * @{
+ */
+struct tlv_list
+{
+    size_t tlv_nr;
+    struct tlv **tlvs;
+};
+
+static struct tlv_list *alloc_dummy_tlv_list(INT8U *tlv)
+{
+    struct tlv_list *tlvs = PLATFORM_MALLOC(sizeof(struct tlv_list));
+    tlvs->tlvs = PLATFORM_MALLOC(sizeof(struct tlv *));
+    tlvs->tlv_nr = 1;
+    tlvs->tlvs[0] = (struct tlv*)tlv;
+    return tlvs;
+}
+
+static INT8U *free_dummy_tlv_list(struct tlv_list *tlvs)
+{
+    struct tlv *ret = tlvs->tlvs[0];
+    PLATFORM_FREE(tlvs->tlvs);
+    PLATFORM_FREE(tlvs);
+    return (INT8U *)ret;
+}
+
+/** @} */
+
+/** @brief Support functions for supportedService TLV.
+ *
+ * See "Multi-AP Specification Version 1.0" Section 17.2.1
+ *
+ * @{
+ */
+static struct tlv *tlv_parse_1905_supportedService(const struct tlv_def *def, const uint8_t *buffer, size_t length)
+{
+    struct supportedServiceTLV *ret = PLATFORM_MALLOC(sizeof(struct supportedServiceTLV));
+    uint8_t supported_service_nr;
+    uint8_t i;
+
+    if (!_E1BL(&buffer, &supported_service_nr, &length))
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: no supported_service_nr\n", def->name);
+        return NULL;
+    }
+    if (supported_service_nr != length)
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: supported_service_nr %u but length %u\n",
+                                      def->name, supported_service_nr, length);
+        return NULL;
+    }
+
+    ret->supported_service_nr = supported_service_nr;
+    ret->supported_service = PLATFORM_MALLOC(supported_service_nr * sizeof(ret->supported_service));
+
+    for (i = 0; i < supported_service_nr; i++)
+    {
+        uint8_t service_type;
+        _E1BL(&buffer, &service_type, &length);
+        ret->supported_service[i] = (enum serviceType)service_type;
+    }
+
+    return (struct tlv *)ret;
+}
+
+static uint16_t tlv_length_1905_supportedService(const struct tlv *tlv)
+{
+    const struct supportedServiceTLV *m = (const struct supportedServiceTLV *)tlv;
+
+    return m->supported_service_nr + 1;
+}
+
+static bool tlv_forge_1905_supportedService(const struct tlv *tlv, uint8_t **buf, size_t *length)
+{
+    const struct supportedServiceTLV *m = (const struct supportedServiceTLV *)tlv;
+    INT8U i;
+
+    if (!_I1BL(&m->supported_service_nr, buf, length))
+        return false;
+
+    for (i = 0; i < m->supported_service_nr; i++)
+    {
+        uint8_t supported_service = (uint8_t) m->supported_service[i];
+        if (!_I1BL(&supported_service, buf, length))
+            return false;
+    }
+
+    return true;
+}
+
+static void tlv_print_1905_supportedService(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix)
+{
+    const struct supportedServiceTLV *m = (const struct supportedServiceTLV *)tlv;
+    INT8U i;
+    char supported_services_list[80];
+    size_t supported_services_list_len = 0;
+
+    print_callback(write_function, prefix, sizeof(m->supported_service_nr), "supported_service_nr", "%d",  &m->supported_service_nr);
+    for (i = 0; i < m->supported_service_nr; i++)
+    {
+        PLATFORM_SNPRINTF(supported_services_list + supported_services_list_len,
+                          sizeof (supported_services_list) - supported_services_list_len,
+                          "0x%02x ", m->supported_service[i]);
+        supported_services_list_len += 5;
+        if (supported_services_list_len >= sizeof (supported_services_list) - 5 ||
+            i == m->supported_service_nr - 1)
+        {
+            supported_services_list[supported_services_list_len] = '\0';
+            print_callback(write_function, prefix, sizeof(m->supported_service[i]), "supported_services", "%s",
+                     supported_services_list);
+        }
+    }
+}
+
+static void tlv_free_1905_supportedService(struct tlv *tlv)
+{
+    struct supportedServiceTLV *ret = (struct supportedServiceTLV *)tlv;
+    PLATFORM_FREE(ret->supported_service);
+    PLATFORM_FREE(ret);
+}
+
+static bool tlv_compare_1905_supportedService(const struct tlv *tlv1, const struct tlv *tlv2)
+{
+    struct supportedServiceTLV *p1, *p2;
+    INT8U i, j;
+
+    p1 = (struct supportedServiceTLV *)tlv1;
+    p2 = (struct supportedServiceTLV *)tlv2;
+
+    if (p1->supported_service_nr != p2->supported_service_nr)
+    {
+        return false;
+    }
+
+    for (i = 0; i < p1->supported_service_nr; i++)
+    {
+        for (j = 0; j < p2->supported_service_nr; j++)
+        {
+            if (p1->supported_service[i] == p2->supported_service[j])
+            {
+                break;
+            }
+        }
+        if (j == p2->supported_service_nr)
+        {
+            // Not found in p2
+            return false;
+        }
+    }
+
+    // All services of p1 were also found in p2, and they have the same number, so they are equal.
+    /// @todo this does not check against duplicates
+    return true;
+}
+
+/** @} */
+
+/** @brief Support functions for linkMetricQuery TLV.
+ *
+ * See "IEEE Std 1905.1-2013" Section 6.4.10
+ *
+ * @{
+ */
+static struct tlv *tlv_parse_1905_linkMetricQuery(const struct tlv_def *def, const uint8_t *buffer, size_t length)
+{
+    struct linkMetricQueryTLV  *ret;
+
+    INT8U destination;
+    INT8U link_metrics_type;
+
+    ret = (struct linkMetricQueryTLV *)PLATFORM_MALLOC(sizeof(struct linkMetricQueryTLV));
+
+    if (!_E1BL(&buffer, &destination, &length))
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: no destination\n", def->name);
+        goto err_out;
+    }
+
+    if (!_EnBL(&buffer, ret->specific_neighbor, 6, &length))
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: no specific_neighbor\n", def->name);
+        goto err_out;
+    }
+
+    if (!_E1BL(&buffer, &link_metrics_type, &length))
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: no link_metrics_type\n", def->name);
+        goto err_out;
+    }
+
+    if (0 == destination)
+    {
+        INT8U dummy_address[] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+
+        ret->destination = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
+        PLATFORM_MEMCPY(ret->specific_neighbor, dummy_address, 6);
+    }
+    else if (1 == destination)
+    {
+        ret->destination = LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR;
+    }
+    else
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid destination %u\n", def->name, destination);
+        goto err_out;
+    }
+
+    if (0 == link_metrics_type)
+    {
+        ret->link_metrics_type = LINK_METRIC_QUERY_TLV_TX_LINK_METRICS_ONLY;
+    }
+    else if (1 == link_metrics_type)
+    {
+        ret->link_metrics_type = LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY;
+    }
+    else if (2 == link_metrics_type)
+    {
+        ret->link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS;
+    }
+    else
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid link_metrics_type %u\n", def->name, link_metrics_type);
+        goto err_out;
+    }
+
+    return (struct tlv*)ret;
+
+err_out:
+    PLATFORM_FREE(ret);
+    return NULL;
+}
+
+static uint16_t tlv_length_1905_linkMetricQuery(const struct tlv *tlv)
+{
+    return 1 + 6 + 1;
+}
+
+static bool tlv_forge_1905_linkMetricQuery(const struct tlv *tlv, uint8_t **buf, size_t *length)
+{
+    const struct linkMetricQueryTLV *m = (const struct linkMetricQueryTLV *)tlv;
+    if (!_I1BL(&m->destination, buf, length))
+        return false;
+
+    if (LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR == m->destination)
+    {
+        if (!_InBL(m->specific_neighbor, buf, 6, length))
+            return false;
+    }
+    else
+    {
+        // Ugh? Why is the first value set to "m->link_metrics_type"
+        // instead of "0x00"? What kind of black magic is this?
+        //
+        // Well... it turns out there is a reason for this. Take a
+        // chair and let me explain.
+        //
+        // The original 1905 standard document (and also its later "1a"
+        // update) describe the "metric query TLV" fields like this:
+        //
+        //   - Field #1: 1 octet set to "8" (tlv_type)
+        //   - Field #2: 1 octet set to "8" (tlv_length)
+        //   - Field #3: 1 octet set to "0" or "1" (destination)
+        //   - Field #4: 6 octets set to the MAC address of a neighbour
+        //               when field #3 is set "1"
+        //   - Field #5: 1 octet set to "0", "1", "2" or "3" (link_
+        //               _metrics_type)
+        //
+        // The problem is that we don't know what to put inside field
+        // #4 when Field #3 is set to "0" ("all neighbors") instead of
+        // "1" ("specific neighbor").
+        //
+        // A "reasonable" solution would be to set all bytes from field
+        // #4 to "0x00". *However*, one could also think that the
+        // correct thing to do is to not include the field at all (ie.
+        // skip from field #3 to field #5).
+        //
+        // Now... this is actually insane. Typically protocols have a
+        // fixed number of fields (whenever possible) to make it easier
+        // for parsers (in fact, this would be the only exception to
+        // this rule in the whole 1905 standard). Then... why would
+        // someone think that not including field #4 is a good idea?
+        //
+        // Well... because this is what the "description" of field #3
+        // reads on the standard:
+        //
+        //   "If the value is 0, then the EUI-48 field is not present;
+        //    if the value is 1, then the EUI-48 field shall be present"
+        //
+        // ...and "not present" seems to imply not to include it
+        // (although one could argue that it could also mean "set all
+        // bytes to zero).
+        //
+        // I really think the standard means "set to zero" instead of
+        // "not including it" (even if the wording seems to imply
+        // otherwise). Why? For two reasons:
+        //
+        //   1. The standard says field #2 must *always* be "8" (and if
+        //      field #4 could not be included, this value should be
+        //      allowed to also take the value of 6)
+        //
+        //   2. There is no other place in the whole standard where a
+        //      field can be present or not.
+        //
+        // Despite what I have just said, *some implementations* seem
+        // to have taken the other route, and expect field #4 *not* to
+        // be present (even if field #2 is set to "8"!!).
+        //
+        // When we send one "all neighbors" topology query to one of
+        // these implementations they will interpret the first byte of
+        // field #4 as the contents of field #5.
+        //
+        // And that's why when querying for all neighbors, because the
+        // contents of field #4 don't really matter, we are going to
+        // set its first byte to the same value as field #5.
+        // This way all implementations, no matter how they decided to
+        // interpret the standard, will work :)
+        INT8U empty_address[] = {m->link_metrics_type, 0x00, 0x00, 0x00, 0x00, 0x00};
+        if (!_InBL(empty_address, buf, 6, length))
+            return false;
+    }
+
+    if (!_I1BL(&m->link_metrics_type, buf, length))
+        return false;
+
+    return true;
+}
+
+
+static void tlv_print_1905_linkMetricQuery(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix)
+{
+    struct linkMetricQueryTLV *p = (struct linkMetricQueryTLV *)tlv;
+    print_callback(write_function, prefix, sizeof(p->destination),       "destination",        "%d",      &p->destination);
+    print_callback(write_function, prefix, sizeof(p->specific_neighbor), "specific_neighbor",  "0x%02x",   p->specific_neighbor);
+    print_callback(write_function, prefix, sizeof(p->link_metrics_type), "link_metrics_type",  "%d",      &p->link_metrics_type);
+}
+
+static void tlv_free_1905_linkMetricQuery(struct tlv *tlv)
+{
+    struct linkMetricQueryTLV *ret = (struct linkMetricQueryTLV *)tlv;
+    PLATFORM_FREE(ret);
+}
+
+static bool tlv_compare_1905_linkMetricQuery(const struct tlv *tlv1, const struct tlv *tlv2)
+{
+    struct linkMetricQueryTLV *p1, *p2;
+
+    p1 = (struct linkMetricQueryTLV *)tlv1;
+    p2 = (struct linkMetricQueryTLV *)tlv2;
+
+    return
+                         p1->destination        ==  p2->destination                 &&
+         PLATFORM_MEMCMP(p1->specific_neighbor,     p2->specific_neighbor, 6) == 0  &&
+                         p1->link_metrics_type  ==  p2->link_metrics_type;
+}
+
+/** @} */
+
+static tlv_defs_t tlv_1905_defs = {
+    [TLV_TYPE_SUPPORTED_SERVICE] = {
+        .type = TLV_TYPE_SUPPORTED_SERVICE,
+        .name = "supportedService",
+        .parse = tlv_parse_1905_supportedService,
+        .length = tlv_length_1905_supportedService,
+        .forge = tlv_forge_1905_supportedService,
+        .print = tlv_print_1905_supportedService,
+        .free = tlv_free_1905_supportedService,
+        .compare = tlv_compare_1905_supportedService,
+    },
+    [TLV_TYPE_LINK_METRIC_QUERY] = {
+        .type = TLV_TYPE_LINK_METRIC_QUERY,
+        .name = "linkMetricQuery",
+        .parse = tlv_parse_1905_linkMetricQuery,
+        .length = tlv_length_1905_linkMetricQuery,
+        .forge = tlv_forge_1905_linkMetricQuery,
+        .print = tlv_print_1905_linkMetricQuery,
+        .free = tlv_free_1905_linkMetricQuery,
+        .compare = tlv_compare_1905_linkMetricQuery,
+    }
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Actual API functions
@@ -444,97 +827,6 @@ INT8U *parse_1905_TLV_from_packet(INT8U *packet_stream)
                 {
                     ret->neighbors[i].bridge_flag = 0;
                 }
-            }
-
-            return (INT8U *)ret;
-        }
-
-        case TLV_TYPE_LINK_METRIC_QUERY:
-        {
-            // This parsing is done according to the information detailed in
-            // "IEEE Std 1905.1-2013 Section 6.4.10"
-
-            struct linkMetricQueryTLV  *ret;
-
-            INT8U *p;
-            INT16U len;
-
-            INT8U destination;
-            INT8U link_metrics_type;
-
-            ret = (struct linkMetricQueryTLV *)PLATFORM_MALLOC(sizeof(struct linkMetricQueryTLV));
-
-            p = packet_stream + 1;
-            _E2B(&p, &len);
-
-            // According to the standard, the length *must* be 8
-            //
-            if (8 != len)
-            {
-                // Malformed packet
-                //
-                PLATFORM_FREE(ret);
-                return NULL;
-            }
-
-            ret->tlv_type = TLV_TYPE_LINK_METRIC_QUERY;
-
-            _E1B(&p, &destination);
-            _EnB(&p, ret->specific_neighbor, 6);
-
-            if (destination >= 2)
-            {
-                // Reserved (invalid) value received
-                //
-                PLATFORM_FREE(ret);
-                return NULL;
-            }
-            else if (0 == destination)
-            {
-                INT8U dummy_address[] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
-
-                ret->destination = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
-                PLATFORM_MEMCPY(ret->specific_neighbor, dummy_address, 6);
-            }
-            else if (1 == destination)
-            {
-                ret->destination = LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR;
-            }
-            else
-            {
-                // This code cannot be reached
-                //
-                PLATFORM_FREE(ret);
-                return NULL;
-            }
-
-            _E1B(&p, &link_metrics_type);
-
-            if (link_metrics_type >= 3)
-            {
-                // Reserved (invalid) value received
-                //
-                PLATFORM_FREE(ret);
-                return NULL;
-            }
-            else if (0 == link_metrics_type)
-            {
-                ret->link_metrics_type = LINK_METRIC_QUERY_TLV_TX_LINK_METRICS_ONLY;
-            }
-            else if (1 == link_metrics_type)
-            {
-                ret->link_metrics_type = LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY;
-            }
-            else if (2 == link_metrics_type)
-            {
-                ret->link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS;
-            }
-            else
-            {
-                // This code cannot be reached
-                //
-                PLATFORM_FREE(ret);
-                return NULL;
             }
 
             return (INT8U *)ret;
@@ -1718,54 +2010,25 @@ INT8U *parse_1905_TLV_from_packet(INT8U *packet_stream)
             return (INT8U *)ret;
         }
 
-        case TLV_TYPE_SUPPORTED_SERVICE:
-        {
-            // This parsing is done according to the information detailed in
-            // "Multi-AP Technical Specification Version 171212" Section 17.2.1
-
-            struct supportedServiceTLV  *ret;
-
-            INT8U *p;
-            INT16U len;
-            INT8U  supported_service_nr;
-            INT8U  i;
-
-            p = packet_stream + 1;
-            _E2B(&p, &len);
-
-            /* Need at least "List of supported service(s)" */
-            if (len < 1)
-            {
-                return NULL;
-            }
-
-            _E1B(&p, &supported_service_nr);
-            if (supported_service_nr + 1 != len)
-            {
-                /* Malformed packet */
-                return NULL;
-            }
-
-            ret = (struct supportedServiceTLV *)PLATFORM_MALLOC(sizeof(struct supportedServiceTLV) +
-                                                                supported_service_nr * sizeof(enum serviceType));
-
-            ret->tlv_type = TLV_TYPE_SUPPORTED_SERVICE;
-            ret->supported_service_nr = supported_service_nr;
-            for (i = 0; i < supported_service_nr; i++)
-            {
-                INT8U service_type;
-                _E1B(&p, &service_type);
-                ret->supported_service[i] = (enum serviceType)service_type;
-            }
-
-            return (INT8U *)ret;
-        }
-
         default:
         {
-            // Ignore
-            //
-            return NULL;
+            INT8U *p;
+            INT16U len;
+            struct tlv_list *parsed;
+            p = packet_stream + 1;
+            _E2B(&p, &len);
+            parsed = tlv_parse(tlv_1905_defs, packet_stream, len + 3);
+            if (parsed == NULL)
+            {
+                // Ignore
+                //
+                return NULL;
+            }
+            else
+            {
+                /* Don't leak tlv_list */
+                return free_dummy_tlv_list(parsed);
+            }
         }
 
     }
@@ -2093,109 +2356,6 @@ INT8U *forge_1905_TLV_from_structure(INT8U *memory_structure, INT16U *len)
                     _I1B(&aux, &p);
                 }
             }
-
-            return ret;
-        }
-
-        case TLV_TYPE_LINK_METRIC_QUERY:
-        {
-            // This forging is done according to the information detailed in
-            // "IEEE Std 1905.1-2013 Section 6.4.10"
-
-            INT8U *ret, *p;
-            struct linkMetricQueryTLV *m;
-
-            INT16U tlv_length;
-
-            m = (struct linkMetricQueryTLV *)memory_structure;
-
-            tlv_length = 8;
-            *len = 1 + 2 + tlv_length;
-
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 2  + tlv_length);
-
-            _I1B(&m->tlv_type,          &p);
-            _I2B(&tlv_length,           &p);
-            _I1B(&m->destination,       &p);
-
-            if (LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR == m->destination)
-            {
-                _InB(m->specific_neighbor,  &p, 6);
-            }
-            else
-            {
-                INT8U empty_address[] = {m->link_metrics_type, 0x00, 0x00, 0x00, 0x00, 0x00};
-                _InB(empty_address,  &p, 6);
-
-                // Ugh? Why is the first value set to "m->link_metrics_type"
-                // instead of "0x00"? What kind of black magic is this?
-                //
-                // Well... it turns out there is a reason for this. Take a
-                // chair and let me explain.
-                //
-                // The original 1905 standard document (and also its later "1a"
-                // update) describe the "metric query TLV" fields like this:
-                //
-                //   - Field #1: 1 octet set to "8" (tlv_type)
-                //   - Field #2: 1 octet set to "8" (tlv_length)
-                //   - Field #3: 1 octet set to "0" or "1" (destination)
-                //   - Field #4: 6 octets set to the MAC address of a neighbour
-                //               when field #3 is set "1"
-                //   - Field #5: 1 octet set to "0", "1", "2" or "3" (link_
-                //               _metrics_type)
-                //
-                // The problem is that we don't know what to put inside field
-                // #4 when Field #3 is set to "0" ("all neighbors") instead of
-                // "1" ("specific neighbor").
-                //
-                // A "reasonable" solution would be to set all bytes from field
-                // #4 to "0x00". *However*, one could also think that the
-                // correct thing to do is to not include the field at all (ie.
-                // skip from field #3 to field #5).
-                //
-                // Now... this is actually insane. Typically protocols have a
-                // fixed number of fields (whenever possible) to make it easier
-                // for parsers (in fact, this would be the only exception to
-                // this rule in the whole 1905 standard). Then... why would
-                // someone think that not including field #4 is a good idea?
-                //
-                // Well... because this is what the "description" of field #3
-                // reads on the standard:
-                //
-                //   "If the value is 0, then the EUI-48 field is not present;
-                //    if the value is 1, then the EUI-48 field shall be present"
-                //
-                // ...and "not present" seems to imply not to include it
-                // (although one could argue that it could also mean "set all
-                // bytes to zero).
-                //
-                // I really think the standard means "set to zero" instead of
-                // "not including it" (even if the wording seems to imply
-                // otherwise). Why? For two reasons:
-                //
-                //   1. The standard says field #2 must *always* be "8" (and if
-                //      field #4 could not be included, this value should be
-                //      allowed to also take the value of 6)
-                //
-                //   2. There is no other place in the whole standard where a
-                //      field can be present or not.
-                //
-                // Despite what I have just said, *some implementations* seem
-                // to have taken the other route, and expect field #4 *not* to
-                // be present (even if field #2 is set to "8"!!).
-                //
-                // When we send one "all neighbors" topology query to one of
-                // these implementations they will interpret the first byte of
-                // field #4 as the contents of field #5.
-                //
-                // And that's why when querying for all neighbors, because the
-                // contents of field #4 don't really matter, we are going to
-                // set its first byte to the same value as field #5.
-                // This way all implementations, no matter how they decided to
-                // interpret the standard, will work :)
-            }
-
-            _I1B(&m->link_metrics_type, &p);
 
             return ret;
         }
@@ -3048,45 +3208,20 @@ INT8U *forge_1905_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             return ret;
         }
 
-        case TLV_TYPE_SUPPORTED_SERVICE:
-        {
-            // This forging is done according to the information detailed in
-            // "Multi-AP Technical Specification Version 171212" Section 17.2.1
-
-            INT8U *ret, *p;
-            struct supportedServiceTLV *m;
-
-            INT16U tlv_length;
-
-            INT8U i;
-
-            m = (struct supportedServiceTLV *)memory_structure;
-
-            tlv_length  = 1;  // number of supported services (1 bytes)
-            tlv_length += (1) * m->supported_service_nr;
-
-            *len = 1 + 2 + tlv_length;
-
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 2  + tlv_length);
-
-            _I1B(&m->tlv_type,                   &p);
-            _I2B(&tlv_length,                    &p);
-            _I1B(&m->supported_service_nr, &p);
-
-            for (i=0; i<m->supported_service_nr; i++)
-            {
-                INT8U supported_service = (INT8U)m->supported_service[i];
-                _I1B(&supported_service, &p);
-            }
-
-            return ret;
-        }
-
         default:
         {
-            // Ignore
-            //
-            return NULL;
+            uint8_t *ret = NULL;
+            size_t length;
+            struct tlv_list *dummy = alloc_dummy_tlv_list(memory_structure);
+            if (!tlv_forge(tlv_1905_defs, dummy, MAX_NETWORK_SEGMENT_SIZE, &ret, &length))
+            {
+                PLATFORM_PRINTF_DEBUG_ERROR("Failed to forge TLV %s\n",
+                                            convert_1905_TLV_type_to_string(*memory_structure));
+                ret = NULL;
+            }
+            free_dummy_tlv_list(dummy);
+            *len = length;
+            return ret;
         }
 
     }
@@ -3109,25 +3244,6 @@ void free_1905_TLV_structure(INT8U *memory_structure)
     //
     switch (*memory_structure)
     {
-        case TLV_TYPE_END_OF_MESSAGE:
-        case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
-        case TLV_TYPE_MAC_ADDRESS_TYPE:
-        case TLV_TYPE_LINK_METRIC_QUERY:
-        case TLV_TYPE_LINK_METRIC_RESULT_CODE:
-        case TLV_TYPE_SEARCHED_ROLE:
-        case TLV_TYPE_AUTOCONFIG_FREQ_BAND:
-        case TLV_TYPE_SUPPORTED_ROLE:
-        case TLV_TYPE_SUPPORTED_FREQ_BAND:
-        case TLV_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION:
-        case TLV_TYPE_DEVICE_IDENTIFICATION:
-        case TLV_TYPE_1905_PROFILE_VERSION:
-        case TLV_TYPE_SUPPORTED_SERVICE:
-        {
-            PLATFORM_FREE(memory_structure);
-
-            return;
-        }
-
         case TLV_TYPE_VENDOR_SPECIFIC:
         {
             struct vendorSpecificTLV *m;
@@ -3462,8 +3578,7 @@ void free_1905_TLV_structure(INT8U *memory_structure)
 
         default:
         {
-            // Ignore
-            //
+            tlv_free(tlv_1905_defs, alloc_dummy_tlv_list(memory_structure));
             return;
         }
     }
@@ -3747,27 +3862,6 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             }
 
             return 0;
-        }
-
-        case TLV_TYPE_LINK_METRIC_QUERY:
-        {
-            struct linkMetricQueryTLV *p1, *p2;
-
-            p1 = (struct linkMetricQueryTLV *)memory_structure_1;
-            p2 = (struct linkMetricQueryTLV *)memory_structure_2;
-
-            if (
-                                 p1->destination        !=  p2->destination                ||
-                 PLATFORM_MEMCMP(p1->specific_neighbor,     p2->specific_neighbor, 6) !=0  ||
-                                 p1->link_metrics_type  !=  p2->link_metrics_type
-               )
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
         }
 
         case TLV_TYPE_TRANSMITTER_LINK_METRIC:
@@ -4480,45 +4574,23 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             return 0;
         }
 
-        case TLV_TYPE_SUPPORTED_SERVICE:
-        {
-            struct supportedServiceTLV *p1, *p2;
-            INT8U i, j;
-
-            p1 = (struct supportedServiceTLV *)memory_structure_1;
-            p2 = (struct supportedServiceTLV *)memory_structure_2;
-
-            if (p1->supported_service_nr != p2->supported_service_nr)
-            {
-                return 1;
-            }
-
-            for (i = 0; i < p1->supported_service_nr; i++)
-            {
-                for (j = 0; j < p2->supported_service_nr; j++)
-                {
-                    if (p1->supported_service[i] == p2->supported_service[j])
-                    {
-                        break;
-                    }
-                }
-                if (j == p2->supported_service_nr)
-                {
-                    // Not found in p2
-                    return 1;
-                }
-            }
-
-            // All services of p1 were also found in p2, and they have the same number, so they are equal.
-            /// @todo this does not check against duplicates
-
-            return 0;
-        }
         default:
         {
-            // Unknown structure type
-            //
-            return 1;
+            uint8_t ret;
+            struct tlv_list *dummy1 = alloc_dummy_tlv_list(memory_structure_1);
+            struct tlv_list *dummy2 = alloc_dummy_tlv_list(memory_structure_2);
+            if (tlv_compare(tlv_1905_defs, dummy1, dummy2))
+            {
+                ret = 0;
+            }
+            else
+            {
+                ret = 1;
+            }
+            free_dummy_tlv_list(dummy1);
+            free_dummy_tlv_list(dummy2);
+
+            return ret;
         }
     }
 
@@ -4534,11 +4606,20 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
     // element of a structure on screen
     //
     #define MAX_PREFIX  100
+    // In order to make it easier for the callback() function to present
+    // useful information, append the type of the TLV to the prefix
+    //
+    char tlv_prefix[MAX_PREFIX];
 
     if (NULL == memory_structure)
     {
         return;
     }
+
+    PLATFORM_SNPRINTF(tlv_prefix, MAX_PREFIX-1, "%sTLV(%s)->",
+                      prefix,
+                      convert_1905_TLV_type_to_string(*memory_structure));
+    tlv_prefix[MAX_PREFIX-1] = 0x0;
 
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
@@ -4558,9 +4639,9 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct vendorSpecificTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->vendorOUI), "vendorOUI",  "0x%02x",   p->vendorOUI);
-            callback(write_function, prefix, sizeof(p->m_nr),      "m_nr",       "%d",      &p->m_nr);
-            callback(write_function, prefix, p->m_nr,              "m",          "0x%02x",   p->m);
+            callback(write_function, tlv_prefix, sizeof(p->vendorOUI), "vendorOUI",  "0x%02x",   p->vendorOUI);
+            callback(write_function, tlv_prefix, sizeof(p->m_nr),      "m_nr",       "%d",      &p->m_nr);
+            callback(write_function, tlv_prefix, p->m_nr,              "m",          "0x%02x",   p->m);
 
             return;
         }
@@ -4571,7 +4652,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct alMacAddressTypeTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->al_mac_address), "al_mac_address",  "0x%02x",  p->al_mac_address);
+            callback(write_function, tlv_prefix, sizeof(p->al_mac_address), "al_mac_address",  "0x%02x",  p->al_mac_address);
 
             return;
         }
@@ -4582,7 +4663,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct macAddressTypeTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->mac_address), "mac_address",  "0x%02x",  p->mac_address);
+            callback(write_function, tlv_prefix, sizeof(p->mac_address), "mac_address",  "0x%02x",  p->mac_address);
 
             return;
         }
@@ -4594,13 +4675,13 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct deviceInformationTypeTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->al_mac_address),      "al_mac_address",       "0x%02x",   p->al_mac_address);
-            callback(write_function, prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr",  "%d",       &p->local_interfaces_nr);
+            callback(write_function, tlv_prefix, sizeof(p->al_mac_address),      "al_mac_address",       "0x%02x",   p->al_mac_address);
+            callback(write_function, tlv_prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr",  "%d",       &p->local_interfaces_nr);
             for (i=0; i < p->local_interfaces_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->local_interfaces[i].mac_address),              "mac_address",              "0x%02x",   p->local_interfaces[i].mac_address);
@@ -4644,19 +4725,19 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct deviceBridgingCapabilityTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->bridging_tuples_nr), "bridging_tuples_nr", "%d",  &p->bridging_tuples_nr);
+            callback(write_function, tlv_prefix, sizeof(p->bridging_tuples_nr), "bridging_tuples_nr", "%d",  &p->bridging_tuples_nr);
             for (i=0; i < p->bridging_tuples_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sbridging_tuples[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sbridging_tuples[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->bridging_tuples[i].bridging_tuple_macs_nr), "bridging_tuple_macs_nr", "%d",  &p->bridging_tuples[i].bridging_tuple_macs_nr);
 
                 for (j=0; j < p->bridging_tuples[i].bridging_tuple_macs_nr; j++)
                 {
-                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sbridging_tuples[%d]->bridging_tuple_macs[%d]->", prefix, i, j);
+                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sbridging_tuples[%d]->bridging_tuple_macs[%d]->", tlv_prefix, i, j);
                     new_prefix[MAX_PREFIX-1] = 0x0;
 
                     callback(write_function, new_prefix, sizeof(p->bridging_tuples[i].bridging_tuple_macs[j].mac_address), "mac_address", "0x%02x",  p->bridging_tuples[i].bridging_tuple_macs[j].mac_address);
@@ -4679,13 +4760,13 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
                 return;
             }
 
-            callback(write_function, prefix, sizeof(p->local_mac_address),     "local_mac_address",     "0x%02x",   p->local_mac_address);
-            callback(write_function, prefix, sizeof(p->non_1905_neighbors_nr), "non_1905_neighbors_nr", "%d",      &p->non_1905_neighbors_nr);
+            callback(write_function, tlv_prefix, sizeof(p->local_mac_address),     "local_mac_address",     "0x%02x",   p->local_mac_address);
+            callback(write_function, tlv_prefix, sizeof(p->non_1905_neighbors_nr), "non_1905_neighbors_nr", "%d",      &p->non_1905_neighbors_nr);
             for (i=0; i < p->non_1905_neighbors_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%snon_1905_neighbors[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%snon_1905_neighbors[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->non_1905_neighbors[i].mac_address), "mac_address", "0x%02x", p->non_1905_neighbors[i].mac_address);
@@ -4707,31 +4788,18 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
                 return;
             }
 
-            callback(write_function, prefix, sizeof(p->local_mac_address), "local_mac_address",  "0x%02x",   p->local_mac_address);
-            callback(write_function, prefix, sizeof(p->neighbors_nr),      "neighbors_nr",       "%d",      &p->neighbors_nr);
+            callback(write_function, tlv_prefix, sizeof(p->local_mac_address), "local_mac_address",  "0x%02x",   p->local_mac_address);
+            callback(write_function, tlv_prefix, sizeof(p->neighbors_nr),      "neighbors_nr",       "%d",      &p->neighbors_nr);
             for (i=0; i < p->neighbors_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sneighbors[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sneighbors[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->neighbors[i].mac_address), "mac_address", "0x%02x",  p->neighbors[i].mac_address);
                 callback(write_function, new_prefix, sizeof(p->neighbors[i].bridge_flag), "bridge_flag", "%d",     &p->neighbors[i].bridge_flag);
             }
-
-            return;
-        }
-
-        case TLV_TYPE_LINK_METRIC_QUERY:
-        {
-            struct linkMetricQueryTLV *p;
-
-            p = (struct linkMetricQueryTLV *)memory_structure;
-
-            callback(write_function, prefix, sizeof(p->destination),       "destination",        "%d",      &p->destination);
-            callback(write_function, prefix, sizeof(p->specific_neighbor), "specific_neighbor",  "0x%02x",   p->specific_neighbor);
-            callback(write_function, prefix, sizeof(p->link_metrics_type), "link_metrics_type",  "%d",      &p->link_metrics_type);
 
             return;
         }
@@ -4749,14 +4817,14 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
                 return;
             }
 
-            callback(write_function, prefix, sizeof(p->local_al_address),            "local_al_address",            "0x%02x",   p->local_al_address);
-            callback(write_function, prefix, sizeof(p->neighbor_al_address),         "neighbor_al_address",         "0x%02x",   p->neighbor_al_address);
-            callback(write_function, prefix, sizeof(p->transmitter_link_metrics_nr), "transmitter_link_metrics_nr", "%d",      &p->transmitter_link_metrics_nr);
+            callback(write_function, tlv_prefix, sizeof(p->local_al_address),            "local_al_address",            "0x%02x",   p->local_al_address);
+            callback(write_function, tlv_prefix, sizeof(p->neighbor_al_address),         "neighbor_al_address",         "0x%02x",   p->neighbor_al_address);
+            callback(write_function, tlv_prefix, sizeof(p->transmitter_link_metrics_nr), "transmitter_link_metrics_nr", "%d",      &p->transmitter_link_metrics_nr);
             for (i=0; i < p->transmitter_link_metrics_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%stransmitter_link_metrics[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%stransmitter_link_metrics[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->transmitter_link_metrics[i].local_interface_address),    "local_interface_address",    "0x%02x",   p->transmitter_link_metrics[i].local_interface_address);
@@ -4786,14 +4854,14 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
                 return;
             }
 
-            callback(write_function, prefix, sizeof(p->local_al_address),         "local_al_address",         "0x%02x",   p->local_al_address);
-            callback(write_function, prefix, sizeof(p->neighbor_al_address),      "neighbor_al_address",      "0x%02x",   p->neighbor_al_address);
-            callback(write_function, prefix, sizeof(p->receiver_link_metrics_nr), "receiver_link_metrics_nr", "%d",      &p->receiver_link_metrics_nr);
+            callback(write_function, tlv_prefix, sizeof(p->local_al_address),         "local_al_address",         "0x%02x",   p->local_al_address);
+            callback(write_function, tlv_prefix, sizeof(p->neighbor_al_address),      "neighbor_al_address",      "0x%02x",   p->neighbor_al_address);
+            callback(write_function, tlv_prefix, sizeof(p->receiver_link_metrics_nr), "receiver_link_metrics_nr", "%d",      &p->receiver_link_metrics_nr);
             for (i=0; i < p->receiver_link_metrics_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sreceiver_link_metrics[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sreceiver_link_metrics[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->receiver_link_metrics[i].local_interface_address),    "local_interface_address",    "0x%02x",   p->receiver_link_metrics[i].local_interface_address);
@@ -4813,7 +4881,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct linkMetricResultCodeTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->result_code), "result_code",  "%d",  &p->result_code);
+            callback(write_function, tlv_prefix, sizeof(p->result_code), "result_code",  "%d",  &p->result_code);
 
             return;
         }
@@ -4824,7 +4892,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct searchedRoleTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->role), "role",  "%d",  &p->role);
+            callback(write_function, tlv_prefix, sizeof(p->role), "role",  "%d",  &p->role);
 
             return;
         }
@@ -4835,7 +4903,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct autoconfigFreqBandTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->freq_band), "freq_band",  "%d",  &p->freq_band);
+            callback(write_function, tlv_prefix, sizeof(p->freq_band), "freq_band",  "%d",  &p->freq_band);
 
             return;
         }
@@ -4846,7 +4914,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct supportedRoleTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->role), "role",  "%d",  &p->role);
+            callback(write_function, tlv_prefix, sizeof(p->role), "role",  "%d",  &p->role);
 
             return;
         }
@@ -4857,7 +4925,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct supportedFreqBandTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->freq_band), "freq_band",  "%d",  &p->freq_band);
+            callback(write_function, tlv_prefix, sizeof(p->freq_band), "freq_band",  "%d",  &p->freq_band);
 
             return;
         }
@@ -4868,8 +4936,8 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct wscTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->wsc_frame_size), "wsc_frame_size",  "%d",      &p->wsc_frame_size);
-            callback(write_function, prefix, p->wsc_frame_size,         "wsc_frame",       "0x%02x",   p->wsc_frame);
+            callback(write_function, tlv_prefix, sizeof(p->wsc_frame_size), "wsc_frame_size",  "%d",      &p->wsc_frame_size);
+            callback(write_function, tlv_prefix, p->wsc_frame_size,         "wsc_frame",       "0x%02x",   p->wsc_frame);
 
             return;
         }
@@ -4881,12 +4949,12 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct pushButtonEventNotificationTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->media_types_nr), "media_types_nr",  "0x%02x",  &p->media_types_nr);
+            callback(write_function, tlv_prefix, sizeof(p->media_types_nr), "media_types_nr",  "0x%02x",  &p->media_types_nr);
             for (i=0; i < p->media_types_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%smedia_types[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%smedia_types[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->media_types[i].media_type),               "media_type",               "0x%04x",  &p->media_types[i].media_type);
@@ -4928,10 +4996,10 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct pushButtonJoinNotificationTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->al_mac_address),     "al_mac_address",      "0x%02x",   p->al_mac_address);
-            callback(write_function, prefix, sizeof(p->message_identifier), "message_identifier",  "%d",      &p->message_identifier);
-            callback(write_function, prefix, sizeof(p->mac_address),        "mac_address",         "0x%02x",   p->mac_address);
-            callback(write_function, prefix, sizeof(p->new_mac_address),    "new_mac_address",     "0x%02x",   p->new_mac_address);
+            callback(write_function, tlv_prefix, sizeof(p->al_mac_address),     "al_mac_address",      "0x%02x",   p->al_mac_address);
+            callback(write_function, tlv_prefix, sizeof(p->message_identifier), "message_identifier",  "%d",      &p->message_identifier);
+            callback(write_function, tlv_prefix, sizeof(p->mac_address),        "mac_address",         "0x%02x",   p->mac_address);
+            callback(write_function, tlv_prefix, sizeof(p->new_mac_address),    "new_mac_address",     "0x%02x",   p->new_mac_address);
             return;
         }
 
@@ -4942,13 +5010,13 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct genericPhyDeviceInformationTypeTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->al_mac_address),      "al_mac_address",      "0x%02x",  &p->al_mac_address);
-            callback(write_function, prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr", "%d",      &p->local_interfaces_nr);
+            callback(write_function, tlv_prefix, sizeof(p->al_mac_address),      "al_mac_address",      "0x%02x",  &p->al_mac_address);
+            callback(write_function, tlv_prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr", "%d",      &p->local_interfaces_nr);
             for (i=0; i < p->local_interfaces_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->local_interfaces[i].local_interface_address),                         "local_interface_address",             "0x%02x",   p->local_interfaces[i].local_interface_address);
@@ -4970,9 +5038,9 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct deviceIdentificationTypeTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->friendly_name),      "friendly_name",       "%s",   p->friendly_name);
-            callback(write_function, prefix, sizeof(p->manufacturer_name),  "manufacturer_name",   "%s",   p->manufacturer_name);
-            callback(write_function, prefix, sizeof(p->manufacturer_model), "manufacturer_model",  "%s",   p->manufacturer_model);
+            callback(write_function, tlv_prefix, sizeof(p->friendly_name),      "friendly_name",       "%s",   p->friendly_name);
+            callback(write_function, tlv_prefix, sizeof(p->manufacturer_name),  "manufacturer_name",   "%s",   p->manufacturer_name);
+            callback(write_function, tlv_prefix, sizeof(p->manufacturer_model), "manufacturer_model",  "%s",   p->manufacturer_model);
             return;
         }
 
@@ -4982,7 +5050,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct controlUrlTypeTLV *)memory_structure;
 
-            callback(write_function, prefix, PLATFORM_STRLEN(p->url)+1, "url", "%s", p->url);
+            callback(write_function, tlv_prefix, PLATFORM_STRLEN(p->url)+1, "url", "%s", p->url);
 
             return;
         }
@@ -4994,12 +5062,12 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct ipv4TypeTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->ipv4_interfaces_nr), "ipv4_interfaces_nr", "%d",  &p->ipv4_interfaces_nr);
+            callback(write_function, tlv_prefix, sizeof(p->ipv4_interfaces_nr), "ipv4_interfaces_nr", "%d",  &p->ipv4_interfaces_nr);
             for (i=0; i < p->ipv4_interfaces_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv4_interfaces[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv4_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->ipv4_interfaces[i].mac_address), "mac_address", "0x%02x",   p->ipv4_interfaces[i].mac_address);
@@ -5007,7 +5075,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
                 for (j=0; j < p->ipv4_interfaces[i].ipv4_nr; j++)
                 {
-                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv4_interfaces[%d]->ipv4[%d]->", prefix, i, j);
+                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv4_interfaces[%d]->ipv4[%d]->", tlv_prefix, i, j);
                     new_prefix[MAX_PREFIX-1] = 0x0;
 
                     callback(write_function, new_prefix, sizeof(p->ipv4_interfaces[i].ipv4[j].type),             "type",             "%d",     &p->ipv4_interfaces[i].ipv4[j].type);
@@ -5026,12 +5094,12 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct ipv6TypeTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->ipv6_interfaces_nr), "ipv6_interfaces_nr", "%d",  &p->ipv6_interfaces_nr);
+            callback(write_function, tlv_prefix, sizeof(p->ipv6_interfaces_nr), "ipv6_interfaces_nr", "%d",  &p->ipv6_interfaces_nr);
             for (i=0; i < p->ipv6_interfaces_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv6_interfaces[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv6_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->ipv6_interfaces[i].mac_address), "mac_address", "0x%02x",   p->ipv6_interfaces[i].mac_address);
@@ -5039,7 +5107,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
                 for (j=0; j < p->ipv6_interfaces[i].ipv6_nr; j++)
                 {
-                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv6_interfaces[%d]->ipv6[%d]->", prefix, i, j);
+                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv6_interfaces[%d]->ipv6[%d]->", tlv_prefix, i, j);
                     new_prefix[MAX_PREFIX-1] = 0x0;
 
                     callback(write_function, new_prefix, sizeof(p->ipv6_interfaces[i].ipv6[j].type),                "type",                "%d",      &p->ipv6_interfaces[i].ipv6[j].type);
@@ -5058,12 +5126,12 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct pushButtonGenericPhyEventNotificationTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr", "%d",  &p->local_interfaces_nr);
+            callback(write_function, tlv_prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr", "%d",  &p->local_interfaces_nr);
             for (i=0; i < p->local_interfaces_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->local_interfaces[i].oui),                     "oui",                     "0x%02x",   p->local_interfaces[i].oui);
@@ -5081,7 +5149,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct x1905ProfileVersionTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->profile), "profile",  "%d",  &p->profile);
+            callback(write_function, tlv_prefix, sizeof(p->profile), "profile",  "%d",  &p->profile);
 
             return;
         }
@@ -5093,12 +5161,12 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct powerOffInterfaceTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->power_off_interfaces_nr), "power_off_interfaces_nr", "%d",  &p->power_off_interfaces_nr);
+            callback(write_function, tlv_prefix, sizeof(p->power_off_interfaces_nr), "power_off_interfaces_nr", "%d",  &p->power_off_interfaces_nr);
             for (i=0; i < p->power_off_interfaces_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%spower_off_interfaces[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%spower_off_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->power_off_interfaces[i].interface_address),                               "interface_address",       "0x%02x",   p->power_off_interfaces[i].interface_address);
@@ -5119,12 +5187,12 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct interfacePowerChangeInformationTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->power_change_interfaces_nr), "power_change_interfaces_nr", "%d",  &p->power_change_interfaces_nr);
+            callback(write_function, tlv_prefix, sizeof(p->power_change_interfaces_nr), "power_change_interfaces_nr", "%d",  &p->power_change_interfaces_nr);
             for (i=0; i < p->power_change_interfaces_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%spower_change_interfaces[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%spower_change_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->power_change_interfaces[i].interface_address),     "interface_address",       "0x%02x",   p->power_change_interfaces[i].interface_address);
@@ -5141,12 +5209,12 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct interfacePowerChangeStatusTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->power_change_interfaces_nr), "power_change_interfaces_nr", "%d",  &p->power_change_interfaces_nr);
+            callback(write_function, tlv_prefix, sizeof(p->power_change_interfaces_nr), "power_change_interfaces_nr", "%d",  &p->power_change_interfaces_nr);
             for (i=0; i < p->power_change_interfaces_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%spower_change_interfaces[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%spower_change_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->power_change_interfaces[i].interface_address), "interface_address",  "0x%02x",  p->power_change_interfaces[i].interface_address);
@@ -5163,12 +5231,12 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct l2NeighborDeviceTLV *)memory_structure;
 
-            callback(write_function, prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr", "%d",  &p->local_interfaces_nr);
+            callback(write_function, tlv_prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr", "%d",  &p->local_interfaces_nr);
             for (i=0; i < p->local_interfaces_nr; i++)
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", prefix, i);
+                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->local_interfaces[i].local_mac_address), "local_mac_address", "0x%02x",   p->local_interfaces[i].local_mac_address);
@@ -5176,7 +5244,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
                 for (j=0; j < p->local_interfaces[i].l2_neighbors_nr; j++)
                 {
-                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->l2_neighbors[%d]->", prefix, i, j);
+                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->l2_neighbors[%d]->", tlv_prefix, i, j);
                     new_prefix[MAX_PREFIX-1] = 0x0;
 
                     callback(write_function, new_prefix, sizeof(p->local_interfaces[i].l2_neighbors[j].l2_neighbor_mac_address), "l2_neighbor_mac_address", "0x%02x",   p->local_interfaces[i].l2_neighbors[j].l2_neighbor_mac_address);
@@ -5184,7 +5252,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
                     for (k=0; k < p->local_interfaces[i].l2_neighbors[j].behind_mac_addresses_nr; k++)
                     {
-                        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->l2_neighbors[%d]->behind_mac_addresses[%d]", prefix, i, j, k);
+                        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->l2_neighbors[%d]->behind_mac_addresses[%d]", tlv_prefix, i, j, k);
                         new_prefix[MAX_PREFIX-1] = 0x0;
 
                         callback(write_function, new_prefix, 6, "behind_mac_addresses", "0x%02x", p->local_interfaces[i].l2_neighbors[j].behind_mac_addresses[k]);
@@ -5195,38 +5263,12 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             return;
         }
 
-        case TLV_TYPE_SUPPORTED_SERVICE:
-        {
-            struct supportedServiceTLV *m;
-            INT8U i;
-            char supported_services_list[80];
-            size_t supported_services_list_len = 0;
-
-            m = (struct supportedServiceTLV *)memory_structure;
-
-            callback(write_function, prefix, sizeof(m->supported_service_nr), "supported_service_nr", "%d",  &m->supported_service_nr);
-            for (i = 0; i < m->supported_service_nr; i++)
-            {
-                PLATFORM_SNPRINTF(supported_services_list + supported_services_list_len,
-                                  sizeof (supported_services_list) - supported_services_list_len,
-                                  "0x%02x ", m->supported_service[i]);
-                supported_services_list_len += 5;
-                if (supported_services_list_len >= sizeof (supported_services_list) - 5 ||
-                    i == m->supported_service_nr - 1)
-                {
-                    supported_services_list[supported_services_list_len] = '\0';
-                    callback(write_function, prefix, sizeof(m->supported_service[i]), "supported_services", "%s",
-                             supported_services_list);
-                }
-            }
-
-            return;
-        }
-
         default:
         {
-            // Ignore
-            //
+            struct tlv_list *dummy = alloc_dummy_tlv_list(memory_structure);
+            tlv_print(tlv_1905_defs, dummy, write_function, prefix);
+            free_dummy_tlv_list(dummy);
+
             return;
         }
     }
@@ -5256,8 +5298,6 @@ const char *convert_1905_TLV_type_to_string(INT8U tlv_type)
             return "TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST";
         case TLV_TYPE_NEIGHBOR_DEVICE_LIST:
             return "TLV_TYPE_NEIGHBOR_DEVICE_LIST";
-        case TLV_TYPE_LINK_METRIC_QUERY:
-            return "TLV_TYPE_LINK_METRIC_QUERY";
         case TLV_TYPE_TRANSMITTER_LINK_METRIC:
             return "TLV_TYPE_TRANSMITTER_LINK_METRIC";
         case TLV_TYPE_RECEIVER_LINK_METRIC:
@@ -5300,10 +5340,18 @@ const char *convert_1905_TLV_type_to_string(INT8U tlv_type)
             return "TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS";
         case TLV_TYPE_L2_NEIGHBOR_DEVICE:
             return "TLV_TYPE_L2_NEIGHBOR_DEVICE";
-        case TLV_TYPE_SUPPORTED_SERVICE:
-            return "TLV_TYPE_SUPPORTED_SERVICE";
         default:
-            return "Unknown";
+        {
+            const struct tlv_def *tlv_def = tlv_find_def(tlv_1905_defs, tlv_type);
+            if (tlv_def == NULL)
+            {
+                return "Unknown";
+            }
+            else
+            {
+                return tlv_def->name;
+            }
+        }
     }
 
     // This code cannot be reached
