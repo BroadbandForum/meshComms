@@ -180,6 +180,13 @@ int send_cmdu(int s, mac_address dst_addr, mac_address src_addr, const struct CM
 
     streams = forge_1905_CMDU_from_structure(cmdu, &streams_lens);
 
+    if (streams == NULL)
+    {
+        PLATFORM_PRINTF_DEBUG_ERROR("Failed to forge CMDU:\n");
+        visit_1905_CMDU_structure(cmdu, print_callback, PLATFORM_PRINTF_DEBUG_ERROR, "  ");
+        return 1;
+    }
+
     for (i = 0; streams[i] != NULL; i++)
     {
         uint8_t *buf = malloc(streams_lens[i] + 6 + 6 + 2);
