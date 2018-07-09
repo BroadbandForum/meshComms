@@ -25,6 +25,12 @@
 #include <stdbool.h>
 #include <stddef.h> // size_t
 
+/** @brief number of possible TLV types.
+ *
+ * Since the type is 1 byte, there are 256 TLVs
+ */
+#define TLV_TYPE_NUM 0x100U
+
 struct tlv_def;
 
 /** @brief List of ::tlv%s.
@@ -190,7 +196,7 @@ struct tlv_def
  *
  * To define concrete TLVs, the callback functions must be defined for each defined type.
  */
-typedef const struct tlv_def tlv_defs_t[0x100];
+typedef const struct tlv_def tlv_defs_t[TLV_TYPE_NUM];
 
 /** @brief Find the definition of a specific TLV type. */
 const struct tlv_def *tlv_find_def(tlv_defs_t defs, uint8_t tlv_type);

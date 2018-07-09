@@ -62,18 +62,6 @@
 #define TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS       (29)
 #define TLV_TYPE_L2_NEIGHBOR_DEVICE                  (30)
 
-#define TLV_TYPE_LAST                                (30)
-                                                     // NOTE: If new types are
-                                                     // introduced in future
-                                                     // revisions of the
-                                                     // standard, update this
-                                                     // value so that it always
-                                                     // points to the last one.
-                                                     // HOWEVER, it is used as
-                                                     // a 32-bit bitmask so we
-                                                     // can't actually add more
-                                                     // types...
-
 #define TLV_TYPE_SUPPORTED_SERVICE                   (0x80)
 
 
