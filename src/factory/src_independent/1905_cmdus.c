@@ -109,6 +109,7 @@ static const struct cmdu_info cmdu_info[] =
             {TLV_TYPE_SEARCHED_ROLE, count_required_one},
             {TLV_TYPE_AUTOCONFIG_FREQ_BAND, count_required_one},
             {TLV_TYPE_SUPPORTED_SERVICE, count_required_zero_or_one},
+            {TLV_TYPE_SEARCHED_SERVICE, count_required_zero_or_one},
             {0, count_required_sentinel},
         },
     },

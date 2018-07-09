@@ -63,6 +63,7 @@
 #define TLV_TYPE_L2_NEIGHBOR_DEVICE                  (30)
 
 #define TLV_TYPE_SUPPORTED_SERVICE                   (0x80)
+#define TLV_TYPE_SEARCHED_SERVICE                    (0x81)
 
 
 
@@ -935,6 +936,8 @@ struct l2NeighborDeviceTLV
 };
 
 /** @brief EasyMesh SupportedService TLV.
+ *
+ * For the SearchedService TLV, we use the same structure and functions.
  * @{
  */
 

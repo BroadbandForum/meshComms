@@ -1526,3 +1526,20 @@ INT8U x1905_tlv_stream_050[] =
 };
 
 INT16U x1905_tlv_stream_len_050 = ARRAY_SIZE(x1905_tlv_stream_050);
+
+struct supportedServiceTLV x1905_tlv_structure_051 =
+{
+    .tlv_type                    = TLV_TYPE_SEARCHED_SERVICE,
+    .supported_service_nr        = 1,
+    .supported_service           = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, },
+};
+
+INT8U x1905_tlv_stream_051[] =
+{
+    0x81,
+    0x00, 0x02,
+    0x01,
+    0x00,
+};
+
+INT16U x1905_tlv_stream_len_051 = ARRAY_SIZE(x1905_tlv_stream_051);

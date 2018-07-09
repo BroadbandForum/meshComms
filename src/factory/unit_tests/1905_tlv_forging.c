@@ -183,6 +183,9 @@ int main(void)
     #define x1905TLVFORGE036 "x1905TLVFORGE036 - Forge supported service TLV (x1905_tlv_structure_050)"
     result += _check(x1905TLVFORGE036, (INT8U *)&x1905_tlv_structure_050, x1905_tlv_stream_050, x1905_tlv_stream_len_050);
 
+    #define x1905TLVFORGE037 "x1905TLVFORGE037 - Forge searched service TLV (x1905_tlv_structure_051)"
+    result += _check(x1905TLVFORGE037, (INT8U *)&x1905_tlv_structure_051, x1905_tlv_stream_051, x1905_tlv_stream_len_051);
+
 
     // Return the number of test cases that failed
     //

@@ -3068,6 +3068,9 @@ INT8U send1905APAutoconfigurationSearchPacket(char *interface_name, INT16U mid, 
     struct supportedServiceTLV    supported_service_tlv;
     /* Search packet is only sent if this is not a controller. */
     enum serviceType              supported_services[] = {SERVICE_MULTI_AP_AGENT};
+    struct supportedServiceTLV    searched_service_tlv;
+    /* Search packet is only sent if this is not a controller. */
+    enum serviceType              searched_services[] = {SERVICE_MULTI_AP_CONTROLLER};
 
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (%s)\n", interface_name);
 
@@ -3091,18 +3094,25 @@ INT8U send1905APAutoconfigurationSearchPacket(char *interface_name, INT16U mid, 
     supported_service_tlv.supported_service_nr = ARRAY_SIZE(supported_services);
     supported_service_tlv.supported_service = supported_services;
 
+    // Fill the searched service TLV.
+    //
+    searched_service_tlv.tlv_type = TLV_TYPE_SEARCHED_SERVICE;
+    searched_service_tlv.supported_service_nr = ARRAY_SIZE(searched_services);
+    searched_service_tlv.supported_service = searched_services;
+
     // Build the CMDU
     //
     search_message.message_version = CMDU_MESSAGE_VERSION_1905_1_2013;
     search_message.message_type    = CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH;
     search_message.message_id      = mid;
     search_message.relay_indicator = 1;
-    search_message.list_of_TLVs    = (INT8U **)PLATFORM_MALLOC(sizeof(INT8U *)*5);
+    search_message.list_of_TLVs    = (INT8U **)PLATFORM_MALLOC(sizeof(INT8U *)*6);
     search_message.list_of_TLVs[0] = (INT8U *)&al_mac_addr_tlv;
     search_message.list_of_TLVs[1] = (INT8U *)&searched_role_tlv;
     search_message.list_of_TLVs[2] = (INT8U *)&ac_freq_band_tlv;
     search_message.list_of_TLVs[3] = (INT8U *)&supported_service_tlv;
-    search_message.list_of_TLVs[4] = NULL;
+    search_message.list_of_TLVs[4] = (INT8U *)&searched_service_tlv;
+    search_message.list_of_TLVs[5] = NULL;
 
     if (0 == send1905RawPacket(interface_name, mid, mcast_address, &search_message))
     {

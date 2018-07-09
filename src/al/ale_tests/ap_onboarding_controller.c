@@ -43,6 +43,12 @@ static struct supportedServiceTLV multiApControllerService = {
     .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT },
 };
 
+static struct supportedServiceTLV multiApControllerSearchedService = {
+    .tlv_type          = TLV_TYPE_SEARCHED_SERVICE,
+    .supported_service_nr = 1,
+    .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER },
+};
+
 static struct CMDU aletest_send_cmdu_autoconfig_search = {
     .message_version = CMDU_MESSAGE_VERSION_1905_1_2013,
     .message_type    = CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH,
@@ -69,6 +75,7 @@ static struct CMDU aletest_send_cmdu_autoconfig_search = {
                 }
             },
             (INT8U *)&multiApAgentService,
+            (INT8U *)&multiApControllerSearchedService,
             NULL,
         },
 };

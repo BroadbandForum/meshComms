@@ -189,5 +189,10 @@ extern struct supportedServiceTLV                      x1905_tlv_structure_050;
 extern INT8U                                           x1905_tlv_stream_050[];
 extern INT16U                                          x1905_tlv_stream_len_050;
 
+/* Searched service */
+extern struct supportedServiceTLV                      x1905_tlv_structure_051;
+extern INT8U                                           x1905_tlv_stream_051[];
+extern INT16U                                          x1905_tlv_stream_len_051;
+
 #endif
 

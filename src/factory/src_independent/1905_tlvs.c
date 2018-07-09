@@ -384,6 +384,16 @@ static bool tlv_compare_1905_linkMetricQuery(const struct tlv *tlv1, const struc
 /** @} */
 
 static tlv_defs_t tlv_1905_defs = {
+    [TLV_TYPE_LINK_METRIC_QUERY] = {
+        .type = TLV_TYPE_LINK_METRIC_QUERY,
+        .name = "linkMetricQuery",
+        .parse = tlv_parse_1905_linkMetricQuery,
+        .length = tlv_length_1905_linkMetricQuery,
+        .forge = tlv_forge_1905_linkMetricQuery,
+        .print = tlv_print_1905_linkMetricQuery,
+        .free = tlv_free_1905_linkMetricQuery,
+        .compare = tlv_compare_1905_linkMetricQuery,
+    },
     [TLV_TYPE_SUPPORTED_SERVICE] = {
         .type = TLV_TYPE_SUPPORTED_SERVICE,
         .name = "supportedService",
@@ -394,16 +404,17 @@ static tlv_defs_t tlv_1905_defs = {
         .free = tlv_free_1905_supportedService,
         .compare = tlv_compare_1905_supportedService,
     },
-    [TLV_TYPE_LINK_METRIC_QUERY] = {
-        .type = TLV_TYPE_LINK_METRIC_QUERY,
-        .name = "linkMetricQuery",
-        .parse = tlv_parse_1905_linkMetricQuery,
-        .length = tlv_length_1905_linkMetricQuery,
-        .forge = tlv_forge_1905_linkMetricQuery,
-        .print = tlv_print_1905_linkMetricQuery,
-        .free = tlv_free_1905_linkMetricQuery,
-        .compare = tlv_compare_1905_linkMetricQuery,
-    }
+    /* Searched service is exactly the same as supported service, so reuse the functions. */
+    [TLV_TYPE_SEARCHED_SERVICE] = {
+        .type = TLV_TYPE_SEARCHED_SERVICE,
+        .name = "searchedService",
+        .parse = tlv_parse_1905_supportedService,
+        .length = tlv_length_1905_supportedService,
+        .forge = tlv_forge_1905_supportedService,
+        .print = tlv_print_1905_supportedService,
+        .free = tlv_free_1905_supportedService,
+        .compare = tlv_compare_1905_supportedService,
+    },
 };
 
 ////////////////////////////////////////////////////////////////////////////////
