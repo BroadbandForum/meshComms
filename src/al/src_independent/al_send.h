@@ -306,9 +306,12 @@ INT8U send1905APAutoconfigurationSearchPacket(char *interface_name, INT16U mid, 
 // autoconfiguration response" message that resulted in this response being
 // generated.
 //
+// If "include_easymesh" is true, add the easyMesh TLV supportedService.
+//
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905APAutoconfigurationResponsePacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address, INT8U freq_band);
+INT8U send1905APAutoconfigurationResponsePacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address,
+                                                INT8U freq_band, bool include_easymesh);
 
 // This function sends a "AP-autoconfiguration WSC packet" on the provided
 // interface.

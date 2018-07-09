@@ -852,6 +852,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             INT8U freq_band_is_present;
             INT8U freq_band;
 
+            bool supported_service_is_present = false;
+
             INT8U  al_mac_address[6];
 
             searched_role_is_present = 0;
@@ -903,6 +905,12 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                         freq_band_is_present = 1;
                         freq_band            = t->freq_band;
 
+                        break;
+                    }
+                    case TLV_TYPE_SUPPORTED_SERVICE:
+                    {
+                        /* We don't actually care about the contents. */
+                        supported_service_is_present = true;
                         break;
                     }
                     default:
@@ -973,7 +981,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                 {
                     PLATFORM_PRINTF_DEBUG_DETAIL("Interface %s is AP, registrar, and uses the same freq band. Sending response...\n",ifs_names[i]);
 
-                    if ( 0 == send1905APAutoconfigurationResponsePacket(DMmacToInterfaceName(receiving_interface_addr), c->message_id, al_mac_address, freq_band))
+                    if ( 0 == send1905APAutoconfigurationResponsePacket(DMmacToInterfaceName(receiving_interface_addr), c->message_id, al_mac_address, freq_band, supported_service_is_present))
                     {
                         PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration response' message\n");
                     }

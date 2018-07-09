@@ -85,6 +85,7 @@ static const struct cmdu_info cmdu_info[] =
             {TLV_TYPE_POWER_OFF_INTERFACE, count_required_zero_or_more},
             {TLV_TYPE_L2_NEIGHBOR_DEVICE, count_required_zero_or_more},
             {TLV_TYPE_DEVICE_INFORMATION_TYPE, count_required_one},
+            {TLV_TYPE_SUPPORTED_SERVICE, count_required_zero_or_one},
             {0, count_required_sentinel},
         },
     },
@@ -107,6 +108,7 @@ static const struct cmdu_info cmdu_info[] =
             {TLV_TYPE_AL_MAC_ADDRESS_TYPE, count_required_one},
             {TLV_TYPE_SEARCHED_ROLE, count_required_one},
             {TLV_TYPE_AUTOCONFIG_FREQ_BAND, count_required_one},
+            {TLV_TYPE_SUPPORTED_SERVICE, count_required_zero_or_one},
             {0, count_required_sentinel},
         },
     },
@@ -114,6 +116,7 @@ static const struct cmdu_info cmdu_info[] =
         .tlv_count_required = (const struct cmdu_tlv_count_required[]){
             {TLV_TYPE_SUPPORTED_ROLE, count_required_one},
             {TLV_TYPE_SUPPORTED_FREQ_BAND, count_required_one},
+            {TLV_TYPE_SUPPORTED_SERVICE, count_required_zero_or_one},
             {0, count_required_sentinel},
         },
     },

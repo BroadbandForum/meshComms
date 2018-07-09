@@ -2286,6 +2286,11 @@ INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U* de
     //   - Zero or more power off interface TLVs
     //   - Zero or more L2 neighbor device TLVs
     //
+    // The "Multi-AP Specification Version 1.0" adds the following TLVs:
+    //   - Zero or one supported service TLV
+    //   - One AP Operational BSS TLV
+    //   - Zero or one Associated Clients TLV
+    //
     //   NOTE: The "non-1905 neighbor" and the "L2 neighbor" device TLVs are
     //   kind of overlaping... but this is what the standard says.
     //
@@ -2296,6 +2301,9 @@ INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U* de
     //   That's why in this implementation we are just sending zero or one (no
     //   more!) TLVs of these type. However, in reception (see
     //   "process1905Cmdu()") we will be ready to receive more.
+    //
+    //   NOTE: Since a compliant implementation should ignore unknown TLVs, we can simply always send the Multi-AP
+    //   TLVs
 
     INT8U  ret;
 
@@ -2306,6 +2314,9 @@ INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U* de
     struct neighborDeviceListTLV         **neighbors;
     struct powerOffInterfaceTLV            power_off;
     struct l2NeighborDeviceTLV             l2_neighbors;
+    struct supportedServiceTLV             supported_service_tlv;
+    /** @todo Controller is optional */
+    enum serviceType                       supported_services[] = {SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT};
 
     INT8U                                 non_1905_neighbors_nr;
     INT8U                                 neighbors_nr;
@@ -2352,6 +2363,14 @@ INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U* de
         total_tlvs++;                    // L2 neighbor device TLV
     }
 
+    // Fill the supported service TLV.
+    //
+    supported_service_tlv.tlv_type = TLV_TYPE_SUPPORTED_SERVICE;
+    /** @todo Controller is optional */
+    supported_service_tlv.supported_service_nr = ARRAY_SIZE(supported_services);
+    supported_service_tlv.supported_service = supported_services;
+    total_tlvs++;
+
     response_message.message_version = CMDU_MESSAGE_VERSION_1905_1_2013;
     response_message.message_type    = CMDU_TYPE_TOPOLOGY_RESPONSE;
     response_message.message_id      = mid;
@@ -2390,6 +2409,8 @@ INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U* de
     {
         response_message.list_of_TLVs[i++] = (INT8U *)&l2_neighbors;
     }
+
+    response_message.list_of_TLVs[i++] = (INT8U *)&supported_service_tlv;
 
     response_message.list_of_TLVs[i] = NULL;
 
@@ -3044,6 +3065,9 @@ INT8U send1905APAutoconfigurationSearchPacket(char *interface_name, INT16U mid, 
     struct alMacAddressTypeTLV    al_mac_addr_tlv;
     struct searchedRoleTLV        searched_role_tlv;
     struct autoconfigFreqBandTLV  ac_freq_band_tlv;
+    struct supportedServiceTLV    supported_service_tlv;
+    /* Search packet is only sent if this is not a controller. */
+    enum serviceType              supported_services[] = {SERVICE_MULTI_AP_AGENT};
 
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (%s)\n", interface_name);
 
@@ -3061,17 +3085,24 @@ INT8U send1905APAutoconfigurationSearchPacket(char *interface_name, INT16U mid, 
     ac_freq_band_tlv.tlv_type  = TLV_TYPE_AUTOCONFIG_FREQ_BAND;
     ac_freq_band_tlv.freq_band = freq_band;
 
+    // Fill the supported service TLV.
+    //
+    supported_service_tlv.tlv_type = TLV_TYPE_SUPPORTED_SERVICE;
+    supported_service_tlv.supported_service_nr = ARRAY_SIZE(supported_services);
+    supported_service_tlv.supported_service = supported_services;
+
     // Build the CMDU
     //
     search_message.message_version = CMDU_MESSAGE_VERSION_1905_1_2013;
     search_message.message_type    = CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH;
     search_message.message_id      = mid;
     search_message.relay_indicator = 1;
-    search_message.list_of_TLVs    = (INT8U **)PLATFORM_MALLOC(sizeof(INT8U *)*4);
+    search_message.list_of_TLVs    = (INT8U **)PLATFORM_MALLOC(sizeof(INT8U *)*5);
     search_message.list_of_TLVs[0] = (INT8U *)&al_mac_addr_tlv;
     search_message.list_of_TLVs[1] = (INT8U *)&searched_role_tlv;
     search_message.list_of_TLVs[2] = (INT8U *)&ac_freq_band_tlv;
-    search_message.list_of_TLVs[3] = NULL;
+    search_message.list_of_TLVs[3] = (INT8U *)&supported_service_tlv;
+    search_message.list_of_TLVs[4] = NULL;
 
     if (0 == send1905RawPacket(interface_name, mid, mcast_address, &search_message))
     {
@@ -3092,7 +3123,8 @@ INT8U send1905APAutoconfigurationSearchPacket(char *interface_name, INT16U mid, 
     return ret;
 }
 
-INT8U send1905APAutoconfigurationResponsePacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address, INT8U freq_band)
+INT8U send1905APAutoconfigurationResponsePacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address,
+                                                INT8U freq_band, bool include_easymesh)
 {
     // The "AP-autoconfiguration response" message is a CMDU with two TLVs:
     //   - One supported role TLV
@@ -3103,6 +3135,9 @@ INT8U send1905APAutoconfigurationResponsePacket(char *interface_name, INT16U mid
     struct CMDU                  response_message;
     struct supportedRoleTLV      supported_role_tlv;
     struct supportedFreqBandTLV  supported_freq_band_tlv;
+    struct supportedServiceTLV   supported_service_tlv;
+    /* Response packet is only sent if this is a controller, and we are always an agent as well, so include both. */
+    enum serviceType             supported_services[] = {SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT};
 
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE (%s)\n", interface_name);
 
@@ -3116,16 +3151,30 @@ INT8U send1905APAutoconfigurationResponsePacket(char *interface_name, INT16U mid
     supported_freq_band_tlv.tlv_type  = TLV_TYPE_SUPPORTED_FREQ_BAND;
     supported_freq_band_tlv.freq_band = freq_band;
 
+    // Fill the supported service TLV.
+    //
+    supported_service_tlv.tlv_type = TLV_TYPE_SUPPORTED_SERVICE;
+    supported_service_tlv.supported_service_nr = ARRAY_SIZE(supported_services);
+    supported_service_tlv.supported_service = supported_services;
+
     // Build the CMDU
     //
     response_message.message_version = CMDU_MESSAGE_VERSION_1905_1_2013;
     response_message.message_type    = CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE;
     response_message.message_id      = mid;
     response_message.relay_indicator = 0;
-    response_message.list_of_TLVs    = (INT8U **)PLATFORM_MALLOC(sizeof(INT8U *)*3);
+    response_message.list_of_TLVs    = (INT8U **)PLATFORM_MALLOC(sizeof(INT8U *)*4);
     response_message.list_of_TLVs[0] = (INT8U *)&supported_role_tlv;
     response_message.list_of_TLVs[1] = (INT8U *)&supported_freq_band_tlv;
-    response_message.list_of_TLVs[2] = NULL;
+    if (include_easymesh)
+    {
+        response_message.list_of_TLVs[2] = (INT8U *)&supported_service_tlv;
+        response_message.list_of_TLVs[3] = NULL;
+    }
+    else
+    {
+        response_message.list_of_TLVs[2] = NULL;
+    }
 
     if (0 == send1905RawPacket(interface_name, mid, destination_al_mac_address, &response_message))
     {

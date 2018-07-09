@@ -37,6 +37,12 @@ static struct alMacAddressTypeTLV expect_al_mac_tlv =
     .al_mac_address    = ADDR_AL,
 };
 
+static struct supportedServiceTLV multiApControllerService = {
+    .tlv_type          = TLV_TYPE_SUPPORTED_SERVICE,
+    .supported_service_nr = 2,
+    .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT },
+};
+
 static struct CMDU aletest_expect_cmdu_topology_discovery =
 {
     .message_version = CMDU_MESSAGE_VERSION_1905_1_2013,
@@ -173,6 +179,7 @@ static struct CMDU aletest_expect_cmdu_topology_response =
                     .local_interfaces_nr  = 0,
                 },
             },
+            (INT8U *)&multiApControllerService,
             NULL,
         },
 };
