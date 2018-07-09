@@ -23,90 +23,163 @@
 #include "1905_l2.h"
 #include "packet_tools.h"
 
+/** @brief Specification of the constraint of how many times a something may occur. */
+enum count_required {
+    count_required_zero = 0,      /**< @brief TLV is not allowed in this CMDU. */
+    count_required_zero_or_one,   /**< @brief TLV is optional in this CMDU. */
+    count_required_zero_or_more,  /**< @brief TLV is optional and may occur several times in this CMDU. */
+    count_required_one,           /**< @brief TLV is required in this CMDU. */
+    count_required_one_or_more,   /**< @brief TLV is required and may occur several times in this CMDU. */
+    /** @brief Sentinel value marking the end of an array of cmdu_tlv_count_required.
+     *
+     * This takes the value 0, so that automatic 0 initialisation fills in the sentinel.
+     *
+     * It can also be the same value as count_required_zero because the latter doesn't occur in a
+     * cmdu_tlv_count_required list: TLVs that are required not to be present are simply not mentioned in the list.
+     */
+    count_required_sentinel = 0,
+};
+
+/** @brief Specification of the constraint of how many times a specific TLV type may occur in a CMDU. */
+struct cmdu_tlv_count_required {
+    uint8_t type;               /**< TLV type to which this constraint applies. */
+    enum count_required count;  /**< The constraint for this TLV type. count_required_zero is not used. */
+};
+
+/** @brief Static information about CMDUs. */
+struct cmdu_info {
+    /** @brief List of constraints of how many times each TLV type may occur in a CMDU.
+     *
+     * TLV types that are not allowed do not appear in the list.
+     *
+     * The list is an array where the last entry has cmdu_tlv_count_required::count_required == count_required_sentinel.
+     */
+    const struct cmdu_tlv_count_required *tlv_count_required;
+};
+
+/** @brief Definition of the static information of each CMDU type.
+ *
+ * This array is indexed by CMDU type.
+ */
+static const struct cmdu_info cmdu_info[] =
+{
+    [CMDU_TYPE_TOPOLOGY_DISCOVERY] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_AL_MAC_ADDRESS_TYPE, count_required_one},
+            {TLV_TYPE_MAC_ADDRESS_TYPE, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_TOPOLOGY_NOTIFICATION] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_AL_MAC_ADDRESS_TYPE, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_TOPOLOGY_RESPONSE] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES, count_required_zero_or_more},
+            {TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST, count_required_zero_or_more},
+            {TLV_TYPE_NEIGHBOR_DEVICE_LIST, count_required_zero_or_more},
+            {TLV_TYPE_POWER_OFF_INTERFACE, count_required_zero_or_more},
+            {TLV_TYPE_L2_NEIGHBOR_DEVICE, count_required_zero_or_more},
+            {TLV_TYPE_DEVICE_INFORMATION_TYPE, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+    /* CMDU_TYPE_VENDOR_SPECIFIC is a special case since any TLV is allowed. */
+    [CMDU_TYPE_LINK_METRIC_QUERY] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_LINK_METRIC_QUERY, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_LINK_METRIC_RESPONSE] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_TRANSMITTER_LINK_METRIC, count_required_zero_or_more},
+            {TLV_TYPE_RECEIVER_LINK_METRIC, count_required_zero_or_more},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_AL_MAC_ADDRESS_TYPE, count_required_one},
+            {TLV_TYPE_SEARCHED_ROLE, count_required_one},
+            {TLV_TYPE_AUTOCONFIG_FREQ_BAND, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_SUPPORTED_ROLE, count_required_one},
+            {TLV_TYPE_SUPPORTED_FREQ_BAND, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_AP_AUTOCONFIGURATION_WSC] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_WSC, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_AP_AUTOCONFIGURATION_RENEW] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_AL_MAC_ADDRESS_TYPE, count_required_one},
+            {TLV_TYPE_SUPPORTED_ROLE, count_required_one},
+            {TLV_TYPE_SUPPORTED_FREQ_BAND, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION, count_required_zero_or_one},
+            {TLV_TYPE_AL_MAC_ADDRESS_TYPE, count_required_one},
+            {TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_AL_MAC_ADDRESS_TYPE, count_required_one},
+            {TLV_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_HIGHER_LAYER_RESPONSE] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_CONTROL_URL, count_required_zero_or_one},
+            {TLV_TYPE_IPV4, count_required_zero_or_one},
+            {TLV_TYPE_IPV6, count_required_zero_or_one},
+            {TLV_TYPE_AL_MAC_ADDRESS_TYPE, count_required_one},
+            {TLV_TYPE_1905_PROFILE_VERSION, count_required_one},
+            {TLV_TYPE_DEVICE_IDENTIFICATION, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_INTERFACE_POWER_CHANGE_REQUEST] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION, count_required_one_or_more},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_INTERFACE_POWER_CHANGE_RESPONSE] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS, count_required_one_or_more},
+            {0, count_required_sentinel},
+        },
+    },
+    [CMDU_TYPE_GENERIC_PHY_RESPONSE] = {
+        .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            {TLV_TYPE_GENERIC_PHY_DEVICE_INFORMATION, count_required_one},
+            {0, count_required_sentinel},
+        },
+    },
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Auxiliary, static tables
 ////////////////////////////////////////////////////////////////////////////////
-
-//   WARNING:
-//     If the CMDU message type changes (ie. the definition of  CMD_TYPE_*)
-//     the following tables will have to be adapted (as the array index depends
-//     on that).
-//     Fortunately this should never happen.
-
-// These tables marks, for each CMDU type of message, which TLVs are:
-//
-//   1. Require to be present zero or more times
-//
-//   2. required to be present exactly once
-//
-// The values in these tables were obtained from "IEEE Std 1905.1-2013, Section
-// 6.3"
-//
-//
-// TODO:
-//     Right now this mechanism only considers either "zero or more" or "exactly
-//     one" possibilities... however, in the "1a" update of the standard, there
-//     are new types of TLVs that can appear "zero or one" and "one or more"
-//     times.
-//     For now I'm treating:
-//       A) ...the "zero or one" type as "zero or more" (this
-//          happens with the "push button generic phy event notification TLV",
-//          the "control URL TLV" and the "IPv4/v6 TLVs") and...
-//       B) ...the "one or more" type as "exactly one" (the "interface power
-//          change information type TLV" and the "interface power change status
-//          TLV").
-//     Case (B) is not really a problem (in fact, I think "one or more" is an
-//     error in the standard for these TLVs... as it should be "exactly one"...
-//     maybe this will be corrected in a future update).
-//     However, because of case (A), we could end up considering valid CMDUs
-//     with, for example, more than one "IPv4 TLVs" (which is clearly an error).
-//
-//
-//
-static INT32U _zeroormore_tlvs_for_cmdu[] =
-{
-    /* CMDU_TYPE_TOPOLOGY_DISCOVERY             */  0x00000000,
-    /* CMDU_TYPE_TOPOLOGY_NOTIFICATION          */  0x00000000,
-    /* CMDU_TYPE_TOPOLOGY_QUERY                 */  0x00000000,
-    /* CMDU_TYPE_TOPOLOGY_RESPONSE              */  1 << TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES   | 1 << TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST | 1<< TLV_TYPE_NEIGHBOR_DEVICE_LIST | 1 << TLV_TYPE_POWER_OFF_INTERFACE | 1 << TLV_TYPE_L2_NEIGHBOR_DEVICE,
-    /* CMDU_TYPE_VENDOR_SPECIFIC                */  0xffffffff,
-    /* CMDU_TYPE_LINK_METRIC_QUERY              */  0x00000000,
-    /* CMDU_TYPE_LINK_METRIC_RESPONSE           */  1 << TLV_TYPE_TRANSMITTER_LINK_METRIC | 1 << TLV_TYPE_RECEIVER_LINK_METRIC,
-    /* CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH    */  0x00000000,
-    /* CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE  */  0x00000000,
-    /* CMDU_TYPE_AP_AUTOCONFIGURATION_WSC       */  0x00000000,
-    /* CMDU_TYPE_AP_AUTOCONFIGURATION_RENEW     */  0x00000000,
-    /* CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION */  1 << TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION,
-    /* CMDU_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION  */  0x00000000,
-    /* CMDU_TYPE_HIGHER_LAYER_QUERY             */  0x00000000,
-    /* CMDU_TYPE_HIGHER_LAYER_RESPONSE          */  1 << TLV_TYPE_CONTROL_URL | 1 << TLV_TYPE_IPV4 | 1 << TLV_TYPE_IPV6,
-    /* CMDU_TYPE_INTERFACE_POWER_CHANGE_REQUEST */  0x00000000,
-    /* CMDU_TYPE_INTERFACE_POWER_CHANGE_RESPONSE*/  0x00000000,
-    /* CMDU_TYPE_GENERIC_PHY_QUERY              */  0x00000000,
-    /* CMDU_TYPE_GENERIC_PHY_RESPONSE           */  0x00000000,
-};
-static INT32U _exactlyone_tlvs_for_cmdu[] = \
-{
-    /* CMDU_TYPE_TOPOLOGY_DISCOVERY             */  1 << TLV_TYPE_AL_MAC_ADDRESS_TYPE     | 1 << TLV_TYPE_MAC_ADDRESS_TYPE,
-    /* CMDU_TYPE_TOPOLOGY_NOTIFICATION          */  1 << TLV_TYPE_AL_MAC_ADDRESS_TYPE,
-    /* CMDU_TYPE_TOPOLOGY_QUERY                 */  0x00000000,
-    /* CMDU_TYPE_TOPOLOGY_RESPONSE              */  1 << TLV_TYPE_DEVICE_INFORMATION_TYPE,
-    /* CMDU_TYPE_VENDOR_SPECIFIC                */  0x00000000,
-    /* CMDU_TYPE_LINK_METRIC_QUERY              */  1 << TLV_TYPE_LINK_METRIC_QUERY,
-    /* CMDU_TYPE_LINK_METRIC_RESPONSE           */  0x00000000,
-    /* CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH    */  1 << TLV_TYPE_AL_MAC_ADDRESS_TYPE     | 1 << TLV_TYPE_SEARCHED_ROLE                  | 1 << TLV_TYPE_AUTOCONFIG_FREQ_BAND,
-    /* CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE  */  1 << TLV_TYPE_SUPPORTED_ROLE          | 1 << TLV_TYPE_SUPPORTED_FREQ_BAND,
-    /* CMDU_TYPE_AP_AUTOCONFIGURATION_WSC       */  1 << TLV_TYPE_WSC,
-    /* CMDU_TYPE_AP_AUTOCONFIGURATION_RENEW     */  1 << TLV_TYPE_AL_MAC_ADDRESS_TYPE     | 1 << TLV_TYPE_SUPPORTED_ROLE                 | 1 << TLV_TYPE_SUPPORTED_FREQ_BAND,
-    /* CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION */  1 << TLV_TYPE_AL_MAC_ADDRESS_TYPE     | 1 << TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION,
-    /* CMDU_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION  */  1 << TLV_TYPE_AL_MAC_ADDRESS_TYPE     | 1 << TLV_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION,
-    /* CMDU_TYPE_HIGHER_LAYER_QUERY             */  0x00000000,
-    /* CMDU_TYPE_HIGHER_LAYER_RESPONSE          */  1 << TLV_TYPE_AL_MAC_ADDRESS_TYPE     | 1 << TLV_TYPE_1905_PROFILE_VERSION           | 1 << TLV_TYPE_DEVICE_IDENTIFICATION,
-    /* CMDU_TYPE_INTERFACE_POWER_CHANGE_REQUEST */  1 << TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION,
-    /* CMDU_TYPE_INTERFACE_POWER_CHANGE_RESPONSE*/  1 << TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS,
-    /* CMDU_TYPE_GENERIC_PHY_QUERY              */  0x00000000,
-    /* CMDU_TYPE_GENERIC_PHY_RESPONSE           */  1 << TLV_TYPE_GENERIC_PHY_DEVICE_INFORMATION,
-};
 
 // The following table tells us the value of the 'relay_indicator' flag for
 // each type of CMDU message.
@@ -226,57 +299,110 @@ static INT8U _check_CMDU_rules(const struct CMDU *p, INT8U rules_type)
         i++;
     }
 
-    // Rules 1.a and 2.c check the same thing : make sure the structure
-    // contains, *at least*, the required TLVs
-    //
-    // If not, return '0'
-    //
-    // The required TLVs are those contained in the "_exactlyone_tlvs_for_cmdu"
-    // table.
-    //
     for (i=0; i<=TLV_TYPE_LAST; i++)
     {
-        if (
-             (1 != counter[i])                                       &&
-             (_exactlyone_tlvs_for_cmdu[p->message_type] & (1 << i))
-             )
+        enum count_required required_count = count_required_zero;
+
+        // Search the required count
+        if (p->message_id == CMDU_TYPE_VENDOR_SPECIFIC)
         {
-            PLATFORM_PRINTF_DEBUG_WARNING("TLV %s should appear once on this CMDU, but it appears %d times\n", convert_1905_TLV_type_to_string(i), counter[i]);
-            return 0;
+            // Special case for vendor specific CMDU: it can contain any TLV
+            required_count = count_required_zero_or_more;
+        }
+        else if (i == TLV_TYPE_VENDOR_SPECIFIC)
+        {
+            // Special case for vendor specific TLV: it is always allowed
+            required_count = count_required_zero_or_more;
+        }
+        else if (cmdu_info[p->message_type].tlv_count_required == NULL)
+        {
+            // No required counts specified for this CMDU, so required count is 0 for all TLVs
+            required_count = count_required_zero;
+        }
+        else
+        {
+            const struct cmdu_tlv_count_required *count_required;
+            for (count_required = cmdu_info[p->message_type].tlv_count_required;
+                 count_required->count != count_required_sentinel;
+                 count_required++)
+            {
+                if (count_required->type == i)
+                {
+                    required_count = count_required->count;
+                    break;
+                }
+            }
+            /* If not found in the list, required_count is still zero. */
+        }
+
+        switch (required_count)
+        {
+            case count_required_zero:
+                // Rules 1.b and 2.b both check for the same thing (unexpected TLVs),
+                // but they act in different ways:
+                //
+                //   * In case 'rules_type' == CHECK_CMDU_TX_RULES, return '0'
+                //   * In case 'rules_type' == CHECK_CMDU_RX_RULES, remove the unexpected
+                //     TLVs (and later, when all other checks have been performed, return
+                //     '1' to indicate that the structure has been modified)
+                if (counter[i] != 0)
+                {
+                    if (CHECK_CMDU_TX_RULES == rules_type)
+                    {
+                        PLATFORM_PRINTF_DEBUG_WARNING("TLV %s should not appear on this CMDU, but it appears %d times\n", convert_1905_TLV_type_to_string(i), counter[i]);
+                        return 0;
+                    }
+                    else
+                    {
+                        tlvs_to_remove[i] = 1;
+                    }
+                }
+                break;
+            case count_required_zero_or_more:
+                // Nothing to check, always OK.
+                break;
+            case count_required_zero_or_one:
+                // Rule 1.b requires this TLV to be present no more than once.
+                // Rule 2.b requires us to ignore the unexpected TLVs. However, that rule doesn't say which one should
+                // be ignored and which one to take into account. So it makes sense to ignore the entire CMDU instead.
+                // So in both cases, we return 0 if the TLV occurs more than once.
+                if (counter[i] > 1)
+                {
+                    PLATFORM_PRINTF_DEBUG_WARNING("TLV %s should appear at most once on this CMDU, but it appears %d times\n",
+                                                  convert_1905_TLV_type_to_string(i), counter[i]);
+                    return 0;
+                }
+                break;
+            case count_required_one:
+                // Rules 1.a and 2.c check the same thing : make sure the structure
+                // contains, *at least*, the required TLVs
+                //
+                // If not, return '0'
+                if (counter[i] != 1)
+                {
+                    PLATFORM_PRINTF_DEBUG_WARNING("TLV %s should appear once on this CMDU, but it appears %d times\n", convert_1905_TLV_type_to_string(i), counter[i]);
+                    return 0;
+                }
+                break;
+
+            case count_required_one_or_more:
+                // Rules 1.a and 2.c check the same thing : make sure the structure
+                // contains, *at least*, the required TLVs
+                //
+                // If not, return '0'
+                if (counter[i] == 0)
+                {
+                    PLATFORM_PRINTF_DEBUG_WARNING("TLV %s should appear at least once on this CMDU, but it appears %d times\n", convert_1905_TLV_type_to_string(i), counter[i]);
+                    return 0;
+                }
+                break;
+
+            default:
+                PLATFORM_PRINTF_DEBUG_ERROR("Programming error: invalid required count %u\n", required_count);
+                return 0;
         }
     }
 
-    // Rules 1.b and 2.b also both check for the same thing (unexpected TLVs),
-    // but they act in different ways:
-    //
-    //   * In case 'rules_type' == CHECK_CMDU_TX_RULES, return '0'
-    //   * In case 'rules_type' == CHECK_CMDU_RX_RULES, remove the unexpected
-    //     TLVs (and later, when all other checks have been performed, return
-    //     '1' to indicate that the structure has been modified)
-    //
-    // Unexpected TLVs are those that do not appear in neither the
-    // "_exactlyone_tlvs_for_cmdu" nor the "_zeroormore_tlvs_for_cmdu" tables
-    //
-    for (i=0; i<=TLV_TYPE_LAST; i++)
-    {
-        if (
-             (0 != counter[i])                                        &&
-             (i != TLV_TYPE_VENDOR_SPECIFIC)                          &&
-             !(_zeroormore_tlvs_for_cmdu[p->message_type] & (1 << i)) &&
-             !(_exactlyone_tlvs_for_cmdu[p->message_type] & (1 << i))
-             )
-        {
-            if (CHECK_CMDU_TX_RULES == rules_type)
-            {
-                PLATFORM_PRINTF_DEBUG_WARNING("TLV %s should not appear on this CMDU, but it appears %d times\n", convert_1905_TLV_type_to_string(i), counter[i]);
-                return 0;
-            }
-            else
-            {
-                tlvs_to_remove[i] = 1;
-            }
-        }
-    }
     i = 0;
     structure_has_been_modified = 0;
     while (NULL != p->list_of_TLVs[i])
