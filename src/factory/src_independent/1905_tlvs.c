@@ -60,7 +60,7 @@ static INT8U *free_dummy_tlv_list(struct tlv_list *tlvs)
  *
  * @{
  */
-static struct tlv *tlv_parse_1905_supportedService(const struct tlv_def *def, const uint8_t *buffer, size_t length)
+static struct tlv *tlv_parse_supportedService(const struct tlv_def *def, const uint8_t *buffer, size_t length)
 {
     struct supportedServiceTLV *ret = PLATFORM_MALLOC(sizeof(struct supportedServiceTLV));
     uint8_t supported_service_nr;
@@ -91,14 +91,14 @@ static struct tlv *tlv_parse_1905_supportedService(const struct tlv_def *def, co
     return (struct tlv *)ret;
 }
 
-static uint16_t tlv_length_1905_supportedService(const struct tlv *tlv)
+static uint16_t tlv_length_supportedService(const struct tlv *tlv)
 {
     const struct supportedServiceTLV *m = (const struct supportedServiceTLV *)tlv;
 
     return m->supported_service_nr + 1;
 }
 
-static bool tlv_forge_1905_supportedService(const struct tlv *tlv, uint8_t **buf, size_t *length)
+static bool tlv_forge_supportedService(const struct tlv *tlv, uint8_t **buf, size_t *length)
 {
     const struct supportedServiceTLV *m = (const struct supportedServiceTLV *)tlv;
     INT8U i;
@@ -116,7 +116,7 @@ static bool tlv_forge_1905_supportedService(const struct tlv *tlv, uint8_t **buf
     return true;
 }
 
-static void tlv_print_1905_supportedService(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix)
+static void tlv_print_supportedService(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     const struct supportedServiceTLV *m = (const struct supportedServiceTLV *)tlv;
     INT8U i;
@@ -140,14 +140,14 @@ static void tlv_print_1905_supportedService(const struct tlv *tlv, void (*write_
     }
 }
 
-static void tlv_free_1905_supportedService(struct tlv *tlv)
+static void tlv_free_supportedService(struct tlv *tlv)
 {
     struct supportedServiceTLV *ret = (struct supportedServiceTLV *)tlv;
     PLATFORM_FREE(ret->supported_service);
     PLATFORM_FREE(ret);
 }
 
-static bool tlv_compare_1905_supportedService(const struct tlv *tlv1, const struct tlv *tlv2)
+static bool tlv_compare_supportedService(const struct tlv *tlv1, const struct tlv *tlv2)
 {
     struct supportedServiceTLV *p1, *p2;
     INT8U i, j;
@@ -189,7 +189,7 @@ static bool tlv_compare_1905_supportedService(const struct tlv *tlv1, const stru
  *
  * @{
  */
-static struct tlv *tlv_parse_1905_linkMetricQuery(const struct tlv_def *def, const uint8_t *buffer, size_t length)
+static struct tlv *tlv_parse_linkMetricQuery(const struct tlv_def *def, const uint8_t *buffer, size_t length)
 {
     struct linkMetricQueryTLV  *ret;
 
@@ -258,12 +258,12 @@ err_out:
     return NULL;
 }
 
-static uint16_t tlv_length_1905_linkMetricQuery(const struct tlv *tlv)
+static uint16_t tlv_length_linkMetricQuery(const struct tlv *tlv)
 {
     return 1 + 6 + 1;
 }
 
-static bool tlv_forge_1905_linkMetricQuery(const struct tlv *tlv, uint8_t **buf, size_t *length)
+static bool tlv_forge_linkMetricQuery(const struct tlv *tlv, uint8_t **buf, size_t *length)
 {
     const struct linkMetricQueryTLV *m = (const struct linkMetricQueryTLV *)tlv;
     if (!_I1BL(&m->destination, buf, length))
@@ -354,7 +354,7 @@ static bool tlv_forge_1905_linkMetricQuery(const struct tlv *tlv, uint8_t **buf,
 }
 
 
-static void tlv_print_1905_linkMetricQuery(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix)
+static void tlv_print_linkMetricQuery(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     struct linkMetricQueryTLV *p = (struct linkMetricQueryTLV *)tlv;
     print_callback(write_function, prefix, sizeof(p->destination),       "destination",        "%d",      &p->destination);
@@ -362,13 +362,13 @@ static void tlv_print_1905_linkMetricQuery(const struct tlv *tlv, void (*write_f
     print_callback(write_function, prefix, sizeof(p->link_metrics_type), "link_metrics_type",  "%d",      &p->link_metrics_type);
 }
 
-static void tlv_free_1905_linkMetricQuery(struct tlv *tlv)
+static void tlv_free_linkMetricQuery(struct tlv *tlv)
 {
     struct linkMetricQueryTLV *ret = (struct linkMetricQueryTLV *)tlv;
     PLATFORM_FREE(ret);
 }
 
-static bool tlv_compare_1905_linkMetricQuery(const struct tlv *tlv1, const struct tlv *tlv2)
+static bool tlv_compare_linkMetricQuery(const struct tlv *tlv1, const struct tlv *tlv2)
 {
     struct linkMetricQueryTLV *p1, *p2;
 
@@ -384,18 +384,18 @@ static bool tlv_compare_1905_linkMetricQuery(const struct tlv *tlv1, const struc
 /** @} */
 
 static tlv_defs_t tlv_1905_defs = {
-    TLV_DEF_ENTRY(1905,linkMetricQuery,TLV_TYPE_LINK_METRIC_QUERY),
-    TLV_DEF_ENTRY(1905,supportedService,TLV_TYPE_SUPPORTED_SERVICE),
+    TLV_DEF_ENTRY(linkMetricQuery,TLV_TYPE_LINK_METRIC_QUERY),
+    TLV_DEF_ENTRY(supportedService,TLV_TYPE_SUPPORTED_SERVICE),
     /* Searched service is exactly the same as supported service, so reuse the functions. */
     [TLV_TYPE_SEARCHED_SERVICE] = {
         .type = TLV_TYPE_SEARCHED_SERVICE,
         .name = "searchedService",
-        .parse = tlv_parse_1905_supportedService,
-        .length = tlv_length_1905_supportedService,
-        .forge = tlv_forge_1905_supportedService,
-        .print = tlv_print_1905_supportedService,
-        .free = tlv_free_1905_supportedService,
-        .compare = tlv_compare_1905_supportedService,
+        .parse = tlv_parse_supportedService,
+        .length = tlv_length_supportedService,
+        .forge = tlv_forge_supportedService,
+        .print = tlv_print_supportedService,
+        .free = tlv_free_supportedService,
+        .compare = tlv_compare_supportedService,
     },
 };
 

@@ -198,26 +198,24 @@ struct tlv_def
  *
  * It makes sure that tlv_def::type is equal to the index of the tlv_defs_t array.
  *
- * It assumes that the virtual functions are called tlv_<function>_<prefix>_<name>, e.g. for TLV type linkMetricQuery of
- * the 1905 TLV definitions, the parse function would be called tlv_parse_1905_linkMetricQuery.
- *
- * @param prefix A prefix added to the function names, to identify the TLV definitions group.
+ * It assumes that the virtual functions are called tlv_<function>_<name>, e.g. for TLV type linkMetricQuery of
+ * the 1905 TLV definitions, the parse function would be called tlv_parse_linkMetricQuery.
  *
  * @param tlv_name The name of the TLV, typically in lowerCamelCase.
  *
  * @param tlv_type The definition of the TLV type.
- * @todo This should be derived automatically as tlv_type_##prefix##_##tlv_name.
+ * @todo This should be derived automatically as tlv_type_##tlv_name.
  */
-#define TLV_DEF_ENTRY(prefix,tlv_name,tlv_type)    \
+#define TLV_DEF_ENTRY(tlv_name,tlv_type)    \
     [(tlv_type)] = {               \
         .type = (tlv_type),        \
         .name = #tlv_name,                 \
-        .parse = tlv_parse_##prefix##_##tlv_name,   \
-        .length = tlv_length_##prefix##_##tlv_name, \
-        .forge = tlv_forge_##prefix##_##tlv_name,   \
-        .print = tlv_print_##prefix##_##tlv_name,   \
-        .free = tlv_free_##prefix##_##tlv_name,     \
-        .compare = tlv_compare_##prefix##_##tlv_name,\
+        .parse = tlv_parse_##tlv_name,   \
+        .length = tlv_length_##tlv_name, \
+        .forge = tlv_forge_##tlv_name,   \
+        .print = tlv_print_##tlv_name,   \
+        .free = tlv_free_##tlv_name,     \
+        .compare = tlv_compare_##tlv_name,\
     }
 
 
