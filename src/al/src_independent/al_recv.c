@@ -336,6 +336,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             struct neighborDeviceListTLV        **z    = NULL;
             struct powerOffInterfaceTLV         **q    = NULL;
             struct l2NeighborDeviceTLV          **r    = NULL;
+            struct supportedServiceTLV           *s    = NULL;
 
             INT8U bridges_nr;
             INT8U non1905_neighbors_nr;
@@ -399,6 +400,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                     }
                     case TLV_TYPE_SUPPORTED_SERVICE:
                     {
+                        s = (struct supportedServiceTLV *)p;
                         break;
                     }
                     case TLV_TYPE_VENDOR_SPECIFIC:
@@ -538,6 +540,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                                       1, z, x1905_neighbors_nr,
                                       1, q, power_off_nr,
                                       1, r, l2_neighbors_nr,
+                                      1, s,
                                       0, NULL,
                                       0, NULL,
                                       0, NULL,
@@ -1638,6 +1641,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                                       0, NULL, 0,
                                       0, NULL, 0,
                                       0, NULL, 0,
+                                      0, NULL,
                                       1, t,
                                       0, NULL,
                                       0, NULL,
@@ -1804,6 +1808,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                                       0, NULL, 0,
                                       0, NULL, 0,
                                       0, NULL, 0,
+                                      0, NULL,
                                       0, NULL,
                                       1, profile,
                                       1, identification,

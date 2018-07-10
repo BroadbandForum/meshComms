@@ -87,6 +87,8 @@ struct _dataModel
             INT8U                                       l2_neighbors_nr;
             struct l2NeighborDeviceTLV                **l2_neighbors;
 
+            struct supportedServiceTLV                 *supported_service;
+
             struct genericPhyDeviceInformationTypeTLV  *generic_phy;
 
             struct x1905ProfileVersionTLV              *profile;
@@ -949,6 +951,7 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
                                 INT8U x1_update,  struct neighborDeviceListTLV               **x1905_neighbors,   INT8U x1905_neighbors_nr,
                                 INT8U po_update,  struct powerOffInterfaceTLV                **power_off,         INT8U power_off_nr,
                                 INT8U l2_update,  struct l2NeighborDeviceTLV                 **l2_neighbors,      INT8U l2_neighbors_nr,
+                                INT8U ss_update,  struct supportedServiceTLV                  *supported_service,
                                 INT8U ge_update,  struct genericPhyDeviceInformationTypeTLV   *generic_phy,
                                 INT8U pr_update,  struct x1905ProfileVersionTLV               *profile,
                                 INT8U id_update,  struct deviceIdentificationTypeTLV          *identification,
@@ -1020,6 +1023,7 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
             data_model.network_devices[data_model.network_devices_nr].power_off                 = 1 == po_update ? power_off            : NULL;
             data_model.network_devices[data_model.network_devices_nr].l2_neighbors_nr           = 1 == l2_update ? l2_neighbors_nr      : 0;
             data_model.network_devices[data_model.network_devices_nr].l2_neighbors              = 1 == l2_update ? l2_neighbors         : NULL;
+            data_model.network_devices[data_model.network_devices_nr].supported_service         = 1 == ss_update ? supported_service    : NULL;
             data_model.network_devices[data_model.network_devices_nr].generic_phy               = 1 == ge_update ? generic_phy          : NULL;
             data_model.network_devices[data_model.network_devices_nr].profile                   = 1 == pr_update ? profile              : NULL;
             data_model.network_devices[data_model.network_devices_nr].identification            = 1 == id_update ? identification       : NULL;
@@ -1121,6 +1125,12 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
             }
             data_model.network_devices[i].l2_neighbors_nr = l2_neighbors_nr;
             data_model.network_devices[i].l2_neighbors    = l2_neighbors;
+        }
+
+        if (1 == ss_update)
+        {
+            free_1905_TLV_structure((INT8U *)data_model.network_devices[i].supported_service);
+            data_model.network_devices[i].supported_service = supported_service;
         }
 
         if (1 == ge_update)
