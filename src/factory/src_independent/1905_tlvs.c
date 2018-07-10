@@ -60,126 +60,92 @@ static INT8U *free_dummy_tlv_list(struct tlv_list *tlvs)
  *
  * @{
  */
-static struct tlv *tlv_parse_supportedService(const struct tlv_def *def, const uint8_t *buffer, size_t length)
-{
-    struct supportedServiceTLV *ret = PLATFORM_MALLOC(sizeof(struct supportedServiceTLV));
-    uint8_t supported_service_nr;
-    uint8_t i;
+#define TLV_NAME          supportedService
+#define TLV_FIELD1_NAME   supported_service_nr
+#define TLV_FIELD1_LENGTH 1
+#define TLV_FIELD2_NAME   supported_service
 
-    if (!_E1BL(&buffer, &supported_service_nr, &length))
-    {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: no supported_service_nr\n", def->name);
-        return NULL;
-    }
-    if (supported_service_nr != length)
-    {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: supported_service_nr %u but length %u\n",
-                                      def->name, supported_service_nr, length);
-        return NULL;
-    }
+#define TLV_FIELD2_PARSE(self, buffer, length)                                                                       \
+    do {                                                                                                             \
+        uint8_t i;                                                                                                   \
+        if (self->supported_service_nr != length)                                                                    \
+        {                                                                                                            \
+            PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: supported_service_nr %u but length %u\n",               \
+                                          def->name, self->supported_service_nr, length);                            \
+            goto err_out;                                                                                            \
+        }                                                                                                            \
+        self->supported_service = PLATFORM_MALLOC(self->supported_service_nr * sizeof(self->supported_service));     \
+                                                                                                                     \
+        for (i = 0; i < self->supported_service_nr; i++)                                                             \
+        {                                                                                                            \
+            uint8_t service_type;                                                                                    \
+            _E1BL(&buffer, &service_type, &length);                                                                  \
+            self->supported_service[i] = (enum serviceType)service_type;                                             \
+        }                                                                                                            \
+    } while (0)
 
-    ret->supported_service_nr = supported_service_nr;
-    ret->supported_service = PLATFORM_MALLOC(supported_service_nr * sizeof(ret->supported_service));
+#define TLV_LENGTH_BODY(self)                   \
+    return 1 + self->supported_service_nr
 
-    for (i = 0; i < supported_service_nr; i++)
-    {
-        uint8_t service_type;
-        _E1BL(&buffer, &service_type, &length);
-        ret->supported_service[i] = (enum serviceType)service_type;
-    }
+#define TLV_FIELD2_FORGE(self, buf, length)                                                                          \
+    do {                                                                                                             \
+        uint8_t i;                                                                                                   \
+        for (i = 0; i < self->supported_service_nr; i++)                                                             \
+        {                                                                                                            \
+            uint8_t service_type = (uint8_t) self->supported_service[i];                                             \
+            if (!_I1BL(&service_type, buf, length))                                                                  \
+                return false;                                                                                        \
+        }                                                                                                            \
+    } while (0)
 
-    return (struct tlv *)ret;
-}
+#define TLV_FIELD2_PRINT(self, buf, length)                                                                          \
+    do {                                                                                                             \
+        uint8_t i;                                                                                                   \
+        char supported_services_list[80];                                                                            \
+        size_t supported_services_list_len = 0;                                                                      \
+        for (i = 0; i < self->supported_service_nr; i++)                                                             \
+        {                                                                                                            \
+            PLATFORM_SNPRINTF(supported_services_list + supported_services_list_len,                                 \
+                              sizeof (supported_services_list) - supported_services_list_len,                        \
+                              "0x%02x ", self->supported_service[i]);                                                \
+            supported_services_list_len += 5;                                                                        \
+            if (supported_services_list_len >= sizeof (supported_services_list) - 5 ||                               \
+                i == self->supported_service_nr - 1)                                                                 \
+            {                                                                                                        \
+                supported_services_list[supported_services_list_len] = '\0';                                         \
+                print_callback(write_function, prefix, sizeof(self->supported_service[i]),                           \
+                               "supported_services", "%s", supported_services_list);                                 \
+            }                                                                                                        \
+        }                                                                                                            \
+    } while (0)
 
-static uint16_t tlv_length_supportedService(const struct tlv *tlv)
-{
-    const struct supportedServiceTLV *m = (const struct supportedServiceTLV *)tlv;
+#define TLV_FIELD2_FREE(self) PLATFORM_FREE(self->supported_service)
 
-    return m->supported_service_nr + 1;
-}
+#define TLV_FIELD2_COMPARE(self1,self2)                                                                              \
+    do {                                                                                                             \
+        uint8_t i, j;                                                                                                \
+        /* Already checked before that they have the same nr */                                                      \
+        for (i = 0; i < self1->supported_service_nr; i++)                                                            \
+        {                                                                                                            \
+            for (j = 0; j < self2->supported_service_nr; j++)                                                        \
+            {                                                                                                        \
+                if (self1->supported_service[i] == self2->supported_service[j])                                      \
+                {                                                                                                    \
+                    break;                                                                                           \
+                }                                                                                                    \
+            }                                                                                                        \
+            if (j == self2->supported_service_nr)                                                                    \
+            {                                                                                                        \
+                /* Not found in p2 */                                                                                \
+                PLATFORM_PRINTF("Service %02x not found in self2\n", self1->supported_service[i]);                   \
+                return false;                                                                                        \
+            }                                                                                                        \
+        }                                                                                                            \
+        /* All services of p1 were also found in p2, and they have the same number, so they are equal.               \
+           @todo this does not check against duplicates */                                                           \
+    } while (0)
 
-static bool tlv_forge_supportedService(const struct tlv *tlv, uint8_t **buf, size_t *length)
-{
-    const struct supportedServiceTLV *m = (const struct supportedServiceTLV *)tlv;
-    INT8U i;
-
-    if (!_I1BL(&m->supported_service_nr, buf, length))
-        return false;
-
-    for (i = 0; i < m->supported_service_nr; i++)
-    {
-        uint8_t supported_service = (uint8_t) m->supported_service[i];
-        if (!_I1BL(&supported_service, buf, length))
-            return false;
-    }
-
-    return true;
-}
-
-static void tlv_print_supportedService(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix)
-{
-    const struct supportedServiceTLV *m = (const struct supportedServiceTLV *)tlv;
-    INT8U i;
-    char supported_services_list[80];
-    size_t supported_services_list_len = 0;
-
-    print_callback(write_function, prefix, sizeof(m->supported_service_nr), "supported_service_nr", "%d",  &m->supported_service_nr);
-    for (i = 0; i < m->supported_service_nr; i++)
-    {
-        PLATFORM_SNPRINTF(supported_services_list + supported_services_list_len,
-                          sizeof (supported_services_list) - supported_services_list_len,
-                          "0x%02x ", m->supported_service[i]);
-        supported_services_list_len += 5;
-        if (supported_services_list_len >= sizeof (supported_services_list) - 5 ||
-            i == m->supported_service_nr - 1)
-        {
-            supported_services_list[supported_services_list_len] = '\0';
-            print_callback(write_function, prefix, sizeof(m->supported_service[i]), "supported_services", "%s",
-                     supported_services_list);
-        }
-    }
-}
-
-static void tlv_free_supportedService(struct tlv *tlv)
-{
-    struct supportedServiceTLV *ret = (struct supportedServiceTLV *)tlv;
-    PLATFORM_FREE(ret->supported_service);
-    PLATFORM_FREE(ret);
-}
-
-static bool tlv_compare_supportedService(const struct tlv *tlv1, const struct tlv *tlv2)
-{
-    struct supportedServiceTLV *p1, *p2;
-    INT8U i, j;
-
-    p1 = (struct supportedServiceTLV *)tlv1;
-    p2 = (struct supportedServiceTLV *)tlv2;
-
-    if (p1->supported_service_nr != p2->supported_service_nr)
-    {
-        return false;
-    }
-
-    for (i = 0; i < p1->supported_service_nr; i++)
-    {
-        for (j = 0; j < p2->supported_service_nr; j++)
-        {
-            if (p1->supported_service[i] == p2->supported_service[j])
-            {
-                break;
-            }
-        }
-        if (j == p2->supported_service_nr)
-        {
-            // Not found in p2
-            return false;
-        }
-    }
-
-    // All services of p1 were also found in p2, and they have the same number, so they are equal.
-    /// @todo this does not check against duplicates
-    return true;
-}
+#include <tlv_template.h>
 
 /** @} */
 
