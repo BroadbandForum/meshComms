@@ -1508,13 +1508,21 @@ INT8U _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
 //
 static void _obtainLocalSupportedServicesTLV(struct supportedServiceTLV *supported_service_tlv)
 {
-    /** @todo Controller is optional */
-    enum serviceType  *supported_services = PLATFORM_MALLOC(2*sizeof(enum serviceType));
-    supported_services[0] = SERVICE_MULTI_AP_CONTROLLER;
-    supported_services[1] = SERVICE_MULTI_AP_AGENT;
     supported_service_tlv->tlv_type = TLV_TYPE_SUPPORTED_SERVICE;
-    supported_service_tlv->supported_service_nr = ARRAY_SIZE(supported_services);
-    supported_service_tlv->supported_service = supported_services;
+    if (PLATFORM_MEMCMP(DMregistrarMacGet(), "\0\0\0\0\0\0", 6) == 0)
+    {
+        /* Not a controller */
+        supported_service_tlv->supported_service_nr = 1;
+        supported_service_tlv->supported_service = PLATFORM_MALLOC(1*sizeof(enum serviceType));
+        supported_service_tlv->supported_service[0] = SERVICE_MULTI_AP_AGENT;
+    }
+    else
+    {
+        supported_service_tlv->supported_service_nr = 2;
+        supported_service_tlv->supported_service = PLATFORM_MALLOC(2*sizeof(enum serviceType));
+        supported_service_tlv->supported_service[0] = SERVICE_MULTI_AP_CONTROLLER;
+        supported_service_tlv->supported_service[1] = SERVICE_MULTI_AP_AGENT;
+    }
 }
 
 // Given a pointer to a preallocated "genericPhyDeviceInformationTypeTLV"
