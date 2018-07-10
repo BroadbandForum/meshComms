@@ -397,6 +397,10 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                         l2_neighbors_nr++;
                         break;
                     }
+                    case TLV_TYPE_SUPPORTED_SERVICE:
+                    {
+                        break;
+                    }
                     case TLV_TYPE_VENDOR_SPECIFIC:
                     {
                         // According to the standard, zero or more Vendor
@@ -475,6 +479,10 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                     case TLV_TYPE_L2_NEIGHBOR_DEVICE:
                     {
                         r[ri++] = (struct l2NeighborDeviceTLV *)p;
+                        break;
+                    }
+                    case TLV_TYPE_SUPPORTED_SERVICE:
+                    {
                         break;
                     }
                     case TLV_TYPE_VENDOR_SPECIFIC:

@@ -250,6 +250,13 @@ static struct CMDU aletest_send_cmdu_topology_response2 = {
             /* No device bridging capability */
             /* No Non-1905 neighbors */
             /* No 1905 neighbors */
+            (INT8U *)(struct supportedServiceTLV[]){
+                {
+                    .tlv_type          = TLV_TYPE_SUPPORTED_SERVICE,
+                    .supported_service_nr = 2,
+                    .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_AGENT },
+                },
+            },
             NULL,
         },
 };
