@@ -241,10 +241,26 @@ static struct tlv *TLV_TEMPLATE_FUNCTION_NAME(parse)(const struct tlv_def *def _
 #endif // TLV_FIELD2_PARSE
 #endif // TLV_FIELD2_NAME
 
-    /** @todo repeat for field2, field3, ... */
+#ifdef TLV_FIELD3_NAME
+#if defined(TLV_FIELD3_PARSE)
+    TLV_FIELD3_PARSE(self, buffer, length);
+#undef TLV_FIELD3_PARSE
+#else // TLV_FIELD3_PARSE
+#if defined(TLV_FIELD3_LENGTH)
+    if (!TLV_TEMPLATE_ExBL(TLV_FIELD3_LENGTH)(&buffer, &self->TLV_FIELD3_NAME, &length))
+#else // TLV_FIELD3_LENGTH
+    if (!_EnBL(&buffer, self->TLV_FIELD3_NAME, sizeof(self->TLV_FIELD3_NAME), &length))
+#endif // TLV_FIELD3_LENGTH
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: no " TLV_TEMPLATE_STR(TLV_FIELD3_NAME) "\n", def->name);
+        goto err_out;
+    }
+#endif // TLV_FIELD3_PARSE
+#endif // TLV_FIELD3_NAME
+
 
 #ifdef TLV_PARSE_EXTRA
-    TLV_PARSE_EXTRA(self);
+    TLV_PARSE_EXTRA(self,buffer,length);
 #undef TLV_PARSE_EXTRA
 #endif
 
@@ -279,6 +295,14 @@ static uint16_t TLV_TEMPLATE_FUNCTION_NAME(length)(const struct tlv *tlv)
     ret += TLV_FIELD2_LENGTH;
 #else
     ret += sizeof(self->TLV_FIELD2_NAME);
+#endif
+#endif
+
+#ifdef TLV_FIELD3_NAME
+#ifdef TLV_FIELD3_LENGTH
+    ret += TLV_FIELD3_LENGTH;
+#else
+    ret += sizeof(self->TLV_FIELD3_NAME);
 #endif
 #endif
 
@@ -323,9 +347,27 @@ static bool TLV_TEMPLATE_FUNCTION_NAME(forge)(const struct tlv *tlv,
         return false;
 #endif // TLV_FIELD2_LENGTH
 #endif // TLV_FIELD2_FORGE
-#endif
+#endif // TLV_FIELD2_NAME
 
-    /** @todo repeat for field2, field3, ... */
+#ifdef TLV_FIELD3_NAME
+#if defined(TLV_FIELD3_FORGE)
+    TLV_FIELD3_FORGE(self, buf, length);
+#undef TLV_FIELD3_FORGE
+#else // TLV_FIELD3_FORGE
+#if defined(TLV_FIELD3_LENGTH)
+    if (!TLV_TEMPLATE_IxBL(TLV_FIELD3_LENGTH)(&self->TLV_FIELD3_NAME, buf, length))
+        return false;
+#else // TLV_FIELD3_LENGTH
+    if (!_InBL(self->TLV_FIELD3_NAME, buf, sizeof(self->TLV_FIELD3_NAME), length))
+        return false;
+#endif // TLV_FIELD3_LENGTH
+#endif // TLV_FIELD3_FORGE
+#endif // TLV_FIELD3_NAME
+
+#ifdef TLV_FORGE_EXTRA
+    TLV_FORGE_EXTRA(self);
+#undef TLV_FORGE_EXTRA
+#endif
 
 #endif // TLV_FORGE_BODY
 
@@ -335,6 +377,11 @@ static bool TLV_TEMPLATE_FUNCTION_NAME(forge)(const struct tlv *tlv,
 static void TLV_TEMPLATE_FUNCTION_NAME(print)(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     const TLV_TEMPLATE_STRUCT_NAME *self = (const TLV_TEMPLATE_STRUCT_NAME *)tlv;
+
+#ifdef TLV_PRINT_BODY
+    TLV_PRINT_BODY(self);
+#undef TLV_PRINT_BODY
+#else // TLV_PRINT_BODY
 
 #if defined(TLV_FIELD1_PRINT)
     TLV_FIELD1_PRINT(self, write_function, prefix);
@@ -358,9 +405,20 @@ static void TLV_TEMPLATE_FUNCTION_NAME(print)(const struct tlv *tlv, void (*writ
     print_callback(write_function, prefix, sizeof(self->TLV_FIELD2_NAME), TLV_TEMPLATE_STR(TLV_FIELD2_NAME), "0x%02x", &self->TLV_FIELD2_NAME);
 #endif // TLV_FIELD2_LENGTH
 #endif // TLV_FIELD2_PRINT
-#endif
+#endif // TLV_FIELD2_NAME
 
-    /** @todo repeat for field2, field3, ... */
+#ifdef TLV_FIELD3_NAME
+#if defined(TLV_FIELD3_PRINT)
+    TLV_FIELD3_PRINT(self, write_function, prefix);
+#undef TLV_FIELD3_PRINT
+#else // TLV_FIELD3_PRINT
+#if defined(TLV_FIELD3_LENGTH)
+    print_callback(write_function, prefix, TLV_FIELD3_LENGTH, TLV_TEMPLATE_STR(TLV_FIELD3_NAME), "%d", &self->TLV_FIELD3_NAME);
+#else // TLV_FIELD3_LENGTH
+    print_callback(write_function, prefix, sizeof(self->TLV_FIELD3_NAME), TLV_TEMPLATE_STR(TLV_FIELD3_NAME), "0x%02x", &self->TLV_FIELD3_NAME);
+#endif // TLV_FIELD3_LENGTH
+#endif // TLV_FIELD3_PRINT
+#endif // TLV_FIELD3_NAME
 }
 
 static void TLV_TEMPLATE_FUNCTION_NAME(free)(struct tlv *tlv)
@@ -376,6 +434,12 @@ static void TLV_TEMPLATE_FUNCTION_NAME(free)(struct tlv *tlv)
     TLV_FIELD2_FREE(self);
 #undef TLV_FIELD2_FREE
 #endif
+
+#if defined(TLV_FIELD3_FREE)
+    TLV_FIELD3_FREE(self);
+#undef TLV_FIELD3_FREE
+#endif
+
     PLATFORM_FREE(self);
 }
 
@@ -412,6 +476,28 @@ static bool TLV_TEMPLATE_FUNCTION_NAME(compare)(const struct tlv *tlv1, const st
 #endif // TLV_FIELD2_COMPARE
 #endif // TLV_FIELD2_NAME
 
+#ifdef TLV_FIELD3_NAME
+#if defined (TLV_FIELD3_COMPARE)
+    TLV_FIELD3_COMPARE(self1,self2);
+#undef TLV_FIELD3_COMPARE
+#else // TLV_FIELD1_COMPARE
+#ifdef TLV_FIELD3_LENGTH
+    if (self1->TLV_FIELD3_NAME != self2->TLV_FIELD3_NAME)
+        return false;
+#else
+    if (PLATFORM_MEMCMP(self1->TLV_FIELD3_NAME, self2->TLV_FIELD3_NAME, sizeof(self1->TLV_FIELD3_NAME)) != 0)
+        return false;
+#endif
+#endif // TLV_FIELD3_COMPARE
+#endif // TLV_FIELD3_NAME
+
+#ifdef TLV_COMPARE_EXTRA
+    TLV_COMPARE_EXTRA(self1, self2);
+#undef TLV_COMPARE_EXTRA
+#endif
+
+#endif
+
     return true;
 }
 
@@ -425,5 +511,11 @@ static bool TLV_TEMPLATE_FUNCTION_NAME(compare)(const struct tlv *tlv1, const st
 #endif
 #ifdef TLV_FIELD2_LENGTH
 #undef TLV_FIELD2_LENGTH
+#endif
+#ifdef TLV_FIELD3_NAME
+#undef TLV_FIELD3_NAME
+#endif
+#ifdef TLV_FIELD3_LENGTH
+#undef TLV_FIELD3_LENGTH
 #endif
 
