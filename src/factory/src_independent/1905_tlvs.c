@@ -334,6 +334,20 @@ static INT8U *free_dummy_tlv_list(struct tlv_list *tlvs)
 
 /** @} */
 
+/** @brief Support functions for macAddressType TLV.
+ *
+ * See "IEEE Std 1905.1-2013" Section 6.4.4
+ *
+ * @{
+ */
+
+#define TLV_NAME          macAddressType
+#define TLV_FIELD1_NAME   mac_address
+
+#include <tlv_template.h>
+
+/** @} */
+
 static tlv_defs_t tlv_1905_defs = {
     [TLV_TYPE_END_OF_MESSAGE] = {
         .type = TLV_TYPE_END_OF_MESSAGE,
@@ -341,6 +355,7 @@ static tlv_defs_t tlv_1905_defs = {
     },
     TLV_DEF_ENTRY(vendorSpecific,TLV_TYPE_VENDOR_SPECIFIC),
     TLV_DEF_ENTRY(alMacAddressType,TLV_TYPE_AL_MAC_ADDRESS_TYPE),
+    TLV_DEF_ENTRY(macAddressType,TLV_TYPE_MAC_ADDRESS_TYPE),
     TLV_DEF_ENTRY(linkMetricQuery,TLV_TYPE_LINK_METRIC_QUERY),
     TLV_DEF_ENTRY(supportedService,TLV_TYPE_SUPPORTED_SERVICE),
     /* Searched service is exactly the same as supported service, so reuse the functions. */
@@ -372,38 +387,6 @@ INT8U *parse_1905_TLV_from_packet(INT8U *packet_stream)
     //
     switch (*packet_stream)
     {
-        case TLV_TYPE_MAC_ADDRESS_TYPE:
-        {
-            // This parsing is done according to the information detailed in
-            // "IEEE Std 1905.1-2013 Section 6.4.4"
-
-            struct macAddressTypeTLV  *ret;
-
-            INT8U *p;
-            INT16U len;
-
-            ret = (struct macAddressTypeTLV *)PLATFORM_MALLOC(sizeof(struct macAddressTypeTLV));
-
-            p = packet_stream + 1;
-            _E2B(&p, &len);
-
-            // According to the standard, the length *must* be 6
-            //
-            if (6 != len)
-            {
-                // Malformed packet
-                //
-                PLATFORM_FREE(ret);
-                return NULL;
-            }
-
-            ret->tlv_type = TLV_TYPE_MAC_ADDRESS_TYPE;
-
-            _EnB(&p, ret->mac_address, 6);
-
-            return (INT8U *)ret;
-        }
-
         case TLV_TYPE_DEVICE_INFORMATION_TYPE:
         {
             // This parsing is done according to the information detailed in
@@ -1892,30 +1875,6 @@ INT8U *forge_1905_TLV_from_structure(INT8U *memory_structure, INT16U *len)
     //
     switch (*memory_structure)
     {
-        case TLV_TYPE_MAC_ADDRESS_TYPE:
-        {
-            // This forging is done according to the information detailed in
-            // "IEEE Std 1905.1-2013 Section 6.4.4"
-
-            INT8U *ret, *p;
-            struct macAddressTypeTLV *m;
-
-            INT16U tlv_length;
-
-            m = (struct macAddressTypeTLV *)memory_structure;
-
-            tlv_length = 6;
-            *len = 1 + 2 + tlv_length;
-
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 2  + tlv_length);
-
-            _I1B(&m->tlv_type,          &p);
-            _I2B(&tlv_length,           &p);
-            _InB( m->mac_address,       &p, 6);
-
-            return ret;
-        }
-
         case TLV_TYPE_DEVICE_INFORMATION_TYPE:
         {
             // This forging is done according to the information detailed in
@@ -3357,25 +3316,6 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
     }
     switch (*memory_structure_1)
     {
-        case TLV_TYPE_MAC_ADDRESS_TYPE:
-        {
-            struct macAddressTypeTLV *p1, *p2;
-
-            p1 = (struct macAddressTypeTLV *)memory_structure_1;
-            p2 = (struct macAddressTypeTLV *)memory_structure_2;
-
-            if (
-                 (PLATFORM_MEMCMP(p1->mac_address, p2->mac_address, 6) !=0)
-               )
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
         case TLV_TYPE_DEVICE_INFORMATION_TYPE:
         {
             struct deviceInformationTypeTLV *p1, *p2;
@@ -4943,8 +4883,6 @@ const char *convert_1905_TLV_type_to_string(INT8U tlv_type)
 {
     switch (tlv_type)
     {
-        case TLV_TYPE_MAC_ADDRESS_TYPE:
-            return "TLV_TYPE_MAC_ADDRESS_TYPE";
         case TLV_TYPE_DEVICE_INFORMATION_TYPE:
             return "TLV_TYPE_DEVICE_INFORMATION_TYPE";
         case TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES:
