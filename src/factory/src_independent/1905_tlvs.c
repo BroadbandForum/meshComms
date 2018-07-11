@@ -155,197 +155,130 @@ static INT8U *free_dummy_tlv_list(struct tlv_list *tlvs)
  *
  * @{
  */
-static struct tlv *tlv_parse_linkMetricQuery(const struct tlv_def *def, const uint8_t *buffer, size_t length)
-{
-    struct linkMetricQueryTLV  *ret;
 
-    INT8U destination;
-    INT8U link_metrics_type;
+#define TLV_NAME          linkMetricQuery
+#define TLV_FIELD1_NAME   destination
+#define TLV_FIELD1_LENGTH 1
+#define TLV_FIELD2_NAME   specific_neighbor
+#define TLV_FIELD3_NAME   link_metrics_type
+#define TLV_FIELD3_LENGTH 1
 
-    ret = (struct linkMetricQueryTLV *)PLATFORM_MALLOC(sizeof(struct linkMetricQueryTLV));
-
-    if (!_E1BL(&buffer, &destination, &length))
-    {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: no destination\n", def->name);
-        goto err_out;
+#define TLV_PARSE_EXTRA(self,buffer,length)                                                                         \
+    if (0 == self->destination)                                                                                     \
+    {                                                                                                               \
+        INT8U dummy_address[] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};                                                     \
+                                                                                                                    \
+        self->destination = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;                                                    \
+        PLATFORM_MEMCPY(self->specific_neighbor, dummy_address, 6);                                                 \
+    }                                                                                                               \
+    else if (1 == self->destination)                                                                                \
+    {                                                                                                               \
+        self->destination = LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR;                                                \
+    }                                                                                                               \
+    else                                                                                                            \
+    {                                                                                                               \
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid destination %u\n", def->name, self->destination);  \
+        goto err_out;                                                                                               \
+    }                                                                                                               \
+                                                                                                                    \
+    if (0 == self->link_metrics_type)                                                                               \
+    {                                                                                                               \
+        self->link_metrics_type = LINK_METRIC_QUERY_TLV_TX_LINK_METRICS_ONLY;                                       \
+    }                                                                                                               \
+    else if (1 == self->link_metrics_type)                                                                          \
+    {                                                                                                               \
+        self->link_metrics_type = LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY;                                       \
+    }                                                                                                               \
+    else if (2 == self->link_metrics_type)                                                                          \
+    {                                                                                                               \
+        self->link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS;                                \
+    }                                                                                                               \
+    else                                                                                                            \
+    {                                                                                                               \
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid link_metrics_type %u\n", def->name, self->link_metrics_type); \
+        goto err_out;                                                                                               \
     }
 
-    if (!_EnBL(&buffer, ret->specific_neighbor, 6, &length))
-    {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: no specific_neighbor\n", def->name);
-        goto err_out;
+// Ugh? Why is the first value set to "self->link_metrics_type"
+// instead of "0x00"? What kind of black magic is this?
+//
+// Well... it turns out there is a reason for this. Take a
+// chair and let me explain.
+//
+// The original 1905 standard document (and also its later "1a"
+// update) describe the "metric query TLV" fields like this:
+//
+//   - Field #1: 1 octet set to "8" (tlv_type)
+//   - Field #2: 1 octet set to "8" (tlv_length)
+//   - Field #3: 1 octet set to "0" or "1" (destination)
+//   - Field #4: 6 octets set to the MAC address of a neighbour
+//               when field #3 is set "1"
+//   - Field #5: 1 octet set to "0", "1", "2" or "3" (link_
+//               _metrics_type)
+//
+// The problem is that we don't know what to put inside field
+// #4 when Field #3 is set to "0" ("all neighbors") instead of
+// "1" ("specific neighbor").
+//
+// A "reasonable" solution would be to set all bytes from field
+// #4 to "0x00". *However*, one could also think that the
+// correct thing to do is to not include the field at all (ie.
+// skip from field #3 to field #5).
+//
+// Now... this is actually insane. Typically protocols have a
+// fixed number of fields (whenever possible) to make it easier
+// for parsers (in fact, this would be the only exception to
+// this rule in the whole 1905 standard). Then... why would
+// someone think that not including field #4 is a good idea?
+//
+// Well... because this is what the "description" of field #3
+// reads on the standard:
+//
+//   "If the value is 0, then the EUI-48 field is not present;
+//    if the value is 1, then the EUI-48 field shall be present"
+//
+// ...and "not present" seems to imply not to include it
+// (although one could argue that it could also mean "set all
+// bytes to zero).
+//
+// I really think the standard means "set to zero" instead of
+// "not including it" (even if the wording seems to imply
+// otherwise). Why? For two reasons:
+//
+//   1. The standard says field #2 must *always* be "8" (and if
+//      field #4 could not be included, this value should be
+//      allowed to also take the value of 6)
+//
+//   2. There is no other place in the whole standard where a
+//      field can be present or not.
+//
+// Despite what I have just said, *some implementations* seem
+// to have taken the other route, and expect field #4 *not* to
+// be present (even if field #2 is set to "8"!!).
+//
+// When we send one "all neighbors" topology query to one of
+// these implementations they will interpret the first byte of
+// field #4 as the contents of field #5.
+//
+// And that's why when querying for all neighbors, because the
+// contents of field #4 don't really matter, we are going to
+// set its first byte to the same value as field #5.
+// This way all implementations, no matter how they decided to
+// interpret the standard, will work :)
+#define TLV_FIELD2_FORGE(self,buf,length)                                                                           \
+    if (LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR == self->destination)                                               \
+    {                                                                                                               \
+        if (!_InBL(self->specific_neighbor, buf, 6, length))                                                        \
+            return false;                                                                                           \
+    }                                                                                                               \
+    else                                                                                                            \
+    {                                                                                                               \
+        INT8U empty_address[] = {self->link_metrics_type, 0x00, 0x00, 0x00, 0x00, 0x00};                            \
+        if (!_InBL(empty_address, buf, 6, length))                                                                  \
+            return false;                                                                                           \
     }
 
-    if (!_E1BL(&buffer, &link_metrics_type, &length))
-    {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: no link_metrics_type\n", def->name);
-        goto err_out;
-    }
-
-    if (0 == destination)
-    {
-        INT8U dummy_address[] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
-
-        ret->destination = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
-        PLATFORM_MEMCPY(ret->specific_neighbor, dummy_address, 6);
-    }
-    else if (1 == destination)
-    {
-        ret->destination = LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR;
-    }
-    else
-    {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid destination %u\n", def->name, destination);
-        goto err_out;
-    }
-
-    if (0 == link_metrics_type)
-    {
-        ret->link_metrics_type = LINK_METRIC_QUERY_TLV_TX_LINK_METRICS_ONLY;
-    }
-    else if (1 == link_metrics_type)
-    {
-        ret->link_metrics_type = LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY;
-    }
-    else if (2 == link_metrics_type)
-    {
-        ret->link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS;
-    }
-    else
-    {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid link_metrics_type %u\n", def->name, link_metrics_type);
-        goto err_out;
-    }
-
-    return (struct tlv*)ret;
-
-err_out:
-    PLATFORM_FREE(ret);
-    return NULL;
-}
-
-static uint16_t tlv_length_linkMetricQuery(const struct tlv *tlv)
-{
-    return 1 + 6 + 1;
-}
-
-static bool tlv_forge_linkMetricQuery(const struct tlv *tlv, uint8_t **buf, size_t *length)
-{
-    const struct linkMetricQueryTLV *m = (const struct linkMetricQueryTLV *)tlv;
-    if (!_I1BL(&m->destination, buf, length))
-        return false;
-
-    if (LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR == m->destination)
-    {
-        if (!_InBL(m->specific_neighbor, buf, 6, length))
-            return false;
-    }
-    else
-    {
-        // Ugh? Why is the first value set to "m->link_metrics_type"
-        // instead of "0x00"? What kind of black magic is this?
-        //
-        // Well... it turns out there is a reason for this. Take a
-        // chair and let me explain.
-        //
-        // The original 1905 standard document (and also its later "1a"
-        // update) describe the "metric query TLV" fields like this:
-        //
-        //   - Field #1: 1 octet set to "8" (tlv_type)
-        //   - Field #2: 1 octet set to "8" (tlv_length)
-        //   - Field #3: 1 octet set to "0" or "1" (destination)
-        //   - Field #4: 6 octets set to the MAC address of a neighbour
-        //               when field #3 is set "1"
-        //   - Field #5: 1 octet set to "0", "1", "2" or "3" (link_
-        //               _metrics_type)
-        //
-        // The problem is that we don't know what to put inside field
-        // #4 when Field #3 is set to "0" ("all neighbors") instead of
-        // "1" ("specific neighbor").
-        //
-        // A "reasonable" solution would be to set all bytes from field
-        // #4 to "0x00". *However*, one could also think that the
-        // correct thing to do is to not include the field at all (ie.
-        // skip from field #3 to field #5).
-        //
-        // Now... this is actually insane. Typically protocols have a
-        // fixed number of fields (whenever possible) to make it easier
-        // for parsers (in fact, this would be the only exception to
-        // this rule in the whole 1905 standard). Then... why would
-        // someone think that not including field #4 is a good idea?
-        //
-        // Well... because this is what the "description" of field #3
-        // reads on the standard:
-        //
-        //   "If the value is 0, then the EUI-48 field is not present;
-        //    if the value is 1, then the EUI-48 field shall be present"
-        //
-        // ...and "not present" seems to imply not to include it
-        // (although one could argue that it could also mean "set all
-        // bytes to zero).
-        //
-        // I really think the standard means "set to zero" instead of
-        // "not including it" (even if the wording seems to imply
-        // otherwise). Why? For two reasons:
-        //
-        //   1. The standard says field #2 must *always* be "8" (and if
-        //      field #4 could not be included, this value should be
-        //      allowed to also take the value of 6)
-        //
-        //   2. There is no other place in the whole standard where a
-        //      field can be present or not.
-        //
-        // Despite what I have just said, *some implementations* seem
-        // to have taken the other route, and expect field #4 *not* to
-        // be present (even if field #2 is set to "8"!!).
-        //
-        // When we send one "all neighbors" topology query to one of
-        // these implementations they will interpret the first byte of
-        // field #4 as the contents of field #5.
-        //
-        // And that's why when querying for all neighbors, because the
-        // contents of field #4 don't really matter, we are going to
-        // set its first byte to the same value as field #5.
-        // This way all implementations, no matter how they decided to
-        // interpret the standard, will work :)
-        INT8U empty_address[] = {m->link_metrics_type, 0x00, 0x00, 0x00, 0x00, 0x00};
-        if (!_InBL(empty_address, buf, 6, length))
-            return false;
-    }
-
-    if (!_I1BL(&m->link_metrics_type, buf, length))
-        return false;
-
-    return true;
-}
-
-
-static void tlv_print_linkMetricQuery(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix)
-{
-    struct linkMetricQueryTLV *p = (struct linkMetricQueryTLV *)tlv;
-    print_callback(write_function, prefix, sizeof(p->destination),       "destination",        "%d",      &p->destination);
-    print_callback(write_function, prefix, sizeof(p->specific_neighbor), "specific_neighbor",  "0x%02x",   p->specific_neighbor);
-    print_callback(write_function, prefix, sizeof(p->link_metrics_type), "link_metrics_type",  "%d",      &p->link_metrics_type);
-}
-
-static void tlv_free_linkMetricQuery(struct tlv *tlv)
-{
-    struct linkMetricQueryTLV *ret = (struct linkMetricQueryTLV *)tlv;
-    PLATFORM_FREE(ret);
-}
-
-static bool tlv_compare_linkMetricQuery(const struct tlv *tlv1, const struct tlv *tlv2)
-{
-    struct linkMetricQueryTLV *p1, *p2;
-
-    p1 = (struct linkMetricQueryTLV *)tlv1;
-    p2 = (struct linkMetricQueryTLV *)tlv2;
-
-    return
-                         p1->destination        ==  p2->destination                 &&
-         PLATFORM_MEMCMP(p1->specific_neighbor,     p2->specific_neighbor, 6) == 0  &&
-                         p1->link_metrics_type  ==  p2->link_metrics_type;
-}
+#include <tlv_template.h>
 
 /** @} */
 
