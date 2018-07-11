@@ -137,7 +137,6 @@ static INT8U *free_dummy_tlv_list(struct tlv_list *tlvs)
             if (j == self2->supported_service_nr)                                                                    \
             {                                                                                                        \
                 /* Not found in p2 */                                                                                \
-                PLATFORM_PRINTF("Service %02x not found in self2\n", self1->supported_service[i]);                   \
                 return false;                                                                                        \
             }                                                                                                        \
         }                                                                                                            \
@@ -282,11 +281,51 @@ static INT8U *free_dummy_tlv_list(struct tlv_list *tlvs)
 
 /** @} */
 
+/** @brief Support functions for vendorSpecific TLV.
+ *
+ * See "IEEE Std 1905.1-2013" Section 6.4.2
+ *
+ * @{
+ */
+
+#define TLV_NAME          vendorSpecific
+#define TLV_FIELD1_NAME   vendorOUI
+#define TLV_FIELD2_NAME   m
+
+#define TLV_FIELD2_PARSE(self,buffer,length)          \
+    self->m = PLATFORM_MALLOC(length);                \
+    self->m_nr = length;                              \
+    PLATFORM_MEMCPY(self->m, buffer, length);
+
+#define TLV_LENGTH_BODY(self)                         \
+    return 3 + self->m_nr;
+
+#define TLV_FIELD2_FORGE(self,buf,length)             \
+    _InBL(self->m, buf, self->m_nr, length);
+
+#define TLV_FIELD2_FREE(self)                         \
+    PLATFORM_FREE(self->m);
+
+#define TLV_FIELD2_PRINT(self,write_function,prefix)                                        \
+    print_callback(write_function, prefix, sizeof(self->m_nr), "m_nr", "%d ", &self->m_nr); \
+    print_callback(write_function, prefix, self->m_nr, "m", "0x%02x", self->m);
+
+#define TLV_FIELD2_COMPARE(self1,self2)                        \
+    if (self1->m_nr != self2->m_nr)                            \
+        return false;                                          \
+    if (PLATFORM_MEMCMP(self1->m, self2->m, self1->m_nr) != 0) \
+        return false;
+
+#include <tlv_template.h>
+
+/** @} */
+
 static tlv_defs_t tlv_1905_defs = {
     [TLV_TYPE_END_OF_MESSAGE] = {
         .type = TLV_TYPE_END_OF_MESSAGE,
         .name = "endOfMessage",
     },
+    TLV_DEF_ENTRY(vendorSpecific,TLV_TYPE_VENDOR_SPECIFIC),
     TLV_DEF_ENTRY(linkMetricQuery,TLV_TYPE_LINK_METRIC_QUERY),
     TLV_DEF_ENTRY(supportedService,TLV_TYPE_SUPPORTED_SERVICE),
     /* Searched service is exactly the same as supported service, so reuse the functions. */
@@ -318,53 +357,6 @@ INT8U *parse_1905_TLV_from_packet(INT8U *packet_stream)
     //
     switch (*packet_stream)
     {
-        case TLV_TYPE_VENDOR_SPECIFIC:
-        {
-            // This parsing is done according to the information detailed in
-            // "IEEE Std 1905.1-2013 Section 6.4.2"
-
-            struct vendorSpecificTLV  *ret;
-
-            INT8U *p;
-            INT16U len;
-
-            ret = (struct vendorSpecificTLV *)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV));
-
-            p = packet_stream + 1;
-            _E2B(&p, &len);
-
-            // According to the standard, the length *must* be at least "3"
-            //
-            if (len < 3)
-            {
-                // Malformed packet
-                //
-                PLATFORM_FREE(ret);
-                return NULL;
-            }
-
-            ret->tlv_type = TLV_TYPE_VENDOR_SPECIFIC;
-
-            _E1B(&p, &ret->vendorOUI[0]);
-            _E1B(&p, &ret->vendorOUI[1]);
-            _E1B(&p, &ret->vendorOUI[2]);
-
-            ret->m_nr = len - 3;
-
-            if (ret->m_nr)
-            {
-                ret->m = (INT8U *)PLATFORM_MALLOC(ret->m_nr);
-
-                _EnB(&p, ret->m, ret->m_nr);
-            }
-            else
-            {
-                ret->m = NULL;
-            }
-
-            return (INT8U *)ret;
-        }
-
         case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
         {
             // This parsing is done according to the information detailed in
@@ -1917,33 +1909,6 @@ INT8U *forge_1905_TLV_from_structure(INT8U *memory_structure, INT16U *len)
     //
     switch (*memory_structure)
     {
-        case TLV_TYPE_VENDOR_SPECIFIC:
-        {
-            // This forging is done according to the information detailed in
-            // "IEEE Std 1905.1-2013 Section 6.4.2"
-
-            INT8U *ret, *p;
-            struct vendorSpecificTLV *m;
-
-            INT16U tlv_length;
-
-            m = (struct vendorSpecificTLV *)memory_structure;
-
-            tlv_length = 3 + m->m_nr;
-            *len = 1 + 2 + tlv_length;
-
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 2  + tlv_length);
-
-            _I1B(&m->tlv_type,          &p);
-            _I2B(&tlv_length,           &p);
-            _I1B(&m->vendorOUI[0],      &p);
-            _I1B(&m->vendorOUI[1],      &p);
-            _I1B(&m->vendorOUI[2],      &p);
-            _InB( m->m,                 &p,  m->m_nr);
-
-            return ret;
-        }
-
         case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
         {
             // This forging is done according to the information detailed in
@@ -3087,21 +3052,6 @@ void free_1905_TLV_structure(INT8U *memory_structure)
     //
     switch (*memory_structure)
     {
-        case TLV_TYPE_VENDOR_SPECIFIC:
-        {
-            struct vendorSpecificTLV *m;
-
-            m = (struct vendorSpecificTLV *)memory_structure;
-
-            if (m->m_nr > 0 && NULL != m->m)
-            {
-                PLATFORM_FREE(m->m);
-            }
-            PLATFORM_FREE(m);
-
-            return;
-        }
-
         case TLV_TYPE_DEVICE_INFORMATION_TYPE:
         {
             struct deviceInformationTypeTLV *m;
@@ -3448,29 +3398,6 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
     }
     switch (*memory_structure_1)
     {
-        case TLV_TYPE_VENDOR_SPECIFIC:
-        {
-            struct vendorSpecificTLV *p1, *p2;
-
-            p1 = (struct vendorSpecificTLV *)memory_structure_1;
-            p2 = (struct vendorSpecificTLV *)memory_structure_2;
-
-            if (
-                                  p1->vendorOUI[0] != p2->vendorOUI[0]      ||
-                                  p1->vendorOUI[1] != p2->vendorOUI[1]      ||
-                                  p1->vendorOUI[2] != p2->vendorOUI[2]      ||
-                                  p1->m_nr         != p2->m_nr              ||
-                 (PLATFORM_MEMCMP(p1->m,              p2->m, p1->m_nr) !=0)
-               )
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
         case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
         {
             struct alMacAddressTypeTLV *p1, *p2;
@@ -4462,19 +4389,6 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
     //
     switch (*memory_structure)
     {
-        case TLV_TYPE_VENDOR_SPECIFIC:
-        {
-            struct vendorSpecificTLV *p;
-
-            p = (struct vendorSpecificTLV *)memory_structure;
-
-            callback(write_function, tlv_prefix, sizeof(p->vendorOUI), "vendorOUI",  "0x%02x",   p->vendorOUI);
-            callback(write_function, tlv_prefix, sizeof(p->m_nr),      "m_nr",       "%d",      &p->m_nr);
-            callback(write_function, tlv_prefix, p->m_nr,              "m",          "0x%02x",   p->m);
-
-            return;
-        }
-
         case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
         {
             struct alMacAddressTypeTLV *p;
@@ -5111,8 +5025,6 @@ const char *convert_1905_TLV_type_to_string(INT8U tlv_type)
 {
     switch (tlv_type)
     {
-        case TLV_TYPE_VENDOR_SPECIFIC:
-            return "TLV_TYPE_VENDOR_SPECIFIC";
         case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
             return "TLV_TYPE_AL_MAC_ADDRESS_TYPE";
         case TLV_TYPE_MAC_ADDRESS_TYPE:
