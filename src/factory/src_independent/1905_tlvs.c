@@ -283,6 +283,10 @@ static INT8U *free_dummy_tlv_list(struct tlv_list *tlvs)
 /** @} */
 
 static tlv_defs_t tlv_1905_defs = {
+    [TLV_TYPE_END_OF_MESSAGE] = {
+        .type = TLV_TYPE_END_OF_MESSAGE,
+        .name = "endOfMessage",
+    },
     TLV_DEF_ENTRY(linkMetricQuery,TLV_TYPE_LINK_METRIC_QUERY),
     TLV_DEF_ENTRY(supportedService,TLV_TYPE_SUPPORTED_SERVICE),
     /* Searched service is exactly the same as supported service, so reuse the functions. */
@@ -314,36 +318,6 @@ INT8U *parse_1905_TLV_from_packet(INT8U *packet_stream)
     //
     switch (*packet_stream)
     {
-        case TLV_TYPE_END_OF_MESSAGE:
-        {
-            // This parsing is done according to the information detailed in
-            // "IEEE Std 1905.1-2013 Section 6.4.1"
-
-            struct endOfMessageTLV  *ret;
-
-            INT8U *p;
-            INT16U len;
-
-            ret = (struct endOfMessageTLV *)PLATFORM_MALLOC(sizeof(struct endOfMessageTLV));
-
-            p = packet_stream + 1;
-            _E2B(&p, &len);
-
-            // According to the standard, the length *must* be 0
-            //
-            if (0 != len)
-            {
-                // Malformed packet
-                //
-                PLATFORM_FREE(ret);
-                return NULL;
-            }
-
-            ret->tlv_type = TLV_TYPE_END_OF_MESSAGE;
-
-            return (INT8U *)ret;
-        }
-
         case TLV_TYPE_VENDOR_SPECIFIC:
         {
             // This parsing is done according to the information detailed in
@@ -1943,29 +1917,6 @@ INT8U *forge_1905_TLV_from_structure(INT8U *memory_structure, INT16U *len)
     //
     switch (*memory_structure)
     {
-        case TLV_TYPE_END_OF_MESSAGE:
-        {
-            // This forging is done according to the information detailed in
-            // "IEEE Std 1905.1-2013 Section 6.4.1"
-
-            INT8U *ret, *p;
-            struct endOfMessageTLV *m;
-
-            INT16U tlv_length;
-
-            m = (struct endOfMessageTLV *)memory_structure;
-
-            tlv_length = 0;
-            *len = 1 + 2 + tlv_length;
-
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 2  + tlv_length);
-
-            _I1B(&m->tlv_type,          &p);
-            _I2B(&tlv_length,           &p);
-
-            return ret;
-        }
-
         case TLV_TYPE_VENDOR_SPECIFIC:
         {
             // This forging is done according to the information detailed in
@@ -3497,13 +3448,6 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
     }
     switch (*memory_structure_1)
     {
-        case TLV_TYPE_END_OF_MESSAGE:
-        {
-            // Nothing to compare (this TLV is always empty)
-            //
-            return 0;
-        }
-
         case TLV_TYPE_VENDOR_SPECIFIC:
         {
             struct vendorSpecificTLV *p1, *p2;
@@ -4518,13 +4462,6 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
     //
     switch (*memory_structure)
     {
-        case TLV_TYPE_END_OF_MESSAGE:
-        {
-            // There is nothing to visit. This TLV is always empty
-            //
-            return;
-        }
-
         case TLV_TYPE_VENDOR_SPECIFIC:
         {
             struct vendorSpecificTLV *p;
@@ -5174,8 +5111,6 @@ const char *convert_1905_TLV_type_to_string(INT8U tlv_type)
 {
     switch (tlv_type)
     {
-        case TLV_TYPE_END_OF_MESSAGE:
-            return "TLV_TYPE_END_OF_MESSAGE";
         case TLV_TYPE_VENDOR_SPECIFIC:
             return "TLV_TYPE_VENDOR_SPECIFIC";
         case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
