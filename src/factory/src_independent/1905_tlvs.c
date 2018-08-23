@@ -356,7 +356,7 @@ static void tlv_print_field2_vendorSpecific(const struct vendorSpecificTLV *self
                                             void (*write_function)(const char *fmt, ...),
                                             const char *prefix)
 {
-    print_callback(write_function, prefix, sizeof(self->m_nr), "m_nr", "%d ", &self->m_nr); \
+    print_callback(write_function, prefix, sizeof(self->m_nr), "m_nr", "%d ", &self->m_nr);
     print_callback(write_function, prefix, self->m_nr, "m", "0x%02x", self->m);
 }
 
