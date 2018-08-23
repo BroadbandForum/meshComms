@@ -275,6 +275,10 @@ static struct tlv *TLV_TEMPLATE_FUNCTION_NAME(parse)(const struct tlv_def *def _
         goto err_out;
 #endif // TLV_FIELD3_NAME
 
+    /* Check for trailing garbage that didn't get parsed. */
+    if (length > 0)
+        goto err_out;
+
 #endif // TLV_PARSE_BODY
 
     return (struct tlv *)self;
