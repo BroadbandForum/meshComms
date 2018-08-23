@@ -20,6 +20,7 @@
 #define _PACKET_TOOLS_H_
 
 #include "platform.h"
+#include <tlv.h> // mac_address
 
 #include <stdbool.h> // bool
 #include <stddef.h>  // size_t
@@ -248,6 +249,17 @@ static inline bool _InBL(const void *memory_pointer, uint8_t **packet_ppointer, 
         (*length) -= n;
         return true;
     }
+}
+
+// Specific instances of _EnBL/_InBL for mac_addresses.
+static inline bool _EmBL(const uint8_t **packet_ppointer, mac_address addr, size_t *length)
+{
+    return _EnBL(packet_ppointer, addr, 6, length);
+}
+
+static inline bool _ImBL(const mac_address addr, uint8_t **packet_ppointer, size_t *length)
+{
+    return _InBL(addr, packet_ppointer, 6, length);
 }
 
 #endif

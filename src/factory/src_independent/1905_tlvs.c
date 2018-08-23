@@ -241,7 +241,7 @@ static bool tlv_forge_field2_linkMetricQuery(const struct linkMetricQueryTLV *se
 {
     if (LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR == self->destination)
     {
-        if (!_InBL(self->specific_neighbor, buf, 6, length))
+        if (!_ImBL(self->specific_neighbor, buf, length))
             return false;
     }
     else
@@ -298,7 +298,7 @@ static bool tlv_forge_field2_linkMetricQuery(const struct linkMetricQueryTLV *se
          * decided to interpret the standard, will work :)
          */
         INT8U empty_address[] = {self->link_metrics_type, 0x00, 0x00, 0x00, 0x00, 0x00};
-        if (!_InBL(empty_address, buf, 6, length))
+        if (!_ImBL(empty_address, buf, length))
             return false;
     }
     return true;
