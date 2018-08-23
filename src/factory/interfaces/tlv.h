@@ -25,6 +25,19 @@
 #include <stdbool.h>
 #include <stddef.h> // size_t
 
+/* MAC address handling. Although not directly related to TLVs, all users of TLVs manipulate MAC addresses so it's
+ * relevant to include it in this file. */
+
+/** @brief Definition of a MAC address. */
+typedef uint8_t mac_address[6];
+
+/* The following are copied from hostapd, Copyright (c) 2002-2007, Jouni Malinen <j@w1.fi>
+ * This software may be distributed under the terms of the BSD license.
+ */
+#define MAC2STR(a) (a)[0], (a)[1], (a)[2], (a)[3], (a)[4], (a)[5]
+#define MACSTR "%02x:%02x:%02x:%02x:%02x:%02x"
+
+
 /** @brief number of possible TLV types.
  *
  * Since the type is 1 byte, there are 256 TLVs

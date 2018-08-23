@@ -19,7 +19,7 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include <1905_cmdus.h>
+#include <tlv.h>
 
 #include <stdbool.h> // bool
 #include <stddef.h>  // size_t
