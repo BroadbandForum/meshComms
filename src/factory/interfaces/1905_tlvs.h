@@ -21,6 +21,7 @@
 
 #include "platform.h"
 #include <utils.h>
+#include <tlv.h>
 
 // In the comments below, every time a reference is made (ex: "See Section 6.4"
 // or "See Table 6-11") we are talking about the contents of the following
@@ -62,9 +63,16 @@
 #define TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS       (29)
 #define TLV_TYPE_L2_NEIGHBOR_DEVICE                  (30)
 
+/** @brief EasyMesh TLV types as detailed in tables 6 to 41 of "Multi-AP Specification Version 1.0".
+ *
+ * @{
+ */
+
 #define TLV_TYPE_SUPPORTED_SERVICE                   (0x80)
 #define TLV_TYPE_SEARCHED_SERVICE                    (0x81)
+#define TLV_TYPE_AP_OPERATIONAL_BSS                  (0x83)
 
+/** @} */
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -951,6 +959,30 @@ struct supportedServiceTLV
     INT8U  tlv_type; /**< @brief TLV type, must always be set to TLV_TYPE_SUPPORTED_SERVICE. */
     INT8U  supported_service_nr; /**< @brief Number of supported_service. */
     enum serviceType *supported_service; /**< @brief List of supported services. */
+};
+
+/** @} */
+
+/** @brief EasyMesh AP Operational BSS TLV.
+ *
+ *  @{
+ */
+struct _apOperationalBssInfo {
+    mac_address bssid; /**< @brief MAC Address of Local Interface (equal to BSSID) operating on the radio. */
+    struct ssid ssid;  /**< @brief SSID of this BSS. */
+};
+
+struct _apOperationalBssRadio {
+    mac_address radio_uid; /**< @brief Radio Unique Identifier of the radio. */
+    uint8_t     bss_nr; /**< @brief Number of ::bss. */
+    struct _apOperationalBssInfo *bss; /**< @brief Definition of BSSes on this radio. */
+};
+
+struct apOperationalBssTLV
+{
+    struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_AP_OPERATIONAL_BSS. */
+    uint8_t      radio_nr; /**< @brief Number of ::radios. */
+    struct _apOperationalBssRadio *radio; /**< @brief Definition of radios. */
 };
 
 /** @} */

@@ -194,5 +194,9 @@ extern struct supportedServiceTLV                      x1905_tlv_structure_051;
 extern INT8U                                           x1905_tlv_stream_051[];
 extern INT16U                                          x1905_tlv_stream_len_051;
 
+extern struct apOperationalBssTLV                      x1905_tlv_structure_052;
+extern INT8U                                           x1905_tlv_stream_052[];
+extern INT16U                                          x1905_tlv_stream_len_052;
+
 #endif
 

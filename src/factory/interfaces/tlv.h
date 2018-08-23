@@ -37,6 +37,17 @@ typedef uint8_t mac_address[6];
 #define MAC2STR(a) (a)[0], (a)[1], (a)[2], (a)[3], (a)[4], (a)[5]
 #define MACSTR "%02x:%02x:%02x:%02x:%02x:%02x"
 
+/** @brief Definition of an SSID.
+ *
+ * The maximum length is fixed because it is not very large, and this avoids too many dynamic allocations. The length
+ * must be specified explicitly because \\0 characters are allowed in SSIDs.
+ */
+struct ssid
+{
+    #define SSID_MAX_LEN 32 /**< @brief maximum length of an SSID. */
+    uint8_t  length; /**< @brief Number of valid characters in ::ssid. */
+    uint8_t  ssid[SSID_MAX_LEN]; /**< The SSID. */
+};
 
 /** @brief number of possible TLV types.
  *

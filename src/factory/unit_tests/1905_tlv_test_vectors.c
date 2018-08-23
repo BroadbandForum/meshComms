@@ -1543,3 +1543,55 @@ INT8U x1905_tlv_stream_051[] =
 };
 
 INT16U x1905_tlv_stream_len_051 = ARRAY_SIZE(x1905_tlv_stream_051);
+
+struct apOperationalBssTLV x1905_tlv_structure_052 =
+{
+    .tlv.type                    = TLV_TYPE_AP_OPERATIONAL_BSS,
+    .radio_nr                    = 2,
+    .radio                       = (struct _apOperationalBssRadio[]){
+        {
+            .radio_uid = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25},
+            .bss_nr = 0,
+        },
+        {
+            .radio_uid = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
+            .bss_nr = 3,
+            .bss = (struct _apOperationalBssInfo[]){
+                {
+                    .bssid = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
+                    .ssid = { 0, "additional stuff is not shown"},
+                },
+                {
+                    .bssid = {0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5},
+                    .ssid = { 32, "01234567890123456789012345678901"},
+                },
+                {
+                    .bssid = {0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5},
+                    .ssid = { 8, "abba\0\xff\x80!"},
+                },
+            },
+        },
+    },
+};
+
+INT8U x1905_tlv_stream_052[] =
+{
+    0x83,
+    0x00, 76,
+    2,
+    0x20, 0x21, 0x22, 0x23, 0x24, 0x25,
+    0,
+    0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
+    3,
+    0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
+    0,
+    0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5,
+    32,
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1',
+    0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5,
+    8,
+    'a', 'b', 'b', 'a', 0x00, 0xff, 0x80, '!',
+};
+
+INT16U x1905_tlv_stream_len_052 = ARRAY_SIZE(x1905_tlv_stream_052);

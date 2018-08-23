@@ -34,7 +34,13 @@ INT8U _check(const char *test_description, INT8U *input, INT8U *expected_output)
 
     real_output = parse_1905_TLV_from_packet(input);
 
-    if (0 == compare_1905_TLV_structures(real_output, expected_output))
+    if (real_output == NULL)
+    {
+        result = 1;
+        PLATFORM_PRINTF("%-100s: KO !!!\n", test_description);
+        PLATFORM_PRINTF("  Parse failure\n");
+    }
+    else if (0 == compare_1905_TLV_structures(real_output, expected_output))
     {
         result = 0;
         PLATFORM_PRINTF("%-100s: OK\n", test_description);
@@ -182,6 +188,9 @@ int main(void)
 
     #define x1905TLVPARSE042 "x1905TLVPARSE042 - Parse searched service TLV (x1905_tlv_stream_051)"
     result += _check(x1905TLVPARSE042, x1905_tlv_stream_051, (INT8U *)&x1905_tlv_structure_051);
+
+    #define x1905TLVPARSE043 "x1905TLVPARSE043 - Parse AP Operational BSS TLV (x1905_tlv_stream_052)"
+    result += _check(x1905TLVPARSE043, x1905_tlv_stream_052, (INT8U *)&x1905_tlv_structure_052);
 
 
     // Return the number of test cases that failed
