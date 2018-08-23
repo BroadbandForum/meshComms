@@ -102,17 +102,6 @@
  * freed.
  */
 
-/** @def TLV_PARSE_EXTRA(self,buffer,length)
- * @brief Extra checks after parsing.
- *
- * @param self Pointer to a freshly created structure of the right type, all fields have been filled in.
- *
- * This macro can be defined to do additional checks or additional modifications after parsing all fields.  It can also
- * parse additional fields beyond what is supported by this template.
- *
- * In case of error, the fragment should print something and goto err_out.
- */
-
 /** @def TLV_PARSE_BODY(self,buffer,length)
  * @brief Custom parse function.
  *
