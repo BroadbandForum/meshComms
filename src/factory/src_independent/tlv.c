@@ -6,7 +6,8 @@
 
 #include <errno.h> // errno
 #include <stdlib.h> // malloc
-#include <string.h> // memcpy snprintf, strerror
+#include <string.h> // memcpy, strerror
+#include <stdio.h>  // snprintf
 
 struct tlv_list
 {
@@ -185,7 +186,7 @@ void tlv_print(tlv_defs_t defs, const struct tlv_list *tlvs, void (*write_functi
         //
         char new_prefix[100];
 
-        PLATFORM_SNPRINTF(new_prefix, sizeof(new_prefix)-1, "%sTLV(%s)->",
+        snprintf(new_prefix, sizeof(new_prefix)-1, "%sTLV(%s)->",
                           prefix, (tlv_def->name == NULL) ? "Unknown" : tlv_def->name);
         new_prefix[sizeof(new_prefix)-1] = '\0';
 

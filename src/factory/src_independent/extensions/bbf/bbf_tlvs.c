@@ -23,6 +23,7 @@
 #include "packet_tools.h"
 
 #include <string.h> // memcmp(), memcpy(), ...
+#include <stdio.h>  // snprintf
 
 ////////////////////////////////////////////////////////////////////////////////
 // Actual API functions
@@ -782,7 +783,7 @@ void visit_bbf_TLV_structure(INT8U *memory_structure, visitor_callback callback,
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%stransmitter_link_metrics[%d]->", prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%stransmitter_link_metrics[%d]->", prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->transmitter_link_metrics[i].local_interface_address),    "local_interface_address",    "0x%02x",   p->transmitter_link_metrics[i].local_interface_address);
@@ -820,7 +821,7 @@ void visit_bbf_TLV_structure(INT8U *memory_structure, visitor_callback callback,
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sreceiver_link_metrics[%d]->", prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%sreceiver_link_metrics[%d]->", prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->receiver_link_metrics[i].local_interface_address),    "local_interface_address",    "0x%02x",   p->receiver_link_metrics[i].local_interface_address);

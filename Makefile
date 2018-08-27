@@ -76,7 +76,7 @@ ifeq ($(PLATFORM),linux)
         $(error "Linux FLAVOUR unknown")
     endif
 
-    CCFLAGS       += -g -O0 -Wall -Werror #-Wextra
+    CCFLAGS       += -g -O0 -Wall -Werror -Wno-format-truncation #-Wextra
     CCFLAGS       += -D_HOST_IS_LITTLE_ENDIAN_=1 -DMAX_NETWORK_SEGMENT_SIZE=1500
     CCFLAGS       += -DINT8U="unsigned char"
     CCFLAGS       += -DINT16U="unsigned short int"

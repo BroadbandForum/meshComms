@@ -52,7 +52,7 @@ void print_callback(void (*write_function)(const char *fmt, ...), const char *pr
 
            fmt_line[0] = 0x0;
 
-           PLATFORM_SNPRINTF(fmt_line, FMT_LINE_SIZE-1, "%%s%%s: %s\n", fmt);
+           snprintf(fmt_line, FMT_LINE_SIZE-1, "%%s%%s: %s\n", fmt);
            fmt_line[FMT_LINE_SIZE-1] = 0x0;
 
            if (1 == size)

@@ -22,6 +22,7 @@
 #include "lldp_tlvs.h"
 #include "packet_tools.h"
 
+#include <stdio.h>  // snprintf
 
 ////////////////////////////////////////////////////////////////////////////////
 // Actual API functions
@@ -357,28 +358,28 @@ void visit_lldp_PAYLOAD_structure(struct PAYLOAD *memory_structure, visitor_call
         {
             case TLV_TYPE_END_OF_LLDPPDU:
             {
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sTLV(END_OF_LLDPPDU)", prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%sTLV(END_OF_LLDPPDU)", prefix);
                 new_prefix[MAX_PREFIX-1] = 0x0;
                 break;
             }
 
             case TLV_TYPE_CHASSIS_ID:
             {
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sTLV(CHASSIS_ID)", prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%sTLV(CHASSIS_ID)", prefix);
                 new_prefix[MAX_PREFIX-1] = 0x0;
                 break;
             }
 
             case TLV_TYPE_PORT_ID:
             {
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sTLV(PORT_ID)", prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%sTLV(PORT_ID)", prefix);
                 new_prefix[MAX_PREFIX-1] = 0x0;
                 break;
             }
 
             case TLV_TYPE_TIME_TO_LIVE:
             {
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sTLV(TIME_TO_LIVE)", prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%sTLV(TIME_TO_LIVE)", prefix);
                 new_prefix[MAX_PREFIX-1] = 0x0;
                 break;
             }

@@ -102,10 +102,6 @@ void PLATFORM_FREE(void *ptr);
 //
 void *PLATFORM_REALLOC(void *ptr, INT32U size);
 
-// Output to a string (see 'man 3 snprintf' on any Linux box)
-//
-void PLATFORM_SNPRINTF(char *dest, INT32U n, const char *format, ...);
-
 // Output the provided format string (see 'man 3 printf' on any Linux box)
 //
 void PLATFORM_PRINTF(const char *format, ...);

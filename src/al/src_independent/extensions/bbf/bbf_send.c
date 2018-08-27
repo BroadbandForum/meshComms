@@ -27,6 +27,7 @@
 #include "platform_interfaces.h"
 
 #include <string.h> // memset(), memcmp(), ...
+#include <stdio.h>    // snprintf
 
 // Identify a processed BBF query
 //
@@ -1073,19 +1074,19 @@ void CBKDumpBBFExtendedInfo(INT8U **memory_structure,
 
     // Now, present data in an organized way
     //
-    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sOUI(0x%02x%02x%02x)->non1905_metrics_nr: %d", prefix, BBF_OUI[0], BBF_OUI[1], BBF_OUI[2], metrics_nr);
+    snprintf(new_prefix, MAX_PREFIX-1, "%sOUI(0x%02x%02x%02x)->non1905_metrics_nr: %d", prefix, BBF_OUI[0], BBF_OUI[1], BBF_OUI[2], metrics_nr);
     new_prefix[MAX_PREFIX-1] = 0x0;
     write_function("%s\n", new_prefix);
 
     for (i=0; i<metrics_nr; i++)
     {
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sOUI(0x%02x%02x%02x)->non1905_metrics[%d]->tx->", prefix, BBF_OUI[0], BBF_OUI[1], BBF_OUI[2], i);
+        snprintf(new_prefix, MAX_PREFIX-1, "%sOUI(0x%02x%02x%02x)->non1905_metrics[%d]->tx->", prefix, BBF_OUI[0], BBF_OUI[1], BBF_OUI[2], i);
         new_prefix[MAX_PREFIX-1] = 0x0;
         if (NULL != tx_metrics[i])
         {
             visit_bbf_TLV_structure(parse_bbf_TLV_from_packet(tx_metrics[i]->m), callback, write_function, new_prefix);
         }
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sOUI(0x%02x%02x%02x)->non1905_metrics[%d]->rx->", prefix, BBF_OUI[0], BBF_OUI[1], BBF_OUI[2], i);
+        snprintf(new_prefix, MAX_PREFIX-1, "%sOUI(0x%02x%02x%02x)->non1905_metrics[%d]->rx->", prefix, BBF_OUI[0], BBF_OUI[1], BBF_OUI[2], i);
         new_prefix[MAX_PREFIX-1] = 0x0;
         if (NULL != rx_metrics[i])
         {

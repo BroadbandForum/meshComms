@@ -112,17 +112,6 @@ void *PLATFORM_REALLOC(void *ptr, INT32U size)
     return p;
 }
 
-void PLATFORM_SNPRINTF(char *dest, INT32U n, const char *format, ...)
-{
-    va_list arglist;
-
-    va_start( arglist, format );
-    vsnprintf( dest, n, format, arglist );
-    va_end( arglist );
-
-    return;
-}
-
 void PLATFORM_PRINTF(const char *format, ...)
 {
     va_list arglist;

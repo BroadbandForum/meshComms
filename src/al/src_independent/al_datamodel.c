@@ -28,6 +28,7 @@
 #include "al_extension.h"
 
 #include <string.h> // memcmp(), memcpy(), ...
+#include <stdio.h>    // snprintf
 
 ////////////////////////////////////////////////////////////////////////////////
 // Private stuff
@@ -1377,101 +1378,101 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
     {
         char new_prefix[MAX_PREFIX];
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->", i);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
         write_function("%supdate timestamp: %d\n", new_prefix, data_model.network_devices[i].update_timestamp);
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->general_info->", i);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->general_info->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
         visit_1905_TLV_structure((INT8U* )data_model.network_devices[i].info, print_callback, write_function, new_prefix);
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->bridging_capabilities_nr: %d", i, data_model.network_devices[i].bridges_nr);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->bridging_capabilities_nr: %d", i, data_model.network_devices[i].bridges_nr);
         new_prefix[MAX_PREFIX-1] = 0x0;
         write_function("%s\n", new_prefix);
         for (j=0; j<data_model.network_devices[i].bridges_nr; j++)
         {
-            PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->bridging_capabilities[%d]->", i, j);
+            snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->bridging_capabilities[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
             visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].bridges[j], print_callback, write_function, new_prefix);
         }
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->non_1905_neighbors_nr: %d", i, data_model.network_devices[i].non1905_neighbors_nr);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->non_1905_neighbors_nr: %d", i, data_model.network_devices[i].non1905_neighbors_nr);
         new_prefix[MAX_PREFIX-1] = 0x0;
         write_function("%s\n", new_prefix);
         for (j=0; j<data_model.network_devices[i].non1905_neighbors_nr; j++)
         {
-            PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->non_1905_neighbors[%d]->", i, j);
+            snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->non_1905_neighbors[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
             visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].non1905_neighbors[j], print_callback, write_function, new_prefix);
         }
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->x1905_neighbors_nr: %d", i, data_model.network_devices[i].x1905_neighbors_nr);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->x1905_neighbors_nr: %d", i, data_model.network_devices[i].x1905_neighbors_nr);
         new_prefix[MAX_PREFIX-1] = 0x0;
         write_function("%s\n", new_prefix);
         for (j=0; j<data_model.network_devices[i].x1905_neighbors_nr; j++)
         {
-            PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->x1905_neighbors[%d]->", i, j);
+            snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->x1905_neighbors[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
             visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].x1905_neighbors[j], print_callback, write_function, new_prefix);
         }
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->power_off_interfaces_nr: %d", i, data_model.network_devices[i].power_off_nr);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->power_off_interfaces_nr: %d", i, data_model.network_devices[i].power_off_nr);
         new_prefix[MAX_PREFIX-1] = 0x0;
         write_function("%s\n", new_prefix);
         for (j=0; j<data_model.network_devices[i].power_off_nr; j++)
         {
-            PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->power_off_interfaces[%d]->", i, j);
+            snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->power_off_interfaces[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
             visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].power_off[j], print_callback, write_function, new_prefix);
         }
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->l2_neighbors_nr: %d", i, data_model.network_devices[i].l2_neighbors_nr);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->l2_neighbors_nr: %d", i, data_model.network_devices[i].l2_neighbors_nr);
         new_prefix[MAX_PREFIX-1] = 0x0;
         write_function("%s\n", new_prefix);
         for (j=0; j<data_model.network_devices[i].l2_neighbors_nr; j++)
         {
-            PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->l2_neighbors[%d]->", i, j);
+            snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->l2_neighbors[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
             visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].l2_neighbors[j], print_callback, write_function, new_prefix);
         }
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->generic_phys->", i);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->generic_phys->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
         visit_1905_TLV_structure((INT8U* )data_model.network_devices[i].generic_phy, print_callback, write_function, new_prefix);
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->profile->", i);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->profile->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
         visit_1905_TLV_structure((INT8U* )data_model.network_devices[i].profile, print_callback, write_function, new_prefix);
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->identification->", i);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->identification->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
         visit_1905_TLV_structure((INT8U* )data_model.network_devices[i].identification, print_callback, write_function, new_prefix);
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->control_url->", i);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->control_url->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
         visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].control_url, print_callback, write_function, new_prefix);
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->ipv4->", i);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->ipv4->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
         visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].ipv4, print_callback, write_function, new_prefix);
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->ipv6->", i);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->ipv6->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
         visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].ipv6, print_callback, write_function, new_prefix);
 
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->metrics_nr: %d", i, data_model.network_devices[i].metrics_with_neighbors_nr);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->metrics_nr: %d", i, data_model.network_devices[i].metrics_with_neighbors_nr);
         new_prefix[MAX_PREFIX-1] = 0x0;
         write_function("%s\n", new_prefix);
         for (j=0; j<data_model.network_devices[i].metrics_with_neighbors_nr; j++)
         {
-            PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->metrics[%d]->tx->", i, j);
+            snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->metrics[%d]->tx->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
             if (NULL != data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics)
             {
                 write_function("%slast_updated: %d\n", new_prefix, data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics_timestamp);
                 visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics, print_callback, write_function, new_prefix);
             }
-            PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->metrics[%d]->rx->", i, j);
+            snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->metrics[%d]->rx->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
             if (NULL != data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics)
             {
@@ -1484,7 +1485,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         // Allow registered third-party developers to extend the neighbor info
         // (ex. BBF adds non-1905 link metrics)
         //
-        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "  device[%d]->", i);
+        snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
         dumpExtendedInfo((INT8U **)data_model.network_devices[i].extensions, data_model.network_devices[i].extensions_nr, print_callback, write_function, new_prefix);
     }

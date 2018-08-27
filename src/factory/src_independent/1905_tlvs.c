@@ -24,6 +24,7 @@
 
 #include <stddef.h>
 #include <string.h> // memcmp(), memcpy(), ...
+#include <stdio.h>  // snprintf
 
 
 
@@ -130,7 +131,7 @@ static void tlv_print_field2_supportedService(const struct supportedServiceTLV *
     size_t supported_services_list_len = 0;
     for (i = 0; i < self->supported_service_nr; i++)
     {
-        PLATFORM_SNPRINTF(supported_services_list + supported_services_list_len,
+        snprintf(supported_services_list + supported_services_list_len,
                           sizeof (supported_services_list) - supported_services_list_len,
                           "0x%02x ", self->supported_service[i]);
         supported_services_list_len += 5;
@@ -517,14 +518,14 @@ static void tlv_print_field2_apOperationalBss(const struct apOperationalBssTLV *
     for (i = 0; i < self->radio_nr; i++)
     {
         char radio_prefix[MAX_PREFIX];
-        PLATFORM_SNPRINTF(radio_prefix, MAX_PREFIX, "%sradio[%d]->", prefix, i);
-        radio_prefix[MAX_PREFIX-1] = '\0';
+        snprintf(radio_prefix, sizeof(radio_prefix), "%sradio[%d]->", prefix, i);
+        radio_prefix[sizeof(radio_prefix)-1] = '\0';
         print_callback(write_function, radio_prefix, 6, "radio_uid", "0x%02x", self->radio[i].radio_uid);
         for (j = 0; j < self->radio[i].bss_nr; j++)
         {
             char bss_prefix[MAX_PREFIX];
-            PLATFORM_SNPRINTF(bss_prefix, MAX_PREFIX, "%sbss[%d]->", radio_prefix, j);
-            bss_prefix[MAX_PREFIX-1] = '\0';
+            snprintf(bss_prefix, sizeof(bss_prefix), "%sbss[%d]->", radio_prefix, j);
+            bss_prefix[sizeof(bss_prefix)-1] = '\0';
             print_callback(write_function, bss_prefix, 6, "bssid", "0x%02x", self->radio[i].bss[j].bssid);
             /* @todo special characters (e.g. \0) in SSID should be escaped. */
             print_callback(write_function, bss_prefix, self->radio[i].bss[j].ssid.length, "ssid", "%c",
@@ -4481,7 +4482,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
         return;
     }
 
-    PLATFORM_SNPRINTF(tlv_prefix, MAX_PREFIX-1, "%sTLV(%s)->",
+    snprintf(tlv_prefix, MAX_PREFIX-1, "%sTLV(%s)->",
                       prefix,
                       convert_1905_TLV_type_to_string(*memory_structure));
     tlv_prefix[MAX_PREFIX-1] = 0x0;
@@ -4504,7 +4505,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->local_interfaces[i].mac_address),              "mac_address",              "0x%02x",   p->local_interfaces[i].mac_address);
@@ -4553,14 +4554,14 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sbridging_tuples[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%sbridging_tuples[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->bridging_tuples[i].bridging_tuple_macs_nr), "bridging_tuple_macs_nr", "%d",  &p->bridging_tuples[i].bridging_tuple_macs_nr);
 
                 for (j=0; j < p->bridging_tuples[i].bridging_tuple_macs_nr; j++)
                 {
-                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sbridging_tuples[%d]->bridging_tuple_macs[%d]->", tlv_prefix, i, j);
+                    snprintf(new_prefix, MAX_PREFIX-1, "%sbridging_tuples[%d]->bridging_tuple_macs[%d]->", tlv_prefix, i, j);
                     new_prefix[MAX_PREFIX-1] = 0x0;
 
                     callback(write_function, new_prefix, sizeof(p->bridging_tuples[i].bridging_tuple_macs[j].mac_address), "mac_address", "0x%02x",  p->bridging_tuples[i].bridging_tuple_macs[j].mac_address);
@@ -4589,7 +4590,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%snon_1905_neighbors[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%snon_1905_neighbors[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->non_1905_neighbors[i].mac_address), "mac_address", "0x%02x", p->non_1905_neighbors[i].mac_address);
@@ -4617,7 +4618,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sneighbors[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%sneighbors[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->neighbors[i].mac_address), "mac_address", "0x%02x",  p->neighbors[i].mac_address);
@@ -4647,7 +4648,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%stransmitter_link_metrics[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%stransmitter_link_metrics[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->transmitter_link_metrics[i].local_interface_address),    "local_interface_address",    "0x%02x",   p->transmitter_link_metrics[i].local_interface_address);
@@ -4684,7 +4685,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sreceiver_link_metrics[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%sreceiver_link_metrics[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->receiver_link_metrics[i].local_interface_address),    "local_interface_address",    "0x%02x",   p->receiver_link_metrics[i].local_interface_address);
@@ -4777,7 +4778,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%smedia_types[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%smedia_types[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->media_types[i].media_type),               "media_type",               "0x%04x",  &p->media_types[i].media_type);
@@ -4839,7 +4840,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->local_interfaces[i].local_interface_address),                         "local_interface_address",             "0x%02x",   p->local_interfaces[i].local_interface_address);
@@ -4890,7 +4891,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv4_interfaces[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%sipv4_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->ipv4_interfaces[i].mac_address), "mac_address", "0x%02x",   p->ipv4_interfaces[i].mac_address);
@@ -4898,7 +4899,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
                 for (j=0; j < p->ipv4_interfaces[i].ipv4_nr; j++)
                 {
-                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv4_interfaces[%d]->ipv4[%d]->", tlv_prefix, i, j);
+                    snprintf(new_prefix, MAX_PREFIX-1, "%sipv4_interfaces[%d]->ipv4[%d]->", tlv_prefix, i, j);
                     new_prefix[MAX_PREFIX-1] = 0x0;
 
                     callback(write_function, new_prefix, sizeof(p->ipv4_interfaces[i].ipv4[j].type),             "type",             "%d",     &p->ipv4_interfaces[i].ipv4[j].type);
@@ -4922,7 +4923,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv6_interfaces[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%sipv6_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->ipv6_interfaces[i].mac_address), "mac_address", "0x%02x",   p->ipv6_interfaces[i].mac_address);
@@ -4930,7 +4931,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
                 for (j=0; j < p->ipv6_interfaces[i].ipv6_nr; j++)
                 {
-                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%sipv6_interfaces[%d]->ipv6[%d]->", tlv_prefix, i, j);
+                    snprintf(new_prefix, MAX_PREFIX-1, "%sipv6_interfaces[%d]->ipv6[%d]->", tlv_prefix, i, j);
                     new_prefix[MAX_PREFIX-1] = 0x0;
 
                     callback(write_function, new_prefix, sizeof(p->ipv6_interfaces[i].ipv6[j].type),                "type",                "%d",      &p->ipv6_interfaces[i].ipv6[j].type);
@@ -4954,7 +4955,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->local_interfaces[i].oui),                     "oui",                     "0x%02x",   p->local_interfaces[i].oui);
@@ -4989,7 +4990,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%spower_off_interfaces[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%spower_off_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->power_off_interfaces[i].interface_address),                               "interface_address",       "0x%02x",   p->power_off_interfaces[i].interface_address);
@@ -5015,7 +5016,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%spower_change_interfaces[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%spower_change_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->power_change_interfaces[i].interface_address),     "interface_address",       "0x%02x",   p->power_change_interfaces[i].interface_address);
@@ -5037,7 +5038,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%spower_change_interfaces[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%spower_change_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->power_change_interfaces[i].interface_address), "interface_address",  "0x%02x",  p->power_change_interfaces[i].interface_address);
@@ -5059,7 +5060,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
             {
                 char new_prefix[MAX_PREFIX];
 
-                PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
+                snprintf(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->", tlv_prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
                 callback(write_function, new_prefix, sizeof(p->local_interfaces[i].local_mac_address), "local_mac_address", "0x%02x",   p->local_interfaces[i].local_mac_address);
@@ -5067,7 +5068,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
                 for (j=0; j < p->local_interfaces[i].l2_neighbors_nr; j++)
                 {
-                    PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->l2_neighbors[%d]->", tlv_prefix, i, j);
+                    snprintf(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->l2_neighbors[%d]->", tlv_prefix, i, j);
                     new_prefix[MAX_PREFIX-1] = 0x0;
 
                     callback(write_function, new_prefix, sizeof(p->local_interfaces[i].l2_neighbors[j].l2_neighbor_mac_address), "l2_neighbor_mac_address", "0x%02x",   p->local_interfaces[i].l2_neighbors[j].l2_neighbor_mac_address);
@@ -5075,7 +5076,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
                     for (k=0; k < p->local_interfaces[i].l2_neighbors[j].behind_mac_addresses_nr; k++)
                     {
-                        PLATFORM_SNPRINTF(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->l2_neighbors[%d]->behind_mac_addresses[%d]", tlv_prefix, i, j, k);
+                        snprintf(new_prefix, MAX_PREFIX-1, "%slocal_interfaces[%d]->l2_neighbors[%d]->behind_mac_addresses[%d]", tlv_prefix, i, j, k);
                         new_prefix[MAX_PREFIX-1] = 0x0;
 
                         callback(write_function, new_prefix, 6, "behind_mac_addresses", "0x%02x", p->local_interfaces[i].l2_neighbors[j].behind_mac_addresses[k]);
