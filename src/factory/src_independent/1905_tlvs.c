@@ -2803,7 +2803,7 @@ INT8U *forge_1905_TLV_from_structure(INT8U *memory_structure, INT16U *len)
 
             m = (struct controlUrlTypeTLV *)memory_structure;
 
-            tlv_length = PLATFORM_STRLEN(m->url)+1;
+            tlv_length = strlen(m->url)+1;
             *len = 1 + 2 + tlv_length;
 
             p = ret = (INT8U *)PLATFORM_MALLOC(1 + 2  + tlv_length);
@@ -4053,7 +4053,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             p2 = (struct controlUrlTypeTLV *)memory_structure_2;
 
             if(
-                memcmp(p1->url, p2->url, PLATFORM_STRLEN(p1->url)+1) !=0
+                memcmp(p1->url, p2->url, strlen(p1->url)+1) !=0
               )
             {
                 return 1;
@@ -4873,7 +4873,7 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 
             p = (struct controlUrlTypeTLV *)memory_structure;
 
-            callback(write_function, tlv_prefix, PLATFORM_STRLEN(p->url)+1, "url", "%s", p->url);
+            callback(write_function, tlv_prefix, strlen(p->url)+1, "url", "%s", p->url);
 
             return;
         }

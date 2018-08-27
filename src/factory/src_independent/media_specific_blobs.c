@@ -40,7 +40,7 @@ INT8U *forge_media_specific_blob(struct genericInterfaceType *m, INT16U *len)
         return NULL;
     }
 
-    if (0 == memcmp(m->generic_phy_description_xml_url, ITU_T_GHN_XML, PLATFORM_STRLEN(ITU_T_GHN_XML)+1))
+    if (0 == memcmp(m->generic_phy_description_xml_url, ITU_T_GHN_XML, strlen(ITU_T_GHN_XML)+1))
     {
         // This XML file defines the *same* media specific data format for all
         // interfaces that meet the following requirements:

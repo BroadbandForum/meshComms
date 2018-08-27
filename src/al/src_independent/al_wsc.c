@@ -224,7 +224,7 @@ void _wps_key_derivation_function(INT8U *key, INT8U *label_prefix, INT32U label_
     addr[3] = key_bits;
     len[0]  = sizeof(i_buf);
     len[1]  = label_prefix_len;
-    len[2]  = PLATFORM_STRLEN(label);
+    len[2]  = strlen(label);
     len[3]  = sizeof(key_bits);
 
     iter = (res_len + SHA256_MAC_LEN - 1) / SHA256_MAC_LEN;
@@ -434,30 +434,30 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
     // MANUFACTURER
     {
         aux16 = ATTR_MANUFACTURER;                                        _I2B(&aux16,                &p);
-        aux16 = PLATFORM_STRLEN(x->manufacturer_name);                    _I2B(&aux16,                &p);
-                                                                          _InB( x->manufacturer_name, &p, PLATFORM_STRLEN(x->manufacturer_name));
+        aux16 = strlen(x->manufacturer_name);                    _I2B(&aux16,                &p);
+                                                                          _InB( x->manufacturer_name, &p, strlen(x->manufacturer_name));
     }
 
     // MODEL NAME
     {
 
         aux16 = ATTR_MODEL_NAME;                                          _I2B(&aux16,         &p);
-        aux16 = PLATFORM_STRLEN(x->model_name);                           _I2B(&aux16,         &p);
-                                                                          _InB( x->model_name, &p, PLATFORM_STRLEN(x->model_name));
+        aux16 = strlen(x->model_name);                           _I2B(&aux16,         &p);
+                                                                          _InB( x->model_name, &p, strlen(x->model_name));
     }
 
     // MODEL NUMBER
     {
         aux16 = ATTR_MODEL_NUMBER;                                        _I2B(&aux16,           &p);
-        aux16 = PLATFORM_STRLEN(x->model_number);                         _I2B(&aux16,           &p);
-                                                                          _InB( x->model_number, &p, PLATFORM_STRLEN(x->model_number));
+        aux16 = strlen(x->model_number);                         _I2B(&aux16,           &p);
+                                                                          _InB( x->model_number, &p, strlen(x->model_number));
     }
 
     // SERIAL NUMBER
     {
         aux16 = ATTR_SERIAL_NUMBER;                                       _I2B(&aux16,            &p);
-        aux16 = PLATFORM_STRLEN(x->serial_number);                        _I2B(&aux16,            &p);
-                                                                          _InB( x->serial_number, &p, PLATFORM_STRLEN(x->serial_number));
+        aux16 = strlen(x->serial_number);                        _I2B(&aux16,            &p);
+                                                                          _InB( x->serial_number, &p, strlen(x->serial_number));
     }
 
     // PRIMARY DEVICE TYPE
@@ -478,8 +478,8 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
     // DEVICE NAME
     {
         aux16 = ATTR_DEV_NAME;                                            _I2B(&aux16,           &p);
-        aux16 = PLATFORM_STRLEN(x->device_name);                          _I2B(&aux16,           &p);
-                                                                          _InB( x->device_name,  &p, PLATFORM_STRLEN(x->device_name));
+        aux16 = strlen(x->device_name);                          _I2B(&aux16,           &p);
+                                                                          _InB( x->device_name,  &p, strlen(x->device_name));
     }
 
     // RF BANDS
@@ -1296,29 +1296,29 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
     // MANUFACTURER
     {
         aux16 = ATTR_MANUFACTURER;                                        _I2B(&aux16,                &p);
-        aux16 = PLATFORM_STRLEN(x->manufacturer_name);                    _I2B(&aux16,                &p);
-                                                                          _InB( x->manufacturer_name, &p, PLATFORM_STRLEN(x->manufacturer_name));
+        aux16 = strlen(x->manufacturer_name);                    _I2B(&aux16,                &p);
+                                                                          _InB( x->manufacturer_name, &p, strlen(x->manufacturer_name));
     }
 
     // MODEL NAME
     {
         aux16 = ATTR_MODEL_NAME;                                          _I2B(&aux16,         &p);
-        aux16 = PLATFORM_STRLEN(x->model_name);                           _I2B(&aux16,         &p);
-                                                                          _InB( x->model_name, &p, PLATFORM_STRLEN(x->model_name));
+        aux16 = strlen(x->model_name);                           _I2B(&aux16,         &p);
+                                                                          _InB( x->model_name, &p, strlen(x->model_name));
     }
 
     // MODEL NUMBER
     {
         aux16 = ATTR_MODEL_NUMBER;                                        _I2B(&aux16,           &p);
-        aux16 = PLATFORM_STRLEN(x->model_number);                         _I2B(&aux16,           &p);
-                                                                          _InB( x->model_number, &p, PLATFORM_STRLEN(x->model_number));
+        aux16 = strlen(x->model_number);                         _I2B(&aux16,           &p);
+                                                                          _InB( x->model_number, &p, strlen(x->model_number));
     }
 
     // SERIAL NUMBER
     {
         aux16 = ATTR_SERIAL_NUMBER;                                       _I2B(&aux16,            &p);
-        aux16 = PLATFORM_STRLEN(x->serial_number);                        _I2B(&aux16,            &p);
-                                                                          _InB( x->serial_number, &p, PLATFORM_STRLEN(x->serial_number));
+        aux16 = strlen(x->serial_number);                        _I2B(&aux16,            &p);
+                                                                          _InB( x->serial_number, &p, strlen(x->serial_number));
     }
 
     // PRIMARY DEVICE TYPE
@@ -1339,8 +1339,8 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
     // DEVICE NAME
     {
         aux16 = ATTR_DEV_NAME;                                            _I2B(&aux16,          &p);
-        aux16 = PLATFORM_STRLEN(x->device_name);                          _I2B(&aux16,          &p);
-                                                                          _InB( x->device_name, &p, PLATFORM_STRLEN(x->device_name));
+        aux16 = strlen(x->device_name);                          _I2B(&aux16,          &p);
+                                                                          _InB( x->device_name, &p, strlen(x->device_name));
     }
 
     // RF BANDS
@@ -1455,8 +1455,8 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
 
         // SSID
         aux16 = ATTR_SSID;                                                _I2B(&aux16,         &r);
-        aux16 = PLATFORM_STRLEN(ssid);                                    _I2B(&aux16,         &r);
-                                                                          _InB( ssid,          &r, PLATFORM_STRLEN(ssid));
+        aux16 = strlen(ssid);                                    _I2B(&aux16,         &r);
+                                                                          _InB( ssid,          &r, strlen(ssid));
 
         // AUTH TYPE
         aux16 = ATTR_AUTH_TYPE;                                           _I2B(&aux16,         &r);
@@ -1470,8 +1470,8 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
 
         // NETWORK KEY
         aux16 = ATTR_NETWORK_KEY;                                         _I2B(&aux16,         &r);
-        aux16 = PLATFORM_STRLEN(network_key);                             _I2B(&aux16,         &r);
-                                                                          _InB( network_key,   &r, PLATFORM_STRLEN(network_key));
+        aux16 = strlen(network_key);                             _I2B(&aux16,         &r);
+                                                                          _InB( network_key,   &r, strlen(network_key));
 
         // MAC ADDR
         aux16 = ATTR_MAC_ADDR;                                            _I2B(&aux16,           &r);

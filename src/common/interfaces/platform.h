@@ -102,10 +102,6 @@ void PLATFORM_FREE(void *ptr);
 //
 void *PLATFORM_REALLOC(void *ptr, INT32U size);
 
-// Return the length of string 's' not including the terminating NULL character
-//
-INT32U PLATFORM_STRLEN(const char *s);
-
 // Return ca copy of the provided string 's', that can later be freed with
 // "PLATFORM_FREE()"
 //

@@ -928,7 +928,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
         //
         if (NULL != registrar_interface)
         {
-            if (0 == memcmp(x->name, registrar_interface, PLATFORM_STRLEN(x->name)))
+            if (0 == memcmp(x->name, registrar_interface, strlen(x->name)))
             {
                 if (
                      INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ != x->interface_type  &&

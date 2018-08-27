@@ -690,7 +690,7 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
                 for (j=0; j<len+3; j++)
                 {
                     PLATFORM_SNPRINTF(aux2, 6, "0x%02x ", p[j]);
-                    PLATFORM_STRNCAT(aux1, aux2, 200-PLATFORM_STRLEN(aux1)-1);
+                    PLATFORM_STRNCAT(aux1, aux2, 200-strlen(aux1)-1);
 
                     if (0 != j && 0 == (j+1)%8)
                     {

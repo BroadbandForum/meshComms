@@ -458,7 +458,7 @@ INT8U register1905CmduExtension(char *name,
         for (i=0; i<t->entries_nr; i++)
         {
             if ((NULL != t->entries[i].name) &&
-                (0 == memcmp(t->entries[i].name, name, PLATFORM_STRLEN(name) + 1)))
+                (0 == memcmp(t->entries[i].name, name, strlen(name) + 1)))
             {
                 // Already exists!
                 //
@@ -505,7 +505,7 @@ INT8U register1905AlmeDumpExtension(char *name,
     for (i=0; i<t->entries_nr; i++)
     {
         if ((NULL != t->entries[i].name) &&
-            (0 == memcmp(t->entries[i].name, name, PLATFORM_STRLEN(name) + 1)))
+            (0 == memcmp(t->entries[i].name, name, strlen(name) + 1)))
         {
             // Already exists!
             //

@@ -1620,7 +1620,7 @@ static void _obtainLocalApOperationalBssTLV(struct apOperationalBssTLV *ap_opera
                             memcpy(ap_operational_bss_tlv->radio[radio].bss[0].bssid,
                                             x->interface_type_data.ieee80211.bssid, 6);
                             ap_operational_bss_tlv->radio[radio].bss[0].ssid.length =
-                                    PLATFORM_STRLEN(x->interface_type_data.ieee80211.ssid);
+                                    strlen(x->interface_type_data.ieee80211.ssid);
                             memcpy(ap_operational_bss_tlv->radio[radio].bss[0].ssid.ssid,
                                             x->interface_type_data.ieee80211.ssid,
                                             ap_operational_bss_tlv->radio[radio].bss[0].ssid.length);
@@ -1709,8 +1709,8 @@ void _obtainLocalGenericPhyTLV(struct genericPhyDeviceInformationTypeTLV *generi
                             generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_common_data.media_specific_bytes    = NULL;
             }
 
-            memcpy(generic_phy->local_interfaces[generic_phy->local_interfaces_nr].variant_name,                                     x->interface_type_data.other.variant_name, PLATFORM_STRLEN(x->interface_type_data.other.variant_name)+1);
-                            generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url_len             = PLATFORM_STRLEN(x->interface_type_data.other.generic_phy_description_xml_url)+1;
+            memcpy(generic_phy->local_interfaces[generic_phy->local_interfaces_nr].variant_name,                                     x->interface_type_data.other.variant_name, strlen(x->interface_type_data.other.variant_name)+1);
+                            generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url_len             = strlen(x->interface_type_data.other.generic_phy_description_xml_url)+1;
 
                             generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url                 = PLATFORM_MALLOC(generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url_len);
             memcpy(generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url,                  x->interface_type_data.other.generic_phy_description_xml_url, generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url_len);
@@ -1793,9 +1793,9 @@ void _obtainLocalDeviceIdentificationTLV(struct deviceIdentificationTypeTLV *ide
 
     identification->tlv_type = TLV_TYPE_DEVICE_IDENTIFICATION;
 
-    memcpy(identification->friendly_name,      x->friendly_name,      PLATFORM_STRLEN(x->friendly_name)+1);
-    memcpy(identification->manufacturer_name,  x->manufacturer_name,  PLATFORM_STRLEN(x->manufacturer_name)+1);
-    memcpy(identification->manufacturer_model, x->manufacturer_model, PLATFORM_STRLEN(x->manufacturer_model)+1);
+    memcpy(identification->friendly_name,      x->friendly_name,      strlen(x->friendly_name)+1);
+    memcpy(identification->manufacturer_name,  x->manufacturer_name,  strlen(x->manufacturer_name)+1);
+    memcpy(identification->manufacturer_model, x->manufacturer_model, strlen(x->manufacturer_model)+1);
 }
 
 // Free the contents of the provided "deviceIdentificationTypeTLV" structure
@@ -2058,7 +2058,7 @@ void _memoryBufferWriter(const char *fmt, ...)
     va_end(arglist);
 
     memory_buffer[MEMORY_BUFFER_SIZE-1] = 0x0;
-    memory_buffer_i = PLATFORM_STRLEN(memory_buffer);
+    memory_buffer_i = strlen(memory_buffer);
     memory_buffer[memory_buffer_i] = 0x0;
 
     return;

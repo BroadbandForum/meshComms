@@ -112,11 +112,6 @@ void *PLATFORM_REALLOC(void *ptr, INT32U size)
     return p;
 }
 
-INT32U PLATFORM_STRLEN(const char *s)
-{
-    return strlen(s);
-}
-
 char *PLATFORM_STRDUP(const char *s)
 {
     return strdup(s);

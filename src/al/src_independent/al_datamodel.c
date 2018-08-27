@@ -161,7 +161,7 @@ struct _localInterface *_nameToLocalInterfaceStruct(char *name)
     {
         for (i=0; i<data_model.local_interfaces_nr; i++)
         {
-            if (0 == memcmp(data_model.local_interfaces[i].name, name, PLATFORM_STRLEN(data_model.local_interfaces[i].name)+1))
+            if (0 == memcmp(data_model.local_interfaces[i].name, name, strlen(data_model.local_interfaces[i].name)+1))
             {
                 return &data_model.local_interfaces[i];
             }
@@ -501,7 +501,7 @@ INT8U *DMinterfaceNameToMac(char *interface_name)
     {
         for (i=0; i<data_model.local_interfaces_nr; i++)
         {
-            if (0 == memcmp(data_model.local_interfaces[i].name, interface_name, PLATFORM_STRLEN(data_model.local_interfaces[i].name)+1))
+            if (0 == memcmp(data_model.local_interfaces[i].name, interface_name, strlen(data_model.local_interfaces[i].name)+1))
             {
                 return data_model.local_interfaces[i].mac_address;
             }
@@ -1748,8 +1748,8 @@ void DMremoveALNeighborFromInterface(INT8U *al_mac_address, char *interface_name
         INT8U original_neighbors_nr;
 
         if (
-             (0 != memcmp(data_model.local_interfaces[i].name, interface_name, PLATFORM_STRLEN(data_model.local_interfaces[i].name)+1)) &&
-             (0 != memcmp(interface_name,                      "all",          PLATFORM_STRLEN(interface_name)+1))
+             (0 != memcmp(data_model.local_interfaces[i].name, interface_name, strlen(data_model.local_interfaces[i].name)+1)) &&
+             (0 != memcmp(interface_name,                      "all",          strlen(interface_name)+1))
            )
         {
             // Ignore this interface
