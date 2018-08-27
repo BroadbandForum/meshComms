@@ -662,20 +662,14 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
                 // Error while parsing a TLV
                 // Dump TLV for visual inspection
 
-                char aux1[200];
-                char aux2[10];
-
                 INT8U *p2 = p;
                 INT16U len;
-
-                INT8U  first_time;
-                INT8U  j;
                 INT8U  aux;
 
                 _E1B(&p2, &aux);
                 _E2B(&p2, &len);
 
-                PLATFORM_PRINTF_DEBUG_WARNING("Parsing error. Dumping bytes: \n", error);
+                PLATFORM_PRINTF_DEBUG_WARNING("Parsing error TLV type %u. Dumping bytes: \n", aux);
 
                 // Limit dump length
                 //
@@ -684,29 +678,7 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
                     len = 200;
                 }
 
-                aux1[0]    = 0x0;
-                aux2[0]    = 0x0;
-                first_time = 1;
-                for (j=0; j<len+3; j++)
-                {
-                    PLATFORM_SNPRINTF(aux2, 6, "0x%02x ", p[j]);
-                    PLATFORM_STRNCAT(aux1, aux2, 200-strlen(aux1)-1);
-
-                    if (0 != j && 0 == (j+1)%8)
-                    {
-                        if (1 == first_time)
-                        {
-                            PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM]   - Payload        = %s\n", aux1);
-                            first_time = 0;
-                        }
-                        else
-                        {
-                            PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM]                      %s\n", aux1);
-                        }
-                        aux1[0] = 0x0;
-                    }
-                }
-
+                print_callback(PLATFORM_PRINTF_DEBUG_WARNING, "", len, "Payload", "%02x", p2);
                 error = 6;
                 break;
             }
