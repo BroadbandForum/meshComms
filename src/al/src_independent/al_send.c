@@ -1525,6 +1525,114 @@ static void _obtainLocalSupportedServicesTLV(struct supportedServiceTLV *support
     }
 }
 
+// Given a pointer to a preallocated "supportedServiceTLV"
+// structure, fill it with all the pertaining information retrieved from the
+// local device.
+//
+static void _obtainLocalApOperationalBssTLV(struct apOperationalBssTLV *ap_operational_bss_tlv)
+{
+    char **ifs_names;
+    INT8U  ifs_nr;
+    INT8U  radio_nr = 0;
+    INT8U  i;
+
+    ap_operational_bss_tlv->tlv.type = TLV_TYPE_AP_OPERATIONAL_BSS;
+
+    ifs_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&ifs_nr);
+
+    /* @todo For now, 1 interface == 1 radio == 1 BSS */
+    /* First count # radios */
+    for (i=0; i<ifs_nr; i++)
+    {
+        struct interfaceInfo *x;
+
+        x = PLATFORM_GET_1905_INTERFACE_INFO(ifs_names[i]);
+        if (NULL == x)
+        {
+            PLATFORM_PRINTF_DEBUG_WARNING("Could not retrieve info of interface %s\n", ifs_names[i]);
+        }
+        else
+        {
+            switch (x->interface_type)
+            {
+                case INTERFACE_TYPE_IEEE_802_11AC_5_GHZ:
+                case INTERFACE_TYPE_IEEE_802_11AD_60_GHZ:
+                case INTERFACE_TYPE_IEEE_802_11AF_GHZ:
+                case INTERFACE_TYPE_IEEE_802_11A_5_GHZ:
+                case INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ:
+                case INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ:
+                case INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ:
+                case INTERFACE_TYPE_IEEE_802_11N_5_GHZ:
+                    /* Only operational interfaces, i.e. which are AP and have a BSSID */
+                    if (x->interface_type_data.ieee80211.role == IEEE80211_ROLE_AP &&
+                        PLATFORM_MEMCMP(x->interface_type_data.ieee80211.bssid, "\0\0\0\0\0\0", 6) != 0)
+                    {
+                        radio_nr++;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    ap_operational_bss_tlv->radio_nr = radio_nr;
+    if (0 == radio_nr)
+    {
+        ap_operational_bss_tlv->radio    = NULL;
+    }
+    else
+    {
+        INT8U radio = 0;
+        ap_operational_bss_tlv->radio = PLATFORM_MALLOC(sizeof(*ap_operational_bss_tlv->radio) * radio_nr);
+
+        /* First count # radios */
+        for (i=0; i<ifs_nr; i++)
+        {
+            struct interfaceInfo *x;
+
+            x = PLATFORM_GET_1905_INTERFACE_INFO(ifs_names[i]);
+            if (NULL == x)
+            {
+                PLATFORM_PRINTF_DEBUG_WARNING("Could not retrieve info of interface %s\n", ifs_names[i]);
+            }
+            else
+            {
+                switch (x->interface_type)
+                {
+                    case INTERFACE_TYPE_IEEE_802_11AC_5_GHZ:
+                    case INTERFACE_TYPE_IEEE_802_11AD_60_GHZ:
+                    case INTERFACE_TYPE_IEEE_802_11AF_GHZ:
+                    case INTERFACE_TYPE_IEEE_802_11A_5_GHZ:
+                    case INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ:
+                    case INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ:
+                    case INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ:
+                    case INTERFACE_TYPE_IEEE_802_11N_5_GHZ:
+                        if (x->interface_type_data.ieee80211.role == IEEE80211_ROLE_AP &&
+                            PLATFORM_MEMCMP(x->interface_type_data.ieee80211.bssid, "\0\0\0\0\0\0", 6) != 0)
+                        {
+                            PLATFORM_MEMCPY(ap_operational_bss_tlv->radio[radio].radio_uid, x->mac_address, 6);
+                            ap_operational_bss_tlv->radio[radio].bss_nr = 1;
+                            ap_operational_bss_tlv->radio[radio].bss =
+                                    PLATFORM_MALLOC(sizeof(*ap_operational_bss_tlv->radio[radio].bss) * 1);
+                            PLATFORM_MEMCPY(ap_operational_bss_tlv->radio[radio].bss[0].bssid,
+                                            x->interface_type_data.ieee80211.bssid, 6);
+                            ap_operational_bss_tlv->radio[radio].bss[0].ssid.length =
+                                    PLATFORM_STRLEN(x->interface_type_data.ieee80211.ssid);
+                            PLATFORM_MEMCPY(ap_operational_bss_tlv->radio[radio].bss[0].ssid.ssid,
+                                            x->interface_type_data.ieee80211.ssid,
+                                            ap_operational_bss_tlv->radio[radio].bss[0].ssid.length);
+                            radio++;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+}
+
 // Given a pointer to a preallocated "genericPhyDeviceInformationTypeTLV"
 // structure, fill it with all the pertaining information retrieved from the
 // local device.
@@ -2342,6 +2450,7 @@ INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U* de
     struct powerOffInterfaceTLV            power_off;
     struct l2NeighborDeviceTLV             l2_neighbors;
     struct supportedServiceTLV             supported_service_tlv;
+    struct apOperationalBssTLV             ap_operational_bss_tlv;
 
     INT8U                                 non_1905_neighbors_nr;
     INT8U                                 neighbors_nr;
@@ -2390,6 +2499,8 @@ INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U* de
 
     _obtainLocalSupportedServicesTLV(&supported_service_tlv);
     total_tlvs++;
+    _obtainLocalApOperationalBssTLV(&ap_operational_bss_tlv);
+    total_tlvs++;
 
     response_message.message_version = CMDU_MESSAGE_VERSION_1905_1_2013;
     response_message.message_type    = CMDU_TYPE_TOPOLOGY_RESPONSE;
@@ -2431,6 +2542,7 @@ INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U* de
     }
 
     response_message.list_of_TLVs[i++] = (INT8U *)&supported_service_tlv;
+    response_message.list_of_TLVs[i++] = (INT8U *)&ap_operational_bss_tlv;
 
     response_message.list_of_TLVs[i] = NULL;
 
@@ -2454,6 +2566,7 @@ INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U* de
     _freeLocalPowerOffInterfacesTLV  (&power_off);
     _freeLocalL2NeighborsTLV         (&l2_neighbors);
     /** @todo free supported services */
+    /** @todo free ap_operational_bss_tlv */
 
     PLATFORM_FREE(response_message.list_of_TLVs);
 

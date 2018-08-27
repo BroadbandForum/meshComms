@@ -43,6 +43,35 @@ static struct supportedServiceTLV multiApControllerService = {
     .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT },
 };
 
+static struct apOperationalBssTLV multiApOperationalBss =
+{
+    .tlv.type                    = TLV_TYPE_AP_OPERATIONAL_BSS,
+    .radio_nr                    = 2,
+    .radio                       = (struct _apOperationalBssRadio[]){
+        {
+            .radio_uid = ADDR_MAC0,
+            .bss_nr = 1,
+            .bss = (struct _apOperationalBssInfo[]){
+                {
+                    .bssid = { 0x00, 0x16, 0x03, 0x01, 0x85, 0x1f},
+                    .ssid = { 15, "My WIFI network"},
+                },
+            },
+        },
+        {
+            .radio_uid = ADDR_MAC2,
+            .bss_nr = 1,
+            .bss = (struct _apOperationalBssInfo[]){
+                {
+                    .bssid = { 0x00, 0x16, 0x03, 0x01, 0x85, 0x1E},
+                    .ssid = { 19, "My 2nd WIFI network"},
+                },
+            },
+        },
+    },
+};
+
+
 static struct CMDU aletest_expect_cmdu_topology_discovery =
 {
     .message_version = CMDU_MESSAGE_VERSION_1905_1_2013,
@@ -119,7 +148,7 @@ static struct _localInterfaceEntries aletest_local_interfaces[] = {
         .media_type  = MEDIA_TYPE_IEEE_802_11G_2_4_GHZ,
         .media_specific_data_size = 10,
         .media_specific_data.ieee80211 = {
-            .network_membership = { 0x00, 0x16, 0x03, 0x01, 0x85, 0x1f, },
+            .network_membership = { 0x00, 0x16, 0x03, 0x01, 0x85, 0x1e, },
             .role = IEEE80211_SPECIFIC_INFO_ROLE_AP,
             .ap_channel_band = 0x10,
             .ap_channel_center_frequency_index_1 = 0x20,
@@ -180,6 +209,7 @@ static struct CMDU aletest_expect_cmdu_topology_response =
                 },
             },
             (INT8U *)&multiApControllerService,
+            (INT8U *)&multiApOperationalBss,
             NULL,
         },
 };

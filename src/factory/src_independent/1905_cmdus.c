@@ -79,13 +79,19 @@ static const struct cmdu_info cmdu_info[] =
     },
     [CMDU_TYPE_TOPOLOGY_RESPONSE] = {
         .tlv_count_required = (const struct cmdu_tlv_count_required[]){
+            /* "IEEE Std 1905.1-2013, Section 6.3.3" */
             {TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES, count_required_zero_or_more},
             {TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST, count_required_zero_or_more},
             {TLV_TYPE_NEIGHBOR_DEVICE_LIST, count_required_zero_or_more},
             {TLV_TYPE_POWER_OFF_INTERFACE, count_required_zero_or_more},
             {TLV_TYPE_L2_NEIGHBOR_DEVICE, count_required_zero_or_more},
             {TLV_TYPE_DEVICE_INFORMATION_TYPE, count_required_one},
+            /* "Multi-AP Specification Version 1.0, Section 17.1.4" */
+            /* Multi-AP 1.0 is inconsistent: Section 6.2 says this is required, Section 17.1.4 says it's optional.
+             * Since we also need to support non-Multi-AP devices, it is optional. */
             {TLV_TYPE_SUPPORTED_SERVICE, count_required_zero_or_one},
+            /* Multi-AP requires exactly 1. However a non-Multi-AP device will not send it, so accept 0 as well. */
+            {TLV_TYPE_AP_OPERATIONAL_BSS, count_required_zero_or_one},
             {0, count_required_sentinel},
         },
     },
