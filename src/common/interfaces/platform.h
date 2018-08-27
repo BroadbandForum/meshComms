@@ -106,10 +106,6 @@ void *PLATFORM_REALLOC(void *ptr, INT32U size);
 //
 void PLATFORM_SNPRINTF(char *dest, INT32U n, const char *format, ...);
 
-// Output to a string ("va" version, see 'man 3 vsnprintf' on any Linux box)
-//
-void PLATFORM_VSNPRINTF(char *dest, INT32U n, const char *format, va_list ap);
-
 // Output the provided format string (see 'man 3 printf' on any Linux box)
 //
 void PLATFORM_PRINTF(const char *format, ...);

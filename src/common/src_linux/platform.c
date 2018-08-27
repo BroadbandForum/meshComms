@@ -123,13 +123,6 @@ void PLATFORM_SNPRINTF(char *dest, INT32U n, const char *format, ...)
     return;
 }
 
-void PLATFORM_VSNPRINTF(char *dest, INT32U n, const char *format, va_list ap)
-{
-    vsnprintf( dest, n, format, ap);
-
-    return;
-}
-
 void PLATFORM_PRINTF(const char *format, ...)
 {
     va_list arglist;

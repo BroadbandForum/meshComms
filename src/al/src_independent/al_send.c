@@ -20,9 +20,7 @@
 #include "utils.h"
 
 #include <stdarg.h>   // va_list
-  // NOTE: This is part of the C standard, thus *all* platforms should have it
-  // available... and that's why this include can exist in this "platform
-  // independent" file
+#include <stdio.h>    // vsnprintf
 
 #include "al_send.h"
 #include "al_datamodel.h"
@@ -2054,7 +2052,7 @@ void _memoryBufferWriter(const char *fmt, ...)
     }
 
     va_start(arglist, fmt);
-    PLATFORM_VSNPRINTF(memory_buffer + memory_buffer_i, MEMORY_BUFFER_SIZE - memory_buffer_i, fmt, arglist);
+    vsnprintf(memory_buffer + memory_buffer_i, MEMORY_BUFFER_SIZE - memory_buffer_i, fmt, arglist);
     va_end(arglist);
 
     memory_buffer[MEMORY_BUFFER_SIZE-1] = 0x0;
