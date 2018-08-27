@@ -102,11 +102,6 @@ void PLATFORM_FREE(void *ptr);
 //
 void *PLATFORM_REALLOC(void *ptr, INT32U size);
 
-// Append up to 'n' characters (in addition to the terminating NULL character)
-// from 'src' into 'dest'
-//
-char *PLATFORM_STRNCAT(char *dest, const char *src, INT32U n);
-
 // Output to a string (see 'man 3 snprintf' on any Linux box)
 //
 void PLATFORM_SNPRINTF(char *dest, INT32U n, const char *format, ...);

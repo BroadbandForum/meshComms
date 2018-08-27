@@ -20,6 +20,7 @@
 #include "utils.h"
 
 #include <string.h> // memcmp(), strncat()
+#include <stdio.h> // snprintf()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Public API
@@ -85,28 +86,26 @@ void print_callback(void (*write_function)(const char *fmt, ...), const char *pr
            char aux1[AUX1_SIZE];
            char aux2[AUX2_SIZE];
 
-           INT16U space_left = AUX1_SIZE-1;
+           size_t aux1_offset = 0;
+           size_t space_left = AUX1_SIZE;
+           /* Take into account prefix length */
+           space_left -= strlen(prefix);
+           space_left -= strlen(name);
+           space_left -= 2; // ": "
 
-           aux1[0] = 0x00;
-           PLATFORM_STRNCAT(aux1, "%s%s: ", AUX1_SIZE);
+           aux1[0] = '\0';
 
            for (i=0; i<size; i++)
            {
                // Write one element to aux2
                //
-               PLATFORM_SNPRINTF(aux2, AUX2_SIZE-1, fmt, *((const INT8U *)p+i));
-
-               // Obtain its length
-               //
-               for (j=0; j<AUX2_SIZE; j++)
+               j = snprintf(aux2, AUX2_SIZE-1, fmt, *((const INT8U *)p+i));
+               if (j >= AUX2_SIZE)
                {
-                   if (aux2[j] == 0x00)
-                   {
-                       break;
-                   }
+                   j = AUX2_SIZE - 1;
+                   aux2[AUX2_SIZE-1] = '\0';
                }
 
-               // 'j' contains the number of chars in "aux2"
                // Check if there is enough space left in "aux1"
                //
                //   NOTE: The "+2" is because we are going to append to "aux1"
@@ -117,25 +116,24 @@ void print_callback(void (*write_function)(const char *fmt, ...), const char *pr
                if (j+2+2 > space_left)
                {
                    // No more space left
-                   //
-                   aux1[AUX1_SIZE-6] = '.';
-                   aux1[AUX1_SIZE-5] = '.';
-                   aux1[AUX1_SIZE-4] = '.';
-                   aux1[AUX1_SIZE-3] = '.';
-                   aux1[AUX1_SIZE-2] = '.';
-                   aux1[AUX1_SIZE-1] = 0x00;
+                   // Since space_left starts as AUX1_SIZE - 2, and we keep space for 2 additional characters in the
+                   // condition above, there is certainly space left for ...
+                   strcpy(&aux1[aux1_offset], "...");
+                   space_left -= 3;
+                   aux1_offset += 3;
                    break;
                }
+               // Because of the test above, there is certainly space for aux2.
+               strcpy(&aux1[aux1_offset], aux2);
+               space_left -= j;
+               aux1_offset += j;
 
-               // Append string to "aux1"
-               //
-               PLATFORM_STRNCAT(aux1, aux2, j);
-               PLATFORM_STRNCAT(aux1, ", ", 2);
-               space_left -= (j+2);
+               strcpy(&aux1[aux1_offset], ", ");
+               space_left -= 2;
+               aux1_offset += 2;
            }
 
-           PLATFORM_STRNCAT(aux1, "\n", 2);
-           write_function(aux1, prefix, name);
+           write_function("%s%s: %s\n", prefix, name, aux1);
        }
 
        return;
