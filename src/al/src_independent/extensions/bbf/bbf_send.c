@@ -286,7 +286,7 @@ static INT8U (*_getListOfNon1905Neighbors(struct non1905NeighborDeviceListTLV  *
             {
                 ret = (INT8U (*)[6])PLATFORM_REALLOC(ret, sizeof(INT8U[6])*(total + 1));
             }
-            PLATFORM_MEMCPY(&ret[total], non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6);
+            memcpy(&ret[total], non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6);
 
             total++;
         }
@@ -363,7 +363,7 @@ INT8U (*_getListOfLinksWithNon1905Neighbor(struct non1905NeighborDeviceListTLV  
                     ret   = (INT8U (*)[6])PLATFORM_REALLOC(ret, sizeof(INT8U[6])*(total + 1));
                     intfs = (char **)PLATFORM_REALLOC(intfs, sizeof(char *)*(total + 1));
                 }
-                PLATFORM_MEMCPY(&ret[total], non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6);
+                memcpy(&ret[total], non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6);
                 intfs[total] = DMmacToInterfaceName(non1905_neighbors[i]->local_mac_address);
 
                 total++;
@@ -550,8 +550,8 @@ static void _obtainLocalNon1905MetricsTLV(INT8U destination, INT8U *specific_nei
                 tx_tlvs[total_tlvs] = (struct transmitterLinkMetricTLV *)PLATFORM_MALLOC(sizeof(struct transmitterLinkMetricTLV));
 
                                 tx_tlvs[total_tlvs]->tlv_type                    = BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC;
-                PLATFORM_MEMCPY(tx_tlvs[total_tlvs]->local_al_address,             DMalMacGet(),                       6);
-                PLATFORM_MEMCPY(tx_tlvs[total_tlvs]->neighbor_al_address,          empty_addresses,                    6);
+                memcpy(tx_tlvs[total_tlvs]->local_al_address,             DMalMacGet(),                       6);
+                memcpy(tx_tlvs[total_tlvs]->neighbor_al_address,          empty_addresses,                    6);
                                 tx_tlvs[total_tlvs]->transmitter_link_metrics_nr = links_nr;
                                 tx_tlvs[total_tlvs]->transmitter_link_metrics    = PLATFORM_MALLOC(sizeof(struct _transmitterLinkMetricEntries) * links_nr);
             }
@@ -560,8 +560,8 @@ static void _obtainLocalNon1905MetricsTLV(INT8U destination, INT8U *specific_nei
                 rx_tlvs[total_tlvs] = (struct receiverLinkMetricTLV *)PLATFORM_MALLOC(sizeof(struct receiverLinkMetricTLV));
 
                                 rx_tlvs[total_tlvs]->tlv_type                    = BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC;
-                PLATFORM_MEMCPY(rx_tlvs[total_tlvs]->local_al_address,             DMalMacGet(),                       6);
-                PLATFORM_MEMCPY(rx_tlvs[total_tlvs]->neighbor_al_address,          empty_addresses,                    6);
+                memcpy(rx_tlvs[total_tlvs]->local_al_address,             DMalMacGet(),                       6);
+                memcpy(rx_tlvs[total_tlvs]->neighbor_al_address,          empty_addresses,                    6);
                                 rx_tlvs[total_tlvs]->receiver_link_metrics_nr    = links_nr;
                                 rx_tlvs[total_tlvs]->receiver_link_metrics       = PLATFORM_MALLOC(sizeof(struct _receiverLinkMetricEntries) * links_nr);
             }
@@ -578,8 +578,8 @@ static void _obtainLocalNon1905MetricsTLV(INT8U destination, INT8U *specific_nei
 
                 if (NULL != tx_tlvs)
                 {
-                    PLATFORM_MEMCPY(tx_tlvs[total_tlvs]->transmitter_link_metrics[j].local_interface_address,    DMinterfaceNameToMac(local_interfaces[j]), 6);
-                    PLATFORM_MEMCPY(tx_tlvs[total_tlvs]->transmitter_link_metrics[j].neighbor_interface_address, remote_macs[j],                            6);
+                    memcpy(tx_tlvs[total_tlvs]->transmitter_link_metrics[j].local_interface_address,    DMinterfaceNameToMac(local_interfaces[j]), 6);
+                    memcpy(tx_tlvs[total_tlvs]->transmitter_link_metrics[j].neighbor_interface_address, remote_macs[j],                            6);
 
                     if (NULL == f)
                     {
@@ -611,8 +611,8 @@ static void _obtainLocalNon1905MetricsTLV(INT8U destination, INT8U *specific_nei
 
                 if (NULL != rx_tlvs)
                 {
-                    PLATFORM_MEMCPY(rx_tlvs[total_tlvs]->receiver_link_metrics[j].local_interface_address,    DMinterfaceNameToMac(local_interfaces[j]), 6);
-                    PLATFORM_MEMCPY(rx_tlvs[total_tlvs]->receiver_link_metrics[j].neighbor_interface_address, remote_macs[j],                            6);
+                    memcpy(rx_tlvs[total_tlvs]->receiver_link_metrics[j].local_interface_address,    DMinterfaceNameToMac(local_interfaces[j]), 6);
+                    memcpy(rx_tlvs[total_tlvs]->receiver_link_metrics[j].neighbor_interface_address, remote_macs[j],                            6);
 
                     if (NULL == f)
                     {
@@ -1047,7 +1047,7 @@ void CBKDumpBBFExtendedInfo(INT8U **memory_structure,
 
                 // Keep metrics owner track
                 //
-                PLATFORM_MEMCPY(mac_metrics[j], TO_interface_mac_address, 6);
+                memcpy(mac_metrics[j], TO_interface_mac_address, 6);
                 tx_metrics[j] = NULL;
                 rx_metrics[j] = NULL;
 

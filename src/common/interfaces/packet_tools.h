@@ -19,12 +19,12 @@
 #ifndef _PACKET_TOOLS_H_
 #define _PACKET_TOOLS_H_
 
-#include "platform.h"
 #include <tlv.h> // mac_address
 
 #include <stdbool.h> // bool
 #include <stddef.h>  // size_t
 #include <stdint.h>
+#include <string.h> // memcpy()
 
 // Auxiliary functions to:
 //
@@ -213,13 +213,13 @@ static inline bool _I4BL(const uint32_t *memory_pointer, uint8_t **packet_ppoint
 //
 static inline void _EnB(INT8U **packet_ppointer, void *memory_pointer, INT32U n)
 {
-    PLATFORM_MEMCPY(memory_pointer, *packet_ppointer, n);
+    memcpy(memory_pointer, *packet_ppointer, n);
     (*packet_ppointer) += n;
 }
 
 static inline void _InB(const void *memory_pointer, INT8U **packet_ppointer, INT32U n)
 {
-    PLATFORM_MEMCPY(*packet_ppointer, memory_pointer, n);
+    memcpy(*packet_ppointer, memory_pointer, n);
     (*packet_ppointer) += n;
 }
 

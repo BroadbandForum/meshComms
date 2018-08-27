@@ -229,7 +229,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
             }
 
             mids_in_flight[i].streams[cmdu_header.fragment_id] = (INT8U *)PLATFORM_MALLOC((sizeof(INT8U) * len));
-            PLATFORM_MEMCPY(mids_in_flight[i].streams[cmdu_header.fragment_id], p, len);
+            memcpy(mids_in_flight[i].streams[cmdu_header.fragment_id], p, len);
 
             mids_in_flight[i].age = current_age++;
 
@@ -297,8 +297,8 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
         mids_in_flight[i].in_use = 1;
         mids_in_flight[i].mid    = cmdu_header.mid;
 
-        PLATFORM_MEMCPY(mids_in_flight[i].src_addr, cmdu_header.src_addr, 6);
-        PLATFORM_MEMCPY(mids_in_flight[i].dst_addr, cmdu_header.dst_addr, 6);
+        memcpy(mids_in_flight[i].src_addr, cmdu_header.src_addr, 6);
+        memcpy(mids_in_flight[i].dst_addr, cmdu_header.dst_addr, 6);
 
         for (j=0; j<MAX_FRAGMENTS_PER_MID; j++)
         {
@@ -309,7 +309,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
 
         mids_in_flight[i].fragments[cmdu_header.fragment_id]  = 1;
         mids_in_flight[i].streams[cmdu_header.fragment_id]    = (INT8U *)PLATFORM_MALLOC((sizeof(INT8U) * len));
-        PLATFORM_MEMCPY(mids_in_flight[i].streams[cmdu_header.fragment_id], p, len);
+        memcpy(mids_in_flight[i].streams[cmdu_header.fragment_id], p, len);
 
         if (1 == cmdu_header.last_fragment_indicator)
         {
@@ -464,7 +464,7 @@ INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
 
     // For relayed CMDUs, use the AL MAC, otherwise use the ethernet src MAC.
     //
-    PLATFORM_MEMCPY(mac_address, src_mac_address, 6);
+    memcpy(mac_address, src_mac_address, 6);
     if (1 == c->relay_indicator)
     {
         INT8U i;
@@ -477,7 +477,7 @@ INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
             {
                 struct alMacAddressTypeTLV *t = (struct alMacAddressTypeTLV *)p;
 
-                PLATFORM_MEMCPY(mac_address, t->al_mac_address, 6);
+                memcpy(mac_address, t->al_mac_address, 6);
                 break;
             }
             i++;
@@ -525,7 +525,7 @@ INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
 
         index = (start + total) % MAX_DUPLICATES_LOG_ENTRIES;
 
-        PLATFORM_MEMCPY(mac_addresses[index], mac_address, 6);
+        memcpy(mac_addresses[index], mac_address, 6);
         message_ids[index] = c->message_id;
 
         total++;
@@ -534,7 +534,7 @@ INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
     {
         // We need to replace the oldest entry
         //
-        PLATFORM_MEMCPY(mac_addresses[start], mac_address, 6);
+        memcpy(mac_addresses[start], mac_address, 6);
         message_ids[start] = c->message_id;
 
         start++;
@@ -979,8 +979,8 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
         struct event1905Packet aux;
 
                         aux.interface_name       = interfaces_names[i];
-        PLATFORM_MEMCPY(aux.interface_mac_address, DMinterfaceNameToMac(aux.interface_name), 6);
-        PLATFORM_MEMCPY(aux.al_mac_address,        DMalMacGet(),                             6);
+        memcpy(aux.interface_mac_address, DMinterfaceNameToMac(aux.interface_name), 6);
+        memcpy(aux.al_mac_address,        DMalMacGet(),                             6);
 
         if (0 == PLATFORM_REGISTER_QUEUE_EVENT(queue_id, PLATFORM_QUEUE_EVENT_NEW_1905_PACKET, &aux))
         {

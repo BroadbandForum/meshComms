@@ -367,7 +367,7 @@ struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure
     }
 
     vendor_specific                = (struct vendorSpecificTLV *)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV));
-    PLATFORM_MEMCPY(vendor_specific->vendorOUI, oui, 3);
+    memcpy(vendor_specific->vendorOUI, oui, 3);
     vendor_specific->tlv_type      = TLV_TYPE_VENDOR_SPECIFIC;
     vendor_specific->m_nr          = stream_len;
     vendor_specific->m             = stream;
@@ -421,7 +421,7 @@ struct vendorSpecificTLV *vendorSpecificTLVDuplicate(struct vendorSpecificTLV *t
   vs_tlv->m_nr = tlv->m_nr;
 
   vs_tlv->m = (INT8U *)PLATFORM_MALLOC(vs_tlv->m_nr);
-  PLATFORM_MEMCPY(vs_tlv->m, tlv->m, vs_tlv->m_nr);
+  memcpy(vs_tlv->m, tlv->m, vs_tlv->m_nr);
 
   return vs_tlv;
 }
@@ -477,7 +477,7 @@ INT8U register1905CmduExtension(char *name,
         t->entries = (struct _cmduExtension *)PLATFORM_REALLOC(t->entries, sizeof(struct _cmduExtension) * (t->entries_nr + 1));
     }
 
-    PLATFORM_MEMCPY(t->entries[t->entries_nr].name, name, MAX_EXTENSION_NAME_LEN-1);
+    memcpy(t->entries[t->entries_nr].name, name, MAX_EXTENSION_NAME_LEN-1);
     t->entries[t->entries_nr].name[MAX_EXTENSION_NAME_LEN-1] = 0x0;
     t->entries[t->entries_nr].process = process;
     t->entries[t->entries_nr].send    = send;
@@ -523,7 +523,7 @@ INT8U register1905AlmeDumpExtension(char *name,
         t->entries = (struct _dmExtension *)PLATFORM_REALLOC(t->entries, sizeof(struct _dmExtension) * (t->entries_nr + 1));
     }
 
-    PLATFORM_MEMCPY(t->entries[t->entries_nr].name, name, MAX_EXTENSION_NAME_LEN-1);
+    memcpy(t->entries[t->entries_nr].name, name, MAX_EXTENSION_NAME_LEN-1);
     t->entries[t->entries_nr].name[MAX_EXTENSION_NAME_LEN-1] = 0x0;
     t->entries[t->entries_nr].obtain = obtain;
     t->entries[t->entries_nr].update = update;

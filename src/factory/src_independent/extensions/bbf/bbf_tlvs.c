@@ -85,7 +85,7 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
                INT8U dummy_address[] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
                ret->destination = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
-               PLATFORM_MEMCPY(ret->specific_neighbor, dummy_address, 6);
+               memcpy(ret->specific_neighbor, dummy_address, 6);
             }
             else if (1 == destination)
             {

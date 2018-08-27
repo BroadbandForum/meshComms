@@ -278,7 +278,7 @@ INT8U _insertNeighbor(char *local_interface_name, INT8U *al_mac_address)
         x->neighbors = (struct _neighbor *)PLATFORM_REALLOC(x->neighbors, sizeof (struct _neighbor) * (x->neighbors_nr + 1));
     }
 
-    PLATFORM_MEMCPY(x->neighbors[x->neighbors_nr].al_mac_address,        al_mac_address, 6);
+    memcpy(x->neighbors[x->neighbors_nr].al_mac_address,        al_mac_address, 6);
                     x->neighbors[x->neighbors_nr].remote_interfaces_nr = 0;
                     x->neighbors[x->neighbors_nr].remote_interfaces    = NULL;
 
@@ -322,7 +322,7 @@ INT8U _insertNeighborInterface(char *local_interface_name, INT8U *neighbor_al_ma
         x->remote_interfaces = (struct _remoteInterface *)PLATFORM_REALLOC(x->remote_interfaces, sizeof (struct _remoteInterface) * (x->remote_interfaces_nr + 1));
     }
 
-    PLATFORM_MEMCPY(x->remote_interfaces[x->remote_interfaces_nr].mac_address,                 mac_address, 6);
+    memcpy(x->remote_interfaces[x->remote_interfaces_nr].mac_address,                 mac_address, 6);
                     x->remote_interfaces[x->remote_interfaces_nr].last_topology_discovery_ts = 0;
                     x->remote_interfaces[x->remote_interfaces_nr].last_bridge_discovery_ts   = 0;
 
@@ -391,7 +391,7 @@ void DMinit()
 
 void DMalMacSet(INT8U *al_mac_address)
 {
-    PLATFORM_MEMCPY(data_model.al_mac_address, al_mac_address, 6);
+    memcpy(data_model.al_mac_address, al_mac_address, 6);
 
     return;
 }
@@ -403,7 +403,7 @@ INT8U *DMalMacGet()
 
 void DMregistrarMacSet(INT8U *registrar_mac_address)
 {
-    PLATFORM_MEMCPY(data_model.registrar_mac_address, registrar_mac_address, 6);
+    memcpy(data_model.registrar_mac_address, registrar_mac_address, 6);
 
     return;
 }
@@ -465,7 +465,7 @@ INT8U DMinsertInterface(char *name, INT8U *mac_address)
     }
 
                     data_model.local_interfaces[data_model.local_interfaces_nr].name         = PLATFORM_STRDUP(name);
-    PLATFORM_MEMCPY(data_model.local_interfaces[data_model.local_interfaces_nr].mac_address,   mac_address, 6);
+    memcpy(data_model.local_interfaces[data_model.local_interfaces_nr].mac_address,   mac_address, 6);
                     data_model.local_interfaces[data_model.local_interfaces_nr].neighbors    = NULL;
                     data_model.local_interfaces[data_model.local_interfaces_nr].neighbors_nr = 0;
 
@@ -600,7 +600,7 @@ INT8U (*DMgetListOfNeighbors(INT8U *al_mac_addresses_nr))[6]
             {
                 ret = (INT8U (*)[6])PLATFORM_REALLOC(ret, sizeof(INT8U[6])*(total + 1));
             }
-            PLATFORM_MEMCPY(&ret[total], data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
+            memcpy(&ret[total], data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
 
             total++;
         }
@@ -650,7 +650,7 @@ INT8U (*DMgetListOfLinksWithNeighbor(INT8U *neighbor_al_mac_address, char ***int
                     ret   = (INT8U (*)[6])PLATFORM_REALLOC(ret, sizeof(INT8U[6])*(total + 1));
                     intfs = (char **)PLATFORM_REALLOC(intfs, sizeof(char *)*(total + 1));
                 }
-                PLATFORM_MEMCPY(&ret[total], data_model.local_interfaces[i].neighbors[j].remote_interfaces[k].mac_address, 6);
+                memcpy(&ret[total], data_model.local_interfaces[i].neighbors[j].remote_interfaces[k].mac_address, 6);
                 intfs[total] = data_model.local_interfaces[i].name;
 
                 total++;
@@ -911,7 +911,7 @@ INT8U *DMmacToAlMac(INT8U *mac_address)
         if (0 == memcmp(data_model.local_interfaces[i].mac_address, mac_address, 6))
         {
             found = 1;
-            PLATFORM_MEMCPY(al_mac, data_model.al_mac_address, 6);
+            memcpy(al_mac, data_model.al_mac_address, 6);
         }
 
         for (j=0; j<data_model.local_interfaces[i].neighbors_nr; j++)
@@ -919,7 +919,7 @@ INT8U *DMmacToAlMac(INT8U *mac_address)
             if (0 == memcmp(data_model.local_interfaces[i].neighbors[j].al_mac_address, mac_address, 6))
             {
                 found = 1;
-                PLATFORM_MEMCPY(al_mac, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
+                memcpy(al_mac, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
             }
 
             for (k=0; k<data_model.local_interfaces[i].neighbors[j].remote_interfaces_nr; k++)
@@ -927,7 +927,7 @@ INT8U *DMmacToAlMac(INT8U *mac_address)
                 if (0 == memcmp(data_model.local_interfaces[i].neighbors[j].remote_interfaces[k].mac_address, mac_address, 6))
                 {
                     found = 1;
-                    PLATFORM_MEMCPY(al_mac, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
+                    memcpy(al_mac, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
                 }
             }
         }
@@ -1315,7 +1315,7 @@ INT8U DMupdateNetworkDeviceMetrics(INT8U *metrics)
             data_model.network_devices[i].metrics_with_neighbors = (struct _metricsWithNeighbor *)PLATFORM_REALLOC(data_model.network_devices[i].metrics_with_neighbors, sizeof(struct _metricsWithNeighbor)*(data_model.network_devices[i].metrics_with_neighbors_nr+1));
         }
 
-        PLATFORM_MEMCPY(data_model.network_devices[i].metrics_with_neighbors[data_model.network_devices[i].metrics_with_neighbors_nr].neighbor_al_mac_address, TO_al_mac_address, 6);
+        memcpy(data_model.network_devices[i].metrics_with_neighbors[data_model.network_devices[i].metrics_with_neighbors_nr].neighbor_al_mac_address, TO_al_mac_address, 6);
 
         if (TLV_TYPE_TRANSMITTER_LINK_METRIC == *metrics)
         {
@@ -1535,7 +1535,7 @@ INT8U DMrunGarbageCollector(void)
                 // Save the MAC of the node that is going to be removed for
                 // later use
                 //
-                PLATFORM_MEMCPY(al_mac_address, x->info->al_mac_address, 6);
+                memcpy(al_mac_address, x->info->al_mac_address, 6);
 
                 PLATFORM_PRINTF_DEBUG_DETAIL("Removing old device entry (%02x:%02x:%02x:%02x:%02x:%02x)\n", x->info->al_mac_address[0], x->info->al_mac_address[1], x->info->al_mac_address[2], x->info->al_mac_address[3], x->info->al_mac_address[4], x->info->al_mac_address[5]);
                 free_1905_TLV_structure((INT8U*)x->info);

@@ -207,7 +207,7 @@ static bool tlv_parse_field3_linkMetricQuery(const struct tlv_def *def __attribu
         INT8U dummy_address[] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
         self->destination = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
-        PLATFORM_MEMCPY(self->specific_neighbor, dummy_address, 6);
+        memcpy(self->specific_neighbor, dummy_address, 6);
     }
     else if (1 == self->destination)
     {

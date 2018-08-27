@@ -73,8 +73,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             INT8U  first_discovery;
             INT32U ellapsed;
 
-            PLATFORM_MEMCPY(al_mac_address, dummy_mac_address, 6);
-            PLATFORM_MEMCPY(mac_address,    dummy_mac_address, 6);
+            memcpy(al_mac_address, dummy_mac_address, 6);
+            memcpy(mac_address,    dummy_mac_address, 6);
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_TOPOLOGY_DISCOVERY (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -101,7 +101,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                     {
                         struct alMacAddressTypeTLV *t = (struct alMacAddressTypeTLV *)p;
 
-                        PLATFORM_MEMCPY(al_mac_address, t->al_mac_address, 6);
+                        memcpy(al_mac_address, t->al_mac_address, 6);
 
                         break;
                     }
@@ -109,7 +109,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                     {
                         struct macAddressTypeTLV *t = (struct macAddressTypeTLV *)p;
 
-                        PLATFORM_MEMCPY(mac_address, t->mac_address, 6);
+                        memcpy(mac_address, t->mac_address, 6);
 
                         break;
                     }
@@ -201,7 +201,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             INT8U  al_mac_address[6];
 
 
-            PLATFORM_MEMCPY(al_mac_address, dummy_mac_address, 6);
+            memcpy(al_mac_address, dummy_mac_address, 6);
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_TOPOLOGY_NOTIFICATION (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -223,7 +223,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                     {
                         struct alMacAddressTypeTLV *t = (struct alMacAddressTypeTLV *)p;
 
-                        PLATFORM_MEMCPY(al_mac_address, t->al_mac_address, 6);
+                        memcpy(al_mac_address, t->al_mac_address, 6);
 
                         break;
                     }
@@ -871,7 +871,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
 
             searched_role_is_present = 0;
             freq_band_is_present     = 0;
-            PLATFORM_MEMCPY(al_mac_address, dummy_mac_address, 6);
+            memcpy(al_mac_address, dummy_mac_address, 6);
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -898,7 +898,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                     {
                         struct alMacAddressTypeTLV *t = (struct alMacAddressTypeTLV *)p;
 
-                        PLATFORM_MEMCPY(al_mac_address, t->al_mac_address, 6);
+                        memcpy(al_mac_address, t->al_mac_address, 6);
 
                         break;
                     }
@@ -1375,7 +1375,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             INT8U  al_mac_address[6];
 
             wifi_data_is_present = 0;
-            PLATFORM_MEMCPY(al_mac_address, dummy_mac_address, 6);
+            memcpy(al_mac_address, dummy_mac_address, 6);
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -1397,7 +1397,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                     {
                         struct alMacAddressTypeTLV *t = (struct alMacAddressTypeTLV *)p;
 
-                        PLATFORM_MEMCPY(al_mac_address, t->al_mac_address, 6);
+                        memcpy(al_mac_address, t->al_mac_address, 6);
 
                         break;
                     }
@@ -1749,7 +1749,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                     {
                         struct alMacAddressTypeTLV *t = (struct alMacAddressTypeTLV *)p;
 
-                        PLATFORM_MEMCPY(al_mac_address, t->al_mac_address, 6);
+                        memcpy(al_mac_address, t->al_mac_address, 6);
 
                         al_mac_address_is_present = 1;
 
@@ -2017,8 +2017,8 @@ INT8U processLlpdPayload(struct PAYLOAD *payload, INT8U *receiving_interface_add
     INT8U  al_mac_address[6];
     INT8U  mac_address[6];
 
-    PLATFORM_MEMCPY(al_mac_address, dummy_mac_address, 6);
-    PLATFORM_MEMCPY(mac_address,    dummy_mac_address, 6);
+    memcpy(al_mac_address, dummy_mac_address, 6);
+    memcpy(mac_address,    dummy_mac_address, 6);
 
     if (NULL == payload)
     {
@@ -2046,7 +2046,7 @@ INT8U processLlpdPayload(struct PAYLOAD *payload, INT8U *receiving_interface_add
 
                 if (CHASSIS_ID_TLV_SUBTYPE_MAC_ADDRESS == t->chassis_id_subtype)
                 {
-                    PLATFORM_MEMCPY(al_mac_address, t->chassis_id, 6);
+                    memcpy(al_mac_address, t->chassis_id, 6);
                 }
 
                 break;
@@ -2057,7 +2057,7 @@ INT8U processLlpdPayload(struct PAYLOAD *payload, INT8U *receiving_interface_add
 
                 if (PORT_ID_TLV_SUBTYPE_MAC_ADDRESS == t->port_id_subtype)
                 {
-                    PLATFORM_MEMCPY(mac_address, t->port_id, 6);
+                    memcpy(mac_address, t->port_id, 6);
                 }
 
                 break;

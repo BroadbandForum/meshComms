@@ -112,11 +112,6 @@ void *PLATFORM_REALLOC(void *ptr, INT32U size)
     return p;
 }
 
-void *PLATFORM_MEMCPY(void *dest, const void *src, INT32U n)
-{
-    return memcpy(dest, src, n);
-}
-
 INT32U PLATFORM_STRLEN(const char *s)
 {
     return strlen(s);

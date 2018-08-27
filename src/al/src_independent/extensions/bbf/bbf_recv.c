@@ -183,12 +183,12 @@ INT8U CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
                               if (*bbf_tlv == BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC)
                               {
                                   transmitter_tlv = (struct transmitterLinkMetricTLV *)bbf_tlv;
-                                  PLATFORM_MEMCPY(no_std_FROM_al_mac_address, transmitter_tlv->local_al_address, 6);
+                                  memcpy(no_std_FROM_al_mac_address, transmitter_tlv->local_al_address, 6);
                               }
                               else
                               {
                                   receiver_tlv = (struct receiverLinkMetricTLV *)bbf_tlv;
-                                  PLATFORM_MEMCPY(no_std_FROM_al_mac_address, receiver_tlv->local_al_address, 6);
+                                  memcpy(no_std_FROM_al_mac_address, receiver_tlv->local_al_address, 6);
                               }
                           }
                           else if (*bbf_tlv == BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE)
@@ -230,7 +230,7 @@ INT8U CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
 
                   metrics = (struct transmitterLinkMetricTLV *)p;
 
-                  PLATFORM_MEMCPY(std_FROM_al_mac_address, metrics->local_al_address, 6);
+                  memcpy(std_FROM_al_mac_address, metrics->local_al_address, 6);
               }
               else if (*p == TLV_TYPE_RECEIVER_LINK_METRIC)
               {
@@ -238,7 +238,7 @@ INT8U CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
 
                   metrics = (struct receiverLinkMetricTLV *)p;
 
-                  PLATFORM_MEMCPY(std_FROM_al_mac_address, metrics->local_al_address, 6);
+                  memcpy(std_FROM_al_mac_address, metrics->local_al_address, 6);
               }
 
               i++;
@@ -275,7 +275,7 @@ INT8U CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
               // Because there is not any non1905-metrics TLV, we use the AL
               // MAC retrieved from the standard metrics TLVs.
               //
-              PLATFORM_MEMCPY(no_std_FROM_al_mac_address, std_FROM_al_mac_address, 6);
+              memcpy(no_std_FROM_al_mac_address, std_FROM_al_mac_address, 6);
           }
 
           CBKUpdateBBFExtendedInfo(extensions, extensions_nr, no_std_FROM_al_mac_address);

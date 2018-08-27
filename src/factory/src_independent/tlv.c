@@ -2,10 +2,11 @@
 
 #include <packet_tools.h>
 #include <utils.h>
+#include <platform.h>
 
 #include <errno.h> // errno
 #include <stdlib.h> // malloc
-#include <string.h> // strerror
+#include <string.h> // memcpy snprintf, strerror
 
 struct tlv_list
 {

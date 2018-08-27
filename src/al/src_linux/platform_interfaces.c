@@ -332,7 +332,7 @@ static void *_pushButtonConfigurationThread(void *p)
     }
 
     interface_type = x->interface_type;
-    PLATFORM_MEMCPY(local_interface_mac_address, x->mac_address, 6);
+    memcpy(local_interface_mac_address, x->mac_address, 6);
 
     PLATFORM_FREE_1905_INTERFACE_INFO(x);
 

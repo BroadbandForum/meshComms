@@ -94,7 +94,7 @@ INT8U *forge_media_specific_blob(struct genericInterfaceType *m, INT16U *len)
         *len = m->media_specific.unsupported.bytes_nr;
         ret  = (INT8U *)PLATFORM_MALLOC(*len);
 
-        PLATFORM_MEMCPY(ret, m->media_specific.unsupported.bytes, *len);
+        memcpy(ret, m->media_specific.unsupported.bytes, *len);
     }
 
     return ret;

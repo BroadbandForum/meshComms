@@ -1028,7 +1028,7 @@ INT8U **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, INT1
 
             tlv_stream = forge_1905_TLV_from_structure(memory_structure->list_of_TLVs[i], &tlv_stream_size);
 
-            PLATFORM_MEMCPY(s, tlv_stream, tlv_stream_size);
+            memcpy(s, tlv_stream, tlv_stream_size);
             PLATFORM_FREE(tlv_stream);
 
             s += tlv_stream_size;

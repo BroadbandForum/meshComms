@@ -102,10 +102,6 @@ void PLATFORM_FREE(void *ptr);
 //
 void *PLATFORM_REALLOC(void *ptr, INT32U size);
 
-// Copies 'n' bytes from 'src' to 'dest'
-//
-void *PLATFORM_MEMCPY(void *dest, const void *src, INT32U n);
-
 // Return the length of string 's' not including the terminating NULL character
 //
 INT32U PLATFORM_STRLEN(const char *s);

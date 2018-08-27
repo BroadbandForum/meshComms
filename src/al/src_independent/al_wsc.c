@@ -240,13 +240,13 @@ void _wps_key_derivation_function(INT8U *key, INT8U *label_prefix, INT32U label_
 
         if (i < iter)
         {
-            PLATFORM_MEMCPY(opos, hash, SHA256_MAC_LEN);
+            memcpy(opos, hash, SHA256_MAC_LEN);
             opos += SHA256_MAC_LEN;
             left -= SHA256_MAC_LEN;
         }
         else
         {
-            PLATFORM_MEMCPY(opos, hash, left);
+            memcpy(opos, hash, left);
         }
     }
 }
@@ -343,8 +343,8 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
         private_key          = (struct wscKey *)PLATFORM_MALLOC(sizeof(struct wscKey));
         private_key->key     = (INT8U *)PLATFORM_MALLOC(priv_len);
         private_key->key_len = priv_len;
-        PLATFORM_MEMCPY(private_key->key, priv, priv_len);
-        PLATFORM_MEMCPY(private_key->mac, x->mac_address, 6);
+        memcpy(private_key->key, priv, priv_len);
+        memcpy(private_key->mac, x->mac_address, 6);
     }
 
     // AUTHENTICATION TYPES
@@ -807,9 +807,9 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
         //
         _wps_key_derivation_function(kdk, NULL, 0, "Wi-Fi Easy and Secure Key Derivation", keys, sizeof(keys));
 
-        PLATFORM_MEMCPY(authkey,    keys,                                        WPS_AUTHKEY_LEN);
-        PLATFORM_MEMCPY(keywrapkey, keys + WPS_AUTHKEY_LEN,                      WPS_KEYWRAPKEY_LEN);
-        PLATFORM_MEMCPY(emsk,       keys + WPS_AUTHKEY_LEN + WPS_KEYWRAPKEY_LEN, WPS_EMSK_LEN);
+        memcpy(authkey,    keys,                                        WPS_AUTHKEY_LEN);
+        memcpy(keywrapkey, keys + WPS_AUTHKEY_LEN,                      WPS_KEYWRAPKEY_LEN);
+        memcpy(emsk,       keys + WPS_AUTHKEY_LEN + WPS_KEYWRAPKEY_LEN, WPS_EMSK_LEN);
 
         PLATFORM_PRINTF_DEBUG_DETAIL("WPS keys: \n");
         PLATFORM_PRINTF_DEBUG_DETAIL("  Registrar pubkey  (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", m2_pubkey_len,  m2_pubkey[0], m2_pubkey[1], m2_pubkey[2], m2_pubkey[m2_pubkey_len-3], m2_pubkey[m2_pubkey_len-2], m2_pubkey[m2_pubkey_len-1]);
@@ -1203,9 +1203,9 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         //
         _wps_key_derivation_function(kdk, NULL, 0, "Wi-Fi Easy and Secure Key Derivation", keys, sizeof(keys));
 
-        PLATFORM_MEMCPY(authkey,    keys,                                        WPS_AUTHKEY_LEN);
-        PLATFORM_MEMCPY(keywrapkey, keys + WPS_AUTHKEY_LEN,                      WPS_KEYWRAPKEY_LEN);
-        PLATFORM_MEMCPY(emsk,       keys + WPS_AUTHKEY_LEN + WPS_KEYWRAPKEY_LEN, WPS_EMSK_LEN);
+        memcpy(authkey,    keys,                                        WPS_AUTHKEY_LEN);
+        memcpy(keywrapkey, keys + WPS_AUTHKEY_LEN,                      WPS_KEYWRAPKEY_LEN);
+        memcpy(emsk,       keys + WPS_AUTHKEY_LEN + WPS_KEYWRAPKEY_LEN, WPS_EMSK_LEN);
 
         PLATFORM_PRINTF_DEBUG_DETAIL("WPS keys: \n");
         PLATFORM_PRINTF_DEBUG_DETAIL("  Enrollee pubkey   (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", m1_pubkey_len,  m1_pubkey[0], m1_pubkey[1], m1_pubkey[2], m1_pubkey[m1_pubkey_len-3], m1_pubkey[m1_pubkey_len-2], m1_pubkey[m1_pubkey_len-1]);

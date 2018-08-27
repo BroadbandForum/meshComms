@@ -1017,7 +1017,7 @@ future).
 > `strncpy()` on a Linux platform, but this would add a new platform stub
 > increasing the amount of effort/time it would take to port to a new platform.
 > Another option (and, I think the best one) is to make use of the already
-> existing functions `PLATFORM_STRLEN()` and `PLATFORM_MEMCPY()` to achieve
+> existing functions `PLATFORM_STRLEN()` and `memcpy()` to achieve
 > the same functionality as `strncpy()`
 
 

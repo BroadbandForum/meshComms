@@ -360,7 +360,7 @@ INT8U PLATFORM_SEND_ALME_REPLY(INT8U alme_client_id, INT8U *alme_message, INT16U
                 }
                 else
                 {
-                    PLATFORM_MEMCPY(alme_response, alme_message, alme_message_len);
+                    memcpy(alme_response, alme_message, alme_message_len);
                     alme_response_len = alme_message_len;
                 }
             }
