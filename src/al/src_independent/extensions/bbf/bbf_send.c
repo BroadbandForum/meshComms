@@ -26,6 +26,8 @@
 #include "al_extension.h"
 #include "platform_interfaces.h"
 
+#include <string.h> // memset(), memcmp(), ...
+
 // Identify a processed BBF query
 //
 INT8U bbf_query = 0;
@@ -115,7 +117,7 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
                 // reported...
                 //
                 al_mac_address_has_been_reported = (INT8U *)PLATFORM_MALLOC(sizeof(INT8U) * al_mac_addresses_nr);
-                PLATFORM_MEMSET(al_mac_address_has_been_reported, 0x0, al_mac_addresses_nr);
+                memset(al_mac_address_has_been_reported, 0x0, al_mac_addresses_nr);
             }
 
             for (j=0; j<x->neighbor_mac_addresses_nr; j++)

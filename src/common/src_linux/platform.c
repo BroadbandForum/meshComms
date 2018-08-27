@@ -112,11 +112,6 @@ void *PLATFORM_REALLOC(void *ptr, INT32U size)
     return p;
 }
 
-void *PLATFORM_MEMSET(void *dest, INT8U c, INT32U n)
-{
-    return memset(dest, c, n);
-}
-
 void *PLATFORM_MEMCPY(void *dest, const void *src, INT32U n)
 {
     return memcpy(dest, src, n);

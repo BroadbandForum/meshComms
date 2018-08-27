@@ -102,10 +102,6 @@ void PLATFORM_FREE(void *ptr);
 //
 void *PLATFORM_REALLOC(void *ptr, INT32U size);
 
-// Sets 'n' bytes (with value 'c') to 'dest'
-//
-void *PLATFORM_MEMSET(void *dest, INT8U c, INT32U n);
-
 // Copies 'n' bytes from 'src' to 'dest'
 //
 void *PLATFORM_MEMCPY(void *dest, const void *src, INT32U n);

@@ -176,6 +176,7 @@
 #include <platform.h>
 #include <packet_tools.h>
 #include <utils.h>
+#include <string.h> // memset()
 
 #define TLV_TEMPLATE_STR_INNER(s) #s
 #define TLV_TEMPLATE_STR(s) TLV_TEMPLATE_STR_INNER(s)
@@ -255,7 +256,7 @@ static struct tlv *TLV_TEMPLATE_FUNCTION_NAME(parse)(const struct tlv_def *def _
 {
     TLV_TEMPLATE_STRUCT_NAME *self = PLATFORM_MALLOC(sizeof(TLV_TEMPLATE_STRUCT_NAME));
 
-    PLATFORM_MEMSET(self, 0, sizeof(*self));
+    memset(self, 0, sizeof(*self));
 
 #ifdef TLV_PARSE_BODY
     TLV_PARSE_BODY(self);

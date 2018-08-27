@@ -41,6 +41,8 @@
 
 #include "al_extension.h"
 
+#include <string.h> // memset(), memcmp(), ...
+
 ////////////////////////////////////////////////////////////////////////////////
 // Private functions and data
 ////////////////////////////////////////////////////////////////////////////////
@@ -352,7 +354,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                 // reported...
                 //
                 al_mac_address_has_been_reported = (INT8U *)PLATFORM_MALLOC(sizeof(INT8U) * al_mac_addresses_nr);
-                PLATFORM_MEMSET(al_mac_address_has_been_reported, 0x0, al_mac_addresses_nr);
+                memset(al_mac_address_has_been_reported, 0x0, al_mac_addresses_nr);
             }
 
             for (j=0; j<x->neighbor_mac_addresses_nr; j++)
@@ -1787,7 +1789,7 @@ void _obtainLocalDeviceIdentificationTLV(struct deviceIdentificationTypeTLV *ide
         return;
     }
 
-    PLATFORM_MEMSET(identification, 0x0, sizeof(struct deviceIdentificationTypeTLV));
+    memset(identification, 0x0, sizeof(struct deviceIdentificationTypeTLV));
 
     identification->tlv_type = TLV_TYPE_DEVICE_IDENTIFICATION;
 
