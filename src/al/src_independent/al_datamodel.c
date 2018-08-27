@@ -464,7 +464,7 @@ INT8U DMinsertInterface(char *name, INT8U *mac_address)
         data_model.local_interfaces = (struct _localInterface *)PLATFORM_REALLOC(data_model.local_interfaces, sizeof (struct _localInterface) * (data_model.local_interfaces_nr + 1));
     }
 
-                    data_model.local_interfaces[data_model.local_interfaces_nr].name         = PLATFORM_STRDUP(name);
+                    data_model.local_interfaces[data_model.local_interfaces_nr].name         = strdup(name);
     memcpy(data_model.local_interfaces[data_model.local_interfaces_nr].mac_address,   mac_address, 6);
                     data_model.local_interfaces[data_model.local_interfaces_nr].neighbors    = NULL;
                     data_model.local_interfaces[data_model.local_interfaces_nr].neighbors_nr = 0;

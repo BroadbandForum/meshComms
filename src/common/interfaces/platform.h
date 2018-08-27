@@ -102,11 +102,6 @@ void PLATFORM_FREE(void *ptr);
 //
 void *PLATFORM_REALLOC(void *ptr, INT32U size);
 
-// Return ca copy of the provided string 's', that can later be freed with
-// "PLATFORM_FREE()"
-//
-char *PLATFORM_STRDUP(const char *s);
-
 // Append up to 'n' characters (in addition to the terminating NULL character)
 // from 'src' into 'dest'
 //

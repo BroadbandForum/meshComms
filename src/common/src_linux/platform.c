@@ -112,11 +112,6 @@ void *PLATFORM_REALLOC(void *ptr, INT32U size)
     return p;
 }
 
-char *PLATFORM_STRDUP(const char *s)
-{
-    return strdup(s);
-}
-
 char *PLATFORM_STRNCAT(char *dest, const char *src, INT32U n)
 {
     return strncat(dest, src, n);

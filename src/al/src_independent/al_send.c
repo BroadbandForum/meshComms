@@ -1826,7 +1826,7 @@ void _obtainLocalControlUrlTLV(struct controlUrlTypeTLV *control_url)
     control_url->tlv_type = TLV_TYPE_CONTROL_URL;
     if (NULL != x->control_url)
     {
-        control_url->url  = PLATFORM_STRDUP(x->control_url);
+        control_url->url  = strdup(x->control_url);
     }
     else
     {
