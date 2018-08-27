@@ -27,6 +27,7 @@
 #include "lldp_tlvs.h"
 #include "lldp_payload_test_vectors.h"
 
+#include <string.h> // memcmp(), memcpy(), ...
 
 INT8U _check(const char *test_description, struct PAYLOAD *input, INT8U *expected_output, INT16U expected_output_len)
 {
@@ -44,7 +45,7 @@ INT8U _check(const char *test_description, struct PAYLOAD *input, INT8U *expecte
         return 1;
     }
 
-    if ((expected_output_len == real_output_len) && (0 == PLATFORM_MEMCMP(expected_output, real_output, real_output_len)))
+    if ((expected_output_len == real_output_len) && (0 == memcmp(expected_output, real_output, real_output_len)))
     {
         result = 0;
         PLATFORM_PRINTF("%-100s: OK\n", test_description);

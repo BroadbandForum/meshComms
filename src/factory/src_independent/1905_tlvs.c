@@ -23,6 +23,7 @@
 #include "packet_tools.h"
 
 #include <stddef.h>
+#include <string.h> // memcmp(), memcpy(), ...
 
 
 
@@ -372,7 +373,7 @@ static bool tlv_compare_field2_vendorSpecific(const struct vendorSpecificTLV *se
 {
     if (self1->m_nr != self2->m_nr)
         return false;
-    else if (PLATFORM_MEMCMP(self1->m, self2->m, self1->m_nr) != 0)
+    else if (memcmp(self1->m, self2->m, self1->m_nr) != 0)
         return false;
     else
         return true;
@@ -549,17 +550,17 @@ static bool tlv_compare_field2_apOperationalBss(const struct apOperationalBssTLV
     /* Already checked before that they have the same nr */
     for (i = 0; i < self1->radio_nr; i++)
     {
-        if (PLATFORM_MEMCMP(self1->radio[i].radio_uid, self2->radio[i].radio_uid, 6) != 0)
+        if (memcmp(self1->radio[i].radio_uid, self2->radio[i].radio_uid, 6) != 0)
             return false;
         if (self1->radio[i].bss_nr != self2->radio[i].bss_nr)
             return false;
         for (j = 0; j < self1->radio[i].bss_nr; j++)
         {
-            if (PLATFORM_MEMCMP(self1->radio[i].bss[j].bssid, self2->radio[i].bss[j].bssid, 6) != 0)
+            if (memcmp(self1->radio[i].bss[j].bssid, self2->radio[i].bss[j].bssid, 6) != 0)
                 return false;
             if (self1->radio[i].bss[j].ssid.length != self2->radio[i].bss[j].ssid.length)
                 return false;
-            if (PLATFORM_MEMCMP(self1->radio[i].bss[j].ssid.ssid, self2->radio[i].bss[j].ssid.ssid,
+            if (memcmp(self1->radio[i].bss[j].ssid.ssid, self2->radio[i].bss[j].ssid.ssid,
                                 self1->radio[i].bss[j].ssid.length) != 0)
                 return false;
         }
@@ -3550,7 +3551,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             p2 = (struct deviceInformationTypeTLV *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->al_mac_address,         p2->al_mac_address, 6) !=0  ||
+                 memcmp(p1->al_mac_address,         p2->al_mac_address, 6) !=0  ||
                                  p1->local_interfaces_nr !=  p2->local_interfaces_nr
                )
             {
@@ -3567,7 +3568,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->local_interfaces_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->local_interfaces[i].mac_address,                 p2->local_interfaces[i].mac_address, 6) !=0      ||
+                     memcmp(p1->local_interfaces[i].mac_address,                 p2->local_interfaces[i].mac_address, 6) !=0      ||
                                      p1->local_interfaces[i].media_type               !=  p2->local_interfaces[i].media_type               ||
                                      p1->local_interfaces[i].media_specific_data_size !=  p2->local_interfaces[i].media_specific_data_size
                    )
@@ -3587,7 +3588,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
                    )
                 {
                     if (
-                         PLATFORM_MEMCMP(p1->local_interfaces[i].media_specific_data.ieee80211.network_membership,                     p2->local_interfaces[i].media_specific_data.ieee80211.network_membership,  6) !=0          ||
+                         memcmp(p1->local_interfaces[i].media_specific_data.ieee80211.network_membership,                     p2->local_interfaces[i].media_specific_data.ieee80211.network_membership,  6) !=0          ||
                                          p1->local_interfaces[i].media_specific_data.ieee80211.role                                !=  p2->local_interfaces[i].media_specific_data.ieee80211.role                                 ||
                                          p1->local_interfaces[i].media_specific_data.ieee80211.ap_channel_band                     !=  p2->local_interfaces[i].media_specific_data.ieee80211.ap_channel_band                      ||
                                          p1->local_interfaces[i].media_specific_data.ieee80211.ap_channel_center_frequency_index_1 !=  p2->local_interfaces[i].media_specific_data.ieee80211.ap_channel_center_frequency_index_1
@@ -3603,7 +3604,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
                         )
                 {
                     if (
-                         PLATFORM_MEMCMP(p1->local_interfaces[i].media_specific_data.ieee1901.network_identifier,  p2->local_interfaces[i].media_specific_data.ieee1901.network_identifier,  6) !=0
+                         memcmp(p1->local_interfaces[i].media_specific_data.ieee1901.network_identifier,  p2->local_interfaces[i].media_specific_data.ieee1901.network_identifier,  6) !=0
                        )
                     {
                         return 1;
@@ -3648,7 +3649,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
                 for (j=0; j<p1->bridging_tuples[i].bridging_tuple_macs_nr; j++)
                 {
                     if (
-                         PLATFORM_MEMCMP(p1->bridging_tuples[i].bridging_tuple_macs[j].mac_address,  p2->bridging_tuples[i].bridging_tuple_macs[j].mac_address, 6) !=0
+                         memcmp(p1->bridging_tuples[i].bridging_tuple_macs[j].mac_address,  p2->bridging_tuples[i].bridging_tuple_macs[j].mac_address, 6) !=0
                        )
                     {
                         return 1;
@@ -3668,7 +3669,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             p2 = (struct non1905NeighborDeviceListTLV *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->local_mac_address,        p2->local_mac_address, 6) !=0  ||
+                 memcmp(p1->local_mac_address,        p2->local_mac_address, 6) !=0  ||
                                  p1->non_1905_neighbors_nr !=  p2->non_1905_neighbors_nr
                )
             {
@@ -3685,7 +3686,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->non_1905_neighbors_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->non_1905_neighbors[i].mac_address,     p2->non_1905_neighbors[i].mac_address, 6) !=0
+                     memcmp(p1->non_1905_neighbors[i].mac_address,     p2->non_1905_neighbors[i].mac_address, 6) !=0
                    )
                 {
                     return 1;
@@ -3704,7 +3705,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             p2 = (struct neighborDeviceListTLV *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->local_mac_address,     p2->local_mac_address, 6) !=0  ||
+                 memcmp(p1->local_mac_address,     p2->local_mac_address, 6) !=0  ||
                                  p1->neighbors_nr       !=  p2->neighbors_nr
                )
             {
@@ -3721,7 +3722,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->neighbors_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->neighbors[i].mac_address,     p2->neighbors[i].mac_address, 6) !=0  ||
+                     memcmp(p1->neighbors[i].mac_address,     p2->neighbors[i].mac_address, 6) !=0  ||
                                      p1->neighbors[i].bridge_flag  !=  p2->neighbors[i].bridge_flag
                    )
                 {
@@ -3741,8 +3742,8 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             p2 = (struct transmitterLinkMetricTLV *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->local_al_address,              p2->local_al_address,    6) !=0  ||
-                 PLATFORM_MEMCMP(p1->neighbor_al_address,           p2->neighbor_al_address, 6) !=0  ||
+                 memcmp(p1->local_al_address,              p2->local_al_address,    6) !=0  ||
+                 memcmp(p1->neighbor_al_address,           p2->neighbor_al_address, 6) !=0  ||
                                  p1->transmitter_link_metrics_nr != p2->transmitter_link_metrics_nr
                )
             {
@@ -3759,8 +3760,8 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->transmitter_link_metrics_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->transmitter_link_metrics[i].local_interface_address,       p2->transmitter_link_metrics[i].local_interface_address,    6) !=0  ||
-                     PLATFORM_MEMCMP(p1->transmitter_link_metrics[i].neighbor_interface_address,    p2->transmitter_link_metrics[i].neighbor_interface_address, 6) !=0  ||
+                     memcmp(p1->transmitter_link_metrics[i].local_interface_address,       p2->transmitter_link_metrics[i].local_interface_address,    6) !=0  ||
+                     memcmp(p1->transmitter_link_metrics[i].neighbor_interface_address,    p2->transmitter_link_metrics[i].neighbor_interface_address, 6) !=0  ||
                                      p1->transmitter_link_metrics[i].intf_type                  !=  p2->transmitter_link_metrics[i].intf_type                           ||
                                      p1->transmitter_link_metrics[i].bridge_flag                !=  p2->transmitter_link_metrics[i].bridge_flag                         ||
                                      p1->transmitter_link_metrics[i].packet_errors              !=  p2->transmitter_link_metrics[i].packet_errors                       ||
@@ -3786,8 +3787,8 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             p2 = (struct receiverLinkMetricTLV *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->local_al_address,           p2->local_al_address,    6) !=0  ||
-                 PLATFORM_MEMCMP(p1->neighbor_al_address,        p2->neighbor_al_address, 6) !=0  ||
+                 memcmp(p1->local_al_address,           p2->local_al_address,    6) !=0  ||
+                 memcmp(p1->neighbor_al_address,        p2->neighbor_al_address, 6) !=0  ||
                                  p1->receiver_link_metrics_nr != p2->receiver_link_metrics_nr
                )
             {
@@ -3804,8 +3805,8 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->receiver_link_metrics_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->receiver_link_metrics[i].local_interface_address,       p2->receiver_link_metrics[i].local_interface_address,    6) !=0  ||
-                     PLATFORM_MEMCMP(p1->receiver_link_metrics[i].neighbor_interface_address,    p2->receiver_link_metrics[i].neighbor_interface_address, 6) !=0  ||
+                     memcmp(p1->receiver_link_metrics[i].local_interface_address,       p2->receiver_link_metrics[i].local_interface_address,    6) !=0  ||
+                     memcmp(p1->receiver_link_metrics[i].neighbor_interface_address,    p2->receiver_link_metrics[i].neighbor_interface_address, 6) !=0  ||
                                      p1->receiver_link_metrics[i].intf_type                  !=  p2->receiver_link_metrics[i].intf_type                           ||
                                      p1->receiver_link_metrics[i].packet_errors              !=  p2->receiver_link_metrics[i].packet_errors                       ||
                                      p1->receiver_link_metrics[i].packets_received           !=  p2->receiver_link_metrics[i].packets_received                    ||
@@ -3923,7 +3924,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
 
             if(
                                 p1->wsc_frame_size  !=  p2->wsc_frame_size                     ||
-                PLATFORM_MEMCMP(p1->wsc_frame,          p2->wsc_frame,       p1->wsc_frame_size) !=0
+                memcmp(p1->wsc_frame,          p2->wsc_frame,       p1->wsc_frame_size) !=0
               )
             {
                 return 1;
@@ -3974,7 +3975,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
                    )
                 {
                     if (
-                         PLATFORM_MEMCMP(p1->media_types[i].media_specific_data.ieee80211.network_membership,                     p2->media_types[i].media_specific_data.ieee80211.network_membership,  6) !=0          ||
+                         memcmp(p1->media_types[i].media_specific_data.ieee80211.network_membership,                     p2->media_types[i].media_specific_data.ieee80211.network_membership,  6) !=0          ||
                                          p1->media_types[i].media_specific_data.ieee80211.role                                !=  p2->media_types[i].media_specific_data.ieee80211.role                                 ||
                                          p1->media_types[i].media_specific_data.ieee80211.ap_channel_band                     !=  p2->media_types[i].media_specific_data.ieee80211.ap_channel_band                      ||
                                          p1->media_types[i].media_specific_data.ieee80211.ap_channel_center_frequency_index_1 !=  p2->media_types[i].media_specific_data.ieee80211.ap_channel_center_frequency_index_1
@@ -3990,7 +3991,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
                         )
                 {
                     if (
-                         PLATFORM_MEMCMP(p1->media_types[i].media_specific_data.ieee1901.network_identifier,  p2->media_types[i].media_specific_data.ieee1901.network_identifier,  6) !=0
+                         memcmp(p1->media_types[i].media_specific_data.ieee1901.network_identifier,  p2->media_types[i].media_specific_data.ieee1901.network_identifier,  6) !=0
                        )
                     {
                         return 1;
@@ -4009,10 +4010,10 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             p2 = (struct pushButtonJoinNotificationTLV *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->al_mac_address,       p2->al_mac_address, 6) !=0  ||
+                 memcmp(p1->al_mac_address,       p2->al_mac_address, 6) !=0  ||
                                  p1->message_identifier != p2->message_identifier      ||
-                 PLATFORM_MEMCMP(p1->mac_address,          p2->al_mac_address, 6) !=0  ||
-                 PLATFORM_MEMCMP(p1->new_mac_address,      p2->al_mac_address, 6) !=0
+                 memcmp(p1->mac_address,          p2->al_mac_address, 6) !=0  ||
+                 memcmp(p1->new_mac_address,      p2->al_mac_address, 6) !=0
                )
             {
                 return 1;
@@ -4031,9 +4032,9 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             p2 = (struct deviceIdentificationTypeTLV *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->friendly_name,       p2->friendly_name,      64) !=0  ||
-                 PLATFORM_MEMCMP(p1->manufacturer_name,   p2->manufacturer_name,  64) !=0  ||
-                 PLATFORM_MEMCMP(p1->manufacturer_model,  p2->manufacturer_model, 64) !=0
+                 memcmp(p1->friendly_name,       p2->friendly_name,      64) !=0  ||
+                 memcmp(p1->manufacturer_name,   p2->manufacturer_name,  64) !=0  ||
+                 memcmp(p1->manufacturer_model,  p2->manufacturer_model, 64) !=0
                )
             {
                 return 1;
@@ -4052,7 +4053,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             p2 = (struct controlUrlTypeTLV *)memory_structure_2;
 
             if(
-                PLATFORM_MEMCMP(p1->url, p2->url, PLATFORM_STRLEN(p1->url)+1) !=0
+                memcmp(p1->url, p2->url, PLATFORM_STRLEN(p1->url)+1) !=0
               )
             {
                 return 1;
@@ -4088,7 +4089,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->ipv4_interfaces_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->ipv4_interfaces[i].mac_address,     p2->ipv4_interfaces[i].mac_address, 6) !=0   ||
+                     memcmp(p1->ipv4_interfaces[i].mac_address,     p2->ipv4_interfaces[i].mac_address, 6) !=0   ||
                                      p1->ipv4_interfaces[i].ipv4_nr      !=  p2->ipv4_interfaces[i].ipv4_nr
                    )
                 {
@@ -4099,8 +4100,8 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
                 {
                     if (
                                          p1->ipv4_interfaces[i].ipv4[j].type              !=  p2->ipv4_interfaces[i].ipv4[j].type                       ||
-                         PLATFORM_MEMCMP(p1->ipv4_interfaces[i].ipv4[j].ipv4_address,         p2->ipv4_interfaces[i].ipv4[j].ipv4_address,     4) !=0   ||
-                         PLATFORM_MEMCMP(p1->ipv4_interfaces[i].ipv4[j].ipv4_dhcp_server,     p2->ipv4_interfaces[i].ipv4[j].ipv4_dhcp_server, 4) !=0
+                         memcmp(p1->ipv4_interfaces[i].ipv4[j].ipv4_address,         p2->ipv4_interfaces[i].ipv4[j].ipv4_address,     4) !=0   ||
+                         memcmp(p1->ipv4_interfaces[i].ipv4[j].ipv4_dhcp_server,     p2->ipv4_interfaces[i].ipv4[j].ipv4_dhcp_server, 4) !=0
                        )
                     {
                         return 1;
@@ -4136,7 +4137,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->ipv6_interfaces_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->ipv6_interfaces[i].mac_address,     p2->ipv6_interfaces[i].mac_address, 6) !=0   ||
+                     memcmp(p1->ipv6_interfaces[i].mac_address,     p2->ipv6_interfaces[i].mac_address, 6) !=0   ||
                                      p1->ipv6_interfaces[i].ipv6_nr      !=  p2->ipv6_interfaces[i].ipv6_nr
                    )
                 {
@@ -4147,8 +4148,8 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
                 {
                     if (
                                          p1->ipv6_interfaces[i].ipv6[j].type                 !=  p2->ipv6_interfaces[i].ipv6[j].type                       ||
-                         PLATFORM_MEMCMP(p1->ipv6_interfaces[i].ipv6[j].ipv6_address,            p2->ipv6_interfaces[i].ipv6[j].ipv6_address,        16) !=0   ||
-                         PLATFORM_MEMCMP(p1->ipv6_interfaces[i].ipv6[j].ipv6_address_origin,     p2->ipv6_interfaces[i].ipv6[j].ipv6_address_origin, 16) !=0
+                         memcmp(p1->ipv6_interfaces[i].ipv6[j].ipv6_address,            p2->ipv6_interfaces[i].ipv6[j].ipv6_address,        16) !=0   ||
+                         memcmp(p1->ipv6_interfaces[i].ipv6[j].ipv6_address_origin,     p2->ipv6_interfaces[i].ipv6[j].ipv6_address_origin, 16) !=0
                        )
                     {
                         return 1;
@@ -4168,7 +4169,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             p2 = (struct genericPhyDeviceInformationTypeTLV *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->al_mac_address,        p2->al_mac_address,     6) !=0  ||
+                 memcmp(p1->al_mac_address,        p2->al_mac_address,     6) !=0  ||
                                  p1->local_interfaces_nr != p2->local_interfaces_nr
                )
             {
@@ -4185,14 +4186,14 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->local_interfaces_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->local_interfaces[i].local_interface_address,                             p2->local_interfaces[i].local_interface_address,                      6) !=0  ||
-                     PLATFORM_MEMCMP(p1->local_interfaces[i].generic_phy_common_data.oui,                         p2->local_interfaces[i].generic_phy_common_data.oui,                  3) !=0  ||
+                     memcmp(p1->local_interfaces[i].local_interface_address,                             p2->local_interfaces[i].local_interface_address,                      6) !=0  ||
+                     memcmp(p1->local_interfaces[i].generic_phy_common_data.oui,                         p2->local_interfaces[i].generic_phy_common_data.oui,                  3) !=0  ||
                                      p1->local_interfaces[i].generic_phy_common_data.variant_index            !=  p2->local_interfaces[i].generic_phy_common_data.variant_index                 ||
-                     PLATFORM_MEMCMP(p1->local_interfaces[i].variant_name,                                        p2->local_interfaces[i].variant_name,                                32) !=0  ||
+                     memcmp(p1->local_interfaces[i].variant_name,                                        p2->local_interfaces[i].variant_name,                                32) !=0  ||
                                      p1->local_interfaces[i].generic_phy_description_xml_url_len              !=  p2->local_interfaces[i].generic_phy_description_xml_url_len                   ||
                                      p1->local_interfaces[i].generic_phy_common_data.media_specific_bytes_nr  !=  p2->local_interfaces[i].generic_phy_common_data.media_specific_bytes_nr       ||
-                     PLATFORM_MEMCMP(p1->local_interfaces[i].generic_phy_description_xml_url,                     p2->local_interfaces[i].generic_phy_description_xml_url,              p1->local_interfaces[i].generic_phy_description_xml_url_len) !=0  ||
-                     PLATFORM_MEMCMP(p1->local_interfaces[i].generic_phy_common_data.media_specific_bytes,        p2->local_interfaces[i].generic_phy_common_data.media_specific_bytes, p1->local_interfaces[i].generic_phy_common_data.media_specific_bytes_nr) !=0
+                     memcmp(p1->local_interfaces[i].generic_phy_description_xml_url,                     p2->local_interfaces[i].generic_phy_description_xml_url,              p1->local_interfaces[i].generic_phy_description_xml_url_len) !=0  ||
+                     memcmp(p1->local_interfaces[i].generic_phy_common_data.media_specific_bytes,        p2->local_interfaces[i].generic_phy_common_data.media_specific_bytes, p1->local_interfaces[i].generic_phy_common_data.media_specific_bytes_nr) !=0
                    )
                 {
                     return 1;
@@ -4227,10 +4228,10 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->local_interfaces_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->local_interfaces[i].oui,                         p2->local_interfaces[i].oui,                  3) !=0  ||
+                     memcmp(p1->local_interfaces[i].oui,                         p2->local_interfaces[i].oui,                  3) !=0  ||
                                      p1->local_interfaces[i].variant_index            !=  p2->local_interfaces[i].variant_index                 ||
                                      p1->local_interfaces[i].media_specific_bytes_nr  !=  p2->local_interfaces[i].media_specific_bytes_nr       ||
-                     PLATFORM_MEMCMP(p1->local_interfaces[i].media_specific_bytes,        p2->local_interfaces[i].media_specific_bytes, p1->local_interfaces[i].media_specific_bytes_nr) !=0
+                     memcmp(p1->local_interfaces[i].media_specific_bytes,        p2->local_interfaces[i].media_specific_bytes, p1->local_interfaces[i].media_specific_bytes_nr) !=0
                    )
                 {
                     return 1;
@@ -4284,12 +4285,12 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->power_off_interfaces_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->power_off_interfaces[i].interface_address,                                   p2->power_off_interfaces[i].interface_address,                            6) !=0  ||
+                     memcmp(p1->power_off_interfaces[i].interface_address,                                   p2->power_off_interfaces[i].interface_address,                            6) !=0  ||
                                      p1->power_off_interfaces[i].media_type                                       !=  p2->power_off_interfaces[i].media_type                                            ||
-                     PLATFORM_MEMCMP(p1->power_off_interfaces[i].generic_phy_common_data.oui,                         p2->power_off_interfaces[i].generic_phy_common_data.oui,                  3) !=0  ||
+                     memcmp(p1->power_off_interfaces[i].generic_phy_common_data.oui,                         p2->power_off_interfaces[i].generic_phy_common_data.oui,                  3) !=0  ||
                                      p1->power_off_interfaces[i].generic_phy_common_data.variant_index            !=  p2->power_off_interfaces[i].generic_phy_common_data.variant_index                 ||
                                      p1->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes_nr  !=  p2->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes_nr       ||
-                     PLATFORM_MEMCMP(p1->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes,        p2->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes, p1->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes_nr) !=0
+                     memcmp(p1->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes,        p2->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes, p1->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes_nr) !=0
                    )
                 {
                     return 1;
@@ -4324,7 +4325,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->power_change_interfaces_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->power_change_interfaces[i].interface_address,        p2->power_change_interfaces[i].interface_address,     6) !=0  ||
+                     memcmp(p1->power_change_interfaces[i].interface_address,        p2->power_change_interfaces[i].interface_address,     6) !=0  ||
                                      p1->power_change_interfaces[i].requested_power_state !=  p2->power_change_interfaces[i].requested_power_state
                    )
                 {
@@ -4360,7 +4361,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->power_change_interfaces_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->power_change_interfaces[i].interface_address,     p2->power_change_interfaces[i].interface_address,  6) !=0  ||
+                     memcmp(p1->power_change_interfaces[i].interface_address,     p2->power_change_interfaces[i].interface_address,  6) !=0  ||
                                      p1->power_change_interfaces[i].result             !=  p2->power_change_interfaces[i].result
                    )
                 {
@@ -4396,7 +4397,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
             for (i=0; i<p1->local_interfaces_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->local_interfaces[i].local_mac_address,     p2->local_interfaces[i].local_mac_address, 6) !=0   ||
+                     memcmp(p1->local_interfaces[i].local_mac_address,     p2->local_interfaces[i].local_mac_address, 6) !=0   ||
                                      p1->local_interfaces[i].l2_neighbors_nr    !=  p2->local_interfaces[i].l2_neighbors_nr
                    )
                 {
@@ -4413,7 +4414,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
                 for (j=0; j<p1->local_interfaces[i].l2_neighbors_nr; j++)
                 {
                     if (
-                         PLATFORM_MEMCMP(p1->local_interfaces[i].l2_neighbors[j].l2_neighbor_mac_address,     p2->local_interfaces[i].l2_neighbors[j].l2_neighbor_mac_address,        6) !=0   ||
+                         memcmp(p1->local_interfaces[i].l2_neighbors[j].l2_neighbor_mac_address,     p2->local_interfaces[i].l2_neighbors[j].l2_neighbor_mac_address,        6) !=0   ||
                                          p1->local_interfaces[i].l2_neighbors[j].behind_mac_addresses_nr  !=  p2->local_interfaces[i].l2_neighbors[j].behind_mac_addresses_nr
                        )
                     {
@@ -4430,7 +4431,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
                     for (k=0; k<p1->local_interfaces[i].l2_neighbors[j].behind_mac_addresses_nr; k++)
                     {
                         if (
-                             PLATFORM_MEMCMP(p1->local_interfaces[i].l2_neighbors[j].behind_mac_addresses[k], p2->local_interfaces[i].l2_neighbors[j].behind_mac_addresses[k], 6) !=0
+                             memcmp(p1->local_interfaces[i].l2_neighbors[j].behind_mac_addresses[k], p2->local_interfaces[i].l2_neighbors[j].behind_mac_addresses[k], 6) !=0
                            )
                         {
                             return 1;

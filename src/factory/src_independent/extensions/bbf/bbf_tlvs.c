@@ -22,7 +22,7 @@
 #include "1905_tlvs.h"
 #include "packet_tools.h"
 
-
+#include <string.h> // memcmp(), memcpy(), ...
 
 ////////////////////////////////////////////////////////////////////////////////
 // Actual API functions
@@ -172,7 +172,7 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
 
             // Neighbor AL mac address *must* be set to zero for non-1905 devices
             //
-            if (0 != PLATFORM_MEMCMP(ret->neighbor_al_address, empty_address, 6))
+            if (0 != memcmp(ret->neighbor_al_address, empty_address, 6))
             {
                 // Malformed packet
                 //
@@ -252,7 +252,7 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
 
             // Neighbor AL mac address *must* be set to zero for non-1905 devices
             //
-            if (0 != PLATFORM_MEMCMP(ret->neighbor_al_address, empty_address, 6))
+            if (0 != memcmp(ret->neighbor_al_address, empty_address, 6))
             {
                 // Malformed packet
                 //
@@ -600,7 +600,7 @@ INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struct
 
             if (
                                  p1->destination        !=  p2->destination                ||
-                 PLATFORM_MEMCMP(p1->specific_neighbor,     p2->specific_neighbor, 6) !=0  ||
+                 memcmp(p1->specific_neighbor,     p2->specific_neighbor, 6) !=0  ||
                                  p1->link_metrics_type  !=  p2->link_metrics_type
                )
             {
@@ -621,8 +621,8 @@ INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struct
             p2 = (struct transmitterLinkMetricTLV *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->local_al_address,              p2->local_al_address,    6) !=0  ||
-                 PLATFORM_MEMCMP(p1->neighbor_al_address,           p2->neighbor_al_address, 6) !=0  ||
+                 memcmp(p1->local_al_address,              p2->local_al_address,    6) !=0  ||
+                 memcmp(p1->neighbor_al_address,           p2->neighbor_al_address, 6) !=0  ||
                                  p1->transmitter_link_metrics_nr != p2->transmitter_link_metrics_nr
                )
             {
@@ -639,8 +639,8 @@ INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struct
             for (i=0; i<p1->transmitter_link_metrics_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->transmitter_link_metrics[i].local_interface_address,       p2->transmitter_link_metrics[i].local_interface_address,    6) !=0  ||
-                     PLATFORM_MEMCMP(p1->transmitter_link_metrics[i].neighbor_interface_address,    p2->transmitter_link_metrics[i].neighbor_interface_address, 6) !=0  ||
+                     memcmp(p1->transmitter_link_metrics[i].local_interface_address,       p2->transmitter_link_metrics[i].local_interface_address,    6) !=0  ||
+                     memcmp(p1->transmitter_link_metrics[i].neighbor_interface_address,    p2->transmitter_link_metrics[i].neighbor_interface_address, 6) !=0  ||
                                      p1->transmitter_link_metrics[i].intf_type                  !=  p2->transmitter_link_metrics[i].intf_type                           ||
                                      p1->transmitter_link_metrics[i].bridge_flag                !=  p2->transmitter_link_metrics[i].bridge_flag                         ||
                                      p1->transmitter_link_metrics[i].packet_errors              !=  p2->transmitter_link_metrics[i].packet_errors                       ||
@@ -666,8 +666,8 @@ INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struct
             p2 = (struct receiverLinkMetricTLV *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->local_al_address,           p2->local_al_address,    6) !=0  ||
-                 PLATFORM_MEMCMP(p1->neighbor_al_address,        p2->neighbor_al_address, 6) !=0  ||
+                 memcmp(p1->local_al_address,           p2->local_al_address,    6) !=0  ||
+                 memcmp(p1->neighbor_al_address,        p2->neighbor_al_address, 6) !=0  ||
                                  p1->receiver_link_metrics_nr != p2->receiver_link_metrics_nr
                )
             {
@@ -684,8 +684,8 @@ INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struct
             for (i=0; i<p1->receiver_link_metrics_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->receiver_link_metrics[i].local_interface_address,       p2->receiver_link_metrics[i].local_interface_address,    6) !=0  ||
-                     PLATFORM_MEMCMP(p1->receiver_link_metrics[i].neighbor_interface_address,    p2->receiver_link_metrics[i].neighbor_interface_address, 6) !=0  ||
+                     memcmp(p1->receiver_link_metrics[i].local_interface_address,       p2->receiver_link_metrics[i].local_interface_address,    6) !=0  ||
+                     memcmp(p1->receiver_link_metrics[i].neighbor_interface_address,    p2->receiver_link_metrics[i].neighbor_interface_address, 6) !=0  ||
                                      p1->receiver_link_metrics[i].intf_type                  !=  p2->receiver_link_metrics[i].intf_type                           ||
                                      p1->receiver_link_metrics[i].packet_errors              !=  p2->receiver_link_metrics[i].packet_errors                       ||
                                      p1->receiver_link_metrics[i].packets_received           !=  p2->receiver_link_metrics[i].packets_received                    ||

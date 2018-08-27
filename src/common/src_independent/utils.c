@@ -19,6 +19,8 @@
 #include "platform.h"
 #include "utils.h"
 
+#include <string.h> // memcmp(), strncat()
+
 ////////////////////////////////////////////////////////////////////////////////
 // Public API
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,14 +28,14 @@
 void print_callback(void (*write_function)(const char *fmt, ...), const char *prefix, INT8U size, const char *name, const char *fmt, const void *p)
 {
 
-       if (0 == PLATFORM_MEMCMP(fmt, "%s", 3))
+       if (0 == memcmp(fmt, "%s", 3))
        {
            // Strings are printed with triple quotes surrounding them
            //
            write_function("%s%s: \"\"\"%s\"\"\"\n", prefix, name, p);
            return;
        }
-       else if (0 == PLATFORM_MEMCMP(fmt, "%ipv4", 6))
+       else if (0 == memcmp(fmt, "%ipv4", 6))
        {
            // This is needed because "size == 4" on IPv4 addresses, but we don't
            // want them to be treated as 4 bytes integers, so we change the

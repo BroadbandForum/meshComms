@@ -375,7 +375,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                     already_added = 0;
                     for (k=0; k<no->non_1905_neighbors_nr; k++)
                     {
-                        if (0 == PLATFORM_MEMCMP(x->neighbor_mac_addresses[j], no->non_1905_neighbors[k].mac_address, 6))
+                        if (0 == memcmp(x->neighbor_mac_addresses[j], no->non_1905_neighbors[k].mac_address, 6))
                         {
                             already_added = 1;
                             break;
@@ -415,7 +415,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                     //
                     for (k=0; k<al_mac_addresses_nr; k++)
                     {
-                        if (0 == PLATFORM_MEMCMP(al_mac, al_mac_addresses[k], 6))
+                        if (0 == memcmp(al_mac, al_mac_addresses[k], 6))
                         {
                             al_mac_address_has_been_reported[k] = 1;
                             break;
@@ -427,7 +427,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                     already_added = 0;
                     for (k=0; k<yes->neighbors_nr; k++)
                     {
-                        if (0 == PLATFORM_MEMCMP(al_mac, yes->neighbors[k].mac_address, 6))
+                        if (0 == memcmp(al_mac, yes->neighbors[k].mac_address, 6))
                         {
                             already_added = 1;
                             break;
@@ -497,7 +497,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                 already_added = 0;
                 for (k=0; k<yes->neighbors_nr; k++)
                 {
-                    if (0 == PLATFORM_MEMCMP(al_mac_addresses[j], yes->neighbors[k].mac_address, 6))
+                    if (0 == memcmp(al_mac_addresses[j], yes->neighbors[k].mac_address, 6))
                     {
                         already_added = 1;
                         break;
@@ -1056,7 +1056,7 @@ void _obtainLocalMetricsTLVs(INT8U destination, INT8U *specific_neighbor, INT8U 
         //
         if (
              LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR == destination          &&
-             0 != PLATFORM_MEMCMP(al_mac_addresses[i], specific_neighbor, 6)
+             0 != memcmp(al_mac_addresses[i], specific_neighbor, 6)
            )
         {
             // Not interested
@@ -1346,7 +1346,7 @@ INT8U _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                 //
                 for (k=0; k<tx_tlvs[i]->transmitter_link_metrics_nr; k++)
                 {
-                    if (0 == PLATFORM_MEMCMP(DMinterfaceNameToMac(interfaces_names[j]), tx_tlvs[i]->transmitter_link_metrics[k].local_interface_address, 6))
+                    if (0 == memcmp(DMinterfaceNameToMac(interfaces_names[j]), tx_tlvs[i]->transmitter_link_metrics[k].local_interface_address, 6))
                     {
                         // ...and add them
                         //
@@ -1373,8 +1373,8 @@ INT8U _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                             // local interface.
                             //
                             if (
-                                 0 == PLATFORM_MEMCMP(new_tx_tlvs[new_total_tlvs_tx-1]->transmitter_link_metrics[0].local_interface_address, tx_tlvs[i]->transmitter_link_metrics[k].local_interface_address, 6) &&
-                                 0 == PLATFORM_MEMCMP(new_tx_tlvs[new_total_tlvs_tx-1]->neighbor_al_address,                                 tx_tlvs[i]->neighbor_al_address,                                 6)
+                                 0 == memcmp(new_tx_tlvs[new_total_tlvs_tx-1]->transmitter_link_metrics[0].local_interface_address, tx_tlvs[i]->transmitter_link_metrics[k].local_interface_address, 6) &&
+                                 0 == memcmp(new_tx_tlvs[new_total_tlvs_tx-1]->neighbor_al_address,                                 tx_tlvs[i]->neighbor_al_address,                                 6)
                                )
                             {
                                 // Part of a previously created one. Append the
@@ -1420,7 +1420,7 @@ INT8U _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                 //
                 for (k=0; k<rx_tlvs[i]->receiver_link_metrics_nr; k++)
                 {
-                    if (0 == PLATFORM_MEMCMP(DMinterfaceNameToMac(interfaces_names[j]), rx_tlvs[i]->receiver_link_metrics[k].local_interface_address, 6))
+                    if (0 == memcmp(DMinterfaceNameToMac(interfaces_names[j]), rx_tlvs[i]->receiver_link_metrics[k].local_interface_address, 6))
                     {
                         // ...and add them
                         //
@@ -1447,8 +1447,8 @@ INT8U _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                             // local interface.
                             //
                             if (
-                                 0 == PLATFORM_MEMCMP(new_rx_tlvs[new_total_tlvs_rx-1]->receiver_link_metrics[0].local_interface_address, rx_tlvs[i]->receiver_link_metrics[k].local_interface_address, 6) &&
-                                 0 == PLATFORM_MEMCMP(new_rx_tlvs[new_total_tlvs_rx-1]->neighbor_al_address,                              rx_tlvs[i]->neighbor_al_address,                              6)
+                                 0 == memcmp(new_rx_tlvs[new_total_tlvs_rx-1]->receiver_link_metrics[0].local_interface_address, rx_tlvs[i]->receiver_link_metrics[k].local_interface_address, 6) &&
+                                 0 == memcmp(new_rx_tlvs[new_total_tlvs_rx-1]->neighbor_al_address,                              rx_tlvs[i]->neighbor_al_address,                              6)
                                )
                             {
                                 // Part of a previously created one. Append the
@@ -1511,7 +1511,7 @@ INT8U _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
 static void _obtainLocalSupportedServicesTLV(struct supportedServiceTLV *supported_service_tlv)
 {
     supported_service_tlv->tlv_type = TLV_TYPE_SUPPORTED_SERVICE;
-    if (PLATFORM_MEMCMP(DMregistrarMacGet(), "\0\0\0\0\0\0", 6) == 0)
+    if (memcmp(DMregistrarMacGet(), "\0\0\0\0\0\0", 6) == 0)
     {
         /* Not a controller */
         supported_service_tlv->supported_service_nr = 1;
@@ -1567,7 +1567,7 @@ static void _obtainLocalApOperationalBssTLV(struct apOperationalBssTLV *ap_opera
                 case INTERFACE_TYPE_IEEE_802_11N_5_GHZ:
                     /* Only operational interfaces, i.e. which are AP and have a BSSID */
                     if (x->interface_type_data.ieee80211.role == IEEE80211_ROLE_AP &&
-                        PLATFORM_MEMCMP(x->interface_type_data.ieee80211.bssid, "\0\0\0\0\0\0", 6) != 0)
+                        memcmp(x->interface_type_data.ieee80211.bssid, "\0\0\0\0\0\0", 6) != 0)
                     {
                         radio_nr++;
                     }
@@ -1611,7 +1611,7 @@ static void _obtainLocalApOperationalBssTLV(struct apOperationalBssTLV *ap_opera
                     case INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ:
                     case INTERFACE_TYPE_IEEE_802_11N_5_GHZ:
                         if (x->interface_type_data.ieee80211.role == IEEE80211_ROLE_AP &&
-                            PLATFORM_MEMCMP(x->interface_type_data.ieee80211.bssid, "\0\0\0\0\0\0", 6) != 0)
+                            memcmp(x->interface_type_data.ieee80211.bssid, "\0\0\0\0\0\0", 6) != 0)
                         {
                             PLATFORM_MEMCPY(ap_operational_bss_tlv->radio[radio].radio_uid, x->mac_address, 6);
                             ap_operational_bss_tlv->radio[radio].bss_nr = 1;

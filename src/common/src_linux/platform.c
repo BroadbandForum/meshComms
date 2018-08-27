@@ -117,22 +117,6 @@ void *PLATFORM_MEMCPY(void *dest, const void *src, INT32U n)
     return memcpy(dest, src, n);
 }
 
-INT8U PLATFORM_MEMCMP(const void *s1, const void *s2, INT32U n)
-{
-    int aux;
-
-    aux = memcmp(s1, s2, n);
-
-    if (0 == aux)
-    {
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
-}
-
 INT32U PLATFORM_STRLEN(const char *s)
 {
     return strlen(s);

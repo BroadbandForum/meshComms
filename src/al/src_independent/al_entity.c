@@ -44,6 +44,8 @@
 #include "platform_os.h"
 #include "platform_alme_server.h"
 
+#include <string.h> // memcmp(), memcpy(), ...
+
 #define TIMER_TOKEN_DISCOVERY          (1)
 #define TIMER_TOKEN_GARBAGE_COLLECTOR  (2)
 
@@ -167,8 +169,8 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
         if (
                                               1        ==  mids_in_flight[i].in_use          &&
                                   cmdu_header.mid      ==  mids_in_flight[i].mid             &&
-             0 == PLATFORM_MEMCMP(cmdu_header.dst_addr,    mids_in_flight[i].dst_addr, 6)    &&
-             0 == PLATFORM_MEMCMP(cmdu_header.src_addr,    mids_in_flight[i].src_addr, 6)
+             0 == memcmp(cmdu_header.dst_addr,    mids_in_flight[i].dst_addr, 6)    &&
+             0 == memcmp(cmdu_header.src_addr,    mids_in_flight[i].src_addr, 6)
            )
         {
             // Fragments for this 'mid' have previously been received. Add this
@@ -487,7 +489,7 @@ INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
     //
     if (1 == c->relay_indicator)
     {
-        if (0 == PLATFORM_MEMCMP(mac_address, DMalMacGet(), 6))
+        if (0 == memcmp(mac_address, DMalMacGet(), 6))
         {
             return 1;
         }
@@ -503,7 +505,7 @@ INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
         index = (start + i) % MAX_DUPLICATES_LOG_ENTRIES;
 
         if (
-             0 == PLATFORM_MEMCMP(mac_addresses[index],    mac_address, 6) &&
+             0 == memcmp(mac_addresses[index],    mac_address, 6) &&
                                   message_ids[index]    == c->message_id
            )
         {
@@ -590,7 +592,7 @@ void _checkForwarding(INT8U *receiving_interface_addr, INT8U *destination_mac_ad
             if (
                 (0 == authenticated                                                                     ) ||
                 ((power_state != INTERFACE_POWER_STATE_ON) && (power_state!= INTERFACE_POWER_STATE_SAVE)) ||
-                (0 == PLATFORM_MEMCMP(x->mac_address, receiving_interface_addr, 6))
+                (0 == memcmp(x->mac_address, receiving_interface_addr, 6))
                )
             {
                 // Do not forward the message on this interface
@@ -926,7 +928,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
         //
         if (NULL != registrar_interface)
         {
-            if (0 == PLATFORM_MEMCMP(x->name, registrar_interface, PLATFORM_STRLEN(x->name)))
+            if (0 == memcmp(x->name, registrar_interface, PLATFORM_STRLEN(x->name)))
             {
                 if (
                      INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ != x->interface_type  &&
@@ -1770,7 +1772,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                         if (
                             (0 == authenticated                                                                     ) ||
                             ((power_state != INTERFACE_POWER_STATE_ON) && (power_state!= INTERFACE_POWER_STATE_SAVE)) ||
-                            (0 == PLATFORM_MEMCMP(x->mac_address, local_mac_addr, 6))
+                            (0 == memcmp(x->mac_address, local_mac_addr, 6))
                            )
                         {
                             // Do not send the message on this interface

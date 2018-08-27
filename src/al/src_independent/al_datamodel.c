@@ -27,6 +27,8 @@
 
 #include "al_extension.h"
 
+#include <string.h> // memcmp(), memcpy(), ...
+
 ////////////////////////////////////////////////////////////////////////////////
 // Private stuff
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +137,7 @@ struct _localInterface *_macAddressToLocalInterfaceStruct(INT8U *mac_address)
     {
         for (i=0; i<data_model.local_interfaces_nr; i++)
         {
-            if (0 == PLATFORM_MEMCMP(data_model.local_interfaces[i].mac_address, mac_address, 6))
+            if (0 == memcmp(data_model.local_interfaces[i].mac_address, mac_address, 6))
             {
                 return &data_model.local_interfaces[i];
             }
@@ -159,7 +161,7 @@ struct _localInterface *_nameToLocalInterfaceStruct(char *name)
     {
         for (i=0; i<data_model.local_interfaces_nr; i++)
         {
-            if (0 == PLATFORM_MEMCMP(data_model.local_interfaces[i].name, name, PLATFORM_STRLEN(data_model.local_interfaces[i].name)+1))
+            if (0 == memcmp(data_model.local_interfaces[i].name, name, PLATFORM_STRLEN(data_model.local_interfaces[i].name)+1))
             {
                 return &data_model.local_interfaces[i];
             }
@@ -193,7 +195,7 @@ struct _neighbor *_alMacAddressToNeighborStruct(char *local_interface_name, INT8
     {
         for (i=0; i<x->neighbors_nr; i++)
         {
-            if (0 == PLATFORM_MEMCMP(x->neighbors[i].al_mac_address, al_mac_address, 6))
+            if (0 == memcmp(x->neighbors[i].al_mac_address, al_mac_address, 6))
             {
                 return &x->neighbors[i];
             }
@@ -228,7 +230,7 @@ struct _remoteInterface *_macAddressToRemoteInterfaceStruct(char *local_interfac
     {
         for (i=0; i<x->remote_interfaces_nr; i++)
         {
-            if (0 == PLATFORM_MEMCMP(x->remote_interfaces[i].mac_address, mac_address, 6))
+            if (0 == memcmp(x->remote_interfaces[i].mac_address, mac_address, 6))
             {
                 return &x->remote_interfaces[i];
             }
@@ -436,7 +438,7 @@ INT8U DMinsertInterface(char *name, INT8U *mac_address)
         // Even if it already exists, if the provided 'mac_address' and the
         // already existing entry match, do not return an error.
         //
-        if (0 == PLATFORM_MEMCMP(x->mac_address, mac_address, 6))
+        if (0 == memcmp(x->mac_address, mac_address, 6))
         {
             // Ok
             //
@@ -499,7 +501,7 @@ INT8U *DMinterfaceNameToMac(char *interface_name)
     {
         for (i=0; i<data_model.local_interfaces_nr; i++)
         {
-            if (0 == PLATFORM_MEMCMP(data_model.local_interfaces[i].name, interface_name, PLATFORM_STRLEN(data_model.local_interfaces[i].name)+1))
+            if (0 == memcmp(data_model.local_interfaces[i].name, interface_name, PLATFORM_STRLEN(data_model.local_interfaces[i].name)+1))
             {
                 return data_model.local_interfaces[i].mac_address;
             }
@@ -575,7 +577,7 @@ INT8U (*DMgetListOfNeighbors(INT8U *al_mac_addresses_nr))[6]
             already_present = 0;
             for (k=0; k<total; k++)
             {
-                if (0 == PLATFORM_MEMCMP(&ret[k], data_model.local_interfaces[i].neighbors[j].al_mac_address, 6))
+                if (0 == memcmp(&ret[k], data_model.local_interfaces[i].neighbors[j].al_mac_address, 6))
                 {
                     already_present = 1;
                     break;
@@ -628,7 +630,7 @@ INT8U (*DMgetListOfLinksWithNeighbor(INT8U *neighbor_al_mac_address, char ***int
             // Filter neighbor (we are just interested in
             // 'neighbor_al_mac_address')
             //
-            if (0 != PLATFORM_MEMCMP(neighbor_al_mac_address, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6))
+            if (0 != memcmp(neighbor_al_mac_address, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6))
             {
                 continue;
             }
@@ -900,13 +902,13 @@ INT8U *DMmacToAlMac(INT8U *mac_address)
     found  = 0;
     al_mac = (INT8U *)PLATFORM_MALLOC(sizeof(INT8U)*6);
 
-    if (0 == PLATFORM_MEMCMP(data_model.al_mac_address, mac_address, 6))
+    if (0 == memcmp(data_model.al_mac_address, mac_address, 6))
     {
         return data_model.al_mac_address;
     }
     for (i=0; i<data_model.local_interfaces_nr; i++)
     {
-        if (0 == PLATFORM_MEMCMP(data_model.local_interfaces[i].mac_address, mac_address, 6))
+        if (0 == memcmp(data_model.local_interfaces[i].mac_address, mac_address, 6))
         {
             found = 1;
             PLATFORM_MEMCPY(al_mac, data_model.al_mac_address, 6);
@@ -914,7 +916,7 @@ INT8U *DMmacToAlMac(INT8U *mac_address)
 
         for (j=0; j<data_model.local_interfaces[i].neighbors_nr; j++)
         {
-            if (0 == PLATFORM_MEMCMP(data_model.local_interfaces[i].neighbors[j].al_mac_address, mac_address, 6))
+            if (0 == memcmp(data_model.local_interfaces[i].neighbors[j].al_mac_address, mac_address, 6))
             {
                 found = 1;
                 PLATFORM_MEMCPY(al_mac, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
@@ -922,7 +924,7 @@ INT8U *DMmacToAlMac(INT8U *mac_address)
 
             for (k=0; k<data_model.local_interfaces[i].neighbors[j].remote_interfaces_nr; k++)
             {
-                if (0 == PLATFORM_MEMCMP(data_model.local_interfaces[i].neighbors[j].remote_interfaces[k].mac_address, mac_address, 6))
+                if (0 == memcmp(data_model.local_interfaces[i].neighbors[j].remote_interfaces[k].mac_address, mac_address, 6))
                 {
                     found = 1;
                     PLATFORM_MEMCPY(al_mac, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
@@ -976,7 +978,7 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
     // First, search for an existing entry with the same AL MAC address
     // Remember that the first entry holds a reference to the *local* node.
     //
-    if (0 == PLATFORM_MEMCMP(DMalMacGet(), al_mac_address, 6))
+    if (0 == memcmp(DMalMacGet(), al_mac_address, 6))
     {
         i=0;
     }
@@ -986,7 +988,7 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
         {
             if (NULL != data_model.network_devices[i].info)
             {
-                if (0 == PLATFORM_MEMCMP(data_model.network_devices[i].info->al_mac_address, al_mac_address, 6))
+                if (0 == memcmp(data_model.network_devices[i].info->al_mac_address, al_mac_address, 6))
                 {
                     break;
                 }
@@ -1184,7 +1186,7 @@ INT8U DMnetworkDeviceInfoNeedsUpdate(INT8U *al_mac_address)
     {
         if (NULL != data_model.network_devices[i].info)
         {
-            if (0 == PLATFORM_MEMCMP(data_model.network_devices[i].info->al_mac_address, al_mac_address, 6))
+            if (0 == memcmp(data_model.network_devices[i].info->al_mac_address, al_mac_address, 6))
             {
                 break;
             }
@@ -1267,7 +1269,7 @@ INT8U DMupdateNetworkDeviceMetrics(INT8U *metrics)
             //
             continue;
         }
-        if (0 == PLATFORM_MEMCMP(data_model.network_devices[i].info->al_mac_address, FROM_al_mac_address, 6))
+        if (0 == memcmp(data_model.network_devices[i].info->al_mac_address, FROM_al_mac_address, 6))
         {
             break;
         }
@@ -1294,7 +1296,7 @@ INT8U DMupdateNetworkDeviceMetrics(INT8U *metrics)
     //
     for (j=0; j<data_model.network_devices[i].metrics_with_neighbors_nr; j++)
     {
-        if (0 == PLATFORM_MEMCMP(data_model.network_devices[i].metrics_with_neighbors[j].neighbor_al_mac_address, TO_al_mac_address, 6))
+        if (0 == memcmp(data_model.network_devices[i].metrics_with_neighbors[j].neighbor_al_mac_address, TO_al_mac_address, 6))
         {
             break;
         }
@@ -1674,7 +1676,7 @@ INT8U DMrunGarbageCollector(void)
 
                 for (k=0; k<data_model.network_devices[j].metrics_with_neighbors_nr; k++)
                 {
-                    if (0 == PLATFORM_MEMCMP(al_mac_address, data_model.network_devices[j].metrics_with_neighbors[k].neighbor_al_mac_address, 6))
+                    if (0 == memcmp(al_mac_address, data_model.network_devices[j].metrics_with_neighbors[k].neighbor_al_mac_address, 6))
                     {
                         free_1905_TLV_structure((INT8U*)data_model.network_devices[j].metrics_with_neighbors[k].tx_metrics);
                         free_1905_TLV_structure((INT8U*)data_model.network_devices[j].metrics_with_neighbors[k].rx_metrics);
@@ -1746,8 +1748,8 @@ void DMremoveALNeighborFromInterface(INT8U *al_mac_address, char *interface_name
         INT8U original_neighbors_nr;
 
         if (
-             (0 != PLATFORM_MEMCMP(data_model.local_interfaces[i].name, interface_name, PLATFORM_STRLEN(data_model.local_interfaces[i].name)+1)) &&
-             (0 != PLATFORM_MEMCMP(interface_name,                      "all",          PLATFORM_STRLEN(interface_name)+1))
+             (0 != memcmp(data_model.local_interfaces[i].name, interface_name, PLATFORM_STRLEN(data_model.local_interfaces[i].name)+1)) &&
+             (0 != memcmp(interface_name,                      "all",          PLATFORM_STRLEN(interface_name)+1))
            )
         {
             // Ignore this interface
@@ -1759,7 +1761,7 @@ void DMremoveALNeighborFromInterface(INT8U *al_mac_address, char *interface_name
 
         for (j=0; j<data_model.local_interfaces[i].neighbors_nr; j++)
         {
-            if (0 == PLATFORM_MEMCMP(al_mac_address, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6))
+            if (0 == memcmp(al_mac_address, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6))
             {
                 if (data_model.local_interfaces[i].neighbors[j].remote_interfaces_nr > 0 && NULL != data_model.local_interfaces[i].neighbors[j].remote_interfaces)
                 {
@@ -1823,7 +1825,7 @@ struct vendorSpecificTLV ***DMextensionsGet(INT8U *al_mac_address, INT8U **nr)
             //
             continue;
         }
-        if (0 == PLATFORM_MEMCMP(data_model.network_devices[i].info->al_mac_address, al_mac_address, 6))
+        if (0 == memcmp(data_model.network_devices[i].info->al_mac_address, al_mac_address, 6))
         {
             break;
         }

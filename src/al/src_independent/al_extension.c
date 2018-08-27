@@ -23,6 +23,7 @@
 #include "1905_tlvs.h"
 #include "al_extension.h"
 
+#include <string.h> // memcmp(), memcpy(), ...
 
 ////////////////////////////////////////////////////////////////////////////////
 // Private definitions and data
@@ -457,7 +458,7 @@ INT8U register1905CmduExtension(char *name,
         for (i=0; i<t->entries_nr; i++)
         {
             if ((NULL != t->entries[i].name) &&
-                (0 == PLATFORM_MEMCMP(t->entries[i].name, name, PLATFORM_STRLEN(name) + 1)))
+                (0 == memcmp(t->entries[i].name, name, PLATFORM_STRLEN(name) + 1)))
             {
                 // Already exists!
                 //
@@ -504,7 +505,7 @@ INT8U register1905AlmeDumpExtension(char *name,
     for (i=0; i<t->entries_nr; i++)
     {
         if ((NULL != t->entries[i].name) &&
-            (0 == PLATFORM_MEMCMP(t->entries[i].name, name, PLATFORM_STRLEN(name) + 1)))
+            (0 == memcmp(t->entries[i].name, name, PLATFORM_STRLEN(name) + 1)))
         {
             // Already exists!
             //

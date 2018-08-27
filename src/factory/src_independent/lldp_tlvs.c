@@ -21,6 +21,8 @@
 #include "lldp_tlvs.h"
 #include "packet_tools.h"
 
+#include <string.h> // memcmp()
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Actual API functions
@@ -436,7 +438,7 @@ INT8U compare_lldp_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
 
             if (
                                   p1->chassis_id_subtype != p2->chassis_id_subtype ||
-                 (PLATFORM_MEMCMP(p1->chassis_id,           p2->chassis_id, 6) !=0)
+                 (memcmp(p1->chassis_id,           p2->chassis_id, 6) !=0)
                )
             {
                 return 1;
@@ -456,7 +458,7 @@ INT8U compare_lldp_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
 
             if (
                                   p1->port_id_subtype != p2->port_id_subtype ||
-                 (PLATFORM_MEMCMP(p1->port_id,           p2->port_id, 6) !=0)
+                 (memcmp(p1->port_id,           p2->port_id, 6) !=0)
                )
             {
                 return 1;

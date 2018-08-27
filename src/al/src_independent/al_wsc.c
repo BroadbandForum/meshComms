@@ -25,6 +25,8 @@
 #include "platform_crypto.h"
 #include "platform_interfaces.h"
 
+#include <string.h> // memcmp(), memcpy(), ...
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Private functions and data
@@ -841,7 +843,7 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
 
         PLATFORM_HMAC_SHA256(authkey, WPS_AUTHKEY_LEN, 2, addr, len, hash);
 
-        if (PLATFORM_MEMCMP(m2_authenticator, hash, 8) != 0)
+        if (memcmp(m2_authenticator, hash, 8) != 0)
         {
             PLATFORM_PRINTF_DEBUG_WARNING("Message M2 authentication failed\n");
             return 0;
@@ -933,7 +935,7 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
 
                 PLATFORM_HMAC_SHA256(authkey, WPS_AUTHKEY_LEN, 1, addr, len, hash);
 
-                if (PLATFORM_MEMCMP(p, hash, 8) != 0)
+                if (memcmp(p, hash, 8) != 0)
                 {
                     PLATFORM_PRINTF_DEBUG_WARNING("Message M2 keywrap failed\n", attr_len);
                     return 0;

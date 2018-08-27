@@ -113,7 +113,7 @@ static bool TLV_TEMPLATE_FIELD_FUNCTION_NAME(compare)(const TLV_TEMPLATE_STRUCT_
 #if TLV_FIELD_LENGTH > 0
     return (self1->TLV_FIELD1_NAME == self2->TLV_FIELD1_NAME);
 #else
-    return (PLATFORM_MEMCMP(self1->TLV_FIELD_NAME, self2->TLV_FIELD_NAME, sizeof(self1->TLV_FIELD_NAME)) == 0);
+    return (memcmp(self1->TLV_FIELD_NAME, self2->TLV_FIELD_NAME, sizeof(self1->TLV_FIELD_NAME)) == 0);
 #endif
 }
 #endif

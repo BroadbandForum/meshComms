@@ -35,6 +35,7 @@
 #include "platform_interfaces.h"
 #include "platform_alme_server.h"
 
+#include <string.h> // memcmp(), memcpy(), ...
 
 ////////////////////////////////////////////////////////////////////////////////
 // Public functions (exported only to files in this same folder)
@@ -124,8 +125,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // Make sure that both the AL MAC and MAC addresses were contained
             // in the CMDU
             //
-            if (0 == PLATFORM_MEMCMP(al_mac_address, dummy_mac_address, 6) ||
-                0 == PLATFORM_MEMCMP(mac_address,    dummy_mac_address, 6))
+            if (0 == memcmp(al_mac_address, dummy_mac_address, 6) ||
+                0 == memcmp(mac_address,    dummy_mac_address, 6))
             {
                 PLATFORM_PRINTF_DEBUG_WARNING("More TLVs were expected inside this CMDU\n");
                 return PROCESS_CMDU_KO;
@@ -238,7 +239,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // Make sure that both the AL MAC and MAC addresses were contained
             // in the CMDU
             //
-            if (0 == PLATFORM_MEMCMP(al_mac_address, dummy_mac_address, 6))
+            if (0 == memcmp(al_mac_address, dummy_mac_address, 6))
             {
                 PLATFORM_PRINTF_DEBUG_WARNING("More TLVs were expected inside this CMDU\n");
                 return PROCESS_CMDU_KO;
@@ -612,7 +613,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
 
                         // Discard the current node (obviously)
                         //
-                        if (0 == PLATFORM_MEMCMP(DMalMacGet(), z[i]->neighbors[j].mac_address, 6))
+                        if (0 == memcmp(DMalMacGet(), z[i]->neighbors[j].mac_address, 6))
                         {
                             continue;
                         }
@@ -623,7 +624,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                         {
                             for (jj=0; jj<z[ii]->neighbors_nr; jj++)
                             {
-                                if (0 == PLATFORM_MEMCMP(z[ii]->neighbors[jj].mac_address, z[i]->neighbors[j].mac_address, 6))
+                                if (0 == memcmp(z[ii]->neighbors[jj].mac_address, z[i]->neighbors[j].mac_address, 6))
                                 {
                                     continue;
                                 }
@@ -943,7 +944,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // Make sure that all needed parameters were present in the message
             //
             if (
-                 0 == PLATFORM_MEMCMP(al_mac_address, dummy_mac_address, 6) ||
+                 0 == memcmp(al_mac_address, dummy_mac_address, 6) ||
                  0 == searched_role_is_present                              ||
                  0 == freq_band_is_present
                )
@@ -976,7 +977,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
 
                 if (
                      IEEE80211_ROLE_AP == x->interface_type_data.ieee80211.role     &&
-                     0 == PLATFORM_MEMCMP(x->mac_address, DMregistrarMacGet(), 6)   &&
+                     0 == memcmp(x->mac_address, DMregistrarMacGet(), 6)   &&
                      (
                        (
                         (INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ == x->interface_type   ||
@@ -1435,7 +1436,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                 i++;
             }
 
-            if (0 == PLATFORM_MEMCMP(al_mac_address, dummy_mac_address, 6))
+            if (0 == memcmp(al_mac_address, dummy_mac_address, 6))
             {
                 PLATFORM_PRINTF_DEBUG_WARNING("More TLVs were expected inside this CMDU\n");
                 return PROCESS_CMDU_KO;
@@ -1490,7 +1491,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                 {
                      if (
                           IEEE80211_ROLE_AP != x->interface_type_data.ieee80211.role ||
-                          0 != PLATFORM_MEMCMP(x->mac_address, DMregistrarMacGet(), 6)
+                          0 != memcmp(x->mac_address, DMregistrarMacGet(), 6)
                          )
                      {
                          PLATFORM_PRINTF_DEBUG_DETAIL("This wifi interface is not the registrar. Skipping...\n",ifs_names[i]);
@@ -2077,8 +2078,8 @@ INT8U processLlpdPayload(struct PAYLOAD *payload, INT8U *receiving_interface_add
     // Make sure that both the AL MAC and MAC addresses were contained
     // in the CMDU
     //
-    if (0 == PLATFORM_MEMCMP(al_mac_address, dummy_mac_address, 6) ||
-        0 == PLATFORM_MEMCMP(mac_address,    dummy_mac_address, 6))
+    if (0 == memcmp(al_mac_address, dummy_mac_address, 6) ||
+        0 == memcmp(mac_address,    dummy_mac_address, 6))
     {
         PLATFORM_PRINTF_DEBUG_WARNING("More TLVs were expected inside this LLDP message\n");
         return 0;
@@ -2162,7 +2163,7 @@ INT8U process1905Alme(INT8U *alme_tlv, INT8U alme_client_id)
 
             p = (struct getMetricRequestALME *)alme_tlv;
 
-            if (0 == PLATFORM_MEMCMP(p->interface_address, dummy_mac_address, 6))
+            if (0 == memcmp(p->interface_address, dummy_mac_address, 6))
             {
                 // Request metrics against all neighbors
                 //

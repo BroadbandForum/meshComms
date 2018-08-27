@@ -22,6 +22,8 @@
 #include "1905_tlvs.h"
 #include "packet_tools.h"
 
+#include <string.h> // memcmp()
+
 ////////////////////////////////////////////////////////////////////////////////
 // Custom (non-standarized) packet structure for standard ALME primitives:
 ////////////////////////////////////////////////////////////////////////////////
@@ -706,10 +708,10 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
 
                     if (
                                          NULL                                                     ==  tx                                       ||
-                         PLATFORM_MEMCMP(tx->neighbor_al_address,                                     ret->metrics[i].neighbor_dev_address, 6) ||
+                         memcmp(tx->neighbor_al_address,                                     ret->metrics[i].neighbor_dev_address, 6) ||
                                          1                                                        !=  tx->transmitter_link_metrics_nr          ||
                                          NULL                                                     ==  tx->transmitter_link_metrics             ||
-                         PLATFORM_MEMCMP(tx->transmitter_link_metrics[0].local_interface_address,    ret->metrics[i].local_intf_address, 6)
+                         memcmp(tx->transmitter_link_metrics[0].local_interface_address,    ret->metrics[i].local_intf_address, 6)
                        )
                     {
                         // Parsing error
@@ -731,10 +733,10 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
 
                     if (
                                          NULL                                                     ==  rx                                       ||
-                         PLATFORM_MEMCMP(rx->neighbor_al_address,                                     ret->metrics[i].neighbor_dev_address, 6) ||
+                         memcmp(rx->neighbor_al_address,                                     ret->metrics[i].neighbor_dev_address, 6) ||
                                          1                                                        !=  rx->receiver_link_metrics_nr             ||
                                          NULL                                                     ==  rx->receiver_link_metrics                ||
-                         PLATFORM_MEMCMP(rx->receiver_link_metrics[0].local_interface_address,    ret->metrics[i].local_intf_address, 6)
+                         memcmp(rx->receiver_link_metrics[0].local_interface_address,    ret->metrics[i].local_intf_address, 6)
                        )
                     {
                         // Parsing error
@@ -1244,14 +1246,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
                 if (
                                          NULL                                                     ==  tx                                     ||
-                         PLATFORM_MEMCMP(tx->neighbor_al_address,                                     m->metrics[i].neighbor_dev_address, 6) ||
+                         memcmp(tx->neighbor_al_address,                                     m->metrics[i].neighbor_dev_address, 6) ||
                                          NULL                                                     ==  tx->transmitter_link_metrics           ||
-                         PLATFORM_MEMCMP(tx->transmitter_link_metrics[0].local_interface_address,     m->metrics[i].local_intf_address, 6)   ||
+                         memcmp(tx->transmitter_link_metrics[0].local_interface_address,     m->metrics[i].local_intf_address, 6)   ||
 
                                          NULL                                                     ==  rx                                     ||
-                         PLATFORM_MEMCMP(rx->neighbor_al_address,                                     m->metrics[i].neighbor_dev_address, 6) ||
+                         memcmp(rx->neighbor_al_address,                                     m->metrics[i].neighbor_dev_address, 6) ||
                                          NULL                                                     ==  rx->receiver_link_metrics              ||
-                         PLATFORM_MEMCMP(rx->receiver_link_metrics[0].local_interface_address,        m->metrics[i].local_intf_address, 6)
+                         memcmp(rx->receiver_link_metrics[0].local_interface_address,        m->metrics[i].local_intf_address, 6)
                    )
                 {
                     // Malformed packet
@@ -1557,7 +1559,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             for (i=0; i<p1->interface_descriptors_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->interface_descriptors[i].interface_address,           p2->interface_descriptors[i].interface_address, 6)    ||
+                     memcmp(p1->interface_descriptors[i].interface_address,           p2->interface_descriptors[i].interface_address, 6)    ||
                                      p1->interface_descriptors[i].interface_type           !=  p2->interface_descriptors[i].interface_type           ||
                                      p1->interface_descriptors[i].bridge_flag              !=  p2->interface_descriptors[i].bridge_flag              ||
                                      p1->interface_descriptors[i].vendor_specific_info_nr  !=  p2->interface_descriptors[i].vendor_specific_info_nr
@@ -1578,8 +1580,8 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
                     if (
                                          p1->interface_descriptors[i].vendor_specific_info[j].ie_type       !=  p2->interface_descriptors[i].vendor_specific_info[j].ie_type                  ||
                                          p1->interface_descriptors[i].vendor_specific_info[j].length_field  !=  p2->interface_descriptors[i].vendor_specific_info[j].length_field             ||
-                         PLATFORM_MEMCMP(p1->interface_descriptors[i].vendor_specific_info[j].oui,              p2->interface_descriptors[i].vendor_specific_info[j].oui, 3)                  ||
-                         PLATFORM_MEMCMP(p1->interface_descriptors[i].vendor_specific_info[j].vendor_si,        p2->interface_descriptors[i].vendor_specific_info[j].vendor_si, p1->interface_descriptors[i].vendor_specific_info[j].length_field - 3)
+                         memcmp(p1->interface_descriptors[i].vendor_specific_info[j].oui,              p2->interface_descriptors[i].vendor_specific_info[j].oui, 3)                  ||
+                         memcmp(p1->interface_descriptors[i].vendor_specific_info[j].vendor_si,        p2->interface_descriptors[i].vendor_specific_info[j].vendor_si, p1->interface_descriptors[i].vendor_specific_info[j].length_field - 3)
                        )
                     {
                         return 1;
@@ -1599,7 +1601,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             p2 = (struct setIntfPwrStateRequestALME *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->interface_address,      p2->interface_address, 6)    ||
+                 memcmp(p1->interface_address,      p2->interface_address, 6)    ||
                                  p1->power_state         !=  p2->power_state
                )
             {
@@ -1617,7 +1619,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             p2 = (struct setIntfPwrStateConfirmALME *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->interface_address,      p2->interface_address, 6)    ||
+                 memcmp(p1->interface_address,      p2->interface_address, 6)    ||
                                  p1->reason_code         !=  p2->reason_code
                )
             {
@@ -1634,7 +1636,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             p1 = (struct getIntfPwrStateRequestALME *)memory_structure_1;
             p2 = (struct getIntfPwrStateRequestALME *)memory_structure_2;
 
-            if (PLATFORM_MEMCMP(p1->interface_address, p2->interface_address, 6))
+            if (memcmp(p1->interface_address, p2->interface_address, 6))
             {
                 return 1;
             }
@@ -1650,7 +1652,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             p2 = (struct getIntfPwrStateResponseALME *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->interface_address,      p2->interface_address, 6)    ||
+                 memcmp(p1->interface_address,      p2->interface_address, 6)    ||
                                  p1->power_state         !=  p2->power_state
                )
             {
@@ -1669,9 +1671,9 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             p2 = (struct setFwdRuleRequestALME *)memory_structure_2;
 
             if (
-                 PLATFORM_MEMCMP(p1->classification_set.mac_da,              p2->classification_set.mac_da, 6)      ||
+                 memcmp(p1->classification_set.mac_da,              p2->classification_set.mac_da, 6)      ||
                                  p1->classification_set.mac_da_flag      !=  p2->classification_set.mac_da_flag     ||
-                 PLATFORM_MEMCMP(p1->classification_set.mac_sa,              p2->classification_set.mac_sa, 6)      ||
+                 memcmp(p1->classification_set.mac_sa,              p2->classification_set.mac_sa, 6)      ||
                                  p1->classification_set.mac_sa_flag      !=  p2->classification_set.mac_sa_flag     ||
                                  p1->classification_set.ether_type       !=  p2->classification_set.ether_type      ||
                                  p1->classification_set.ether_type_flag  !=  p2->classification_set.ether_type_flag ||
@@ -1694,7 +1696,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
 
             for (i=0; i<p1->addresses_nr; i++)
             {
-                if (PLATFORM_MEMCMP(p1->addresses[i], p2->addresses[i], 6))
+                if (memcmp(p1->addresses[i], p2->addresses[i], 6))
                 {
                     return 1;
                 }
@@ -1751,9 +1753,9 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             for (i=0; i<p1->rules_nr; i++)
             {
                 if (
-                     PLATFORM_MEMCMP(p1->rules[i].classification_set.mac_da,              p2->rules[i].classification_set.mac_da, 6)      ||
+                     memcmp(p1->rules[i].classification_set.mac_da,              p2->rules[i].classification_set.mac_da, 6)      ||
                                      p1->rules[i].classification_set.mac_da_flag      !=  p2->rules[i].classification_set.mac_da_flag     ||
-                     PLATFORM_MEMCMP(p1->rules[i].classification_set.mac_sa,              p2->rules[i].classification_set.mac_sa, 6)      ||
+                     memcmp(p1->rules[i].classification_set.mac_sa,              p2->rules[i].classification_set.mac_sa, 6)      ||
                                      p1->rules[i].classification_set.mac_sa_flag      !=  p2->rules[i].classification_set.mac_sa_flag     ||
                                      p1->rules[i].classification_set.ether_type       !=  p2->rules[i].classification_set.ether_type      ||
                                      p1->rules[i].classification_set.ether_type_flag  !=  p2->rules[i].classification_set.ether_type_flag ||
@@ -1777,7 +1779,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
 
                 for (j=0; j<p1->rules[i].addresses_nr; j++)
                 {
-                    if (PLATFORM_MEMCMP(p1->rules[i].addresses[j], p2->rules[i].addresses[j], 6))
+                    if (memcmp(p1->rules[i].addresses[j], p2->rules[i].addresses[j], 6))
                     {
                         return 1;
                     }
@@ -1812,7 +1814,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
 
             for (i=0; i<p1->addresses_nr; i++)
             {
-                if (PLATFORM_MEMCMP(p1->addresses[i], p2->addresses[i], 6))
+                if (memcmp(p1->addresses[i], p2->addresses[i], 6))
                 {
                     return 1;
                 }
@@ -1879,7 +1881,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             p1 = (struct getMetricRequestALME *)memory_structure_1;
             p2 = (struct getMetricRequestALME *)memory_structure_2;
 
-            if (PLATFORM_MEMCMP(p1->interface_address, p2->interface_address, 6))
+            if (memcmp(p1->interface_address, p2->interface_address, 6))
             {
                 return 1;
             }
@@ -1914,8 +1916,8 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
             for (i=0; i<p1->metrics_nr; i++)
             {
                 if (
-                                           PLATFORM_MEMCMP(p1->metrics[i].neighbor_dev_address,               p2->metrics[i].neighbor_dev_address, 6)      ||
-                                           PLATFORM_MEMCMP(p1->metrics[i].local_intf_address,                 p2->metrics[i].local_intf_address,   6)      ||
+                                           memcmp(p1->metrics[i].neighbor_dev_address,               p2->metrics[i].neighbor_dev_address, 6)      ||
+                                           memcmp(p1->metrics[i].local_intf_address,                 p2->metrics[i].local_intf_address,   6)      ||
                                                            p1->metrics[i].bridge_flag            !=           p2->metrics[i].bridge_flag                   ||
                      compare_1905_TLV_structures((INT8U *)p1->metrics[i].tx_metric,                  (INT8U *)p2->metrics[i].tx_metric)                    ||
                      compare_1905_TLV_structures((INT8U *)p1->metrics[i].rx_metric,                  (INT8U *)p2->metrics[i].rx_metric)
@@ -1953,7 +1955,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
 
             if (
                                  p1->bytes_nr  !=  p2->bytes_nr             ||
-                 PLATFORM_MEMCMP(p1->bytes,        p2->bytes, p1->bytes_nr)
+                 memcmp(p1->bytes,        p2->bytes, p1->bytes_nr)
                )
 
             {

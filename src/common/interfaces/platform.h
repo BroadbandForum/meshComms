@@ -106,12 +106,6 @@ void *PLATFORM_REALLOC(void *ptr, INT32U size);
 //
 void *PLATFORM_MEMCPY(void *dest, const void *src, INT32U n);
 
-// Return '0' only if the first 'n' bytes of 's1' and 's2' match, '1' otherwise
-// [PLATFORM PORTING NOTE]
-//   Note that this is different from the standard libc "memcmp()" behaviour
-//
-INT8U PLATFORM_MEMCMP(const void *s1, const void *s2, INT32U n);
-
 // Return the length of string 's' not including the terminating NULL character
 //
 INT32U PLATFORM_STRLEN(const char *s);

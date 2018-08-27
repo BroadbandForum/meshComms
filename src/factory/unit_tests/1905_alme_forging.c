@@ -26,6 +26,8 @@
 #include "1905_alme.h"
 #include "1905_alme_test_vectors.h"
 
+#include <string.h> // memcmp(), memcpy(), ...
+
 INT8U _check(const char *test_description, INT8U *input, INT8U *expected_output, INT16U expected_output_len)
 {
     INT8U  result;
@@ -42,7 +44,7 @@ INT8U _check(const char *test_description, INT8U *input, INT8U *expected_output,
         return 1;
     }
 
-    if ((expected_output_len == real_output_len) && (0 == PLATFORM_MEMCMP(expected_output, real_output, real_output_len)))
+    if ((expected_output_len == real_output_len) && (0 == memcmp(expected_output, real_output, real_output_len)))
     {
         result = 0;
         PLATFORM_PRINTF("%-100s: OK\n", test_description);

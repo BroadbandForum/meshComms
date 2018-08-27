@@ -26,7 +26,7 @@
 #include "1905_tlvs.h"
 #include "1905_cmdu_test_vectors.h"
 
-#include <string.h> // strcmp
+#include <string.h> // strcmp, memcmp, ...
 #include <stdio.h>  // vsnprintf
 #include <stdarg.h> // va_start etc.
 
@@ -143,7 +143,7 @@ INT8U _check(const char *test_description, struct CMDU *input, INT8U **expected_
         {
             if (
                  (real_output_lens[i] != expected_output_lens[i])                            ||
-                 (0 != PLATFORM_MEMCMP(expected_output[i], real_output[i], expected_output_lens[i]))
+                 (0 != memcmp(expected_output[i], real_output[i], expected_output_lens[i]))
                )
             {
                 result = 1;

@@ -138,7 +138,7 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
                     already_added = 0;
                     for (k=0; k<no->non_1905_neighbors_nr; k++)
                     {
-                        if (0 == PLATFORM_MEMCMP(x->neighbor_mac_addresses[j], no->non_1905_neighbors[k].mac_address, 6))
+                        if (0 == memcmp(x->neighbor_mac_addresses[j], no->non_1905_neighbors[k].mac_address, 6))
                         {
                             already_added = 1;
                             break;
@@ -263,7 +263,7 @@ static INT8U (*_getListOfNon1905Neighbors(struct non1905NeighborDeviceListTLV  *
             already_present = 0;
             for (k=0; k<total; k++)
             {
-                if (0 == PLATFORM_MEMCMP(&ret[k], non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6))
+                if (0 == memcmp(&ret[k], non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6))
                 {
                     already_present = 1;
                     break;
@@ -348,7 +348,7 @@ INT8U (*_getListOfLinksWithNon1905Neighbor(struct non1905NeighborDeviceListTLV  
                 // Filter neighbor (we are just interested in
                 // 'neighbor_mac_address')
                 //
-                if (0 != PLATFORM_MEMCMP(neighbor_mac_address, non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6))
+                if (0 != memcmp(neighbor_mac_address, non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6))
                 {
                     continue;
                 }
@@ -525,7 +525,7 @@ static void _obtainLocalNon1905MetricsTLV(INT8U destination, INT8U *specific_nei
         //
         if (
              LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR == destination          &&
-             0 != PLATFORM_MEMCMP(mac_addresses[i], specific_neighbor, 6)
+             0 != memcmp(mac_addresses[i], specific_neighbor, 6)
            )
         {
             // Not interested
@@ -972,7 +972,7 @@ void CBKDumpBBFExtendedInfo(INT8U **memory_structure,
 
         extension_tlv = (struct vendorSpecificTLV *)(memory_structure[i]);
 
-        if ((NULL == extension_tlv) || (0 != PLATFORM_MEMCMP(extension_tlv->vendorOUI, BBF_OUI, 3)))
+        if ((NULL == extension_tlv) || (0 != memcmp(extension_tlv->vendorOUI, BBF_OUI, 3)))
         {
             // This not a BBF TLV. Ignored it.
             //
@@ -1022,7 +1022,7 @@ void CBKDumpBBFExtendedInfo(INT8U **memory_structure,
             //
             for (j=0; j<metrics_nr; j++)
             {
-                if (0 == PLATFORM_MEMCMP(mac_metrics[j], TO_interface_mac_address, 6))
+                if (0 == memcmp(mac_metrics[j], TO_interface_mac_address, 6))
                 {
                     break;
                 }
