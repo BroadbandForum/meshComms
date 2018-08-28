@@ -69,7 +69,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
                return NULL;
             }
 
-            ret->tlv_type = BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY;
+            ret->tlv.type = BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY;
 
             _E1B(&p, &destination);
             _EnB(&p, ret->specific_neighbor, 6);
@@ -166,7 +166,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            ret->tlv_type = BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC;
+            ret->tlv.type = BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC;
 
             _EnB(&p, ret->local_al_address,    6);
             _EnB(&p, ret->neighbor_al_address, 6);
@@ -246,7 +246,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            ret->tlv_type = BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC;
+            ret->tlv.type = BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC;
 
             _EnB(&p, ret->local_al_address,    6);
             _EnB(&p, ret->neighbor_al_address, 6);
@@ -313,7 +313,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            ret->tlv_type = BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE;
+            ret->tlv.type = BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE;
 
             _E1B(&p, &ret->result_code);
 
@@ -364,7 +364,7 @@ uint8_t *forge_bbf_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             p = ret = (uint8_t *)memalloc(1 + 2  + tlv_length);
 
-            _I1B(&m->tlv_type,          &p);
+            _I1B(&m->tlv.type,          &p);
             _I2B(&tlv_length,           &p);
             _I1B(&m->destination,       &p);
 
@@ -404,7 +404,7 @@ uint8_t *forge_bbf_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             p = ret = (uint8_t *)memalloc(1 + 2  + tlv_length);
 
-            _I1B(&m->tlv_type,            &p);
+            _I1B(&m->tlv.type,            &p);
             _I2B(&tlv_length,             &p);
             _InB( m->local_al_address,    &p, 6);
             _InB( empty_address,          &p, 6);
@@ -445,7 +445,7 @@ uint8_t *forge_bbf_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             p = ret = (uint8_t *)memalloc(1 + 2  + tlv_length);
 
-            _I1B(&m->tlv_type,            &p);
+            _I1B(&m->tlv.type,            &p);
             _I2B(&tlv_length,             &p);
             _InB( m->local_al_address,    &p, 6);
             _InB( empty_address,          &p, 6);
@@ -480,7 +480,7 @@ uint8_t *forge_bbf_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             p = ret = (uint8_t *)memalloc(1 + 2  + tlv_length);
 
-            _I1B(&m->tlv_type,     &p);
+            _I1B(&m->tlv.type,     &p);
             _I2B(&tlv_length,      &p);
 
             if (m->result_code != LINK_METRIC_RESULT_CODE_TLV_INVALID_NEIGHBOR)

@@ -1058,7 +1058,7 @@ declaration:
 ```
      struct deviceIdentificationTypeTLV
      {
-         uint8_t  tlv_type;
+         struct tlv tlv;
          uint8_t  friendly_name[64];
          uint8_t  manufacturer_name[64];
          uint8_t  manufacturer_model[64];

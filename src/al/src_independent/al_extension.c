@@ -368,7 +368,7 @@ struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure
 
     vendor_specific                = (struct vendorSpecificTLV *)memalloc(sizeof(struct vendorSpecificTLV));
     memcpy(vendor_specific->vendorOUI, oui, 3);
-    vendor_specific->tlv_type      = TLV_TYPE_VENDOR_SPECIFIC;
+    vendor_specific->tlv.type      = TLV_TYPE_VENDOR_SPECIFIC;
     vendor_specific->m_nr          = stream_len;
     vendor_specific->m             = stream;
 
@@ -414,7 +414,7 @@ struct vendorSpecificTLV *vendorSpecificTLVDuplicate(struct vendorSpecificTLV *t
   // Clone the Vendor Specific TLV
   //
   vs_tlv = (struct vendorSpecificTLV *)memalloc(sizeof(struct vendorSpecificTLV));
-  vs_tlv->tlv_type = tlv->tlv_type;
+  vs_tlv->tlv.type = tlv->tlv.type;
   vs_tlv->vendorOUI[0] = tlv->vendorOUI[0];
   vs_tlv->vendorOUI[1] = tlv->vendorOUI[1];
   vs_tlv->vendorOUI[2] = tlv->vendorOUI[2];

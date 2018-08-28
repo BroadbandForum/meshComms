@@ -266,13 +266,13 @@
 //  byte #13: local_intf_address[5]                                        |
 //  byte #14: bridge_flag                                                  |
 //                                                                         |
-//  byte #15: tlv_type   = 0x9 (transmitter link metrics)                  |
+//  byte #15: tlv.type   = 0x9 (transmitter link metrics)                  |
 //  byte #16: tlv_length = 12 + 29*1                                       |
 //  byte #17: tlv_value[0]         | Only contains one metrics element:    |
 //  ...                            | the one involving                     |
 //  byte #57: tlv_value[12+29-1]   | "local_intf_address"                  |
 //                                                                         |
-//  byte #58: tlv_type   = 0x10 (receiver link metrics)                    |
+//  byte #58: tlv.type   = 0x10 (receiver link metrics)                    |
 //  byte #59: tlv_length = 12 + 23*1                                       |
 //  byte #60: tlv_value[0]         | Only contains one metrics element:    |
 //  ...                            | the one involving                     |
@@ -824,7 +824,7 @@ uint8_t *forge_1905_ALME_from_structure(uint8_t *memory_structure, uint16_t *len
         return NULL;
     }
 
-    // The first byte of any of the valid structures is always the "tlv_type"
+    // The first byte of any of the valid structures is always the "tlv.type"
     // field.
     //
     switch (*memory_structure)
@@ -1521,7 +1521,7 @@ uint8_t compare_1905_ALME_structures(uint8_t *memory_structure_1, uint8_t *memor
         return 1;
     }
 
-    // The first byte of any of the valid structures is always the "tlv_type"
+    // The first byte of any of the valid structures is always the "tlv.type"
     // field.
     //
     if (*memory_structure_1 != *memory_structure_2)
@@ -1992,7 +1992,7 @@ void visit_1905_ALME_structure(uint8_t *memory_structure, visitor_callback callb
         return;
     }
 
-    // The first byte of any of the valid structures is always the "tlv_type"
+    // The first byte of any of the valid structures is always the "tlv.type"
     // field.
     //
     switch (*memory_structure)

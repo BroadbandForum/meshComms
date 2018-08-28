@@ -32,19 +32,19 @@
 #include <utime.h>             // utime()
 
 static struct supportedServiceTLV multiApAgentService = {
-    .tlv_type          = TLV_TYPE_SUPPORTED_SERVICE,
+    .tlv.type          = TLV_TYPE_SUPPORTED_SERVICE,
     .supported_service_nr = 1,
     .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_AGENT },
 };
 
 static struct supportedServiceTLV multiApControllerService = {
-    .tlv_type          = TLV_TYPE_SUPPORTED_SERVICE,
+    .tlv.type          = TLV_TYPE_SUPPORTED_SERVICE,
     .supported_service_nr = 2,
     .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT },
 };
 
 static struct supportedServiceTLV multiApControllerSearchedService = {
-    .tlv_type          = TLV_TYPE_SEARCHED_SERVICE,
+    .tlv.type          = TLV_TYPE_SEARCHED_SERVICE,
     .supported_service_nr = 1,
     .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER },
 };
@@ -58,19 +58,19 @@ static struct CMDU aletest_send_cmdu_autoconfig_search = {
         (uint8_t* []){
             (uint8_t *)(struct alMacAddressTypeTLV[]){
                 {
-                    .tlv_type          = TLV_TYPE_AL_MAC_ADDRESS_TYPE,
+                    .tlv.type          = TLV_TYPE_AL_MAC_ADDRESS_TYPE,
                     .al_mac_address    = ADDR_AL_PEER0,
                 }
             },
             (uint8_t *)(struct searchedRoleTLV[]){
                 {
-                    .tlv_type          = TLV_TYPE_SEARCHED_ROLE,
+                    .tlv.type          = TLV_TYPE_SEARCHED_ROLE,
                     .role              = IEEE80211_ROLE_REGISTRAR,
                 }
             },
             (uint8_t *)(struct autoconfigFreqBandTLV[]){
                 {
-                    .tlv_type          = TLV_TYPE_AUTOCONFIG_FREQ_BAND,
+                    .tlv.type          = TLV_TYPE_AUTOCONFIG_FREQ_BAND,
                     .freq_band         = IEEE80211_FREQUENCY_BAND_2_4_GHZ,
                 }
             },
@@ -89,13 +89,13 @@ static struct CMDU aletest_expect_cmdu_autoconfig_response = {
         (uint8_t* []){
             (uint8_t *)(struct supportedRoleTLV[]){
                 {
-                    .tlv_type          = TLV_TYPE_SUPPORTED_ROLE,
+                    .tlv.type          = TLV_TYPE_SUPPORTED_ROLE,
                     .role              = IEEE80211_ROLE_REGISTRAR,
                 }
             },
             (uint8_t *)(struct supportedFreqBandTLV[]){
                 {
-                    .tlv_type          = TLV_TYPE_SUPPORTED_FREQ_BAND,
+                    .tlv.type          = TLV_TYPE_SUPPORTED_FREQ_BAND,
                     .freq_band         = IEEE80211_FREQUENCY_BAND_2_4_GHZ,
                 }
             },
@@ -113,7 +113,7 @@ static struct CMDU aletest_send_cmdu_autoconfig_wsc_m1 = {
         (uint8_t* []){
             (uint8_t *)(struct wscTLV[]){
                 {
-                    .tlv_type          = TLV_TYPE_WSC,
+                    .tlv.type          = TLV_TYPE_WSC,
                     .wsc_frame_size    = 415,
                     .wsc_frame         = (uint8_t *)
                         "\x10\x4a\x00\x01\x10\x10\x22\x00\x01\x04\x10\x47\x00\x10\x31\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30"
@@ -181,7 +181,7 @@ int main()
         else
         {
             struct wscTLV *wsc = (struct wscTLV*)expect_autoconfig_wsc_m2->list_of_TLVs[0];
-            if (TLV_TYPE_WSC != wsc->tlv_type)
+            if (TLV_TYPE_WSC != wsc->tlv.type)
             {
                 PLATFORM_PRINTF_DEBUG_ERROR("Received non-WSC TLV on autoconfig wsc M2\n");
                 PLATFORM_PRINTF_DEBUG_INFO("  Received CMDU:\n");

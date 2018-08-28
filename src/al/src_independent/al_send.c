@@ -73,7 +73,7 @@ void _obtainLocalDeviceInfoTLV(struct deviceInformationTypeTLV *device_info)
 
     memcpy(al_mac_address, DMalMacGet(), 6);
 
-    device_info->tlv_type            = TLV_TYPE_DEVICE_INFORMATION_TYPE;
+    device_info->tlv.type            = TLV_TYPE_DEVICE_INFORMATION_TYPE;
     device_info->al_mac_address[0]   = al_mac_address[0];
     device_info->al_mac_address[1]   = al_mac_address[1];
     device_info->al_mac_address[2]   = al_mac_address[2];
@@ -195,7 +195,7 @@ void _obtainLocalBridgingCapabilitiesTLV(struct deviceBridgingCapabilityTLV *bri
     uint8_t          br_nr;
     uint8_t          i, j;
 
-    bridge_info->tlv_type = TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES;
+    bridge_info->tlv.type = TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES;
 
     if ((NULL == (br = PLATFORM_GET_LIST_OF_BRIDGES(&br_nr))) || 0 == br_nr)
     {
@@ -317,7 +317,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
         no  = (struct non1905NeighborDeviceListTLV *)memalloc(sizeof(struct non1905NeighborDeviceListTLV));
         yes = (struct neighborDeviceListTLV *)       memalloc(sizeof(struct neighborDeviceListTLV));
 
-        no->tlv_type              = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST;
+        no->tlv.type              = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST;
         no->local_mac_address[0]  = x->mac_address[0];
         no->local_mac_address[1]  = x->mac_address[1];
         no->local_mac_address[2]  = x->mac_address[2];
@@ -327,7 +327,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
         no->non_1905_neighbors_nr = 0;
         no->non_1905_neighbors    = NULL;
 
-        yes->tlv_type              = TLV_TYPE_NEIGHBOR_DEVICE_LIST;
+        yes->tlv.type              = TLV_TYPE_NEIGHBOR_DEVICE_LIST;
         yes->local_mac_address[0]  = x->mac_address[0];
         yes->local_mac_address[1]  = x->mac_address[1];
         yes->local_mac_address[2]  = x->mac_address[2];
@@ -626,7 +626,7 @@ void _obtainLocalPowerOffInterfacesTLV(struct powerOffInterfaceTLV *power_off)
     uint8_t                   interfaces_names_nr;
     uint8_t                   i;
 
-    power_off->tlv_type                = TLV_TYPE_POWER_OFF_INTERFACE;
+    power_off->tlv.type                = TLV_TYPE_POWER_OFF_INTERFACE;
     power_off->power_off_interfaces_nr = 0;
     power_off->power_off_interfaces    = NULL;
 
@@ -826,7 +826,7 @@ void _obtainLocalL2NeighborsTLV(struct l2NeighborDeviceTLV *l2_neighbors)
     uint8_t                   interfaces_names_nr;
     uint8_t                   i, j;
 
-    l2_neighbors->tlv_type                = TLV_TYPE_L2_NEIGHBOR_DEVICE;
+    l2_neighbors->tlv.type                = TLV_TYPE_L2_NEIGHBOR_DEVICE;
     l2_neighbors->local_interfaces_nr     = 0;
 
     interfaces_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&interfaces_names_nr);
@@ -931,7 +931,7 @@ void _obtainLocalAlMacAddressTLV(struct alMacAddressTypeTLV *al_mac_addr)
 
     memcpy(al_mac_address, DMalMacGet(), 6);
 
-    al_mac_addr->tlv_type          = TLV_TYPE_AL_MAC_ADDRESS_TYPE;
+    al_mac_addr->tlv.type          = TLV_TYPE_AL_MAC_ADDRESS_TYPE;
     al_mac_addr->al_mac_address[0] = al_mac_address[0];
     al_mac_addr->al_mac_address[1] = al_mac_address[1];
     al_mac_addr->al_mac_address[2] = al_mac_address[2];
@@ -1077,7 +1077,7 @@ void _obtainLocalMetricsTLVs(uint8_t destination, uint8_t *specific_neighbor, ui
             {
                 tx_tlvs[total_tlvs] = (struct transmitterLinkMetricTLV *)memalloc(sizeof(struct transmitterLinkMetricTLV));
 
-                                tx_tlvs[total_tlvs]->tlv_type                    = TLV_TYPE_TRANSMITTER_LINK_METRIC;
+                                tx_tlvs[total_tlvs]->tlv.type                    = TLV_TYPE_TRANSMITTER_LINK_METRIC;
                 memcpy(tx_tlvs[total_tlvs]->local_al_address,             DMalMacGet(),                       6);
                 memcpy(tx_tlvs[total_tlvs]->neighbor_al_address,          al_mac_addresses[i],                6);
                                 tx_tlvs[total_tlvs]->transmitter_link_metrics_nr = links_nr;
@@ -1087,7 +1087,7 @@ void _obtainLocalMetricsTLVs(uint8_t destination, uint8_t *specific_neighbor, ui
             {
                 rx_tlvs[total_tlvs] = (struct receiverLinkMetricTLV *)memalloc(sizeof(struct receiverLinkMetricTLV));
 
-                                rx_tlvs[total_tlvs]->tlv_type                    = TLV_TYPE_RECEIVER_LINK_METRIC;
+                                rx_tlvs[total_tlvs]->tlv.type                    = TLV_TYPE_RECEIVER_LINK_METRIC;
                 memcpy(rx_tlvs[total_tlvs]->local_al_address,             DMalMacGet(),                       6);
                 memcpy(rx_tlvs[total_tlvs]->neighbor_al_address,          al_mac_addresses[i],                6);
                                 rx_tlvs[total_tlvs]->receiver_link_metrics_nr    = links_nr;
@@ -1355,7 +1355,7 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                             new_tx_tlvs    = (struct transmitterLinkMetricTLV **)memalloc(sizeof(struct transmitterLinkMetricTLV*));
                             new_tx_tlvs[0] = (struct transmitterLinkMetricTLV  *)memalloc(sizeof(struct transmitterLinkMetricTLV));
 
-                                            new_tx_tlvs[0]->tlv_type                    = tx_tlvs[i]->tlv_type;
+                                            new_tx_tlvs[0]->tlv.type                    = tx_tlvs[i]->tlv.type;
                             memcpy(new_tx_tlvs[0]->local_al_address,             tx_tlvs[i]->local_al_address,    6);
                             memcpy(new_tx_tlvs[0]->neighbor_al_address,          tx_tlvs[i]->neighbor_al_address, 6);
                                             new_tx_tlvs[0]->transmitter_link_metrics_nr = 1;
@@ -1389,7 +1389,7 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                                 new_tx_tlvs                    = (struct transmitterLinkMetricTLV **)memrealloc(new_tx_tlvs, sizeof(struct transmitterLinkMetricTLV*)*(new_total_tlvs_tx + 1));
                                 new_tx_tlvs[new_total_tlvs_tx] = (struct transmitterLinkMetricTLV  *)memalloc(sizeof(struct transmitterLinkMetricTLV));
 
-                                                new_tx_tlvs[new_total_tlvs_tx]->tlv_type                    = tx_tlvs[i]->tlv_type;
+                                                new_tx_tlvs[new_total_tlvs_tx]->tlv.type                    = tx_tlvs[i]->tlv.type;
                                 memcpy(new_tx_tlvs[new_total_tlvs_tx]->local_al_address,             tx_tlvs[i]->local_al_address,    6);
                                 memcpy(new_tx_tlvs[new_total_tlvs_tx]->neighbor_al_address,          tx_tlvs[i]->neighbor_al_address, 6);
                                                 new_tx_tlvs[new_total_tlvs_tx]->transmitter_link_metrics_nr = 1;
@@ -1429,7 +1429,7 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                             new_rx_tlvs    = (struct receiverLinkMetricTLV **)memalloc(sizeof(struct receiverLinkMetricTLV*));
                             new_rx_tlvs[0] = (struct receiverLinkMetricTLV  *)memalloc(sizeof(struct receiverLinkMetricTLV));
 
-                                            new_rx_tlvs[0]->tlv_type                    = rx_tlvs[i]->tlv_type;
+                                            new_rx_tlvs[0]->tlv.type                    = rx_tlvs[i]->tlv.type;
                             memcpy(new_rx_tlvs[0]->local_al_address,             rx_tlvs[i]->local_al_address,    6);
                             memcpy(new_rx_tlvs[0]->neighbor_al_address,          rx_tlvs[i]->neighbor_al_address, 6);
                                             new_rx_tlvs[0]->receiver_link_metrics_nr    = 1;
@@ -1463,7 +1463,7 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                                 new_rx_tlvs                    = (struct receiverLinkMetricTLV **)memrealloc(new_rx_tlvs, sizeof(struct receiverLinkMetricTLV*)*(new_total_tlvs_rx + 1));
                                 new_rx_tlvs[new_total_tlvs_rx] = (struct receiverLinkMetricTLV  *)memalloc(sizeof(struct receiverLinkMetricTLV));
 
-                                                new_rx_tlvs[new_total_tlvs_rx]->tlv_type                    = rx_tlvs[i]->tlv_type;
+                                                new_rx_tlvs[new_total_tlvs_rx]->tlv.type                    = rx_tlvs[i]->tlv.type;
                                 memcpy(new_rx_tlvs[new_total_tlvs_rx]->local_al_address,             rx_tlvs[i]->local_al_address,    6);
                                 memcpy(new_rx_tlvs[new_total_tlvs_rx]->neighbor_al_address,          rx_tlvs[i]->neighbor_al_address, 6);
                                                 new_rx_tlvs[new_total_tlvs_rx]->receiver_link_metrics_nr    = 1;
@@ -1508,7 +1508,7 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
 //
 static void _obtainLocalSupportedServicesTLV(struct supportedServiceTLV *supported_service_tlv)
 {
-    supported_service_tlv->tlv_type = TLV_TYPE_SUPPORTED_SERVICE;
+    supported_service_tlv->tlv.type = TLV_TYPE_SUPPORTED_SERVICE;
     if (memcmp(DMregistrarMacGet(), "\0\0\0\0\0\0", 6) == 0)
     {
         /* Not a controller */
@@ -1647,7 +1647,7 @@ void _obtainLocalGenericPhyTLV(struct genericPhyDeviceInformationTypeTLV *generi
 
     memcpy(al_mac_address, DMalMacGet(), 6);
 
-    generic_phy->tlv_type          = TLV_TYPE_GENERIC_PHY_DEVICE_INFORMATION;
+    generic_phy->tlv.type          = TLV_TYPE_GENERIC_PHY_DEVICE_INFORMATION;
     generic_phy->al_mac_address[0] = al_mac_address[0];
     generic_phy->al_mac_address[1] = al_mac_address[1];
     generic_phy->al_mac_address[2] = al_mac_address[2];
@@ -1759,7 +1759,7 @@ void _freeLocalGenericPhyTLV(struct genericPhyDeviceInformationTypeTLV *generic_
 //
 void _obtainLocalProfileTLV(struct x1905ProfileVersionTLV *profile)
 {
-    profile->tlv_type = TLV_TYPE_1905_PROFILE_VERSION;
+    profile->tlv.type = TLV_TYPE_1905_PROFILE_VERSION;
     profile->profile  = PROFILE_1905_1A;
 }
 
@@ -1789,7 +1789,7 @@ void _obtainLocalDeviceIdentificationTLV(struct deviceIdentificationTypeTLV *ide
 
     memset(identification, 0x0, sizeof(struct deviceIdentificationTypeTLV));
 
-    identification->tlv_type = TLV_TYPE_DEVICE_IDENTIFICATION;
+    identification->tlv.type = TLV_TYPE_DEVICE_IDENTIFICATION;
 
     memcpy(identification->friendly_name,      x->friendly_name,      strlen(x->friendly_name)+1);
     memcpy(identification->manufacturer_name,  x->manufacturer_name,  strlen(x->manufacturer_name)+1);
@@ -1821,7 +1821,7 @@ void _obtainLocalControlUrlTLV(struct controlUrlTypeTLV *control_url)
         return;
     }
 
-    control_url->tlv_type = TLV_TYPE_CONTROL_URL;
+    control_url->tlv.type = TLV_TYPE_CONTROL_URL;
     if (NULL != x->control_url)
     {
         control_url->url  = strdup(x->control_url);
@@ -1855,9 +1855,9 @@ void _obtainLocalIpsTLVs(struct ipv4TypeTLV *ipv4, struct ipv6TypeTLV *ipv6)
 
     uint8_t i, j;
 
-    ipv4->tlv_type                 = TLV_TYPE_IPV4;
+    ipv4->tlv.type                 = TLV_TYPE_IPV4;
     ipv4->ipv4_interfaces_nr       = 0;
-    ipv6->tlv_type                 = TLV_TYPE_IPV6;
+    ipv6->tlv.type                 = TLV_TYPE_IPV6;
     ipv6->ipv6_interfaces_nr       = 0;
 
     ifs_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&ifs_nr);
@@ -2336,7 +2336,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
 
     // Fill the MAC address type TLV
     //
-    mac_addr_tlv.tlv_type             = TLV_TYPE_MAC_ADDRESS_TYPE;
+    mac_addr_tlv.tlv.type             = TLV_TYPE_MAC_ADDRESS_TYPE;
     mac_addr_tlv.mac_address[0]       = interface_mac_address[0];
     mac_addr_tlv.mac_address[1]       = interface_mac_address[1];
     mac_addr_tlv.mac_address[2]       = interface_mac_address[2];
@@ -2638,7 +2638,7 @@ uint8_t send1905MetricsQueryPacket(char *interface_name, uint16_t mid, uint8_t *
 
     // Fill all the needed TLVs
     //
-    metric_query_tlv.tlv_type             = TLV_TYPE_LINK_METRIC_QUERY;
+    metric_query_tlv.tlv.type             = TLV_TYPE_LINK_METRIC_QUERY;
     metric_query_tlv.destination          = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
     metric_query_tlv.specific_neighbor[0] = 0x00;
     metric_query_tlv.specific_neighbor[1] = 0x00;
@@ -2807,7 +2807,7 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
         }
     }
 
-    pb_event_tlv.tlv_type       = TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION;
+    pb_event_tlv.tlv.type       = TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION;
     pb_event_tlv.media_types_nr = media_types_nr;
 
     if (media_types_nr > 0)
@@ -2987,7 +2987,7 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
 
     // Fill the push button generic event notification TLV
     //
-    pbg_event_tlv.tlv_type            = TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION;
+    pbg_event_tlv.tlv.type            = TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION;
     pbg_event_tlv.local_interfaces_nr = generic_media_types_nr;
 
     if (0 == generic_media_types_nr)
@@ -3131,7 +3131,7 @@ uint8_t send1905PushButtonJoinNotificationPacket(char *interface_name, uint16_t 
 
     // Fill the push button join notification TLV
     //
-    pb_join_tlv.tlv_type           = TLV_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION;
+    pb_join_tlv.tlv.type           = TLV_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION;
     pb_join_tlv.al_mac_address[0]  = original_al_mac_address[0];
     pb_join_tlv.al_mac_address[1]  = original_al_mac_address[1];
     pb_join_tlv.al_mac_address[2]  = original_al_mac_address[2];
@@ -3212,19 +3212,19 @@ uint8_t send1905APAutoconfigurationSearchPacket(char *interface_name, uint16_t m
 
     // Fill the searched role TLV
     //
-    searched_role_tlv.tlv_type = TLV_TYPE_SEARCHED_ROLE;
+    searched_role_tlv.tlv.type = TLV_TYPE_SEARCHED_ROLE;
     searched_role_tlv.role     = IEEE80211_ROLE_AP;
 
     // Fill the autoconfig freq band TLV
     //
-    ac_freq_band_tlv.tlv_type  = TLV_TYPE_AUTOCONFIG_FREQ_BAND;
+    ac_freq_band_tlv.tlv.type  = TLV_TYPE_AUTOCONFIG_FREQ_BAND;
     ac_freq_band_tlv.freq_band = freq_band;
 
     _obtainLocalSupportedServicesTLV(&supported_service_tlv);
 
     // Fill the searched service TLV.
     //
-    searched_service_tlv.tlv_type = TLV_TYPE_SEARCHED_SERVICE;
+    searched_service_tlv.tlv.type = TLV_TYPE_SEARCHED_SERVICE;
     searched_service_tlv.supported_service_nr = ARRAY_SIZE(searched_services);
     searched_service_tlv.supported_service = searched_services;
 
@@ -3280,12 +3280,12 @@ uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t
 
     // Fill the supported role TLV
     //
-    supported_role_tlv.tlv_type = TLV_TYPE_SUPPORTED_ROLE;
+    supported_role_tlv.tlv.type = TLV_TYPE_SUPPORTED_ROLE;
     supported_role_tlv.role     = IEEE80211_ROLE_AP;
 
     // Fill the supported freq band TLV
     //
-    supported_freq_band_tlv.tlv_type  = TLV_TYPE_SUPPORTED_FREQ_BAND;
+    supported_freq_band_tlv.tlv.type  = TLV_TYPE_SUPPORTED_FREQ_BAND;
     supported_freq_band_tlv.freq_band = freq_band;
 
     _obtainLocalSupportedServicesTLV(&supported_service_tlv);
@@ -3341,7 +3341,7 @@ uint8_t send1905APAutoconfigurationWSCPacket(char *interface_name, uint16_t mid,
 
     // Fill the WSC TLV
     //
-    wsc_tlv.tlv_type       = TLV_TYPE_WSC;
+    wsc_tlv.tlv.type       = TLV_TYPE_WSC;
     wsc_tlv.wsc_frame_size = wsc_frame_size;
     wsc_tlv.wsc_frame      = (uint8_t *)memalloc(wsc_frame_size);
     memcpy(wsc_tlv.wsc_frame, wsc_frame, wsc_frame_size);
@@ -3641,7 +3641,7 @@ uint8_t send1905InterfacePowerChangeRequestPacket(char *interface_name, uint16_t
 
     // Fill the interface power change information type TLV
     //
-    power_change.tlv_type                   = TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION;
+    power_change.tlv.type                   = TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION;
     power_change.power_change_interfaces_nr = nr;
     power_change.power_change_interfaces    = (struct _powerChangeInformationEntries *)memalloc(sizeof(struct _powerChangeInformationEntries)*nr);
 
@@ -3713,7 +3713,7 @@ uint8_t send1905InterfacePowerChangeResponsePacket(char *interface_name, uint16_
 
     // Fill the interface power change information type TLV
     //
-    power_change.tlv_type                   = TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION;
+    power_change.tlv.type                   = TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION;
     power_change.power_change_interfaces_nr = nr;
     power_change.power_change_interfaces    = (struct _powerChangeStatusEntries *)memalloc(sizeof(struct _powerChangeStatusEntries)*nr);
 
@@ -3775,7 +3775,7 @@ uint8_t sendLLDPBridgeDiscoveryPacket(char *interface_name)
 
     // Fill the chassis ID TLV
     //
-    chassis_id_tlv.tlv_type           = TLV_TYPE_CHASSIS_ID;
+    chassis_id_tlv.tlv.type           = TLV_TYPE_CHASSIS_ID;
     chassis_id_tlv.chassis_id_subtype = CHASSIS_ID_TLV_SUBTYPE_MAC_ADDRESS;
     chassis_id_tlv.chassis_id[0]      = al_mac_address[0];
     chassis_id_tlv.chassis_id[1]      = al_mac_address[1];
@@ -3786,7 +3786,7 @@ uint8_t sendLLDPBridgeDiscoveryPacket(char *interface_name)
 
     // Fill the port ID TLV
     //
-    port_id_tlv.tlv_type            = TLV_TYPE_PORT_ID;
+    port_id_tlv.tlv.type            = TLV_TYPE_PORT_ID;
     port_id_tlv.port_id_subtype     = PORT_ID_TLV_SUBTYPE_MAC_ADDRESS;
     port_id_tlv.port_id[0]          = interface_mac_address[0];
     port_id_tlv.port_id[1]          = interface_mac_address[1];
@@ -3797,7 +3797,7 @@ uint8_t sendLLDPBridgeDiscoveryPacket(char *interface_name)
 
     // Fill the time to live TLV
     //
-    time_to_live_tlv.tlv_type       = TLV_TYPE_TIME_TO_LIVE;
+    time_to_live_tlv.tlv.type       = TLV_TYPE_TIME_TO_LIVE;
     time_to_live_tlv.ttl            = TIME_TO_LIVE_TLV_1905_DEFAULT_VALUE;
 
     // Forge the LLDP payload containing all these TLVs

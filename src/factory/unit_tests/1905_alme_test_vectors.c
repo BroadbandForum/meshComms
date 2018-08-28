@@ -776,7 +776,7 @@ struct getMetricResponseALME x1905_alme_structure_024 =
                 .tx_metric            =
                     (struct transmitterLinkMetricTLV[]){
                         {
-                            .tlv_type                    = TLV_TYPE_TRANSMITTER_LINK_METRIC,
+                            .tlv.type                    = TLV_TYPE_TRANSMITTER_LINK_METRIC,
                             .local_al_address            = {0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0x01},
                             .neighbor_al_address         = {0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0x02},
                             .transmitter_link_metrics_nr = 1,
@@ -799,7 +799,7 @@ struct getMetricResponseALME x1905_alme_structure_024 =
                 .rx_metric            =
                     (struct receiverLinkMetricTLV[]){
                         {
-                            .tlv_type                    = TLV_TYPE_RECEIVER_LINK_METRIC,
+                            .tlv.type                    = TLV_TYPE_RECEIVER_LINK_METRIC,
                             .local_al_address            = {0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0x01},
                             .neighbor_al_address         = {0xaa, 0xaa, 0xaa, 0xaa, 0xaa, 0x02},
                             .receiver_link_metrics_nr    = 1,

@@ -161,7 +161,7 @@ uint8_t *forge_lldp_PAYLOAD_from_structure(struct PAYLOAD *memory_structure, uin
     uint8_t  *buffer;
     uint16_t  total_len;
 
-    struct endOfLldppduTLV  end_of_lldppdu_tlv = { .tlv_type = TLV_TYPE_END_OF_LLDPPDU };
+    struct endOfLldppduTLV  end_of_lldppdu_tlv = { .tlv.type = TLV_TYPE_END_OF_LLDPPDU };
 
     // First of all, make sure that the provided PAYLOAD structure contains one
     // (and only one) of the required TLVs (ie. "chassis ID", "port ID" and

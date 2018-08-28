@@ -61,7 +61,7 @@
 
 struct linkMetricQueryTLV x1905_tlv_structure_001 =
 {
-    .tlv_type          = TLV_TYPE_LINK_METRIC_QUERY,
+    .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
     .destination       = LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR,
     .specific_neighbor = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05},
     .link_metrics_type = LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY,
@@ -85,7 +85,7 @@ uint16_t x1905_tlv_stream_len_001 = 11;
 
 struct linkMetricQueryTLV x1905_tlv_structure_002 =
 {
-    .tlv_type          = TLV_TYPE_LINK_METRIC_QUERY,
+    .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
     .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
     .specific_neighbor = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05},
     .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
@@ -109,7 +109,7 @@ uint16_t x1905_tlv_stream_len_002 = 11;
 
 struct linkMetricQueryTLV x1905_tlv_structure_003 =
 {
-    .tlv_type          = TLV_TYPE_LINK_METRIC_QUERY,
+    .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
     .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
     .specific_neighbor = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
     .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
@@ -133,7 +133,7 @@ uint16_t x1905_tlv_stream_len_003 = 11;
 
 struct transmitterLinkMetricTLV x1905_tlv_structure_004 =
 {
-    .tlv_type                    = TLV_TYPE_TRANSMITTER_LINK_METRIC,
+    .tlv.type                    = TLV_TYPE_TRANSMITTER_LINK_METRIC,
     .local_al_address            = {0x01, 0x02, 0x03, 0x01, 0x02, 0x03},
     .neighbor_al_address         = {0x0a, 0x0b, 0x0c, 0x0a, 0x0b, 0x0c},
     .transmitter_link_metrics_nr = 1,
@@ -181,7 +181,7 @@ uint16_t x1905_tlv_stream_len_004 = 44;
 
 struct transmitterLinkMetricTLV x1905_tlv_structure_005 =
 {
-    .tlv_type                    = TLV_TYPE_TRANSMITTER_LINK_METRIC,
+    .tlv.type                    = TLV_TYPE_TRANSMITTER_LINK_METRIC,
     .local_al_address            = {0x01, 0x01, 0x01, 0x01, 0x01, 0x01},
     .neighbor_al_address         = {0x02, 0x02, 0x02, 0x02, 0x02, 0x02},
     .transmitter_link_metrics_nr = 2,
@@ -249,7 +249,7 @@ uint16_t x1905_tlv_stream_len_005 = 73;
 
 struct receiverLinkMetricTLV x1905_tlv_structure_006 =
 {
-    .tlv_type                    = TLV_TYPE_RECEIVER_LINK_METRIC,
+    .tlv.type                    = TLV_TYPE_RECEIVER_LINK_METRIC,
     .local_al_address            = {0x01, 0x02, 0xff, 0x01, 0x02, 0x03},
     .neighbor_al_address         = {0x0a, 0x0b, 0x0c, 0x0a, 0x77, 0x0c},
     .receiver_link_metrics_nr    = 1,
@@ -291,7 +291,7 @@ uint16_t x1905_tlv_stream_len_006 = 38;
 
 struct receiverLinkMetricTLV x1905_tlv_structure_007 =
 {
-    .tlv_type                    = TLV_TYPE_RECEIVER_LINK_METRIC,
+    .tlv.type                    = TLV_TYPE_RECEIVER_LINK_METRIC,
     .local_al_address            = {0x01, 0x02, 0xff, 0x01, 0x02, 0x03},
     .neighbor_al_address         = {0x0a, 0x0b, 0x0c, 0x0a, 0x77, 0x0c},
     .receiver_link_metrics_nr    = 2,
@@ -347,7 +347,7 @@ uint16_t x1905_tlv_stream_len_007 = 61;
 
 struct alMacAddressTypeTLV x1905_tlv_structure_008 =
 {
-    .tlv_type                    = TLV_TYPE_AL_MAC_ADDRESS_TYPE,
+    .tlv.type                    = TLV_TYPE_AL_MAC_ADDRESS_TYPE,
     .al_mac_address              = {0x01, 0x02, 0xf2, 0x01, 0x02, 0x00},
 };
 
@@ -369,7 +369,7 @@ uint16_t x1905_tlv_stream_len_008 = 9;
 
 struct macAddressTypeTLV x1905_tlv_structure_009 =
 {
-    .tlv_type                    = TLV_TYPE_MAC_ADDRESS_TYPE,
+    .tlv.type                    = TLV_TYPE_MAC_ADDRESS_TYPE,
     .mac_address                 = {0xff, 0xf2, 0x04, 0xfa, 0x00, 0xab},
 };
 
@@ -391,7 +391,7 @@ uint16_t x1905_tlv_stream_len_009 = 9;
 
 struct deviceInformationTypeTLV x1905_tlv_structure_010 =
 {
-    .tlv_type                    = TLV_TYPE_DEVICE_INFORMATION_TYPE,
+    .tlv.type                    = TLV_TYPE_DEVICE_INFORMATION_TYPE,
     .al_mac_address              = {0x04, 0x02, 0xff, 0x01, 0x02, 0x03},
     .local_interfaces_nr         = 2,
     .local_interfaces            =
@@ -446,7 +446,7 @@ uint16_t x1905_tlv_stream_len_010 = 45;
 
 struct deviceBridgingCapabilityTLV x1905_tlv_structure_011 =
 {
-    .tlv_type                    = TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES,
+    .tlv.type                    = TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES,
     .bridging_tuples_nr          = 2,
     .bridging_tuples             =
         (struct _bridgingTupleEntries[]){
@@ -505,7 +505,7 @@ uint16_t x1905_tlv_stream_len_011 = 36;
 
 struct deviceBridgingCapabilityTLV x1905_tlv_structure_012 =
 {
-    .tlv_type                    = TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES,
+    .tlv.type                    = TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES,
     .bridging_tuples_nr          = 2,
     .bridging_tuples             =
         (struct _bridgingTupleEntries[]){
@@ -550,7 +550,7 @@ uint16_t x1905_tlv_stream_len_012 = 18;
 
 struct deviceBridgingCapabilityTLV x1905_tlv_structure_013 =
 {
-    .tlv_type                    = TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES,
+    .tlv.type                    = TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES,
     .bridging_tuples_nr          = 0,
     .bridging_tuples             = NULL,
 };
@@ -573,7 +573,7 @@ uint16_t x1905_tlv_stream_len_013 = 4;
 
 struct non1905NeighborDeviceListTLV x1905_tlv_structure_014 =
 {
-    .tlv_type                    = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST,
+    .tlv.type                    = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST,
     .local_mac_address           = {0x33, 0x34, 0x35, 0x36, 0x37, 0x38},
     .non_1905_neighbors_nr       = 1,
     .non_1905_neighbors          =
@@ -603,7 +603,7 @@ uint16_t x1905_tlv_stream_len_014 = 15;
 
 struct non1905NeighborDeviceListTLV x1905_tlv_structure_015 =
 {
-    .tlv_type                    = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST,
+    .tlv.type                    = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST,
     .local_mac_address           = {0x33, 0x34, 0x35, 0x36, 0x37, 0x38},
     .non_1905_neighbors_nr       = 2,
     .non_1905_neighbors          =
@@ -637,7 +637,7 @@ uint16_t x1905_tlv_stream_len_015 = 21;
 
 struct neighborDeviceListTLV x1905_tlv_structure_016 =
 {
-    .tlv_type                    = TLV_TYPE_NEIGHBOR_DEVICE_LIST,
+    .tlv.type                    = TLV_TYPE_NEIGHBOR_DEVICE_LIST,
     .local_mac_address           = {0x33, 0x34, 0x35, 0x36, 0x37, 0x38},
     .neighbors_nr                = 1,
     .neighbors                   =
@@ -669,7 +669,7 @@ uint16_t x1905_tlv_stream_len_016 = 16;
 
 struct neighborDeviceListTLV x1905_tlv_structure_017 =
 {
-    .tlv_type                    = TLV_TYPE_NEIGHBOR_DEVICE_LIST,
+    .tlv.type                    = TLV_TYPE_NEIGHBOR_DEVICE_LIST,
     .local_mac_address           = {0x33, 0x34, 0x35, 0x36, 0x37, 0x38},
     .neighbors_nr                = 2,
     .neighbors                   =
@@ -707,7 +707,7 @@ uint16_t x1905_tlv_stream_len_017 = 23;
 
 struct linkMetricResultCodeTLV x1905_tlv_structure_018 =
 {
-    .tlv_type                    = TLV_TYPE_LINK_METRIC_RESULT_CODE,
+    .tlv.type                    = TLV_TYPE_LINK_METRIC_RESULT_CODE,
     .result_code                 = LINK_METRIC_RESULT_CODE_TLV_INVALID_NEIGHBOR,
 };
 
@@ -729,7 +729,7 @@ uint16_t x1905_tlv_stream_len_018 = 4;
 
 struct linkMetricResultCodeTLV x1905_tlv_structure_019 =
 {
-    .tlv_type                    = TLV_TYPE_LINK_METRIC_RESULT_CODE,
+    .tlv.type                    = TLV_TYPE_LINK_METRIC_RESULT_CODE,
     .result_code                 = 5,
 };
 
@@ -751,7 +751,7 @@ uint16_t x1905_tlv_stream_len_019 = 4;
 
 struct searchedRoleTLV x1905_tlv_structure_020 =
 {
-    .tlv_type                    = TLV_TYPE_SEARCHED_ROLE,
+    .tlv.type                    = TLV_TYPE_SEARCHED_ROLE,
     .role                        = IEEE80211_ROLE_REGISTRAR,
 };
 
@@ -773,7 +773,7 @@ uint16_t x1905_tlv_stream_len_020 = 4;
 
 struct searchedRoleTLV x1905_tlv_structure_021 =
 {
-    .tlv_type                    = TLV_TYPE_SEARCHED_ROLE,
+    .tlv.type                    = TLV_TYPE_SEARCHED_ROLE,
     .role                        = 0xff,
 };
 
@@ -795,7 +795,7 @@ uint16_t x1905_tlv_stream_len_021 = 4;
 
 struct autoconfigFreqBandTLV x1905_tlv_structure_022 =
 {
-    .tlv_type                    = TLV_TYPE_AUTOCONFIG_FREQ_BAND,
+    .tlv.type                    = TLV_TYPE_AUTOCONFIG_FREQ_BAND,
     .freq_band                   = IEEE80211_FREQUENCY_BAND_2_4_GHZ,
 };
 
@@ -817,7 +817,7 @@ uint16_t x1905_tlv_stream_len_022 = 4;
 
 struct autoconfigFreqBandTLV x1905_tlv_structure_023 =
 {
-    .tlv_type                    = TLV_TYPE_AUTOCONFIG_FREQ_BAND,
+    .tlv.type                    = TLV_TYPE_AUTOCONFIG_FREQ_BAND,
     .freq_band                   = 0x1a,
 };
 
@@ -839,7 +839,7 @@ uint16_t x1905_tlv_stream_len_023 = 4;
 
 struct supportedRoleTLV x1905_tlv_structure_024 =
 {
-    .tlv_type                    = TLV_TYPE_SUPPORTED_ROLE,
+    .tlv.type                    = TLV_TYPE_SUPPORTED_ROLE,
     .role                        = IEEE80211_ROLE_REGISTRAR,
 };
 
@@ -861,7 +861,7 @@ uint16_t x1905_tlv_stream_len_024 = 4;
 
 struct supportedRoleTLV x1905_tlv_structure_025 =
 {
-    .tlv_type                    = TLV_TYPE_SUPPORTED_ROLE,
+    .tlv.type                    = TLV_TYPE_SUPPORTED_ROLE,
     .role                        = 0x02,
 };
 
@@ -883,7 +883,7 @@ uint16_t x1905_tlv_stream_len_025 = 4;
 
 struct supportedFreqBandTLV x1905_tlv_structure_026 =
 {
-    .tlv_type                    = TLV_TYPE_SUPPORTED_FREQ_BAND,
+    .tlv.type                    = TLV_TYPE_SUPPORTED_FREQ_BAND,
     .freq_band                   = IEEE80211_FREQUENCY_BAND_5_GHZ,
 };
 
@@ -905,7 +905,7 @@ uint16_t x1905_tlv_stream_len_026 = 4;
 
 struct supportedFreqBandTLV x1905_tlv_structure_027 =
 {
-    .tlv_type                    = TLV_TYPE_SUPPORTED_FREQ_BAND,
+    .tlv.type                    = TLV_TYPE_SUPPORTED_FREQ_BAND,
     .freq_band                   = 0x07,
 };
 
@@ -927,7 +927,7 @@ uint16_t x1905_tlv_stream_len_027 = 4;
 
 struct pushButtonEventNotificationTLV x1905_tlv_structure_028 =
 {
-    .tlv_type                    = TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION,
+    .tlv.type                    = TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION,
     .media_types_nr              = 2,
     .media_types                 =
         (struct _mediaTypeEntries[]){
@@ -976,7 +976,7 @@ uint16_t x1905_tlv_stream_len_028 = 27;
 
 struct powerOffInterfaceTLV x1905_tlv_structure_029 =
 {
-    .tlv_type                    = TLV_TYPE_POWER_OFF_INTERFACE,
+    .tlv.type                    = TLV_TYPE_POWER_OFF_INTERFACE,
     .power_off_interfaces_nr     = 2,
     .power_off_interfaces        =
         (struct _powerOffInterfaceEntries[]){
@@ -1034,7 +1034,7 @@ uint16_t x1905_tlv_stream_len_029 = 35;
 
 struct powerOffInterfaceTLV x1905_tlv_structure_030 =
 {
-    .tlv_type                    = TLV_TYPE_POWER_OFF_INTERFACE,
+    .tlv.type                    = TLV_TYPE_POWER_OFF_INTERFACE,
     .power_off_interfaces_nr     = 0,
     .power_off_interfaces        = NULL,
 };
@@ -1057,7 +1057,7 @@ uint16_t x1905_tlv_stream_len_030 = 4;
 
 struct genericPhyDeviceInformationTypeTLV x1905_tlv_structure_031 =
 {
-    .tlv_type                    = TLV_TYPE_GENERIC_PHY_DEVICE_INFORMATION,
+    .tlv.type                    = TLV_TYPE_GENERIC_PHY_DEVICE_INFORMATION,
     .al_mac_address              = {0x00, 0x10, 0x20, 0x30, 0x40, 0x50},
     .local_interfaces_nr         = 1,
     .local_interfaces            =
@@ -1105,7 +1105,7 @@ uint16_t x1905_tlv_stream_len_031 = 133;
 
 struct pushButtonGenericPhyEventNotificationTLV x1905_tlv_structure_032 =
 {
-    .tlv_type                    = TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION,
+    .tlv.type                    = TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION,
     .local_interfaces_nr         = 1,
     .local_interfaces            =
         (struct _genericPhyCommonData[]){
@@ -1140,7 +1140,7 @@ uint16_t x1905_tlv_stream_len_032 = 14;
 
 struct deviceIdentificationTypeTLV x1905_tlv_structure_033 =
 {
-    .tlv_type                    = TLV_TYPE_DEVICE_IDENTIFICATION,
+    .tlv.type                    = TLV_TYPE_DEVICE_IDENTIFICATION,
     .friendly_name               = "Tv in the kitchen\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
     .manufacturer_name           = "Megacorp S.A.\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
     .manufacturer_model          = "LED TVx2001xx\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
@@ -1167,7 +1167,7 @@ uint16_t x1905_tlv_stream_len_033 = 195;
 
 struct controlUrlTypeTLV x1905_tlv_structure_034 =
 {
-    .tlv_type                    = TLV_TYPE_CONTROL_URL,
+    .tlv.type                    = TLV_TYPE_CONTROL_URL,
     .url                         = "http://192.168.0.120"
 
 };
@@ -1190,7 +1190,7 @@ uint16_t x1905_tlv_stream_len_034 = 24;
 
 struct ipv4TypeTLV x1905_tlv_structure_035 =
 {
-    .tlv_type                    = TLV_TYPE_IPV4,
+    .tlv.type                    = TLV_TYPE_IPV4,
     .ipv4_interfaces_nr          = 2,
     .ipv4_interfaces             =
         (struct _ipv4InterfaceEntries[]){
@@ -1257,7 +1257,7 @@ uint16_t x1905_tlv_stream_len_035 = 45;
 
 struct ipv6TypeTLV x1905_tlv_structure_036 =
 {
-    .tlv_type                    = TLV_TYPE_IPV6,
+    .tlv.type                    = TLV_TYPE_IPV6,
     .ipv6_interfaces_nr          = 1,
     .ipv6_interfaces             =
         (struct _ipv6InterfaceEntries[]){
@@ -1309,7 +1309,7 @@ uint16_t x1905_tlv_stream_len_036 = 93;
 
 struct x1905ProfileVersionTLV x1905_tlv_structure_037 =
 {
-    .tlv_type                    = TLV_TYPE_1905_PROFILE_VERSION,
+    .tlv.type                    = TLV_TYPE_1905_PROFILE_VERSION,
     .profile                     = PROFILE_1905_1A,
 };
 
@@ -1331,7 +1331,7 @@ uint16_t x1905_tlv_stream_len_037 = 4;
 
 struct interfacePowerChangeInformationTLV x1905_tlv_structure_038 =
 {
-    .tlv_type                    = TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION,
+    .tlv.type                    = TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION,
     .power_change_interfaces_nr  = 3,
     .power_change_interfaces     =
         (struct _powerChangeInformationEntries[]){
@@ -1374,7 +1374,7 @@ uint16_t x1905_tlv_stream_len_038 = 25;
 
 struct interfacePowerChangeStatusTLV x1905_tlv_structure_039 =
 {
-    .tlv_type                    = TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS,
+    .tlv.type                    = TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS,
     .power_change_interfaces_nr  = 3,
     .power_change_interfaces     =
         (struct _powerChangeStatusEntries[]){
@@ -1417,7 +1417,7 @@ uint16_t x1905_tlv_stream_len_039 = 25;
 
 struct l2NeighborDeviceTLV x1905_tlv_structure_040 =
 {
-    .tlv_type                    = TLV_TYPE_L2_NEIGHBOR_DEVICE,
+    .tlv.type                    = TLV_TYPE_L2_NEIGHBOR_DEVICE,
     .local_interfaces_nr         = 3,
     .local_interfaces            =
         (struct _l2InterfacesEntries[]){
@@ -1494,7 +1494,7 @@ uint16_t x1905_tlv_stream_len_040 = 64;
 
 struct vendorSpecificTLV x1905_tlv_structure_041 =
 {
-    .tlv_type                    = TLV_TYPE_VENDOR_SPECIFIC,
+    .tlv.type                    = TLV_TYPE_VENDOR_SPECIFIC,
     .vendorOUI                   = {0x00, 0x03, 0x7f},
     .m_nr                        = 21,
     .m                           = (uint8_t[]) {0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
@@ -1512,7 +1512,7 @@ uint16_t x1905_tlv_stream_len_041 = 27;
 
 struct supportedServiceTLV x1905_tlv_structure_050 =
 {
-    .tlv_type                    = TLV_TYPE_SUPPORTED_SERVICE,
+    .tlv.type                    = TLV_TYPE_SUPPORTED_SERVICE,
     .supported_service_nr        = 2,
     .supported_service           = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT, },
 };
@@ -1529,7 +1529,7 @@ uint16_t x1905_tlv_stream_len_050 = ARRAY_SIZE(x1905_tlv_stream_050);
 
 struct supportedServiceTLV x1905_tlv_structure_051 =
 {
-    .tlv_type                    = TLV_TYPE_SEARCHED_SERVICE,
+    .tlv.type                    = TLV_TYPE_SEARCHED_SERVICE,
     .supported_service_nr        = 1,
     .supported_service           = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, },
 };

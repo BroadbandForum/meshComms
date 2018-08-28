@@ -19,7 +19,7 @@
 #ifndef _LLDP_TLVS_H_
 #define _LLDP_TLVS_H_
 
-#include "platform.h"
+#include "tlv.h"
 #include <utils.h>
 
 // In the comments below, every time a reference is made (ex: "See Section 8.5"
@@ -51,8 +51,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 struct endOfLldppduTLV
 {
-    uint8_t   tlv_type;             // Must always be set to
-                                  // TLV_TYPE_END_OF_LLDPPDU
+    struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_END_OF_LLDPPDU. */
 
     // This structure does not contain anything at all
 };
@@ -63,8 +62,7 @@ struct endOfLldppduTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct chassisIdTLV
 {
-    uint8_t   tlv_type;             // Must always be set to
-                                  // TLV_TYPE_CHASSIS_ID
+    struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_CHASSIS_ID. */
 
     #define CHASSIS_ID_TLV_SUBTYPE_CHASSIS_COMPONENT   (1)
     #define CHASSIS_ID_TLV_SUBTYPE_INTERFACE_ALIAS     (2)
@@ -93,8 +91,7 @@ struct chassisIdTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct portIdTLV
 {
-    uint8_t   tlv_type;             // Must always be set to
-                                  // TLV_TYPE_PORT_ID
+    struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_PORT_ID. */
 
     #define PORT_ID_TLV_SUBTYPE_INTERFACE_ALIAS     (1)
     #define PORT_ID_TLV_SUBTYPE_PORT_COMPONENT      (2)
@@ -130,8 +127,7 @@ struct portIdTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct timeToLiveTypeTLV
 {
-    uint8_t   tlv_type;             // Must always be set to
-                                  // TLV_TYPE_TIME_TO_LIVE
+    struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_TIME_TO_LIVE. */
 
     #define TIME_TO_LIVE_TLV_1905_DEFAULT_VALUE  (180)
     uint16_t  ttl;                  // Time (in seconds)
