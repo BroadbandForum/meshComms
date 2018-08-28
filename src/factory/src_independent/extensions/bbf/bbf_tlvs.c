@@ -29,7 +29,7 @@
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
+uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
 {
     if (NULL == packet_stream)
     {
@@ -48,11 +48,11 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
 
             struct linkMetricQueryTLV  *ret;
 
-            INT8U *p;
-            INT16U len;
+            uint8_t *p;
+            uint16_t len;
 
-            INT8U destination;
-            INT8U link_metrics_type;
+            uint8_t destination;
+            uint8_t link_metrics_type;
 
             ret = (struct linkMetricQueryTLV *)PLATFORM_MALLOC(sizeof(struct linkMetricQueryTLV));
 
@@ -83,7 +83,7 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
             }
             else if (0 == destination)
             {
-               INT8U dummy_address[] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+               uint8_t dummy_address[] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
                ret->destination = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
                memcpy(ret->specific_neighbor, dummy_address, 6);
@@ -129,7 +129,7 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
                return NULL;
             }
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC:
@@ -139,10 +139,10 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
 
             struct transmitterLinkMetricTLV  *ret;
 
-            INT8U *p;
-            INT16U len;
-            INT8U  i;
-            INT8U empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t *p;
+            uint16_t len;
+            uint8_t  i;
+            uint8_t empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
             ret = (struct transmitterLinkMetricTLV *)PLATFORM_MALLOC(sizeof(struct transmitterLinkMetricTLV));
 
@@ -208,7 +208,7 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
                 return NULL;
             }
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
 
@@ -219,10 +219,10 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
 
             struct receiverLinkMetricTLV  *ret;
 
-            INT8U *p;
-            INT16U len;
-            INT8U  i;
-            INT8U empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t *p;
+            uint16_t len;
+            uint8_t  i;
+            uint8_t empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
             ret = (struct receiverLinkMetricTLV *)PLATFORM_MALLOC(sizeof(struct receiverLinkMetricTLV));
 
@@ -285,7 +285,7 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
                 return NULL;
             }
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE:
@@ -295,8 +295,8 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
 
             struct linkMetricResultCodeTLV  *ret;
 
-            INT8U *p;
-            INT16U len;
+            uint8_t *p;
+            uint16_t len;
 
             ret = (struct linkMetricResultCodeTLV *)PLATFORM_MALLOC(sizeof(struct linkMetricResultCodeTLV));
 
@@ -317,7 +317,7 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
 
             _E1B(&p, &ret->result_code);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         default:
@@ -335,7 +335,7 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream)
 }
 
 
-INT8U *forge_bbf_TLV_from_structure(INT8U *memory_structure, INT16U *len)
+uint8_t *forge_bbf_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 {
     if (NULL == memory_structure)
     {
@@ -352,17 +352,17 @@ INT8U *forge_bbf_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             // This forging is done according to the information detailed in
             // ...
 
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct linkMetricQueryTLV *m;
 
-            INT16U tlv_length;
+            uint16_t tlv_length;
 
             m = (struct linkMetricQueryTLV *)memory_structure;
 
             tlv_length = 8;
             *len = 1 + 2 + tlv_length;
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 2  + tlv_length);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 2  + tlv_length);
 
             _I1B(&m->tlv_type,          &p);
             _I2B(&tlv_length,           &p);
@@ -374,7 +374,7 @@ INT8U *forge_bbf_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             }
             else
             {
-                INT8U empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                uint8_t empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
                 _InB(empty_address,  &p, 6);
             }
@@ -389,20 +389,20 @@ INT8U *forge_bbf_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             // This forging is done according to the information detailed in
             // ...
 
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct transmitterLinkMetricTLV *m;
 
-            INT16U tlv_length;
+            uint16_t tlv_length;
 
-            INT8U i;
-            INT8U empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t i;
+            uint8_t empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
             m = (struct transmitterLinkMetricTLV *)memory_structure;
 
             tlv_length = 12 + 29*m->transmitter_link_metrics_nr;
             *len = 1 + 2 + tlv_length;
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 2  + tlv_length);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 2  + tlv_length);
 
             _I1B(&m->tlv_type,            &p);
             _I2B(&tlv_length,             &p);
@@ -430,20 +430,20 @@ INT8U *forge_bbf_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             // This forging is done according to the information detailed in
             // ...
 
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct receiverLinkMetricTLV *m;
 
-            INT16U tlv_length;
+            uint16_t tlv_length;
 
-            INT8U i;
-            INT8U empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t i;
+            uint8_t empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
             m = (struct receiverLinkMetricTLV *)memory_structure;
 
             tlv_length = 12 + 23*m->receiver_link_metrics_nr;
             *len = 1 + 2 + tlv_length;
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 2  + tlv_length);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 2  + tlv_length);
 
             _I1B(&m->tlv_type,            &p);
             _I2B(&tlv_length,             &p);
@@ -468,17 +468,17 @@ INT8U *forge_bbf_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             // This forging is done according to the information detailed in
             // ...
 
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct linkMetricResultCodeTLV *m;
 
-            INT16U tlv_length;
+            uint16_t tlv_length;
 
             m = (struct linkMetricResultCodeTLV *)memory_structure;
 
             tlv_length = 1;
             *len = 1 + 2 + tlv_length;
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 2  + tlv_length);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 2  + tlv_length);
 
             _I1B(&m->tlv_type,     &p);
             _I2B(&tlv_length,      &p);
@@ -511,7 +511,7 @@ INT8U *forge_bbf_TLV_from_structure(INT8U *memory_structure, INT16U *len)
 }
 
 
-void free_bbf_TLV_structure(INT8U *memory_structure)
+void free_bbf_TLV_structure(uint8_t *memory_structure)
 {
     if (NULL == memory_structure)
     {
@@ -575,7 +575,7 @@ void free_bbf_TLV_structure(INT8U *memory_structure)
 }
 
 
-INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_structure_2)
+uint8_t compare_bbf_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory_structure_2)
 {
     if (NULL == memory_structure_1 || NULL == memory_structure_2)
     {
@@ -616,7 +616,7 @@ INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struct
         case BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC:
         {
             struct transmitterLinkMetricTLV *p1, *p2;
-            INT8U i;
+            uint8_t i;
 
             p1 = (struct transmitterLinkMetricTLV *)memory_structure_1;
             p2 = (struct transmitterLinkMetricTLV *)memory_structure_2;
@@ -661,7 +661,7 @@ INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struct
         case BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC:
         {
             struct receiverLinkMetricTLV *p1, *p2;
-            INT8U i;
+            uint8_t i;
 
             p1 = (struct receiverLinkMetricTLV *)memory_structure_1;
             p2 = (struct receiverLinkMetricTLV *)memory_structure_2;
@@ -733,7 +733,7 @@ INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struct
 }
 
 
-void visit_bbf_TLV_structure(INT8U *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
+void visit_bbf_TLV_structure(uint8_t *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     // Buffer size to store a prefix string that will be used to show each
     // element of a structure on screen
@@ -766,7 +766,7 @@ void visit_bbf_TLV_structure(INT8U *memory_structure, visitor_callback callback,
         case BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC:
         {
             struct transmitterLinkMetricTLV *p;
-            INT8U i;
+            uint8_t i;
 
             p = (struct transmitterLinkMetricTLV *)memory_structure;
 
@@ -804,7 +804,7 @@ void visit_bbf_TLV_structure(INT8U *memory_structure, visitor_callback callback,
         case BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC:
         {
             struct receiverLinkMetricTLV *p;
-            INT8U i;
+            uint8_t i;
 
             p = (struct receiverLinkMetricTLV *)memory_structure;
 
@@ -858,7 +858,7 @@ void visit_bbf_TLV_structure(INT8U *memory_structure, visitor_callback callback,
 }
 
 
-char *convert_bbf_TLV_type_to_string(INT8U tlv_type)
+char *convert_bbf_TLV_type_to_string(uint8_t tlv_type)
 {
     switch (tlv_type)
     {

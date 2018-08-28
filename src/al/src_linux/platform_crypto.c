@@ -93,10 +93,10 @@ static int DH_set0_key(DH *dh, BIGNUM *pub_key, BIGNUM *priv_key)
 // files (functions declarations are  found in "../interfaces/platform.h)
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U PLATFORM_GET_RANDOM_BYTES(INT8U *p, INT16U len)
+uint8_t PLATFORM_GET_RANDOM_BYTES(uint8_t *p, uint16_t len)
 {
     FILE   *fd;
-    INT32U  rc;
+    uint32_t  rc;
 
     fd = fopen("/dev/urandom", "rb");
 
@@ -121,7 +121,7 @@ INT8U PLATFORM_GET_RANDOM_BYTES(INT8U *p, INT16U len)
     }
 }
 
-INT8U PLATFORM_GENERATE_DH_KEY_PAIR(INT8U **priv, INT16U *priv_len, INT8U **pub, INT16U *pub_len)
+uint8_t PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, uint16_t *priv_len, uint8_t **pub, uint16_t *pub_len)
 {
     DH *dh;
     const BIGNUM *priv_key = NULL;
@@ -162,11 +162,11 @@ INT8U PLATFORM_GENERATE_DH_KEY_PAIR(INT8U **priv, INT16U *priv_len, INT8U **pub,
 
     DH_get0_key(dh, &pub_key, &priv_key);
     *priv_len = BN_num_bytes(priv_key);
-    *priv     = (INT8U *)malloc(*priv_len);
+    *priv     = (uint8_t *)malloc(*priv_len);
     BN_bn2bin(priv_key, *priv);
 
     *pub_len = BN_num_bytes(pub_key);
-    *pub     = (INT8U *)malloc(*pub_len);
+    *pub     = (uint8_t *)malloc(*pub_len);
     BN_bn2bin(pub_key, *pub);
 
     DH_free(dh);
@@ -176,7 +176,7 @@ INT8U PLATFORM_GENERATE_DH_KEY_PAIR(INT8U **priv, INT16U *priv_len, INT8U **pub,
     return 1;
 }
 
-INT8U PLATFORM_COMPUTE_DH_SHARED_SECRET(INT8U **shared_secret, INT16U *shared_secret_len, INT8U *remote_pub, INT16U remote_pub_len, INT8U *local_priv, INT8U local_priv_len)
+uint8_t PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shared_secret, uint16_t *shared_secret_len, uint8_t *remote_pub, uint16_t remote_pub_len, uint8_t *local_priv, uint8_t local_priv_len)
 {
     BIGNUM *pub_key;
     BIGNUM *priv_key;
@@ -233,7 +233,7 @@ INT8U PLATFORM_COMPUTE_DH_SHARED_SECRET(INT8U **shared_secret, INT16U *shared_se
     // Allocate output buffer
     //
     rlen            = DH_size(dh);
-    *shared_secret  = (INT8U*)malloc(rlen);
+    *shared_secret  = (uint8_t*)malloc(rlen);
 
     // Compute the shared secret and save it in the output buffer
     //
@@ -250,7 +250,7 @@ INT8U PLATFORM_COMPUTE_DH_SHARED_SECRET(INT8U **shared_secret, INT16U *shared_se
     }
     else
     {
-        *shared_secret_len = (INT16U)keylen;
+        *shared_secret_len = (uint16_t)keylen;
     }
 
     BN_clear_free(pub_key);
@@ -260,9 +260,9 @@ INT8U PLATFORM_COMPUTE_DH_SHARED_SECRET(INT8U **shared_secret, INT16U *shared_se
 }
 
 
-INT8U PLATFORM_SHA256(INT8U num_elem, INT8U **addr, INT32U *len, INT8U *digest)
+uint8_t PLATFORM_SHA256(uint8_t num_elem, uint8_t **addr, uint32_t *len, uint8_t *digest)
 {
-    INT8U res;
+    uint8_t res;
     unsigned int  mac_len;
     EVP_MD_CTX   *ctx;
 
@@ -316,7 +316,7 @@ INT8U PLATFORM_SHA256(INT8U num_elem, INT8U **addr, INT32U *len, INT8U *digest)
 }
 
 
-INT8U PLATFORM_HMAC_SHA256(INT8U *key, INT32U keylen, INT8U num_elem, INT8U **addr, INT32U *len, INT8U *hmac)
+uint8_t PLATFORM_HMAC_SHA256(uint8_t *key, uint32_t keylen, uint8_t num_elem, uint8_t **addr, uint32_t *len, uint8_t *hmac)
 {
     HMAC_CTX *ctx;
     size_t    i;
@@ -354,12 +354,12 @@ INT8U PLATFORM_HMAC_SHA256(INT8U *key, INT32U keylen, INT8U num_elem, INT8U **ad
     return 1;
 }
 
-INT8U PLATFORM_AES_ENCRYPT(INT8U *key, INT8U *iv, INT8U *data, INT32U data_len)
+uint8_t PLATFORM_AES_ENCRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, uint32_t data_len)
 {
     EVP_CIPHER_CTX *ctx;
 
     int clen, len;
-    INT8U buf[AES_BLOCK_SIZE];
+    uint8_t buf[AES_BLOCK_SIZE];
 
     ctx = EVP_CIPHER_CTX_new();
     if (NULL == ctx)
@@ -389,12 +389,12 @@ INT8U PLATFORM_AES_ENCRYPT(INT8U *key, INT8U *iv, INT8U *data, INT32U data_len)
     return 1;
 }
 
-INT8U PLATFORM_AES_DECRYPT(INT8U *key, INT8U *iv, INT8U *data, INT32U data_len)
+uint8_t PLATFORM_AES_DECRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, uint32_t data_len)
 {
     EVP_CIPHER_CTX *ctx;
 
     int plen, len;
-    INT8U buf[AES_BLOCK_SIZE];
+    uint8_t buf[AES_BLOCK_SIZE];
 
     ctx = EVP_CIPHER_CTX_new();
     if (NULL == ctx)

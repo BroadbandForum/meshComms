@@ -83,7 +83,7 @@
 //
 //   - The HLE requested the AL service to stop. In this case it will return '0'
 //
-INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *registrar_interface);
+uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, char *registrar_interface);
 
 
 #endif

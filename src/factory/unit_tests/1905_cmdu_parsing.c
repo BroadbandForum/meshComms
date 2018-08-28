@@ -30,7 +30,7 @@
 
 #include <string.h> // memcmp
 
-static int check_parse_1905_cmdu(const char *test_description, INT8U **input, struct CMDU *expected_output)
+static int check_parse_1905_cmdu(const char *test_description, uint8_t **input, struct CMDU *expected_output)
 {
     int result;
     struct CMDU *real_output;

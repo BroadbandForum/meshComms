@@ -33,7 +33,7 @@
 //
 struct _ieee1905CmduExtension
 {
-    INT8U  entries_nr;
+    uint8_t  entries_nr;
 
     struct _cmduExtension
     {
@@ -50,7 +50,7 @@ struct _ieee1905CmduExtension
 //
 struct _ieee1905DmExtension
 {
-    INT8U  entries_nr;
+    uint8_t  entries_nr;
 
     struct _dmExtension
     {
@@ -77,9 +77,9 @@ struct _ieee1905DmExtension
 // - free1905CmduExtensions()   : Free no longer used resources allocated by
 //                                send1905CmduExtensions().
 //
-INT8U process1905CmduExtensions(struct CMDU *c)
+uint8_t process1905CmduExtensions(struct CMDU *c)
 {
-    INT32U                          i;
+    uint32_t                          i;
     struct _ieee1905CmduExtension  *t;
 
     if (NULL == c)
@@ -103,9 +103,9 @@ INT8U process1905CmduExtensions(struct CMDU *c)
     return 1;
 }
 
-INT8U send1905CmduExtensions(struct CMDU *c)
+uint8_t send1905CmduExtensions(struct CMDU *c)
 {
-    INT32U                          i;
+    uint32_t                          i;
     struct _ieee1905CmduExtension  *t;
 
     if (NULL == c)
@@ -133,10 +133,10 @@ INT8U send1905CmduExtensions(struct CMDU *c)
 // Vendor Specific TLVs. There is no need for a registered 'free' callback for
 // each actor (a Vendor Specific TLV is always released the same way)
 //
-INT8U free1905CmduExtensions(struct CMDU *c)
+uint8_t free1905CmduExtensions(struct CMDU *c)
 {
-    INT32U                      i;
-    INT8U                      *p;
+    uint32_t                      i;
+    uint8_t                      *p;
     struct vendorSpecificTLV   *vs_tlv;
 
     if ((NULL == c) || (NULL == c->list_of_TLVs))
@@ -181,19 +181,19 @@ INT8U free1905CmduExtensions(struct CMDU *c)
 // - freeExtendedLocalInfo()  : Free no longer used resources allocated by
 //                              obtainExtendedLocalInfo()
 //
-INT8U obtainExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U *nr)
+uint8_t obtainExtendedLocalInfo(struct vendorSpecificTLV ***extensions, uint8_t *nr)
 {
-    INT32U                        i;
-    INT32U                        j;
+    uint32_t                        i;
+    uint32_t                        j;
     struct _ieee1905DmExtension  *t;
 
     struct vendorSpecificTLV **total_tlvs;      // The returned TLVs from all
                                                 // the registered actors
-    INT8U                      total_tlvs_nr;
+    uint8_t                      total_tlvs_nr;
 
     struct vendorSpecificTLV **tlvs;            // TLVs returned by some
                                                 // registered actor
-    INT8U                      tlvs_nr;
+    uint8_t                      tlvs_nr;
 
     if ((NULL == extensions) || (NULL == nr))
     {
@@ -257,9 +257,9 @@ INT8U obtainExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U *nr)
 // There is no need for a registered 'free' callback for each actor (a Vendor
 // Specific TLV is always released the same way)
 //
-void freeExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U *nr)
+void freeExtendedLocalInfo(struct vendorSpecificTLV ***extensions, uint8_t *nr)
 {
-    INT8U  i;
+    uint8_t  i;
 
     if ((NULL != extensions) && (NULL != *extensions) && (NULL != nr))
     {
@@ -278,9 +278,9 @@ void freeExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U *nr)
     }
 }
 
-INT8U updateExtendedInfo(struct vendorSpecificTLV **extensions, INT8U nr, INT8U *al_mac_address)
+uint8_t updateExtendedInfo(struct vendorSpecificTLV **extensions, uint8_t nr, uint8_t *al_mac_address)
 {
-    INT32U                        i;
+    uint32_t                        i;
     struct _ieee1905DmExtension  *t;
 
     if ((NULL == extensions) || (NULL == al_mac_address))
@@ -305,13 +305,13 @@ INT8U updateExtendedInfo(struct vendorSpecificTLV **extensions, INT8U nr, INT8U 
 }
 
 
-INT8U dumpExtendedInfo(INT8U **memory_structure,
-                       INT8U   structure_nr,
+uint8_t dumpExtendedInfo(uint8_t **memory_structure,
+                       uint8_t   structure_nr,
                        visitor_callback callback,
                        void  (*write_function)(const char *fmt, ...),
                        const char *prefix)
 {
-    INT32U                        i;
+    uint32_t                        i;
     struct _ieee1905DmExtension  *t;
 
     if ((NULL == memory_structure) || (NULL == callback) || (NULL == write_function) || (NULL == prefix))
@@ -346,18 +346,18 @@ INT8U dumpExtendedInfo(INT8U **memory_structure,
 //
 // - VendorSpecificTLVDuplicate():        Clone a Vendor Specific TLV
 //
-struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure, INT8U *forge(INT8U *memory_structure, INT16U *len), INT8U oui[3])
+struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure, uint8_t *forge(uint8_t *memory_structure, uint16_t *len), uint8_t oui[3])
 {
     struct vendorSpecificTLV   *vendor_specific;
-    INT8U                      *stream;
-    INT16U                      stream_len;
+    uint8_t                      *stream;
+    uint16_t                      stream_len;
 
     if ((NULL == memory_structure) || (NULL == forge) || (NULL == oui))
     {
         return NULL;
     }
 
-    stream = forge((INT8U *)memory_structure, &stream_len);
+    stream = forge((uint8_t *)memory_structure, &stream_len);
     if (NULL == stream)
     {
         // Could not forge the packet. Error?
@@ -375,12 +375,12 @@ struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure
     return vendor_specific;
 }
 
-INT8U vendorSpecificTLVInsertInCDMU(struct CMDU *memory_structure, struct vendorSpecificTLV *vendor_specific)
+uint8_t vendorSpecificTLVInsertInCDMU(struct CMDU *memory_structure, struct vendorSpecificTLV *vendor_specific)
 {
-    INT8U      tlv_stop;
+    uint8_t      tlv_stop;
 
     if ((NULL == memory_structure) || (NULL == memory_structure->list_of_TLVs) ||
-        (NULL == vendor_specific)  || (*(INT8U *)vendor_specific != TLV_TYPE_VENDOR_SPECIFIC))
+        (NULL == vendor_specific)  || (*(uint8_t *)vendor_specific != TLV_TYPE_VENDOR_SPECIFIC))
     {
         // Invalid params
         //
@@ -395,8 +395,8 @@ INT8U vendorSpecificTLVInsertInCDMU(struct CMDU *memory_structure, struct vendor
 
     // Insert TLV
     //
-    memory_structure->list_of_TLVs             = (INT8U **)PLATFORM_REALLOC(memory_structure->list_of_TLVs, sizeof(INT8U *) * (tlv_stop+2));
-    memory_structure->list_of_TLVs[tlv_stop++] = (INT8U *)vendor_specific;
+    memory_structure->list_of_TLVs             = (uint8_t **)PLATFORM_REALLOC(memory_structure->list_of_TLVs, sizeof(uint8_t *) * (tlv_stop+2));
+    memory_structure->list_of_TLVs[tlv_stop++] = (uint8_t *)vendor_specific;
     memory_structure->list_of_TLVs[tlv_stop]   = NULL;
 
     return 1;
@@ -420,7 +420,7 @@ struct vendorSpecificTLV *vendorSpecificTLVDuplicate(struct vendorSpecificTLV *t
   vs_tlv->vendorOUI[2] = tlv->vendorOUI[2];
   vs_tlv->m_nr = tlv->m_nr;
 
-  vs_tlv->m = (INT8U *)PLATFORM_MALLOC(vs_tlv->m_nr);
+  vs_tlv->m = (uint8_t *)PLATFORM_MALLOC(vs_tlv->m_nr);
   memcpy(vs_tlv->m, tlv->m, vs_tlv->m_nr);
 
   return vs_tlv;
@@ -437,11 +437,11 @@ struct vendorSpecificTLV *vendorSpecificTLVDuplicate(struct vendorSpecificTLV *t
 // - register1905AlmeDumpExtension(): Register callbacks to manage the ALME
 //                                    'dnd' extended info response
 //
-INT8U register1905CmduExtension(char *name,
+uint8_t register1905CmduExtension(char *name,
                                 CMDU_EXTENSION_CBK process,
                                 CMDU_EXTENSION_CBK send)
 {
-    INT32U                          i;
+    uint32_t                          i;
     struct _ieee1905CmduExtension  *t;
 
     if ((NULL == name) || (NULL == process) || (NULL == send))
@@ -487,12 +487,12 @@ INT8U register1905CmduExtension(char *name,
     return 1;
 }
 
-INT8U register1905AlmeDumpExtension(char *name,
+uint8_t register1905AlmeDumpExtension(char *name,
                                     DM_OBTAIN_LOCAL_INFO_CBK obtain,
                                     DM_UPDATE_LOCAL_INFO_CBK update,
                                     DM_EXTENSION_CBK         dump)
 {
-    INT32U                              i;
+    uint32_t                              i;
     struct _ieee1905DmExtension  *t;
 
     if ((NULL == name) || (NULL == obtain) || (NULL == update) || (NULL == dump))

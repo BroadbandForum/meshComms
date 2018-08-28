@@ -37,6 +37,6 @@
 // Return '0' if there was some problem processing the RESPONSE/CONFIRMATION,
 // "1" otherwise.
 //
-INT8U PLATFORM_SEND_ALME_REPLY(INT8U alme_client_id, INT8U *alme_message, INT16U alme_message_len);
+uint8_t PLATFORM_SEND_ALME_REPLY(uint8_t alme_client_id, uint8_t *alme_message, uint16_t alme_message_len);
 
 #endif

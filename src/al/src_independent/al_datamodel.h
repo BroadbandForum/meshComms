@@ -34,8 +34,8 @@ void DMinit();
 // database.
 // Later, anyone can consult this value with "DMalMacGet()"
 //
-void  DMalMacSet(INT8U *al_mac_address);
-INT8U *DMalMacGet();
+void  DMalMacSet(uint8_t *al_mac_address);
+uint8_t *DMalMacGet();
 
 // When the AL entity is initialized, it knows the MAC address of the interface
 // designated as 'network registrar'. At this point the "DMregistrarMacSet()"
@@ -45,8 +45,8 @@ INT8U *DMalMacGet();
 // Note that the registrar MAC address can or cannot match any of the local
 // interfaces.
 //
-void  DMregistrarMacSet(INT8U *registrar_mac_address);
-INT8U *DMregistrarMacGet();
+void  DMregistrarMacSet(uint8_t *registrar_mac_address);
+uint8_t *DMregistrarMacGet();
 
 // When the AL entity is initialized, it knows whether the user want to map the
 // whole network or only direct neighbors (using much less memory).
@@ -54,15 +54,15 @@ INT8U *DMregistrarMacGet();
 // database.
 // Later, anyone can consult this value with "DMmapWholeNetworkGet()"
 //
-void  DMmapWholeNetworkSet(INT8U map_whole_network_flag);
-INT8U DMmapWholeNetworkGet();
+void  DMmapWholeNetworkSet(uint8_t map_whole_network_flag);
+uint8_t DMmapWholeNetworkGet();
 
 // When a new local interface is made available to the AL entity, this function
 // must be called to update the database.
 // Returns '0' if there was a problem (out of memory, etc...), '1' otherwise
 // (including if the interface had already been inserted)
 //
-INT8U DMinsertInterface(char *name, INT8U *mac_address);
+uint8_t DMinsertInterface(char *name, uint8_t *mac_address);
 
 // These are used to convert between names (ex: "eth0", "wlan1",...) and MAC
 // addresses of local interfaces which have previously been inserted in the
@@ -70,8 +70,8 @@ INT8U DMinsertInterface(char *name, INT8U *mac_address);
 //
 // Returned values must not be freed.
 //
-char *DMmacToInterfaceName(INT8U *mac_address);
-INT8U *DMinterfaceNameToMac(char *interface_name);
+char *DMmacToInterfaceName(uint8_t *mac_address);
+uint8_t *DMinterfaceNameToMac(char *interface_name);
 
 
 // Returns a list of 6 bytes arrays with the AL MACs of all neighbors (on the
@@ -81,7 +81,7 @@ INT8U *DMinterfaceNameToMac(char *interface_name);
 // The returned pointer, once it is no longer needed, must be freed by the
 // caller with "PLATFORM_FREE()"
 //
-INT8U (*DMgetListOfInterfaceNeighbors(char *local_interface_name, INT8U *al_mac_addresses_nr))[6];
+uint8_t (*DMgetListOfInterfaceNeighbors(char *local_interface_name, uint8_t *al_mac_addresses_nr))[6];
 
 // Returns a list of 6 bytes arrays with the AL MACs of all neighbors (from
 // *all* interfaces) from where a "topology discovery" message has been
@@ -94,7 +94,7 @@ INT8U (*DMgetListOfInterfaceNeighbors(char *local_interface_name, INT8U *al_mac_
 // The returned pointer, once it is no longer needed, must be freed by the
 // caller with "PLATFORM_FREE()"
 //
-INT8U (*DMgetListOfNeighbors(INT8U *al_mac_addresses_nr))[6];
+uint8_t (*DMgetListOfNeighbors(uint8_t *al_mac_addresses_nr))[6];
 
 
 // A given neighbor might be "reachable" in several ways:
@@ -142,9 +142,9 @@ INT8U (*DMgetListOfNeighbors(INT8U *al_mac_addresses_nr))[6];
 // The returned pointers, once they are no longer needed, must be freed by the
 // caller with "DMfreeListOfLinksWithNeighbor()". Example:
 //
-//   INT8U (*ret)[6];
+//   uint8_t (*ret)[6];
 //   char **interfaces;
-//   INT8U links_nr;
+//   uint8_t links_nr;
 //
 //   ret = DMgetListOfLinksWithNeighbor(neighbor_al_mac_address, &interfaces, &links_nr);
 //
@@ -155,13 +155,13 @@ INT8U (*DMgetListOfNeighbors(INT8U *al_mac_addresses_nr))[6];
 // If there is a problem, this function returns NULL and nothing needs to be
 // freed by the caller
 //
-INT8U (*DMgetListOfLinksWithNeighbor(INT8U *neighbor_al_mac_address, char ***interfaces, INT8U *links_nr))[6];
+uint8_t (*DMgetListOfLinksWithNeighbor(uint8_t *neighbor_al_mac_address, char ***interfaces, uint8_t *links_nr))[6];
 
 // Use this to free the two pointers returned by
 // "DMgetListOfInterfaceNeighbors()" (ie. the "interfaces" pointer and the
 // returned value pointer)
 //
-void DMfreeListOfLinksWithNeighbor(INT8U (*p)[6], char **interfaces, INT8U links_nr);
+void DMfreeListOfLinksWithNeighbor(uint8_t (*p)[6], char **interfaces, uint8_t links_nr);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -187,7 +187,7 @@ void DMfreeListOfLinksWithNeighbor(INT8U (*p)[6], char **interfaces, INT8U links
 //
 #define TIMESTAMP_TOPOLOGY_DISCOVERY  0
 #define TIMESTAMP_BRIDGE_DISCOVERY    1
-INT8U DMupdateDiscoveryTimeStamps(INT8U *receiving_interface_addr, INT8U *al_mac_address, INT8U *mac_address, INT8U timestamp_type, INT32U *ellapsed);
+uint8_t DMupdateDiscoveryTimeStamps(uint8_t *receiving_interface_addr, uint8_t *al_mac_address, uint8_t *mac_address, uint8_t timestamp_type, uint32_t *ellapsed);
 
 // These functions returns "1" or "0" according to the "bridge flag" rules
 // detailed in "IEEE Std 1905.1-2013 Section 8.1"
@@ -202,9 +202,9 @@ INT8U DMupdateDiscoveryTimeStamps(INT8U *receiving_interface_addr, INT8U *al_mac
 // An interface is bridged when at least one of its neighbors is bridged.
 //
 #define DISCOVERY_THRESHOLD_MS  (120000)  // 120 seconds
-INT8U DMisLinkBridged     (char *local_interface_name, INT8U *neighbor_al_mac_address, INT8U *neighbor_mac_address);
-INT8U DMisNeighborBridged (char *local_interface_name, INT8U *neighbor_al_mac_address);
-INT8U DMisInterfaceBridged(char *local_interface_name);
+uint8_t DMisLinkBridged     (char *local_interface_name, uint8_t *neighbor_al_mac_address, uint8_t *neighbor_mac_address);
+uint8_t DMisNeighborBridged (char *local_interface_name, uint8_t *neighbor_al_mac_address);
+uint8_t DMisInterfaceBridged(char *local_interface_name);
 
 // Given the MAC of an interface (could be local or not) returns the AL MAC of
 // the AL entity which owns that interface.
@@ -220,7 +220,7 @@ INT8U DMisInterfaceBridged(char *local_interface_name);
 // The returned pointer becomes the caller's responsability and must be freed
 // with "PLATFORM_FREE()" once it is no longer needed.
 //
-INT8U *DMmacToAlMac(INT8U *mac_addresses);
+uint8_t *DMmacToAlMac(uint8_t *mac_addresses);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -304,20 +304,20 @@ INT8U *DMmacToAlMac(INT8U *mac_addresses);
 //
 // Return '0' if there was a problem, '1' otherwise
 //
-INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
-                                INT8U in_update,  struct deviceInformationTypeTLV             *info,
-                                INT8U br_update,  struct deviceBridgingCapabilityTLV         **bridges,           INT8U bridges_nr,
-                                INT8U no_update,  struct non1905NeighborDeviceListTLV        **non1905_neighbors, INT8U non1905_neighbors_nr,
-                                INT8U x1_update,  struct neighborDeviceListTLV               **x1905_neighbors,   INT8U x1905_neighbors_nr,
-                                INT8U po_update,  struct powerOffInterfaceTLV                **power_off,         INT8U power_off_nr,
-                                INT8U l2_update,  struct l2NeighborDeviceTLV                 **l2_neighbors,      INT8U l2_neighbors_nr,
-                                INT8U ss_update,  struct supportedServiceTLV                  *supported_service,
-                                INT8U ge_update,  struct genericPhyDeviceInformationTypeTLV   *generic_phy,
-                                INT8U pr_update,  struct x1905ProfileVersionTLV               *profile,
-                                INT8U id_update,  struct deviceIdentificationTypeTLV          *identification,
-                                INT8U co_update,  struct controlUrlTypeTLV                    *control_url,
-                                INT8U v4_update,  struct ipv4TypeTLV                          *ipv4,
-                                INT8U v6_update,  struct ipv6TypeTLV                          *ipv6);
+uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
+                                uint8_t in_update,  struct deviceInformationTypeTLV             *info,
+                                uint8_t br_update,  struct deviceBridgingCapabilityTLV         **bridges,           uint8_t bridges_nr,
+                                uint8_t no_update,  struct non1905NeighborDeviceListTLV        **non1905_neighbors, uint8_t non1905_neighbors_nr,
+                                uint8_t x1_update,  struct neighborDeviceListTLV               **x1905_neighbors,   uint8_t x1905_neighbors_nr,
+                                uint8_t po_update,  struct powerOffInterfaceTLV                **power_off,         uint8_t power_off_nr,
+                                uint8_t l2_update,  struct l2NeighborDeviceTLV                 **l2_neighbors,      uint8_t l2_neighbors_nr,
+                                uint8_t ss_update,  struct supportedServiceTLV                  *supported_service,
+                                uint8_t ge_update,  struct genericPhyDeviceInformationTypeTLV   *generic_phy,
+                                uint8_t pr_update,  struct x1905ProfileVersionTLV               *profile,
+                                uint8_t id_update,  struct deviceIdentificationTypeTLV          *identification,
+                                uint8_t co_update,  struct controlUrlTypeTLV                    *control_url,
+                                uint8_t v4_update,  struct ipv4TypeTLV                          *ipv4,
+                                uint8_t v6_update,  struct ipv6TypeTLV                          *ipv6);
 
 // Given the AL MAC address of a node, returns "0" if the last time its "device
 // info" was updated (ie. the last time someone called
@@ -330,7 +330,7 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
 //
 #define MAX_AGE 50 // Must be smaller than the "TIMER_TOKEN_DISCOVERY" period
                    // (which is 60 seconds)
-INT8U DMnetworkDeviceInfoNeedsUpdate(INT8U *al_mac_address);
+uint8_t DMnetworkDeviceInfoNeedsUpdate(uint8_t *al_mac_address);
 
 // Update the "metrics" information of a neighbor node
 //
@@ -349,7 +349,7 @@ INT8U DMnetworkDeviceInfoNeedsUpdate(INT8U *al_mac_address);
 //
 // Return '0' if there was a problem, '1' otherwise
 //
-INT8U DMupdateNetworkDeviceMetrics(INT8U *metrics);
+uint8_t DMupdateNetworkDeviceMetrics(uint8_t *metrics);
 
 // Print the contents of the "devices" database using the provided printf-like
 // function.
@@ -369,7 +369,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...));
 // means it will return "0" if no entry eas removed)
 //
 #define GC_MAX_AGE (90)
-INT8U DMrunGarbageCollector(void);
+uint8_t DMrunGarbageCollector(void);
 
 // Remove a neighbor from a particular local interface.
 //
@@ -389,7 +389,7 @@ INT8U DMrunGarbageCollector(void);
 // Remember: you don't need to call this function if you don't want to and are
 // ok with the ~60 seconds period of the garbage collector mechanism.
 //
-void DMremoveALNeighborFromInterface(INT8U *al_mac_address, char *interface_name);
+void DMremoveALNeighborFromInterface(uint8_t *al_mac_address, char *interface_name);
 
 // Get TLV extensions from a particular device
 //
@@ -407,7 +407,7 @@ void DMremoveALNeighborFromInterface(INT8U *al_mac_address, char *interface_name
 // Return a pointer to the datamodel extensions pointer. This will allow
 // third-party extenders to create/resize the TLV list
 //
-struct vendorSpecificTLV ***DMextensionsGet(INT8U *al_mac_address, INT8U **nr);
+struct vendorSpecificTLV ***DMextensionsGet(uint8_t *al_mac_address, uint8_t **nr);
 
 #endif
 

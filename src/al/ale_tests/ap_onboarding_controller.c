@@ -55,27 +55,27 @@ static struct CMDU aletest_send_cmdu_autoconfig_search = {
     .message_id      = 0x1010,
     .relay_indicator = 1,
     .list_of_TLVs    =
-        (INT8U* []){
-            (INT8U *)(struct alMacAddressTypeTLV[]){
+        (uint8_t* []){
+            (uint8_t *)(struct alMacAddressTypeTLV[]){
                 {
                     .tlv_type          = TLV_TYPE_AL_MAC_ADDRESS_TYPE,
                     .al_mac_address    = ADDR_AL_PEER0,
                 }
             },
-            (INT8U *)(struct searchedRoleTLV[]){
+            (uint8_t *)(struct searchedRoleTLV[]){
                 {
                     .tlv_type          = TLV_TYPE_SEARCHED_ROLE,
                     .role              = IEEE80211_ROLE_REGISTRAR,
                 }
             },
-            (INT8U *)(struct autoconfigFreqBandTLV[]){
+            (uint8_t *)(struct autoconfigFreqBandTLV[]){
                 {
                     .tlv_type          = TLV_TYPE_AUTOCONFIG_FREQ_BAND,
                     .freq_band         = IEEE80211_FREQUENCY_BAND_2_4_GHZ,
                 }
             },
-            (INT8U *)&multiApAgentService,
-            (INT8U *)&multiApControllerSearchedService,
+            (uint8_t *)&multiApAgentService,
+            (uint8_t *)&multiApControllerSearchedService,
             NULL,
         },
 };
@@ -86,20 +86,20 @@ static struct CMDU aletest_expect_cmdu_autoconfig_response = {
     .relay_indicator = 0,
     .message_id      = 0x1010,
     .list_of_TLVs    =
-        (INT8U* []){
-            (INT8U *)(struct supportedRoleTLV[]){
+        (uint8_t* []){
+            (uint8_t *)(struct supportedRoleTLV[]){
                 {
                     .tlv_type          = TLV_TYPE_SUPPORTED_ROLE,
                     .role              = IEEE80211_ROLE_REGISTRAR,
                 }
             },
-            (INT8U *)(struct supportedFreqBandTLV[]){
+            (uint8_t *)(struct supportedFreqBandTLV[]){
                 {
                     .tlv_type          = TLV_TYPE_SUPPORTED_FREQ_BAND,
                     .freq_band         = IEEE80211_FREQUENCY_BAND_2_4_GHZ,
                 }
             },
-            (INT8U *)&multiApControllerService,
+            (uint8_t *)&multiApControllerService,
             NULL,
         },
 };
@@ -110,8 +110,8 @@ static struct CMDU aletest_send_cmdu_autoconfig_wsc_m1 = {
     .message_id      = 0x1011,
     .relay_indicator = 0,
     .list_of_TLVs    =
-        (INT8U* []){
-            (INT8U *)(struct wscTLV[]){
+        (uint8_t* []){
+            (uint8_t *)(struct wscTLV[]){
                 {
                     .tlv_type          = TLV_TYPE_WSC,
                     .wsc_frame_size    = 415,

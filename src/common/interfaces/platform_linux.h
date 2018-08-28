@@ -51,7 +51,7 @@ int getIfIndex(const char *interface_name);
  *
  * @todo factor with the AL server itself.
  */
-int openPacketSocket(int ifindex, INT16U eth_type);
+int openPacketSocket(int ifindex, uint16_t eth_type);
 
 
 

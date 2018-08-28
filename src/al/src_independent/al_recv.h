@@ -53,18 +53,18 @@
 #define PROCESS_CMDU_KO                     (0)
 #define PROCESS_CMDU_OK                     (1)
 #define PROCESS_CMDU_OK_TRIGGER_AP_SEARCH   (2)
-INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *src_addr, INT8U queue_id);
+uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8_t *src_addr, uint8_t queue_id);
 
 // Call this function when receiving an LLPD "bridge discovery" message so that
 // the topology database is properly updated.
 //
-INT8U processLlpdPayload(struct PAYLOAD *payload, INT8U *receiving_interface_addr);
+uint8_t processLlpdPayload(struct PAYLOAD *payload, uint8_t *receiving_interface_addr);
 
 // Call this function when receiving an ALME REQUEST message. It will take
 // action depending on the actual contents of this message (ie. "shut down an
 // interface", "add a new bridge configuration", etc...)
 //
-INT8U process1905Alme(INT8U *alme_tlv, INT8U alme_client_id);
+uint8_t process1905Alme(uint8_t *alme_tlv, uint8_t alme_client_id);
 
 #endif
 

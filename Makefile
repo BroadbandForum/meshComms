@@ -78,12 +78,6 @@ ifeq ($(PLATFORM),linux)
 
     CCFLAGS       += -g -O0 -Wall -Werror -Wno-format-truncation #-Wextra
     CCFLAGS       += -D_HOST_IS_LITTLE_ENDIAN_=1 -DMAX_NETWORK_SEGMENT_SIZE=1500
-    CCFLAGS       += -DINT8U="unsigned char"
-    CCFLAGS       += -DINT16U="unsigned short int"
-    CCFLAGS       += -DINT32U="unsigned int"
-    CCFLAGS       += -DINT8S="signed char"
-    CCFLAGS       += -DINT16S="signed short int"
-    CCFLAGS       += -DINT32S="signed int"
     CCFLAGS       += -D_GNU_SOURCE
 else
     $(error "'PLATFORM' variable was not set to a valid value")

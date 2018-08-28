@@ -51,7 +51,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 struct endOfLldppduTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_END_OF_LLDPPDU
 
     // This structure does not contain anything at all
@@ -63,7 +63,7 @@ struct endOfLldppduTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct chassisIdTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_CHASSIS_ID
 
     #define CHASSIS_ID_TLV_SUBTYPE_CHASSIS_COMPONENT   (1)
@@ -73,9 +73,9 @@ struct chassisIdTLV
     #define CHASSIS_ID_TLV_SUBTYPE_NETWORK_ADDRESS     (5)
     #define CHASSIS_ID_TLV_SUBTYPE_INTERFACE_NAME      (6)
     #define CHASSIS_ID_TLV_SUBTYPE_LOGICALLY_ASSIGNED  (7)
-    INT8U   chassis_id_subtype;   // One of the values from above
+    uint8_t   chassis_id_subtype;   // One of the values from above
 
-    INT8U   chassis_id[256];      // Specific identifier for the particular
+    uint8_t   chassis_id[256];      // Specific identifier for the particular
                                   // chassis.
                                   // NOTE: In our case (1905 context) we are
                                   //       only interested in generating/
@@ -93,7 +93,7 @@ struct chassisIdTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct portIdTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_PORT_ID
 
     #define PORT_ID_TLV_SUBTYPE_INTERFACE_ALIAS     (1)
@@ -103,9 +103,9 @@ struct portIdTLV
     #define PORT_ID_TLV_SUBTYPE_INTERFACE_NAME      (5)
     #define PORT_ID_TLV_SUBTYPE_AGENT_CIRCUIT_ID    (6)
     #define PORT_ID_TLV_SUBTYPE_LOGICALLY_ASSIGNED  (7)
-    INT8U   port_id_subtype;      // One of the values from above
+    uint8_t   port_id_subtype;      // One of the values from above
 
-    INT8U   port_id[256];         // Alpha-numeric string that contains the
+    uint8_t   port_id[256];         // Alpha-numeric string that contains the
                                   // specific identifier for the port from which
                                   // this LLDPPDU was transmitted
                                   // NOTE: In our case (1905 context) we are
@@ -130,11 +130,11 @@ struct portIdTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct timeToLiveTypeTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_TIME_TO_LIVE
 
     #define TIME_TO_LIVE_TLV_1905_DEFAULT_VALUE  (180)
-    INT16U  ttl;                  // Time (in seconds)
+    uint16_t  ttl;                  // Time (in seconds)
                                   // NOTE: In our case (1905 context) we are
                                   //       always setting this parameter to
                                   //       "180" (as explained in "IEEE Std
@@ -166,7 +166,7 @@ struct timeToLiveTypeTLV
 // Otherwise, the returned structure is dynamically allocated, and once it is
 // no longer needed, the user must call the "free_lldp_TLV_structure()" function
 //
-INT8U *parse_lldp_TLV_from_packet(INT8U *packet_stream);
+uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream);
 
 
 // This is the opposite of "parse_lldp_TLV_from_packet()": it receives a
@@ -184,7 +184,7 @@ INT8U *parse_lldp_TLV_from_packet(INT8U *packet_stream);
 // Note that the input structure is *not* freed. You still need to later call
 // "free_lldp_TLV_structure()"
 //
-INT8U *forge_lldp_TLV_from_structure(INT8U *memory_structure, INT16U *len);
+uint8_t *forge_lldp_TLV_from_structure(uint8_t *memory_structure, uint16_t *len);
 
 
 
@@ -198,7 +198,7 @@ INT8U *forge_lldp_TLV_from_structure(INT8U *memory_structure, INT16U *len);
 // "memory_structure" must point to a structure of one of the types returned by
 // "parse_lldp_TLV_from_packet()"
 //
-void free_lldp_TLV_structure(INT8U *memory_structure);
+void free_lldp_TLV_structure(uint8_t *memory_structure);
 
 
 // 'forge_lldp_TLV_from_structure()' returns a regular buffer which can be freed
@@ -213,7 +213,7 @@ void free_lldp_TLV_structure(INT8U *memory_structure);
 // "memory_structure_1" and "memory_structure_2" must point (each) to a
 // structure of one of the types returned by "parse_lldp_TLV_from_packet()"
 //
-INT8U compare_lldp_TLV_structures(INT8U *memory_structure_1, INT8U *memory_structure_2);
+uint8_t compare_lldp_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory_structure_2);
 
 
 // The next function is used to call function "callback()" on each element of
@@ -242,7 +242,7 @@ INT8U compare_lldp_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
 //     function prints before anything else to make it easy to follow the
 //     structure traversing order)
 //
-void visit_lldp_TLV_structure(INT8U *memory_structure,  visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
+void visit_lldp_TLV_structure(uint8_t *memory_structure,  visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
 
 
 // Use this function for debug purposes. It turns a TLV_TYPE_* variable into its
@@ -252,7 +252,7 @@ void visit_lldp_TLV_structure(INT8U *memory_structure,  visitor_callback callbac
 //
 // Return "Unknown" if the provided type does not exist.
 //
-char *convert_lldp_TLV_type_to_string(INT8U tlv_type);
+char *convert_lldp_TLV_type_to_string(uint8_t tlv_type);
 
 #endif
 

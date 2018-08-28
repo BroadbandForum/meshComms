@@ -27,10 +27,10 @@
 #include "lldp_tlvs.h"
 #include "lldp_tlv_test_vectors.h"
 
-INT8U _check(const char *test_description, INT8U *input, INT8U *expected_output)
+uint8_t _check(const char *test_description, uint8_t *input, uint8_t *expected_output)
 {
-    INT8U  result;
-    INT8U *real_output;
+    uint8_t  result;
+    uint8_t *real_output;
 
     real_output = parse_lldp_TLV_from_packet(input);
 
@@ -55,19 +55,19 @@ INT8U _check(const char *test_description, INT8U *input, INT8U *expected_output)
 
 int main(void)
 {
-    INT8U result = 0;
+    uint8_t result = 0;
 
     #define LLDPTLVPARSE001 "LLDPTLVPARSE001 - Parse end of LLDP TLV (lldp_tlv_stream_001)"
-    result += _check(LLDPTLVPARSE001, lldp_tlv_stream_001, (INT8U *)&lldp_tlv_structure_001);
+    result += _check(LLDPTLVPARSE001, lldp_tlv_stream_001, (uint8_t *)&lldp_tlv_structure_001);
 
     #define LLDPTLVPARSE002 "LLDPTLVPARSE002 - Parse chassis ID TLV (lldp_tlv_stream_002)"
-    result += _check(LLDPTLVPARSE002, lldp_tlv_stream_002, (INT8U *)&lldp_tlv_structure_002);
+    result += _check(LLDPTLVPARSE002, lldp_tlv_stream_002, (uint8_t *)&lldp_tlv_structure_002);
 
     #define LLDPTLVPARSE003 "LLDPTLVPARSE003 - Parse port ID TLV (lldp_tlv_stream_003)"
-    result += _check(LLDPTLVPARSE003, lldp_tlv_stream_003, (INT8U *)&lldp_tlv_structure_003);
+    result += _check(LLDPTLVPARSE003, lldp_tlv_stream_003, (uint8_t *)&lldp_tlv_structure_003);
 
     #define LLDPTLVPARSE004 "LLDPTLVPARSE004 - Parse time to live TLV (lldp_tlv_stream_004)"
-    result += _check(LLDPTLVPARSE004, lldp_tlv_stream_004, (INT8U *)&lldp_tlv_structure_004);
+    result += _check(LLDPTLVPARSE004, lldp_tlv_stream_004, (uint8_t *)&lldp_tlv_structure_004);
 
     // Return the number of test cases that failed
     //

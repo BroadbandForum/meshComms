@@ -67,7 +67,7 @@ struct linkMetricQueryTLV x1905_tlv_structure_001 =
     .link_metrics_type = LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY,
 };
 
-INT8U x1905_tlv_stream_001[] =
+uint8_t x1905_tlv_stream_001[] =
 {
     0x08,
     0x00, 0x08,
@@ -76,7 +76,7 @@ INT8U x1905_tlv_stream_001[] =
     0x01
 };
 
-INT16U x1905_tlv_stream_len_001 = 11;
+uint16_t x1905_tlv_stream_len_001 = 11;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ struct linkMetricQueryTLV x1905_tlv_structure_002 =
     .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
 };
 
-INT8U x1905_tlv_stream_002[] =
+uint8_t x1905_tlv_stream_002[] =
 {
     0x08,
     0x00, 0x08,
@@ -100,7 +100,7 @@ INT8U x1905_tlv_stream_002[] =
     0x02
 };
 
-INT16U x1905_tlv_stream_len_002 = 11;
+uint16_t x1905_tlv_stream_len_002 = 11;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ struct linkMetricQueryTLV x1905_tlv_structure_003 =
     .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
 };
 
-INT8U x1905_tlv_stream_003[] =
+uint8_t x1905_tlv_stream_003[] =
 {
     0x08,
     0x00, 0x08,
@@ -124,7 +124,7 @@ INT8U x1905_tlv_stream_003[] =
     0x02
 };
 
-INT16U x1905_tlv_stream_len_003 = 11;
+uint16_t x1905_tlv_stream_len_003 = 11;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +153,7 @@ struct transmitterLinkMetricTLV x1905_tlv_structure_004 =
         },
 };
 
-INT8U x1905_tlv_stream_004[] =
+uint8_t x1905_tlv_stream_004[] =
 {
     0x09,
     0x00, 0x29,
@@ -170,7 +170,7 @@ INT8U x1905_tlv_stream_004[] =
     0x02, 0x08
 };
 
-INT16U x1905_tlv_stream_len_004 = 44;
+uint16_t x1905_tlv_stream_len_004 = 44;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -212,7 +212,7 @@ struct transmitterLinkMetricTLV x1905_tlv_structure_005 =
         },
 };
 
-INT8U x1905_tlv_stream_005[] =
+uint8_t x1905_tlv_stream_005[] =
 {
     0x09,
     0x00, 0x46,
@@ -238,7 +238,7 @@ INT8U x1905_tlv_stream_005[] =
     0x03, 0xe8,
 };
 
-INT16U x1905_tlv_stream_len_005 = 73;
+uint16_t x1905_tlv_stream_len_005 = 73;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -266,7 +266,7 @@ struct receiverLinkMetricTLV x1905_tlv_structure_006 =
         },
 };
 
-INT8U x1905_tlv_stream_006[] =
+uint8_t x1905_tlv_stream_006[] =
 {
     0x0a,
     0x00, 0x23,
@@ -280,7 +280,7 @@ INT8U x1905_tlv_stream_006[] =
     0x02,
 };
 
-INT16U x1905_tlv_stream_len_006 = 38;
+uint16_t x1905_tlv_stream_len_006 = 38;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -316,7 +316,7 @@ struct receiverLinkMetricTLV x1905_tlv_structure_007 =
         },
 };
 
-INT8U x1905_tlv_stream_007[] =
+uint8_t x1905_tlv_stream_007[] =
 {
     0x0a,
     0x00, 0x3a,
@@ -336,7 +336,7 @@ INT8U x1905_tlv_stream_007[] =
     0x02,
 };
 
-INT16U x1905_tlv_stream_len_007 = 61;
+uint16_t x1905_tlv_stream_len_007 = 61;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -351,14 +351,14 @@ struct alMacAddressTypeTLV x1905_tlv_structure_008 =
     .al_mac_address              = {0x01, 0x02, 0xf2, 0x01, 0x02, 0x00},
 };
 
-INT8U x1905_tlv_stream_008[] =
+uint8_t x1905_tlv_stream_008[] =
 {
     0x01,
     0x00, 0x06,
     0x01, 0x02, 0xf2, 0x01, 0x02, 0x00,
 };
 
-INT16U x1905_tlv_stream_len_008 = 9;
+uint16_t x1905_tlv_stream_len_008 = 9;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -373,14 +373,14 @@ struct macAddressTypeTLV x1905_tlv_structure_009 =
     .mac_address                 = {0xff, 0xf2, 0x04, 0xfa, 0x00, 0xab},
 };
 
-INT8U x1905_tlv_stream_009[] =
+uint8_t x1905_tlv_stream_009[] =
 {
     0x02,
     0x00, 0x06,
     0xff, 0xf2, 0x04, 0xfa, 0x00, 0xab,
 };
 
-INT16U x1905_tlv_stream_len_009 = 9;
+uint16_t x1905_tlv_stream_len_009 = 9;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -415,7 +415,7 @@ struct deviceInformationTypeTLV x1905_tlv_structure_010 =
         },
 };
 
-INT8U x1905_tlv_stream_010[] =
+uint8_t x1905_tlv_stream_010[] =
 {
     0x03,
     0x00, 0x2a,
@@ -435,7 +435,7 @@ INT8U x1905_tlv_stream_010[] =
     0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0xff,
 };
 
-INT16U x1905_tlv_stream_len_010 = 45;
+uint16_t x1905_tlv_stream_len_010 = 45;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -480,7 +480,7 @@ struct deviceBridgingCapabilityTLV x1905_tlv_structure_011 =
         },
 };
 
-INT8U x1905_tlv_stream_011[] =
+uint8_t x1905_tlv_stream_011[] =
 {
     0x04,
     0x00, 0x21,
@@ -494,7 +494,7 @@ INT8U x1905_tlv_stream_011[] =
     0x00, 0x00, 0x00, 0x00, 0x00, 0x13,
 };
 
-INT16U x1905_tlv_stream_len_011 = 36;
+uint16_t x1905_tlv_stream_len_011 = 36;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -528,7 +528,7 @@ struct deviceBridgingCapabilityTLV x1905_tlv_structure_012 =
         },
 };
 
-INT8U x1905_tlv_stream_012[] =
+uint8_t x1905_tlv_stream_012[] =
 {
     0x04,
     0x00, 0x0f,
@@ -539,7 +539,7 @@ INT8U x1905_tlv_stream_012[] =
     0x00,
 };
 
-INT16U x1905_tlv_stream_len_012 = 18;
+uint16_t x1905_tlv_stream_len_012 = 18;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -555,14 +555,14 @@ struct deviceBridgingCapabilityTLV x1905_tlv_structure_013 =
     .bridging_tuples             = NULL,
 };
 
-INT8U x1905_tlv_stream_013[] =
+uint8_t x1905_tlv_stream_013[] =
 {
     0x04,
     0x00, 0x01,
     0x00,
 };
 
-INT16U x1905_tlv_stream_len_013 = 4;
+uint16_t x1905_tlv_stream_len_013 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -584,7 +584,7 @@ struct non1905NeighborDeviceListTLV x1905_tlv_structure_014 =
         },
 };
 
-INT8U x1905_tlv_stream_014[] =
+uint8_t x1905_tlv_stream_014[] =
 {
     0x06,
     0x00, 0x0c,
@@ -592,7 +592,7 @@ INT8U x1905_tlv_stream_014[] =
     0x43, 0x44, 0x45, 0x46, 0x47, 0x48,
 };
 
-INT16U x1905_tlv_stream_len_014 = 15;
+uint16_t x1905_tlv_stream_len_014 = 15;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -617,7 +617,7 @@ struct non1905NeighborDeviceListTLV x1905_tlv_structure_015 =
         },
 };
 
-INT8U x1905_tlv_stream_015[] =
+uint8_t x1905_tlv_stream_015[] =
 {
     0x06,
     0x00, 0x12,
@@ -626,7 +626,7 @@ INT8U x1905_tlv_stream_015[] =
     0x53, 0x54, 0x55, 0x56, 0x57, 0x58,
 };
 
-INT16U x1905_tlv_stream_len_015 = 21;
+uint16_t x1905_tlv_stream_len_015 = 21;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -649,7 +649,7 @@ struct neighborDeviceListTLV x1905_tlv_structure_016 =
         },
 };
 
-INT8U x1905_tlv_stream_016[] =
+uint8_t x1905_tlv_stream_016[] =
 {
     0x07,
     0x00, 0x0d,
@@ -658,7 +658,7 @@ INT8U x1905_tlv_stream_016[] =
     0x00,
 };
 
-INT16U x1905_tlv_stream_len_016 = 16;
+uint16_t x1905_tlv_stream_len_016 = 16;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -685,7 +685,7 @@ struct neighborDeviceListTLV x1905_tlv_structure_017 =
         },
 };
 
-INT8U x1905_tlv_stream_017[] =
+uint8_t x1905_tlv_stream_017[] =
 {
     0x07,
     0x00, 0x14,
@@ -696,7 +696,7 @@ INT8U x1905_tlv_stream_017[] =
     0x00,
 };
 
-INT16U x1905_tlv_stream_len_017 = 23;
+uint16_t x1905_tlv_stream_len_017 = 23;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -711,14 +711,14 @@ struct linkMetricResultCodeTLV x1905_tlv_structure_018 =
     .result_code                 = LINK_METRIC_RESULT_CODE_TLV_INVALID_NEIGHBOR,
 };
 
-INT8U x1905_tlv_stream_018[] =
+uint8_t x1905_tlv_stream_018[] =
 {
     0x0c,
     0x00, 0x01,
     0x00,
 };
 
-INT16U x1905_tlv_stream_len_018 = 4;
+uint16_t x1905_tlv_stream_len_018 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -733,14 +733,14 @@ struct linkMetricResultCodeTLV x1905_tlv_structure_019 =
     .result_code                 = 5,
 };
 
-INT8U x1905_tlv_stream_019[] =
+uint8_t x1905_tlv_stream_019[] =
 {
     0x0c,
     0x00, 0x01,
     0x05,
 };
 
-INT16U x1905_tlv_stream_len_019 = 4;
+uint16_t x1905_tlv_stream_len_019 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -755,14 +755,14 @@ struct searchedRoleTLV x1905_tlv_structure_020 =
     .role                        = IEEE80211_ROLE_REGISTRAR,
 };
 
-INT8U x1905_tlv_stream_020[] =
+uint8_t x1905_tlv_stream_020[] =
 {
     0x0d,
     0x00, 0x01,
     0x00,
 };
 
-INT16U x1905_tlv_stream_len_020 = 4;
+uint16_t x1905_tlv_stream_len_020 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -777,14 +777,14 @@ struct searchedRoleTLV x1905_tlv_structure_021 =
     .role                        = 0xff,
 };
 
-INT8U x1905_tlv_stream_021[] =
+uint8_t x1905_tlv_stream_021[] =
 {
     0x0d,
     0x00, 0x01,
     0xff,
 };
 
-INT16U x1905_tlv_stream_len_021 = 4;
+uint16_t x1905_tlv_stream_len_021 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -799,14 +799,14 @@ struct autoconfigFreqBandTLV x1905_tlv_structure_022 =
     .freq_band                   = IEEE80211_FREQUENCY_BAND_2_4_GHZ,
 };
 
-INT8U x1905_tlv_stream_022[] =
+uint8_t x1905_tlv_stream_022[] =
 {
     0x0e,
     0x00, 0x01,
     0x00,
 };
 
-INT16U x1905_tlv_stream_len_022 = 4;
+uint16_t x1905_tlv_stream_len_022 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -821,14 +821,14 @@ struct autoconfigFreqBandTLV x1905_tlv_structure_023 =
     .freq_band                   = 0x1a,
 };
 
-INT8U x1905_tlv_stream_023[] =
+uint8_t x1905_tlv_stream_023[] =
 {
     0x0e,
     0x00, 0x01,
     0x1a,
 };
 
-INT16U x1905_tlv_stream_len_023 = 4;
+uint16_t x1905_tlv_stream_len_023 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -843,14 +843,14 @@ struct supportedRoleTLV x1905_tlv_structure_024 =
     .role                        = IEEE80211_ROLE_REGISTRAR,
 };
 
-INT8U x1905_tlv_stream_024[] =
+uint8_t x1905_tlv_stream_024[] =
 {
     0x0f,
     0x00, 0x01,
     0x00,
 };
 
-INT16U x1905_tlv_stream_len_024 = 4;
+uint16_t x1905_tlv_stream_len_024 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -865,14 +865,14 @@ struct supportedRoleTLV x1905_tlv_structure_025 =
     .role                        = 0x02,
 };
 
-INT8U x1905_tlv_stream_025[] =
+uint8_t x1905_tlv_stream_025[] =
 {
     0x0f,
     0x00, 0x01,
     0x02,
 };
 
-INT16U x1905_tlv_stream_len_025 = 4;
+uint16_t x1905_tlv_stream_len_025 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -887,14 +887,14 @@ struct supportedFreqBandTLV x1905_tlv_structure_026 =
     .freq_band                   = IEEE80211_FREQUENCY_BAND_5_GHZ,
 };
 
-INT8U x1905_tlv_stream_026[] =
+uint8_t x1905_tlv_stream_026[] =
 {
     0x10,
     0x00, 0x01,
     0x01,
 };
 
-INT16U x1905_tlv_stream_len_026 = 4;
+uint16_t x1905_tlv_stream_len_026 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -909,14 +909,14 @@ struct supportedFreqBandTLV x1905_tlv_structure_027 =
     .freq_band                   = 0x07,
 };
 
-INT8U x1905_tlv_stream_027[] =
+uint8_t x1905_tlv_stream_027[] =
 {
     0x10,
     0x00, 0x01,
     0x07,
 };
 
-INT16U x1905_tlv_stream_len_027 = 4;
+uint16_t x1905_tlv_stream_len_027 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -948,7 +948,7 @@ struct pushButtonEventNotificationTLV x1905_tlv_structure_028 =
         },
 };
 
-INT8U x1905_tlv_stream_028[] =
+uint8_t x1905_tlv_stream_028[] =
 {
     0x12,
     0x00, 0x18,
@@ -965,7 +965,7 @@ INT8U x1905_tlv_stream_028[] =
     0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0xff,
 };
 
-INT16U x1905_tlv_stream_len_028 = 27;
+uint16_t x1905_tlv_stream_len_028 = 27;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -999,13 +999,13 @@ struct powerOffInterfaceTLV x1905_tlv_structure_029 =
                         .oui                     = {0x00, 0x19, 0xa7},
                         .variant_index           = 0,
                         .media_specific_bytes_nr = 5,
-                        .media_specific_bytes    = (INT8U []){0x01, 0x00, 0x02, 0xaf, 0xb5},
+                        .media_specific_bytes    = (uint8_t []){0x01, 0x00, 0x02, 0xaf, 0xb5},
                     },
             },
         },
 };
 
-INT8U x1905_tlv_stream_029[] =
+uint8_t x1905_tlv_stream_029[] =
 {
     0x1b,
     0x00, 0x20,
@@ -1023,7 +1023,7 @@ INT8U x1905_tlv_stream_029[] =
     0x01, 0x00, 0x02, 0xaf, 0xb5,
 };
 
-INT16U x1905_tlv_stream_len_029 = 35;
+uint16_t x1905_tlv_stream_len_029 = 35;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1039,14 +1039,14 @@ struct powerOffInterfaceTLV x1905_tlv_structure_030 =
     .power_off_interfaces        = NULL,
 };
 
-INT8U x1905_tlv_stream_030[] =
+uint8_t x1905_tlv_stream_030[] =
 {
     0x1b,
     0x00, 0x01,
     0x00,
 };
 
-INT16U x1905_tlv_stream_len_030 = 4;
+uint16_t x1905_tlv_stream_len_030 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1069,7 +1069,7 @@ struct genericPhyDeviceInformationTypeTLV x1905_tlv_structure_031 =
                         .oui                         = {0x00, 0x19, 0xa7},
                         .variant_index               = 0,
                         .media_specific_bytes_nr     = 5,
-                        .media_specific_bytes        = (INT8U []){0x01, 0x00, 0x02, 0xaf, 0xb5},
+                        .media_specific_bytes        = (uint8_t []){0x01, 0x00, 0x02, 0xaf, 0xb5},
                     },
                 .variant_name                        = "ITU-T G.996x Powerline\0\0\0\0\0\0\0\0\0\0",
                 .generic_phy_description_xml_url_len = 74,
@@ -1078,7 +1078,7 @@ struct genericPhyDeviceInformationTypeTLV x1905_tlv_structure_031 =
         },
 };
 
-INT8U x1905_tlv_stream_031[] =
+uint8_t x1905_tlv_stream_031[] =
 {
     0x14,
     0x00, 0x82,
@@ -1094,7 +1094,7 @@ INT8U x1905_tlv_stream_031[] =
     0x01, 0x00, 0x02, 0xaf, 0xb5,
 };
 
-INT16U x1905_tlv_stream_len_031 = 133;
+uint16_t x1905_tlv_stream_len_031 = 133;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1113,12 +1113,12 @@ struct pushButtonGenericPhyEventNotificationTLV x1905_tlv_structure_032 =
                 .oui                      = {0x00, 0x19, 0xa7},
                 .variant_index            = 0,
                 .media_specific_bytes_nr  = 5,
-                .media_specific_bytes     = (INT8U []){0x01, 0x00, 0x02, 0xaf, 0xb5},
+                .media_specific_bytes     = (uint8_t []){0x01, 0x00, 0x02, 0xaf, 0xb5},
             },
         },
 };
 
-INT8U x1905_tlv_stream_032[] =
+uint8_t x1905_tlv_stream_032[] =
 {
     0x19,
     0x00, 0x0b,
@@ -1129,7 +1129,7 @@ INT8U x1905_tlv_stream_032[] =
     0x01, 0x00, 0x02, 0xaf, 0xb5,
 };
 
-INT16U x1905_tlv_stream_len_032 = 14;
+uint16_t x1905_tlv_stream_len_032 = 14;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1147,7 +1147,7 @@ struct deviceIdentificationTypeTLV x1905_tlv_structure_033 =
 
 };
 
-INT8U x1905_tlv_stream_033[] =
+uint8_t x1905_tlv_stream_033[] =
 {
     0x15,
     0x00, 0xc0,
@@ -1156,7 +1156,7 @@ INT8U x1905_tlv_stream_033[] =
     0x4c, 0x45, 0x44, 0x20, 0x54, 0x56, 0x78, 0x32, 0x30, 0x30, 0x31, 0x78, 0x78, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-INT16U x1905_tlv_stream_len_033 = 195;
+uint16_t x1905_tlv_stream_len_033 = 195;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1172,14 +1172,14 @@ struct controlUrlTypeTLV x1905_tlv_structure_034 =
 
 };
 
-INT8U x1905_tlv_stream_034[] =
+uint8_t x1905_tlv_stream_034[] =
 {
     0x16,
     0x00, 0x15,
     0x68, 0x74, 0x74, 0x70, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32, 0x2e, 0x31, 0x36, 0x38, 0x2e, 0x30, 0x2e, 0x31, 0x32, 0x30, 0x00,
 };
 
-INT16U x1905_tlv_stream_len_034 = 24;
+uint16_t x1905_tlv_stream_len_034 = 24;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1226,7 +1226,7 @@ struct ipv4TypeTLV x1905_tlv_structure_035 =
         },
 };
 
-INT8U x1905_tlv_stream_035[] =
+uint8_t x1905_tlv_stream_035[] =
 {
     0x17,
     0x00, 0x2a,
@@ -1246,7 +1246,7 @@ INT8U x1905_tlv_stream_035[] =
     0x00, 0x00, 0x00, 0x00,
 };
 
-INT16U x1905_tlv_stream_len_035 = 45;
+uint16_t x1905_tlv_stream_len_035 = 45;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1282,7 +1282,7 @@ struct ipv6TypeTLV x1905_tlv_structure_036 =
         },
 };
 
-INT8U x1905_tlv_stream_036[] =
+uint8_t x1905_tlv_stream_036[] =
 {
     0x18,
     0x00, 0x5a,
@@ -1298,7 +1298,7 @@ INT8U x1905_tlv_stream_036[] =
     0x00, 0x21, 0xaf, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-INT16U x1905_tlv_stream_len_036 = 93;
+uint16_t x1905_tlv_stream_len_036 = 93;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1313,14 +1313,14 @@ struct x1905ProfileVersionTLV x1905_tlv_structure_037 =
     .profile                     = PROFILE_1905_1A,
 };
 
-INT8U x1905_tlv_stream_037[] =
+uint8_t x1905_tlv_stream_037[] =
 {
     0x1a,
     0x00, 0x01,
     0x01,
 };
 
-INT16U x1905_tlv_stream_len_037 = 4;
+uint16_t x1905_tlv_stream_len_037 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1350,7 +1350,7 @@ struct interfacePowerChangeInformationTLV x1905_tlv_structure_038 =
         },
 };
 
-INT8U x1905_tlv_stream_038[] =
+uint8_t x1905_tlv_stream_038[] =
 {
     0x1c,
     0x00, 0x16,
@@ -1363,7 +1363,7 @@ INT8U x1905_tlv_stream_038[] =
     0x02,
 };
 
-INT16U x1905_tlv_stream_len_038 = 25;
+uint16_t x1905_tlv_stream_len_038 = 25;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1393,7 +1393,7 @@ struct interfacePowerChangeStatusTLV x1905_tlv_structure_039 =
         },
 };
 
-INT8U x1905_tlv_stream_039[] =
+uint8_t x1905_tlv_stream_039[] =
 {
     0x1d,
     0x00, 0x16,
@@ -1406,7 +1406,7 @@ INT8U x1905_tlv_stream_039[] =
     0x02,
 };
 
-INT16U x1905_tlv_stream_len_039 = 25;
+uint16_t x1905_tlv_stream_len_039 = 25;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1440,7 +1440,7 @@ struct l2NeighborDeviceTLV x1905_tlv_structure_040 =
                             .l2_neighbor_mac_address = {0xaa, 0xaa, 0xaa, 0x10, 0x02, 0x00},
                             .behind_mac_addresses_nr = 2,
                             .behind_mac_addresses    =
-                                (INT8U [][6]){
+                                (uint8_t [][6]){
                                     {0xaa, 0xaa, 0xaa, 0x10, 0x02, 0x01},
                                     {0xaa, 0xaa, 0xaa, 0x10, 0x02, 0x02},
                                 },
@@ -1462,7 +1462,7 @@ struct l2NeighborDeviceTLV x1905_tlv_structure_040 =
         },
 };
 
-INT8U x1905_tlv_stream_040[] =
+uint8_t x1905_tlv_stream_040[] =
 {
     0x1e,
     0x00, 0x3d,
@@ -1484,7 +1484,7 @@ INT8U x1905_tlv_stream_040[] =
 };
 
 
-INT16U x1905_tlv_stream_len_040 = 64;
+uint16_t x1905_tlv_stream_len_040 = 64;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////
@@ -1497,10 +1497,10 @@ struct vendorSpecificTLV x1905_tlv_structure_041 =
     .tlv_type                    = TLV_TYPE_VENDOR_SPECIFIC,
     .vendorOUI                   = {0x00, 0x03, 0x7f},
     .m_nr                        = 21,
-    .m                           = (INT8U[]) {0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+    .m                           = (uint8_t[]) {0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
 };
 
-INT8U x1905_tlv_stream_041[] =
+uint8_t x1905_tlv_stream_041[] =
 {
     0x0b,
     0x00, 0x18,
@@ -1508,7 +1508,7 @@ INT8U x1905_tlv_stream_041[] =
     0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 };
 
-INT16U x1905_tlv_stream_len_041 = 27;
+uint16_t x1905_tlv_stream_len_041 = 27;
 
 struct supportedServiceTLV x1905_tlv_structure_050 =
 {
@@ -1517,7 +1517,7 @@ struct supportedServiceTLV x1905_tlv_structure_050 =
     .supported_service           = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT, },
 };
 
-INT8U x1905_tlv_stream_050[] =
+uint8_t x1905_tlv_stream_050[] =
 {
     0x80,
     0x00, 0x03,
@@ -1525,7 +1525,7 @@ INT8U x1905_tlv_stream_050[] =
     0x00, 0x01,
 };
 
-INT16U x1905_tlv_stream_len_050 = ARRAY_SIZE(x1905_tlv_stream_050);
+uint16_t x1905_tlv_stream_len_050 = ARRAY_SIZE(x1905_tlv_stream_050);
 
 struct supportedServiceTLV x1905_tlv_structure_051 =
 {
@@ -1534,7 +1534,7 @@ struct supportedServiceTLV x1905_tlv_structure_051 =
     .supported_service           = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, },
 };
 
-INT8U x1905_tlv_stream_051[] =
+uint8_t x1905_tlv_stream_051[] =
 {
     0x81,
     0x00, 0x02,
@@ -1542,7 +1542,7 @@ INT8U x1905_tlv_stream_051[] =
     0x00,
 };
 
-INT16U x1905_tlv_stream_len_051 = ARRAY_SIZE(x1905_tlv_stream_051);
+uint16_t x1905_tlv_stream_len_051 = ARRAY_SIZE(x1905_tlv_stream_051);
 
 struct apOperationalBssTLV x1905_tlv_structure_052 =
 {
@@ -1574,7 +1574,7 @@ struct apOperationalBssTLV x1905_tlv_structure_052 =
     },
 };
 
-INT8U x1905_tlv_stream_052[] =
+uint8_t x1905_tlv_stream_052[] =
 {
     0x83,
     0x00, 76,
@@ -1594,4 +1594,4 @@ INT8U x1905_tlv_stream_052[] =
     'a', 'b', 'b', 'a', 0x00, 0xff, 0x80, '!',
 };
 
-INT16U x1905_tlv_stream_len_052 = ARRAY_SIZE(x1905_tlv_stream_052);
+uint16_t x1905_tlv_stream_len_052 = ARRAY_SIZE(x1905_tlv_stream_052);

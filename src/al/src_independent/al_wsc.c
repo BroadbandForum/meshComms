@@ -176,16 +176,16 @@
 
 struct wscKey
 {
-    INT8U  *key;
-    INT32U  key_len;
-    INT8U   mac[6];
+    uint8_t  *key;
+    uint32_t  key_len;
+    uint8_t   mac[6];
 };
 
 
 // Global variable to save the latest M1 message created
 //
-INT8U         *last_m1      = NULL;
-INT16U         last_m1_size = 0;
+uint8_t         *last_m1      = NULL;
+uint16_t         last_m1_size = 0;
 struct wscKey *last_key     = NULL;
 
 // This is the key derivation function used in the WPS standard to obtain a
@@ -195,23 +195,23 @@ struct wscKey *last_key     = NULL;
 // "SHA256_MAC_LEN" bytes long (ie. 're_len' must always be "SHA256_MAC_LEN",
 // even if it is an input argument)
 //
-void _wps_key_derivation_function(INT8U *key, INT8U *label_prefix, INT32U label_prefix_len, char *label, INT8U *res, INT32U res_len)
+void _wps_key_derivation_function(uint8_t *key, uint8_t *label_prefix, uint32_t label_prefix_len, char *label, uint8_t *res, uint32_t res_len)
 {
-    INT8U i_buf[4];
-    INT8U key_bits[4];
+    uint8_t i_buf[4];
+    uint8_t key_bits[4];
 
-    INT8U   *addr[4];
-    INT32U   len[4];
+    uint8_t   *addr[4];
+    uint32_t   len[4];
 
-    INT32U i, iter;
+    uint32_t i, iter;
 
-    INT8U  hash[SHA256_MAC_LEN];
-    INT8U *opos;
+    uint8_t  hash[SHA256_MAC_LEN];
+    uint8_t *opos;
 
-    INT32U left;
+    uint32_t left;
 
-    INT8U  *p;
-    INT32U  aux;
+    uint8_t  *p;
+    uint32_t  aux;
 
     aux = res_len * 8;
     p   = key_bits;
@@ -220,7 +220,7 @@ void _wps_key_derivation_function(INT8U *key, INT8U *label_prefix, INT32U label_
 
     addr[0] = i_buf;
     addr[1] = label_prefix;
-    addr[2] = (INT8U *) label;
+    addr[2] = (uint8_t *) label;
     addr[3] = key_bits;
     len[0]  = sizeof(i_buf);
     len[1]  = label_prefix_len;
@@ -259,19 +259,19 @@ void _wps_key_derivation_function(INT8U *key, INT8U *label_prefix, INT32U label_
 //
 //////////////////////////////////////// Enrollee functions ////////////////////
 //
-INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
+uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void **key)
 {
-    INT8U  *buffer;
+    uint8_t  *buffer;
 
     struct interfaceInfo  *x;
 
     struct wscKey  *private_key;
 
-    INT8U *p;
+    uint8_t *p;
 
-    INT8U  aux8;
-    INT16U aux16;
-    INT32U aux32;
+    uint8_t  aux8;
+    uint16_t aux16;
+    uint32_t aux32;
 
     if (NULL == interface_name || NULL == m1 || NULL == m1_size || NULL == key)
     {
@@ -285,7 +285,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
         return 0;
     }
 
-    buffer = (INT8U *)PLATFORM_MALLOC(sizeof(INT8U)*1000);
+    buffer = (uint8_t *)PLATFORM_MALLOC(sizeof(uint8_t)*1000);
     p      = buffer;
 
     // VERSION
@@ -318,7 +318,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
 
     // ENROLLEE NONCE
     {
-        INT8U enrollee_nonce[16];
+        uint8_t enrollee_nonce[16];
 
         PLATFORM_GET_RANDOM_BYTES(enrollee_nonce, 16);
 
@@ -329,8 +329,8 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
 
     // PUBLIC KEY
     {
-        INT8U  *priv, *pub;
-        INT16U  priv_len, pub_len;
+        uint8_t  *priv, *pub;
+        uint16_t  priv_len, pub_len;
 
         PLATFORM_GENERATE_DH_KEY_PAIR(&priv, &priv_len, &pub, &pub_len);
         // TODO: ZERO PAD the pub key (doesn't seem to be really needed though)
@@ -341,7 +341,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
         // The private key is one of the output arguments
         //
         private_key          = (struct wscKey *)PLATFORM_MALLOC(sizeof(struct wscKey));
-        private_key->key     = (INT8U *)PLATFORM_MALLOC(priv_len);
+        private_key->key     = (uint8_t *)PLATFORM_MALLOC(priv_len);
         private_key->key_len = priv_len;
         memcpy(private_key->key, priv, priv_len);
         memcpy(private_key->mac, x->mac_address, 6);
@@ -349,7 +349,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
 
     // AUTHENTICATION TYPES
     {
-        INT16U  auth_types;
+        uint16_t  auth_types;
 
         auth_types = 0;
 
@@ -381,7 +381,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
 
     // ENCRYPTION TYPES
     {
-        INT16U  encryption_types;
+        uint16_t  encryption_types;
 
         encryption_types = 0;
 
@@ -465,7 +465,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
         // In the 1905 context, they node sending a M1 message will always be
         // (at least) a "network router"
 
-        INT8U oui[4]      = {0x00, 0x50, 0xf2, 0x00}; // Fixed value from the
+        uint8_t oui[4]      = {0x00, 0x50, 0xf2, 0x00}; // Fixed value from the
                                                       // WSC spec
 
         aux16 = ATTR_PRIMARY_DEV_TYPE;                                    _I2B(&aux16,         &p);
@@ -491,7 +491,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
         // of and OR'ed list).
         // This should probably be improved in the future.
         //
-        INT8U  rf_bands;
+        uint8_t  rf_bands;
 
         rf_bands = 0;
 
@@ -548,7 +548,7 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
     {
         // TODO: Fill with actual properties from the interface
 
-        INT32U os_version = 0x00000001;
+        uint32_t os_version = 0x00000001;
 
         aux16 = ATTR_OS_VERSION;                                          _I2B(&aux16,         &p);
         aux16 = 4;                                                        _I2B(&aux16,         &p);
@@ -576,48 +576,48 @@ INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key)
     return 1;
 }
 
-INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_size)
+uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, uint8_t *m2, uint16_t m2_size)
 {
-    INT8U         *p;
+    uint8_t         *p;
     struct wscKey *k;
 
     // "Useful data" we want to extract from M2
     //
-    INT8U  ssid[64];                   INT8U ssid_present;
-    INT8U  bssid[6];                   INT8U bssid_present;
-    INT16U auth_type;                  INT8U auth_type_present;
-    INT16U encryption_type;            INT8U encryption_type_present;
-    INT8U  network_key[64];            INT8U network_key_present;
+    uint8_t  ssid[64];                   uint8_t ssid_present;
+    uint8_t  bssid[6];                   uint8_t bssid_present;
+    uint16_t auth_type;                  uint8_t auth_type_present;
+    uint16_t encryption_type;            uint8_t encryption_type_present;
+    uint8_t  network_key[64];            uint8_t network_key_present;
 
     // Keys we need to compute to authenticate and decrypt M2
     //
-    INT8U authkey   [WPS_AUTHKEY_LEN];
-    INT8U keywrapkey[WPS_KEYWRAPKEY_LEN];
-    INT8U emsk      [WPS_EMSK_LEN];
+    uint8_t authkey   [WPS_AUTHKEY_LEN];
+    uint8_t keywrapkey[WPS_KEYWRAPKEY_LEN];
+    uint8_t emsk      [WPS_EMSK_LEN];
 
     // "Intermediary data" we also need to extract from M2 to obtain the keys
     // that will let us decrypt the "useful data" from M2
     //
-    INT8U  *m2_nonce;                  INT8U m2_nonce_present;
-    INT8U  *m2_pubkey;                 INT8U m2_pubkey_present;
-    INT16U  m2_pubkey_len;
-    INT8U  *m2_encrypted_settings;     INT8U m2_encrypted_settings_present;
-    INT16U  m2_encrypted_settings_len;
-    INT8U  *m2_authenticator;          INT8U m2_authenticator_present;
+    uint8_t  *m2_nonce;                  uint8_t m2_nonce_present;
+    uint8_t  *m2_pubkey;                 uint8_t m2_pubkey_present;
+    uint16_t  m2_pubkey_len;
+    uint8_t  *m2_encrypted_settings;     uint8_t m2_encrypted_settings_present;
+    uint16_t  m2_encrypted_settings_len;
+    uint8_t  *m2_authenticator;          uint8_t m2_authenticator_present;
 
     // "Intermediary data" we also need to extract from M1 to obtain the keys
     // that will let us decrypt the "useful data" from M2
     //
-    INT8U  *m1_nonce;                  INT8U m1_nonce_present;
-    /*INT8U  *m1_pubkey;*/               INT8U m1_pubkey_present;
-    INT16U  m1_pubkey_len;
+    uint8_t  *m1_nonce;                  uint8_t m1_nonce_present;
+    /*uint8_t  *m1_pubkey;*/               uint8_t m1_pubkey_present;
+    uint16_t  m1_pubkey_len;
 
     // "Intermediary data" contained in the "key" argument also needed to obtain
     // the keys that will let us decrypt the "useful data" from M2
     //
-    INT8U  *m1_privkey;
-    INT16U  m1_privkey_len;
-    INT8U  *m1_mac;
+    uint8_t  *m1_privkey;
+    uint16_t  m1_privkey_len;
+    uint8_t  *m1_mac;
 
     if (NULL == m1)
     {
@@ -645,8 +645,8 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
     p                         = m2;
     while (p - m2 < m2_size)
     {
-        INT16U attr_type;
-        INT16U attr_len;
+        uint16_t attr_type;
+        uint16_t attr_len;
 
         _E2B(&p, &attr_type);
         _E2B(&p, &attr_len);
@@ -714,8 +714,8 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
     p                 = m1;
     while (p - m1 < m1_size)
     {
-        INT16U attr_type;
-        INT16U attr_len;
+        uint16_t attr_type;
+        uint16_t attr_len;
 
         _E2B(&p, &attr_type);
         _E2B(&p, &attr_len);
@@ -757,16 +757,16 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
     // With all the information we have just extracted from M1 and M2, obtain
     // the authentication/encryption keys.
     {
-        INT8U  *shared_secret;
-        INT16U  shared_secret_len;
+        uint8_t  *shared_secret;
+        uint16_t  shared_secret_len;
 
-        INT8U  *addr[3];
-        INT32U  len[3];
+        uint8_t  *addr[3];
+        uint32_t  len[3];
 
-        INT8U   dhkey[SHA256_MAC_LEN];
-        INT8U   kdk  [SHA256_MAC_LEN];
+        uint8_t   dhkey[SHA256_MAC_LEN];
+        uint8_t   kdk  [SHA256_MAC_LEN];
 
-        INT8U keys[WPS_AUTHKEY_LEN + WPS_KEYWRAPKEY_LEN + WPS_EMSK_LEN];
+        uint8_t keys[WPS_AUTHKEY_LEN + WPS_KEYWRAPKEY_LEN + WPS_EMSK_LEN];
 
         // With the enrolle public key (which we received in M1) and our private
         // key (which we generated above), obtain the Diffie Hellman shared
@@ -831,10 +831,10 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
         // authenticator attribute is contained) and calculate the HMAC, then
         // check it against the actual authenticator attribute value.
         //
-        INT8U   hash[SHA256_MAC_LEN];
+        uint8_t   hash[SHA256_MAC_LEN];
 
-        INT8U  *addr[2];
-        INT32U  len[2];
+        uint8_t  *addr[2];
+        uint32_t  len[2];
 
         addr[0] = m1;
         addr[1] = m2;
@@ -853,10 +853,10 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
 
     // With the just computed keys, decrypt the message and check the keywrap
     {
-        INT8U   *plain;
-        INT32U  plain_len;
+        uint8_t   *plain;
+        uint32_t  plain_len;
 
-        INT8U m2_keywrap_present;
+        uint8_t m2_keywrap_present;
 
         plain     = m2_encrypted_settings + AES_BLOCK_SIZE;
         plain_len = m2_encrypted_settings_len - AES_BLOCK_SIZE;
@@ -882,8 +882,8 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
         p                         = plain;
         while (p - plain < plain_len)
         {
-            INT16U attr_type;
-            INT16U attr_len;
+            uint16_t attr_type;
+            uint16_t attr_len;
 
             _E2B(&p, &attr_type);
             _E2B(&p, &attr_len);
@@ -922,11 +922,11 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
                 // is the end of the plain text blob whose HMAC we are going to
                 // compute to check the keywrap.
                 //
-                INT8U *end_of_hmac;
-                INT8U  hash[SHA256_MAC_LEN];
+                uint8_t *end_of_hmac;
+                uint8_t  hash[SHA256_MAC_LEN];
 
-                INT8U  *addr[1];
-                INT32U  len[1];
+                uint8_t  *addr[1];
+                uint32_t  len[1];
 
                 end_of_hmac = p - 4;
 
@@ -978,36 +978,36 @@ INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_s
 //
 //////////////////////////////////////// Registrar functions ///////////////////
 //
-INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
+uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_size)
 {
-    INT8U  *buffer;
+    uint8_t  *buffer;
 
     struct interfaceInfo  *x;
 
-    INT8U *p;
+    uint8_t *p;
 
-    INT8U  aux8;
-    INT16U aux16;
-    INT32U aux32;
+    uint8_t  aux8;
+    uint16_t aux16;
+    uint32_t aux32;
 
-    INT8U  *m1_mac_address;      INT8U m1_mac_address_present;
-    INT8U  *m1_nonce;            INT8U m1_nonce_present;
-    INT8U  *m1_pubkey;           INT8U m1_pubkey_present;
-    INT16U  m1_pubkey_len;
+    uint8_t  *m1_mac_address;      uint8_t m1_mac_address_present;
+    uint8_t  *m1_nonce;            uint8_t m1_nonce_present;
+    uint8_t  *m1_pubkey;           uint8_t m1_pubkey_present;
+    uint16_t  m1_pubkey_len;
 
-    INT8U  *local_privkey;
-    INT16U  local_privkey_len;
+    uint8_t  *local_privkey;
+    uint16_t  local_privkey_len;
 
-    INT8U authkey   [WPS_AUTHKEY_LEN];
-    INT8U keywrapkey[WPS_KEYWRAPKEY_LEN];
-    INT8U emsk      [WPS_EMSK_LEN];
+    uint8_t authkey   [WPS_AUTHKEY_LEN];
+    uint8_t keywrapkey[WPS_KEYWRAPKEY_LEN];
+    uint8_t emsk      [WPS_EMSK_LEN];
 
-    INT8U  registrar_nonce[16];
+    uint8_t  registrar_nonce[16];
 
     char  *registrar_interface_name;
 
-    INT16U encryption_types;
-    INT16U auth_types;
+    uint16_t encryption_types;
+    uint16_t auth_types;
 
     // If this node is processing an M1 message, it must mean one of our
     // interfaces is the network registrar.
@@ -1030,8 +1030,8 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
     p                      = m1;
     while (p - m1 < m1_size)
     {
-        INT16U attr_type;
-        INT16U attr_len;
+        uint16_t attr_type;
+        uint16_t attr_len;
 
         _E2B(&p, &attr_type);
         _E2B(&p, &attr_len);
@@ -1091,7 +1091,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         return 0;
     }
 
-    buffer = (INT8U *)PLATFORM_MALLOC(sizeof(INT8U)*1000);
+    buffer = (uint8_t *)PLATFORM_MALLOC(sizeof(uint8_t)*1000);
     p      = buffer;
 
     // VERSION
@@ -1133,8 +1133,8 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
 
     // PUBLIC KEY
     {
-        INT8U  *priv, *pub;
-        INT16U  priv_len, pub_len;
+        uint8_t  *priv, *pub;
+        uint16_t  priv_len, pub_len;
 
         PLATFORM_GENERATE_DH_KEY_PAIR(&priv, &priv_len, &pub, &pub_len);
         // TODO: ZERO PAD the pub key (doesn't seem to be really needed though)
@@ -1153,16 +1153,16 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
     // block of code, we just obtain three cryptographic keys that are needed
     // later
     {
-        INT8U  *shared_secret;
-        INT16U  shared_secret_len;
+        uint8_t  *shared_secret;
+        uint16_t  shared_secret_len;
 
-        INT8U  *addr[3];
-        INT32U  len[3];
+        uint8_t  *addr[3];
+        uint32_t  len[3];
 
-        INT8U   dhkey[SHA256_MAC_LEN];
-        INT8U   kdk  [SHA256_MAC_LEN];
+        uint8_t   dhkey[SHA256_MAC_LEN];
+        uint8_t   kdk  [SHA256_MAC_LEN];
 
-        INT8U keys      [WPS_AUTHKEY_LEN + WPS_KEYWRAPKEY_LEN + WPS_EMSK_LEN];
+        uint8_t keys      [WPS_AUTHKEY_LEN + WPS_KEYWRAPKEY_LEN + WPS_EMSK_LEN];
 
         // With the enrolle public key (which we received in M1) and our private
         // key (which we generated above), obtain the Diffie Hellman shared
@@ -1326,7 +1326,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         // In the 1905 context, they node sending a M2 message will always be
         // (at least) a "network router"
 
-        INT8U oui[4]      = {0x00, 0x50, 0xf2, 0x00}; // Fixed value from the
+        uint8_t oui[4]      = {0x00, 0x50, 0xf2, 0x00}; // Fixed value from the
                                                       // WSC spec
 
         aux16 = ATTR_PRIMARY_DEV_TYPE;                                    _I2B(&aux16,         &p);
@@ -1345,7 +1345,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
 
     // RF BANDS
     {
-        INT8U  rf_bands;
+        uint8_t  rf_bands;
 
         rf_bands = 0;
 
@@ -1402,7 +1402,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
     {
         // TODO: Fill with actual properties from the interface
 
-        INT32U os_version = 0x00000001;
+        uint32_t os_version = 0x00000001;
 
         aux16 = ATTR_OS_VERSION;                                          _I2B(&aux16,         &p);
         aux16 = 4;                                                        _I2B(&aux16,         &p);
@@ -1435,15 +1435,15 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         //   3. Encryp the message + HMAC with AES (so that no one else
         //      snooping can have a look at these attributes)
 
-        INT8U   plain[200];
-        INT8U   hash[SHA256_MAC_LEN];
-        INT8U  *iv_start;
-        INT8U  *data_start;
-        INT8U  *r;
-        INT8U  pad_elements_nr;
+        uint8_t   plain[200];
+        uint8_t   hash[SHA256_MAC_LEN];
+        uint8_t  *iv_start;
+        uint8_t  *data_start;
+        uint8_t  *r;
+        uint8_t  pad_elements_nr;
 
-        INT8U  *addr[1];
-        INT32U  len[1];
+        uint8_t  *addr[1];
+        uint32_t  len[1];
 
         char   *ssid;
         char   *network_key;
@@ -1533,10 +1533,10 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
         // up to this point) and calculate the HMAC, then append it to M2 as
         // a new (and final!) attribute
         //
-        INT8U  hash[SHA256_MAC_LEN];
+        uint8_t  hash[SHA256_MAC_LEN];
 
-        INT8U  *addr[2];
-        INT32U  len[2];
+        uint8_t  *addr[2];
+        uint32_t  len[2];
 
         addr[0] = m1;
         addr[1] = buffer;
@@ -1558,7 +1558,7 @@ INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size)
     return 1;
 }
 
-INT8U wscFreeM2(INT8U *m, INT16U m_size)
+uint8_t wscFreeM2(uint8_t *m, uint16_t m_size)
 {
     if (0 == m_size || NULL == m)
     {
@@ -1572,16 +1572,16 @@ INT8U wscFreeM2(INT8U *m, INT16U m_size)
 //
 //////////////////////////////////////// Common functions //////////////////////
 //
-INT8U wscGetType(INT8U *m, INT16U m_size)
+uint8_t wscGetType(uint8_t *m, uint16_t m_size)
 {
-    INT8U *p;
+    uint8_t *p;
 
     p = m;
     while (p - m < m_size)
     {
-        INT16U attr_type;
-        INT16U attr_len;
-        INT8U  msg_type;
+        uint16_t attr_type;
+        uint16_t attr_len;
+        uint8_t  msg_type;
 
         _E2B(&p, &attr_type);
         _E2B(&p, &attr_len);

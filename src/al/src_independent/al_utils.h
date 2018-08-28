@@ -22,7 +22,7 @@
 // "MIDs" are "message IDs" used inside 1905 protocol messages. They must be
 // monotonically increased as explained in "Section 7.8"
 //
-INT16U getNextMid(void);
+uint16_t getNextMid(void);
 
 #endif
 

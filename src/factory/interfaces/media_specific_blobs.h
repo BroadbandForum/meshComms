@@ -19,6 +19,7 @@
 #ifndef _MEDIA_SPECIFIC_BLOBS_H_
 #define _MEDIA_SPECIFIC_BLOBS_H_
 
+#include <stdint.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Structure type used for generic interfaces
@@ -34,7 +35,7 @@
 //
 struct genericInterfaceType
 {
-    INT8U oui[3];           // Three bytes containing either the
+    uint8_t oui[3];           // Three bytes containing either the
                             // "Organizationally Unique Identifier"
                             // ("http://standards.ieee.org/develop/regauth/oui")
                             // or the "Company ID"
@@ -49,7 +50,7 @@ struct genericInterfaceType
                             // XML schema"
                             // ("http://standards.ieee.org/downloads/1905/GenericPhyInfoV1.xsd")
 
-    INT8U variant_index;    // The "Generic Phy XML Description Document" might
+    uint8_t variant_index;    // The "Generic Phy XML Description Document" might
                             // might contain more than one "class" of
                             // interfaces for each OUI. This variable is used
                             // to identify which class/variant is the one that
@@ -79,7 +80,7 @@ struct genericInterfaceType
             //
             //  - ...and the 'variant_index' is set to either 1, 2, 3 or 4
 
-            INT8U dni[2];   // Domain name identifier (see clause
+            uint8_t dni[2];   // Domain name identifier (see clause
                             // 8.6.8.2.1 of "ITU-T G.9961")
         } ituGhn;
 
@@ -89,8 +90,8 @@ struct genericInterfaceType
             // want to provide media specific data, just set 'bytes_nr' to '0',
             // otherwise use this array to send arbitrary data to upper layers
             //
-            INT16U  bytes_nr;
-            INT8U  *bytes;
+            uint16_t  bytes_nr;
+            uint8_t  *bytes;
 
         } unsupported;
 
@@ -119,7 +120,7 @@ struct genericInterfaceType
 //
 // 'len' is an output argument that holds the length of the returned buffer.
 //
-INT8U *forge_media_specific_blob(struct genericInterfaceType *m, INT16U *len);
+uint8_t *forge_media_specific_blob(struct genericInterfaceType *m, uint16_t *len);
 
 // 'forge_media_specific_blob()' returns a regular buffer which can be freed
 // using this macro defined to be PLATFORM_FREE

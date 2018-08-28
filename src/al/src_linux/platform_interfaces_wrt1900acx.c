@@ -97,7 +97,7 @@ static char * _read_uci_parameter_value(char * parameter)
     return line;
 }
 
-static void _set_uci_parameter_value(char * parameter, INT8U *value)
+static void _set_uci_parameter_value(char * parameter, uint8_t *value)
 {
     FILE *pipe ;
     char command[200] = "";
@@ -130,7 +130,7 @@ static void _get_wifi_connected_devices(char *interface_name, struct interfaceIn
     char    *line;
     size_t   len;
     ssize_t  read;
-    INT8U    mac_addr[6];
+    uint8_t    mac_addr[6];
     char     command[200];
 
     sprintf(command, "iw dev %s station dump | grep Station | cut -f2 -d' '",interface_name);
@@ -161,7 +161,7 @@ static void _get_wifi_connected_devices(char *interface_name, struct interfaceIn
         if (6 == sscanf(line, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", &mac_addr[0], &mac_addr[1], &mac_addr[2], &mac_addr[3], &mac_addr[4], &mac_addr[5]))
         {
              PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] %02x:%02x:%02x:%02x:%02x:%02x wifi device connected to %s\n", mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5], interface_name);
-             m->neighbor_mac_addresses = (INT8U (*)[6])realloc(m->neighbor_mac_addresses, sizeof(INT8U[6]) * m->neighbor_mac_addresses_nr + 1);
+             m->neighbor_mac_addresses = (uint8_t (*)[6])realloc(m->neighbor_mac_addresses, sizeof(uint8_t[6]) * m->neighbor_mac_addresses_nr + 1);
              memcpy(m->neighbor_mac_addresses[m->neighbor_mac_addresses_nr], mac_addr, 6);
              m->neighbor_mac_addresses_nr++;
         }
@@ -188,7 +188,7 @@ static void _get_wifi_connected_devices(char *interface_name, struct interfaceIn
 // declaration is found in "./platform_interfaces_wrt1900acx_priv.h")
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U linksys_wrt1900acx_get_interface_info(char *interface_name, struct interfaceInfo *m)
+uint8_t linksys_wrt1900acx_get_interface_info(char *interface_name, struct interfaceInfo *m)
 {
     // Check interface name
     //
@@ -282,12 +282,12 @@ INT8U linksys_wrt1900acx_get_interface_info(char *interface_name, struct interfa
     return 1;
 }
 
-INT8U linksys_wrt1900acx_apply_80211_configuration(char *interface_name, INT8U *ssid, INT8U *network_key)
+uint8_t linksys_wrt1900acx_apply_80211_configuration(char *interface_name, uint8_t *ssid, uint8_t *network_key)
 {
     _set_uci_parameter_value("wireless.@wifi-iface[1].ssid=",ssid);
     _set_uci_parameter_value("wireless.@wifi-iface[1].key=",network_key);
     _set_uci_parameter_value("wireless.@wifi-iface[1].network_key=",network_key);
-    _set_uci_parameter_value("wireless.@wifi-iface[1].encryption=",(INT8U *)"psk2");
+    _set_uci_parameter_value("wireless.@wifi-iface[1].encryption=",(uint8_t *)"psk2");
 
     system("wifi reload");
 

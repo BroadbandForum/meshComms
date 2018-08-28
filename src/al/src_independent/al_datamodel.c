@@ -36,30 +36,30 @@
 
 struct _dataModel
 {
-    INT8U              map_whole_network_flag;
+    uint8_t              map_whole_network_flag;
 
-    INT8U              registrar_mac_address[6];
+    uint8_t              registrar_mac_address[6];
 
-    INT8U              al_mac_address[6];
-    INT8U              local_interfaces_nr;
+    uint8_t              al_mac_address[6];
+    uint8_t              local_interfaces_nr;
 
     struct _localInterface
     {
         char               *name;
-        INT8U               mac_address[6];
+        uint8_t               mac_address[6];
 
-        INT8U               neighbors_nr;
+        uint8_t               neighbors_nr;
 
         struct _neighbor
         {
-            INT8U               al_mac_address[6];
-            INT8U               remote_interfaces_nr;
+            uint8_t               al_mac_address[6];
+            uint8_t               remote_interfaces_nr;
 
             struct _remoteInterface
             {
-                INT8U               mac_address[6];
-                INT32U              last_topology_discovery_ts;
-                INT32U              last_bridge_discovery_ts;
+                uint8_t               mac_address[6];
+                uint32_t              last_topology_discovery_ts;
+                uint32_t              last_bridge_discovery_ts;
 
             }                  *remote_interfaces;
 
@@ -67,27 +67,27 @@ struct _dataModel
 
     }                 *local_interfaces;
 
-    INT8U              network_devices_nr;
+    uint8_t              network_devices_nr;
 
     struct _networkDevice
     {
-            INT32U                                      update_timestamp;
+            uint32_t                                      update_timestamp;
 
             struct deviceInformationTypeTLV            *info;
 
-            INT8U                                       bridges_nr;
+            uint8_t                                       bridges_nr;
             struct deviceBridgingCapabilityTLV        **bridges;
 
-            INT8U                                       non1905_neighbors_nr;
+            uint8_t                                       non1905_neighbors_nr;
             struct non1905NeighborDeviceListTLV       **non1905_neighbors;
 
-            INT8U                                       x1905_neighbors_nr;
+            uint8_t                                       x1905_neighbors_nr;
             struct neighborDeviceListTLV              **x1905_neighbors;
 
-            INT8U                                       power_off_nr;
+            uint8_t                                       power_off_nr;
             struct powerOffInterfaceTLV               **power_off;
 
-            INT8U                                       l2_neighbors_nr;
+            uint8_t                                       l2_neighbors_nr;
             struct l2NeighborDeviceTLV                **l2_neighbors;
 
             struct supportedServiceTLV                 *supported_service;
@@ -104,20 +104,20 @@ struct _dataModel
 
             struct ipv6TypeTLV                         *ipv6;
 
-            INT8U                                       metrics_with_neighbors_nr;
+            uint8_t                                       metrics_with_neighbors_nr;
             struct _metricsWithNeighbor
             {
-                INT8U                                       neighbor_al_mac_address[6];
+                uint8_t                                       neighbor_al_mac_address[6];
 
-                INT32U                                      tx_metrics_timestamp;
+                uint32_t                                      tx_metrics_timestamp;
                 struct transmitterLinkMetricTLV            *tx_metrics;
 
-                INT32U                                      rx_metrics_timestamp;
+                uint32_t                                      rx_metrics_timestamp;
                 struct receiverLinkMetricTLV               *rx_metrics;
 
             }                                          *metrics_with_neighbors;
 
-            INT8U                                       extensions_nr;
+            uint8_t                                       extensions_nr;
             struct vendorSpecificTLV                  **extensions;
 
     }                 *network_devices;
@@ -130,9 +130,9 @@ struct _dataModel
 // represents the local interface with that address.
 // Returns NONE if such a local interface could not be found.
 //
-struct _localInterface *_macAddressToLocalInterfaceStruct(INT8U *mac_address)
+struct _localInterface *_macAddressToLocalInterfaceStruct(uint8_t *mac_address)
 {
-    INT8U i;
+    uint8_t i;
 
     if (NULL != mac_address)
     {
@@ -156,7 +156,7 @@ struct _localInterface *_macAddressToLocalInterfaceStruct(INT8U *mac_address)
 //
 struct _localInterface *_nameToLocalInterfaceStruct(char *name)
 {
-    INT8U i;
+    uint8_t i;
 
     if (NULL != name)
     {
@@ -179,9 +179,9 @@ struct _localInterface *_nameToLocalInterfaceStruct(char *name)
 // provided 'local_interface_name'.
 // Returns NONE if such a neighbor could not be found.
 //
-struct _neighbor *_alMacAddressToNeighborStruct(char *local_interface_name, INT8U *al_mac_address)
+struct _neighbor *_alMacAddressToNeighborStruct(char *local_interface_name, uint8_t *al_mac_address)
 {
-    INT8U i;
+    uint8_t i;
 
     struct _localInterface *x;
 
@@ -214,9 +214,9 @@ struct _neighbor *_alMacAddressToNeighborStruct(char *local_interface_name, INT8
 // address.
 // Returns NONE if such a remote interface could not be found.
 //
-struct _remoteInterface *_macAddressToRemoteInterfaceStruct(char *local_interface_name, INT8U *neighbor_al_mac_address, INT8U *mac_address)
+struct _remoteInterface *_macAddressToRemoteInterfaceStruct(char *local_interface_name, uint8_t *neighbor_al_mac_address, uint8_t *mac_address)
 {
-    INT8U i;
+    uint8_t i;
 
     struct _neighbor *x;
 
@@ -249,7 +249,7 @@ struct _remoteInterface *_macAddressToRemoteInterfaceStruct(char *local_interfac
 // neighbor had already been inserted, '1' if the new neighbor was succesfully
 // inserted.
 //
-INT8U _insertNeighbor(char *local_interface_name, INT8U *al_mac_address)
+uint8_t _insertNeighbor(char *local_interface_name, uint8_t *al_mac_address)
 {
     struct _localInterface *x;
 
@@ -294,7 +294,7 @@ INT8U _insertNeighbor(char *local_interface_name, INT8U *al_mac_address)
 // neighbor interface had already been inserted, '1' if the new neighbor
 // interface was successfully inserted.
 //
-INT8U _insertNeighborInterface(char *local_interface_name, INT8U *neighbor_al_mac_address, INT8U *mac_address)
+uint8_t _insertNeighborInterface(char *local_interface_name, uint8_t *neighbor_al_mac_address, uint8_t *mac_address)
 {
     struct _neighbor        *x;
 
@@ -390,43 +390,43 @@ void DMinit()
     return;
 }
 
-void DMalMacSet(INT8U *al_mac_address)
+void DMalMacSet(uint8_t *al_mac_address)
 {
     memcpy(data_model.al_mac_address, al_mac_address, 6);
 
     return;
 }
 
-INT8U *DMalMacGet()
+uint8_t *DMalMacGet()
 {
     return data_model.al_mac_address;
 }
 
-void DMregistrarMacSet(INT8U *registrar_mac_address)
+void DMregistrarMacSet(uint8_t *registrar_mac_address)
 {
     memcpy(data_model.registrar_mac_address, registrar_mac_address, 6);
 
     return;
 }
 
-INT8U *DMregistrarMacGet()
+uint8_t *DMregistrarMacGet()
 {
     return data_model.registrar_mac_address;
 }
 
-void DMmapWholeNetworkSet(INT8U map_whole_network_flag)
+void DMmapWholeNetworkSet(uint8_t map_whole_network_flag)
 {
     data_model.map_whole_network_flag =  map_whole_network_flag;
 
     return;
 }
 
-INT8U DMmapWholeNetworkGet()
+uint8_t DMmapWholeNetworkGet()
 {
     return data_model.map_whole_network_flag;
 }
 
-INT8U DMinsertInterface(char *name, INT8U *mac_address)
+uint8_t DMinsertInterface(char *name, uint8_t *mac_address)
 {
     struct _localInterface *x;
 
@@ -476,7 +476,7 @@ INT8U DMinsertInterface(char *name, INT8U *mac_address)
 }
 
 
-char *DMmacToInterfaceName(INT8U *mac_address)
+char *DMmacToInterfaceName(uint8_t *mac_address)
 {
     struct _localInterface *x;
 
@@ -494,9 +494,9 @@ char *DMmacToInterfaceName(INT8U *mac_address)
     }
 }
 
-INT8U *DMinterfaceNameToMac(char *interface_name)
+uint8_t *DMinterfaceNameToMac(char *interface_name)
 {
-    INT8U i;
+    uint8_t i;
 
     if (NULL != interface_name)
     {
@@ -515,10 +515,10 @@ INT8U *DMinterfaceNameToMac(char *interface_name)
 }
 
 
-INT8U (*DMgetListOfInterfaceNeighbors(char *local_interface_name, INT8U *al_mac_addresses_nr))[6]
+uint8_t (*DMgetListOfInterfaceNeighbors(char *local_interface_name, uint8_t *al_mac_addresses_nr))[6]
 {
-    INT8U i;
-    INT8U (*ret)[6];
+    uint8_t i;
+    uint8_t (*ret)[6];
 
     struct _localInterface *x;
 
@@ -536,7 +536,7 @@ INT8U (*DMgetListOfInterfaceNeighbors(char *local_interface_name, INT8U *al_mac_
         return NULL;
     }
 
-    ret = (INT8U (*)[6])PLATFORM_MALLOC(sizeof(INT8U[6]) * x->neighbors_nr);
+    ret = (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]) * x->neighbors_nr);
 
     for (i=0; i<x->neighbors_nr; i++)
     {
@@ -552,12 +552,12 @@ INT8U (*DMgetListOfInterfaceNeighbors(char *local_interface_name, INT8U *al_mac_
     return ret;
 }
 
-INT8U (*DMgetListOfNeighbors(INT8U *al_mac_addresses_nr))[6]
+uint8_t (*DMgetListOfNeighbors(uint8_t *al_mac_addresses_nr))[6]
 {
-    INT8U i, j, k;
+    uint8_t i, j, k;
 
-    INT8U total;
-    INT8U (*ret)[6];
+    uint8_t total;
+    uint8_t (*ret)[6];
 
     if (NULL == al_mac_addresses_nr)
     {
@@ -573,7 +573,7 @@ INT8U (*DMgetListOfNeighbors(INT8U *al_mac_addresses_nr))[6]
         {
             // Check for duplicates
             //
-            INT8U already_present;
+            uint8_t already_present;
 
             already_present = 0;
             for (k=0; k<total; k++)
@@ -595,11 +595,11 @@ INT8U (*DMgetListOfNeighbors(INT8U *al_mac_addresses_nr))[6]
             //
             if (NULL == ret)
             {
-                ret = (INT8U (*)[6])PLATFORM_MALLOC(sizeof(INT8U[6]));
+                ret = (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]));
             }
             else
             {
-                ret = (INT8U (*)[6])PLATFORM_REALLOC(ret, sizeof(INT8U[6])*(total + 1));
+                ret = (uint8_t (*)[6])PLATFORM_REALLOC(ret, sizeof(uint8_t[6])*(total + 1));
             }
             memcpy(&ret[total], data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
 
@@ -612,12 +612,12 @@ INT8U (*DMgetListOfNeighbors(INT8U *al_mac_addresses_nr))[6]
     return ret;
 }
 
-INT8U (*DMgetListOfLinksWithNeighbor(INT8U *neighbor_al_mac_address, char ***interfaces, INT8U *links_nr))[6]
+uint8_t (*DMgetListOfLinksWithNeighbor(uint8_t *neighbor_al_mac_address, char ***interfaces, uint8_t *links_nr))[6]
 {
-    INT8U i, j, k;
-    INT8U total;
+    uint8_t i, j, k;
+    uint8_t total;
 
-    INT8U (*ret)[6];
+    uint8_t (*ret)[6];
     char  **intfs;
 
     total = 0;
@@ -643,12 +643,12 @@ INT8U (*DMgetListOfLinksWithNeighbor(INT8U *neighbor_al_mac_address, char ***int
                 //
                 if (NULL == ret)
                 {
-                    ret   = (INT8U (*)[6])PLATFORM_MALLOC(sizeof(INT8U[6]));
+                    ret   = (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]));
                     intfs = (char **)PLATFORM_MALLOC(sizeof(char *));
                 }
                 else
                 {
-                    ret   = (INT8U (*)[6])PLATFORM_REALLOC(ret, sizeof(INT8U[6])*(total + 1));
+                    ret   = (uint8_t (*)[6])PLATFORM_REALLOC(ret, sizeof(uint8_t[6])*(total + 1));
                     intfs = (char **)PLATFORM_REALLOC(intfs, sizeof(char *)*(total + 1));
                 }
                 memcpy(&ret[total], data_model.local_interfaces[i].neighbors[j].remote_interfaces[k].mac_address, 6);
@@ -665,7 +665,7 @@ INT8U (*DMgetListOfLinksWithNeighbor(INT8U *neighbor_al_mac_address, char ***int
     return ret;
 }
 
-void DMfreeListOfLinksWithNeighbor(INT8U (*p)[6], char **interfaces, INT8U links_nr)
+void DMfreeListOfLinksWithNeighbor(uint8_t (*p)[6], char **interfaces, uint8_t links_nr)
 {
     if (0 == links_nr)
     {
@@ -686,15 +686,15 @@ void DMfreeListOfLinksWithNeighbor(INT8U (*p)[6], char **interfaces, INT8U links
 }
 
 
-INT8U DMupdateDiscoveryTimeStamps(INT8U *receiving_interface_addr, INT8U *al_mac_address, INT8U *mac_address, INT8U timestamp_type, INT32U *ellapsed)
+uint8_t DMupdateDiscoveryTimeStamps(uint8_t *receiving_interface_addr, uint8_t *al_mac_address, uint8_t *mac_address, uint8_t timestamp_type, uint32_t *ellapsed)
 {
     char  *receiving_interface_name;
 
     struct _remoteInterface *x;
 
-    INT32U aux1, aux2;
-    INT8U  insert_result;
-    INT8U  ret;
+    uint32_t aux1, aux2;
+    uint8_t  insert_result;
+    uint8_t  ret;
 
     ret = 2;
 
@@ -741,7 +741,7 @@ INT8U DMupdateDiscoveryTimeStamps(INT8U *receiving_interface_addr, INT8U *al_mac
     {
         case TIMESTAMP_TOPOLOGY_DISCOVERY:
         {
-            INT32U aux;
+            uint32_t aux;
 
             aux = PLATFORM_GET_TIMESTAMP();
 
@@ -762,7 +762,7 @@ INT8U DMupdateDiscoveryTimeStamps(INT8U *receiving_interface_addr, INT8U *al_mac
         }
         case TIMESTAMP_BRIDGE_DISCOVERY:
         {
-            INT32U aux;
+            uint32_t aux;
 
             aux = PLATFORM_GET_TIMESTAMP();
 
@@ -794,11 +794,11 @@ INT8U DMupdateDiscoveryTimeStamps(INT8U *receiving_interface_addr, INT8U *al_mac
     return ret;
 }
 
-INT8U DMisLinkBridged(char *local_interface_name, INT8U *neighbor_al_mac_address, INT8U *neighbor_mac_address)
+uint8_t DMisLinkBridged(char *local_interface_name, uint8_t *neighbor_al_mac_address, uint8_t *neighbor_mac_address)
 {
     struct _remoteInterface *x;
 
-    INT32U aux;
+    uint32_t aux;
 
     if (NULL == (x = _macAddressToRemoteInterfaceStruct(local_interface_name, neighbor_al_mac_address, neighbor_mac_address)))
     {
@@ -831,11 +831,11 @@ INT8U DMisLinkBridged(char *local_interface_name, INT8U *neighbor_al_mac_address
     }
 }
 
-INT8U DMisNeighborBridged(char *local_interface_name, INT8U *neighbor_al_mac_address)
+uint8_t DMisNeighborBridged(char *local_interface_name, uint8_t *neighbor_al_mac_address)
 {
     struct _neighbor *x;
 
-    INT8U i;
+    uint8_t i;
 
     if (NULL == (x = _alMacAddressToNeighborStruct(local_interface_name, neighbor_al_mac_address)))
     {
@@ -861,11 +861,11 @@ INT8U DMisNeighborBridged(char *local_interface_name, INT8U *neighbor_al_mac_add
     return 0;
 }
 
-INT8U DMisInterfaceBridged(char *local_interface_name)
+uint8_t DMisInterfaceBridged(char *local_interface_name)
 {
     struct _localInterface *x;
 
-    INT8U i;
+    uint8_t i;
 
     x = _nameToLocalInterfaceStruct(local_interface_name);
     if (NULL == x)
@@ -893,15 +893,15 @@ INT8U DMisInterfaceBridged(char *local_interface_name)
 
 
 
-INT8U *DMmacToAlMac(INT8U *mac_address)
+uint8_t *DMmacToAlMac(uint8_t *mac_address)
 {
-    INT8U i, j, k;
+    uint8_t i, j, k;
 
-    INT8U *al_mac;
-    INT8U found;
+    uint8_t *al_mac;
+    uint8_t found;
 
     found  = 0;
-    al_mac = (INT8U *)PLATFORM_MALLOC(sizeof(INT8U)*6);
+    al_mac = (uint8_t *)PLATFORM_MALLOC(sizeof(uint8_t)*6);
 
     if (0 == memcmp(data_model.al_mac_address, mac_address, 6))
     {
@@ -947,22 +947,22 @@ INT8U *DMmacToAlMac(INT8U *mac_address)
     }
 }
 
-INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
-                                INT8U in_update,  struct deviceInformationTypeTLV             *info,
-                                INT8U br_update,  struct deviceBridgingCapabilityTLV         **bridges,           INT8U bridges_nr,
-                                INT8U no_update,  struct non1905NeighborDeviceListTLV        **non1905_neighbors, INT8U non1905_neighbors_nr,
-                                INT8U x1_update,  struct neighborDeviceListTLV               **x1905_neighbors,   INT8U x1905_neighbors_nr,
-                                INT8U po_update,  struct powerOffInterfaceTLV                **power_off,         INT8U power_off_nr,
-                                INT8U l2_update,  struct l2NeighborDeviceTLV                 **l2_neighbors,      INT8U l2_neighbors_nr,
-                                INT8U ss_update,  struct supportedServiceTLV                  *supported_service,
-                                INT8U ge_update,  struct genericPhyDeviceInformationTypeTLV   *generic_phy,
-                                INT8U pr_update,  struct x1905ProfileVersionTLV               *profile,
-                                INT8U id_update,  struct deviceIdentificationTypeTLV          *identification,
-                                INT8U co_update,  struct controlUrlTypeTLV                    *control_url,
-                                INT8U v4_update,  struct ipv4TypeTLV                          *ipv4,
-                                INT8U v6_update,  struct ipv6TypeTLV                          *ipv6)
+uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
+                                uint8_t in_update,  struct deviceInformationTypeTLV             *info,
+                                uint8_t br_update,  struct deviceBridgingCapabilityTLV         **bridges,           uint8_t bridges_nr,
+                                uint8_t no_update,  struct non1905NeighborDeviceListTLV        **non1905_neighbors, uint8_t non1905_neighbors_nr,
+                                uint8_t x1_update,  struct neighborDeviceListTLV               **x1905_neighbors,   uint8_t x1905_neighbors_nr,
+                                uint8_t po_update,  struct powerOffInterfaceTLV                **power_off,         uint8_t power_off_nr,
+                                uint8_t l2_update,  struct l2NeighborDeviceTLV                 **l2_neighbors,      uint8_t l2_neighbors_nr,
+                                uint8_t ss_update,  struct supportedServiceTLV                  *supported_service,
+                                uint8_t ge_update,  struct genericPhyDeviceInformationTypeTLV   *generic_phy,
+                                uint8_t pr_update,  struct x1905ProfileVersionTLV               *profile,
+                                uint8_t id_update,  struct deviceIdentificationTypeTLV          *identification,
+                                uint8_t co_update,  struct controlUrlTypeTLV                    *control_url,
+                                uint8_t v4_update,  struct ipv4TypeTLV                          *ipv4,
+                                uint8_t v6_update,  struct ipv6TypeTLV                          *ipv6)
 {
-    INT8U i,j;
+    uint8_t i,j;
 
     if (
          (NULL == al_mac_address)                                                     ||
@@ -1055,7 +1055,7 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
         {
             if (NULL != data_model.network_devices[i].info)
             {
-                free_1905_TLV_structure((INT8U *)data_model.network_devices[i].info);
+                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].info);
             }
             data_model.network_devices[i].info = info;
         }
@@ -1064,7 +1064,7 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
         {
             for (j=0; j<data_model.network_devices[i].bridges_nr; j++)
             {
-                free_1905_TLV_structure((INT8U *)data_model.network_devices[i].bridges[j]);
+                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].bridges[j]);
             }
             if (data_model.network_devices[i].bridges_nr > 0 && NULL != data_model.network_devices[i].bridges)
             {
@@ -1078,7 +1078,7 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
         {
             for (j=0; j<data_model.network_devices[i].non1905_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((INT8U *)data_model.network_devices[i].non1905_neighbors[j]);
+                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].non1905_neighbors[j]);
             }
             if (data_model.network_devices[i].non1905_neighbors_nr > 0 && NULL != data_model.network_devices[i].non1905_neighbors)
             {
@@ -1092,7 +1092,7 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
         {
             for (j=0; j<data_model.network_devices[i].x1905_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((INT8U *)data_model.network_devices[i].x1905_neighbors[j]);
+                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].x1905_neighbors[j]);
             }
             if (data_model.network_devices[i].x1905_neighbors_nr > 0 && NULL != data_model.network_devices[i].x1905_neighbors)
             {
@@ -1106,7 +1106,7 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
         {
             for (j=0; j<data_model.network_devices[i].power_off_nr; j++)
             {
-                free_1905_TLV_structure((INT8U *)data_model.network_devices[i].power_off[j]);
+                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].power_off[j]);
             }
             if (data_model.network_devices[i].power_off_nr > 0 && NULL != data_model.network_devices[i].power_off)
             {
@@ -1120,7 +1120,7 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
         {
             for (j=0; j<data_model.network_devices[i].l2_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((INT8U *)data_model.network_devices[i].l2_neighbors[j]);
+                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].l2_neighbors[j]);
             }
             if (data_model.network_devices[i].l2_neighbors_nr > 0 && NULL != data_model.network_devices[i].l2_neighbors)
             {
@@ -1132,43 +1132,43 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
 
         if (1 == ss_update)
         {
-            free_1905_TLV_structure((INT8U *)data_model.network_devices[i].supported_service);
+            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].supported_service);
             data_model.network_devices[i].supported_service = supported_service;
         }
 
         if (1 == ge_update)
         {
-            free_1905_TLV_structure((INT8U *)data_model.network_devices[i].generic_phy);
+            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].generic_phy);
             data_model.network_devices[i].generic_phy = generic_phy;
         }
 
         if (1 == pr_update)
         {
-            free_1905_TLV_structure((INT8U *)data_model.network_devices[i].profile);
+            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].profile);
             data_model.network_devices[i].profile = profile;
         }
 
         if (1 == id_update)
         {
-            free_1905_TLV_structure((INT8U *)data_model.network_devices[i].identification);
+            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].identification);
             data_model.network_devices[i].identification = identification;
         }
 
         if (1 == co_update)
         {
-            free_1905_TLV_structure((INT8U *)data_model.network_devices[i].control_url);
+            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].control_url);
             data_model.network_devices[i].control_url = control_url;
         }
 
         if (1 == v4_update)
         {
-            free_1905_TLV_structure((INT8U *)data_model.network_devices[i].ipv4);
+            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].ipv4);
             data_model.network_devices[i].ipv4 = ipv4;
         }
 
         if (1 == v6_update)
         {
-            free_1905_TLV_structure((INT8U *)data_model.network_devices[i].ipv6);
+            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].ipv6);
             data_model.network_devices[i].ipv6 = ipv6;
         }
 
@@ -1177,9 +1177,9 @@ INT8U DMupdateNetworkDeviceInfo(INT8U *al_mac_address,
     return 1;
 }
 
-INT8U DMnetworkDeviceInfoNeedsUpdate(INT8U *al_mac_address)
+uint8_t DMnetworkDeviceInfoNeedsUpdate(uint8_t *al_mac_address)
 {
-    INT8U i;
+    uint8_t i;
 
     // First, search for an existing entry with the same AL MAC address
     //
@@ -1216,12 +1216,12 @@ INT8U DMnetworkDeviceInfoNeedsUpdate(INT8U *al_mac_address)
     }
 }
 
-INT8U DMupdateNetworkDeviceMetrics(INT8U *metrics)
+uint8_t DMupdateNetworkDeviceMetrics(uint8_t *metrics)
 {
-    INT8U *FROM_al_mac_address;  // Metrics are reported FROM this AL entity...
-    INT8U *TO_al_mac_address;    // ... TO this other one.
+    uint8_t *FROM_al_mac_address;  // Metrics are reported FROM this AL entity...
+    uint8_t *TO_al_mac_address;    // ... TO this other one.
 
-    INT8U i, j;
+    uint8_t i, j;
 
     if (NULL == metrics)
     {
@@ -1344,14 +1344,14 @@ INT8U DMupdateNetworkDeviceMetrics(INT8U *metrics)
         //
         if (TLV_TYPE_TRANSMITTER_LINK_METRIC == *metrics)
         {
-            free_1905_TLV_structure((INT8U *)data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics);
+            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics);
 
             data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics_timestamp = PLATFORM_GET_TIMESTAMP();
             data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics           = (struct transmitterLinkMetricTLV*)metrics;
         }
         else
         {
-            free_1905_TLV_structure((INT8U *)data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics);
+            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics);
 
             data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics_timestamp = PLATFORM_GET_TIMESTAMP();
             data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics           = (struct receiverLinkMetricTLV*)metrics;
@@ -1368,7 +1368,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
     //
     #define MAX_PREFIX  100
 
-    INT8U  i, j;
+    uint8_t  i, j;
 
     write_function("\n");
 
@@ -1384,7 +1384,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->general_info->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((INT8U* )data_model.network_devices[i].info, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure((uint8_t* )data_model.network_devices[i].info, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->bridging_capabilities_nr: %d", i, data_model.network_devices[i].bridges_nr);
         new_prefix[MAX_PREFIX-1] = 0x0;
@@ -1393,7 +1393,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         {
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->bridging_capabilities[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
-            visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].bridges[j], print_callback, write_function, new_prefix);
+            visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].bridges[j], print_callback, write_function, new_prefix);
         }
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->non_1905_neighbors_nr: %d", i, data_model.network_devices[i].non1905_neighbors_nr);
@@ -1403,7 +1403,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         {
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->non_1905_neighbors[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
-            visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].non1905_neighbors[j], print_callback, write_function, new_prefix);
+            visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].non1905_neighbors[j], print_callback, write_function, new_prefix);
         }
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->x1905_neighbors_nr: %d", i, data_model.network_devices[i].x1905_neighbors_nr);
@@ -1413,7 +1413,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         {
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->x1905_neighbors[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
-            visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].x1905_neighbors[j], print_callback, write_function, new_prefix);
+            visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].x1905_neighbors[j], print_callback, write_function, new_prefix);
         }
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->power_off_interfaces_nr: %d", i, data_model.network_devices[i].power_off_nr);
@@ -1423,7 +1423,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         {
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->power_off_interfaces[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
-            visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].power_off[j], print_callback, write_function, new_prefix);
+            visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].power_off[j], print_callback, write_function, new_prefix);
         }
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->l2_neighbors_nr: %d", i, data_model.network_devices[i].l2_neighbors_nr);
@@ -1433,32 +1433,32 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         {
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->l2_neighbors[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
-            visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].l2_neighbors[j], print_callback, write_function, new_prefix);
+            visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].l2_neighbors[j], print_callback, write_function, new_prefix);
         }
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->generic_phys->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((INT8U* )data_model.network_devices[i].generic_phy, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure((uint8_t* )data_model.network_devices[i].generic_phy, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->profile->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((INT8U* )data_model.network_devices[i].profile, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure((uint8_t* )data_model.network_devices[i].profile, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->identification->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((INT8U* )data_model.network_devices[i].identification, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure((uint8_t* )data_model.network_devices[i].identification, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->control_url->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].control_url, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].control_url, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->ipv4->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].ipv4, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].ipv4, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->ipv6->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].ipv6, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].ipv6, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->metrics_nr: %d", i, data_model.network_devices[i].metrics_with_neighbors_nr);
         new_prefix[MAX_PREFIX-1] = 0x0;
@@ -1470,14 +1470,14 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
             if (NULL != data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics)
             {
                 write_function("%slast_updated: %d\n", new_prefix, data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics_timestamp);
-                visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics, print_callback, write_function, new_prefix);
+                visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics, print_callback, write_function, new_prefix);
             }
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->metrics[%d]->rx->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
             if (NULL != data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics)
             {
                 write_function("%slast updated: %d\n", new_prefix, data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics_timestamp);
-                visit_1905_TLV_structure((INT8U *)data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics, print_callback, write_function, new_prefix);
+                visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics, print_callback, write_function, new_prefix);
             }
         }
 
@@ -1487,17 +1487,17 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         //
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        dumpExtendedInfo((INT8U **)data_model.network_devices[i].extensions, data_model.network_devices[i].extensions_nr, print_callback, write_function, new_prefix);
+        dumpExtendedInfo((uint8_t **)data_model.network_devices[i].extensions, data_model.network_devices[i].extensions_nr, print_callback, write_function, new_prefix);
     }
 
     return;
 }
 
-INT8U DMrunGarbageCollector(void)
+uint8_t DMrunGarbageCollector(void)
 {
-    INT8U i, j, k;
-    INT8U removed_entries;
-    INT8U original_devices_nr;
+    uint8_t i, j, k;
+    uint8_t removed_entries;
+    uint8_t original_devices_nr;
 
     removed_entries     = 0;
 
@@ -1512,7 +1512,7 @@ INT8U DMrunGarbageCollector(void)
     original_devices_nr = data_model.network_devices_nr;
     for (i=1; i<data_model.network_devices_nr; i++)
     {
-        INT8U *p = NULL;
+        uint8_t *p = NULL;
 
         if (
              (PLATFORM_GET_TIMESTAMP() - data_model.network_devices[i].update_timestamp > (GC_MAX_AGE*1000)) ||
@@ -1522,7 +1522,7 @@ INT8U DMrunGarbageCollector(void)
             // Entry too old or with a MAC address no longer registered in the
             // "topology discovery" database. Remove it.
             //
-            INT8U  al_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t  al_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             struct _networkDevice *x;
 
             removed_entries++;
@@ -1539,7 +1539,7 @@ INT8U DMrunGarbageCollector(void)
                 memcpy(al_mac_address, x->info->al_mac_address, 6);
 
                 PLATFORM_PRINTF_DEBUG_DETAIL("Removing old device entry (%02x:%02x:%02x:%02x:%02x:%02x)\n", x->info->al_mac_address[0], x->info->al_mac_address[1], x->info->al_mac_address[2], x->info->al_mac_address[3], x->info->al_mac_address[4], x->info->al_mac_address[5]);
-                free_1905_TLV_structure((INT8U*)x->info);
+                free_1905_TLV_structure((uint8_t*)x->info);
                 x->info = NULL;
             }
             else
@@ -1549,7 +1549,7 @@ INT8U DMrunGarbageCollector(void)
 
             for (j=0; j<x->bridges_nr; j++)
             {
-                free_1905_TLV_structure((INT8U*)x->bridges[j]);
+                free_1905_TLV_structure((uint8_t*)x->bridges[j]);
             }
             if (0 != x->bridges_nr && NULL != x->bridges)
             {
@@ -1560,7 +1560,7 @@ INT8U DMrunGarbageCollector(void)
 
             for (j=0; j<x->non1905_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((INT8U*)x->non1905_neighbors[j]);
+                free_1905_TLV_structure((uint8_t*)x->non1905_neighbors[j]);
             }
             if (0 != x->non1905_neighbors_nr && NULL != x->non1905_neighbors)
             {
@@ -1571,7 +1571,7 @@ INT8U DMrunGarbageCollector(void)
 
             for (j=0; j<x->x1905_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((INT8U*)x->x1905_neighbors[j]);
+                free_1905_TLV_structure((uint8_t*)x->x1905_neighbors[j]);
             }
             if (0 != x->x1905_neighbors_nr && NULL != x->x1905_neighbors)
             {
@@ -1582,7 +1582,7 @@ INT8U DMrunGarbageCollector(void)
 
             for (j=0; j<x->power_off_nr; j++)
             {
-                free_1905_TLV_structure((INT8U*)x->power_off[j]);
+                free_1905_TLV_structure((uint8_t*)x->power_off[j]);
             }
             if (0 != x->power_off_nr && NULL != x->power_off)
             {
@@ -1593,7 +1593,7 @@ INT8U DMrunGarbageCollector(void)
 
             for (j=0; j<x->l2_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((INT8U*)x->l2_neighbors[j]);
+                free_1905_TLV_structure((uint8_t*)x->l2_neighbors[j]);
             }
             if (0 != x->l2_neighbors_nr && NULL != x->l2_neighbors)
             {
@@ -1604,44 +1604,44 @@ INT8U DMrunGarbageCollector(void)
 
             if (NULL != x->generic_phy)
             {
-                free_1905_TLV_structure((INT8U*)x->generic_phy);
+                free_1905_TLV_structure((uint8_t*)x->generic_phy);
                 x->generic_phy = NULL;
             }
 
             if (NULL != x->profile)
             {
-                free_1905_TLV_structure((INT8U*)x->profile);
+                free_1905_TLV_structure((uint8_t*)x->profile);
                 x->profile = NULL;
             }
 
             if (NULL != x->identification)
             {
-                free_1905_TLV_structure((INT8U*)x->identification);
+                free_1905_TLV_structure((uint8_t*)x->identification);
                 x->identification = NULL;
             }
 
             if (NULL != x->control_url)
             {
-                free_1905_TLV_structure((INT8U*)x->control_url);
+                free_1905_TLV_structure((uint8_t*)x->control_url);
                 x->control_url = NULL;
             }
 
             if (NULL != x->ipv4)
             {
-                free_1905_TLV_structure((INT8U*)x->ipv4);
+                free_1905_TLV_structure((uint8_t*)x->ipv4);
                 x->ipv4 = NULL;
             }
 
             if (NULL != x->ipv6)
             {
-                free_1905_TLV_structure((INT8U*)x->ipv6);
+                free_1905_TLV_structure((uint8_t*)x->ipv6);
                 x->ipv6 = NULL;
             }
 
             for (j=0; j<x->metrics_with_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((INT8U*)x->metrics_with_neighbors[j].tx_metrics);
-                free_1905_TLV_structure((INT8U*)x->metrics_with_neighbors[j].rx_metrics);
+                free_1905_TLV_structure((uint8_t*)x->metrics_with_neighbors[j].tx_metrics);
+                free_1905_TLV_structure((uint8_t*)x->metrics_with_neighbors[j].rx_metrics);
             }
             if (0 != x->metrics_with_neighbors_nr && NULL != x->metrics_with_neighbors)
             {
@@ -1671,7 +1671,7 @@ INT8U DMrunGarbageCollector(void)
             //
             for (j=0; j<data_model.network_devices_nr; j++)
             {
-                INT8U original_neighbors_nr;
+                uint8_t original_neighbors_nr;
 
                 original_neighbors_nr = data_model.network_devices[j].metrics_with_neighbors_nr;
 
@@ -1679,8 +1679,8 @@ INT8U DMrunGarbageCollector(void)
                 {
                     if (0 == memcmp(al_mac_address, data_model.network_devices[j].metrics_with_neighbors[k].neighbor_al_mac_address, 6))
                     {
-                        free_1905_TLV_structure((INT8U*)data_model.network_devices[j].metrics_with_neighbors[k].tx_metrics);
-                        free_1905_TLV_structure((INT8U*)data_model.network_devices[j].metrics_with_neighbors[k].rx_metrics);
+                        free_1905_TLV_structure((uint8_t*)data_model.network_devices[j].metrics_with_neighbors[k].tx_metrics);
+                        free_1905_TLV_structure((uint8_t*)data_model.network_devices[j].metrics_with_neighbors[k].rx_metrics);
 
                         // Place last element here (we don't care about
                         // preserving order)
@@ -1740,13 +1740,13 @@ INT8U DMrunGarbageCollector(void)
     return removed_entries;
 }
 
-void DMremoveALNeighborFromInterface(INT8U *al_mac_address, char *interface_name)
+void DMremoveALNeighborFromInterface(uint8_t *al_mac_address, char *interface_name)
 {
-    INT8U i, j;
+    uint8_t i, j;
 
     for (i=0; i<data_model.local_interfaces_nr; i++)
     {
-        INT8U original_neighbors_nr;
+        uint8_t original_neighbors_nr;
 
         if (
              (0 != memcmp(data_model.local_interfaces[i].name, interface_name, strlen(data_model.local_interfaces[i].name)+1)) &&
@@ -1804,9 +1804,9 @@ void DMremoveALNeighborFromInterface(INT8U *al_mac_address, char *interface_name
 }
 
 
-struct vendorSpecificTLV ***DMextensionsGet(INT8U *al_mac_address, INT8U **nr)
+struct vendorSpecificTLV ***DMextensionsGet(uint8_t *al_mac_address, uint8_t **nr)
 {
-    INT8U                         i;
+    uint8_t                         i;
     struct vendorSpecificTLV   ***extensions;
 
     // Find device

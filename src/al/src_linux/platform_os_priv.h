@@ -25,7 +25,7 @@
 //
 // Return "0" if there was a problem, "1" otherwise
 //
-INT8U sendMessageToAlQueue(INT8U queue_id, INT8U *message, INT16U message_len);
+uint8_t sendMessageToAlQueue(uint8_t queue_id, uint8_t *message, uint16_t message_len);
 
 #endif
 

@@ -112,20 +112,20 @@
 ////////////////////////////////////////////////////////////////////////////////
 struct _classificationSet
 {
-    INT8U  mac_da[6];              // MAC destination address
-    INT8U  mac_da_flag;            // If '0', 'macDa' is ignored
+    uint8_t  mac_da[6];              // MAC destination address
+    uint8_t  mac_da_flag;            // If '0', 'macDa' is ignored
 
-    INT8U  mac_sa[6];              // MAC source address
-    INT8U  mac_sa_flag;            // If '0', 'macSa' is ignored
+    uint8_t  mac_sa[6];              // MAC source address
+    uint8_t  mac_sa_flag;            // If '0', 'macSa' is ignored
 
-    INT16U ether_type;             // EtherType
-    INT8U  ether_type_flag;        // If '0', 'ether_type' is ignored
+    uint16_t ether_type;             // EtherType
+    uint8_t  ether_type_flag;        // If '0', 'ether_type' is ignored
 
-    INT16U vid;                    // IEEE 802.1Q VLAN ID
-    INT8U  vid_flag;               // If '0', 'vid' is ignored
+    uint16_t vid;                    // IEEE 802.1Q VLAN ID
+    uint8_t  vid_flag;               // If '0', 'vid' is ignored
 
-    INT8U  pcp;                    // IEEE 802.1Q priority code point
-    INT8U  pcp_flag;               // If '0', 'pcp' is ignored
+    uint8_t  pcp;                    // IEEE 802.1Q priority code point
+    uint8_t  pcp_flag;               // If '0', 'pcp' is ignored
 };
 
 
@@ -134,7 +134,7 @@ struct _classificationSet
 ////////////////////////////////////////////////////////////////////////////////
 struct getIntfListRequestALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_GET_INTF_LIST_REQUEST
 };
 
@@ -144,45 +144,45 @@ struct getIntfListRequestALME
 ////////////////////////////////////////////////////////////////////////////////
 struct _vendorSpecificInfoEntries
 {
-    INT16U  ie_type;               // Must always be set to "1"
+    uint16_t  ie_type;               // Must always be set to "1"
 
-    INT16U  length_field;          // Must always be set to 'n' + 3 (see below)
+    uint16_t  length_field;          // Must always be set to 'n' + 3 (see below)
 
-    INT8U   oui[3];                // 24 bits globally unique IEEE-RA assigned
+    uint8_t   oui[3];                // 24 bits globally unique IEEE-RA assigned
                                    // number to the vendor
 
-    INT8U   *vendor_si;            // Here goes the actual vendor specific
+    uint8_t   *vendor_si;            // Here goes the actual vendor specific
                                    // stuff, which takes 'n' bytes.
 };
 
 struct _intfDescriptorEntries
 {
-    INT8U   interface_address[6];  // Physical MAC address of the underlying
+    uint8_t   interface_address[6];  // Physical MAC address of the underlying
                                    // network technology MAC
 
-    INT16U  interface_type;        // Indicates the MAC/PHY type of the
+    uint16_t  interface_type;        // Indicates the MAC/PHY type of the
                                    // underlying network technology
                                    // Valid values: any "MEDIA_TYPE_*" from
                                    // "1905_tlvs.h"
 
-    INT8U   bridge_flag;           // Boolean flag to indicate that the 1905
+    uint8_t   bridge_flag;           // Boolean flag to indicate that the 1905
                                    // neighbor device is connected on this
                                    // particular interface:
                                    //   - Through one or more IEEE 802.1
                                    //     bridges (TRUE)
                                    //   - Otherwise (FALSE)
 
-    INT8U                                vendor_specific_info_nr;
+    uint8_t                                vendor_specific_info_nr;
     struct  _vendorSpecificInfoEntries  *vendor_specific_info;
                                    // Zero or more information elements
 };
 
 struct getIntfListResponseALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_GET_INTF_LIST_RESPONSE
 
-    INT8U                           interface_descriptors_nr;
+    uint8_t                           interface_descriptors_nr;
     struct _intfDescriptorEntries  *interface_descriptors;
                                    // The parameters associated with the list of
                                    // 1905 interfaces of the device
@@ -194,12 +194,12 @@ struct getIntfListResponseALME
 ////////////////////////////////////////////////////////////////////////////////
 struct setIntfPwrStateRequestALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_SET_INTF_PWR_STATE_REQUEST
 
-    INT8U  interface_address[6];   // MAC address of the interface
+    uint8_t  interface_address[6];   // MAC address of the interface
 
-    INT8U  power_state;             // One of the values from "POWER_STATE_*"
+    uint8_t  power_state;             // One of the values from "POWER_STATE_*"
 };
 
 
@@ -208,12 +208,12 @@ struct setIntfPwrStateRequestALME
 ////////////////////////////////////////////////////////////////////////////////
 struct setIntfPwrStateConfirmALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_SET_INTF_PWR_STATE_CONFIRM
 
-    INT8U  interface_address[6];   // MAC address of the interface
+    uint8_t  interface_address[6];   // MAC address of the interface
 
-    INT8U  reason_code;            // One of the values from "REASON_CODE_*"
+    uint8_t  reason_code;            // One of the values from "REASON_CODE_*"
 };
 
 
@@ -222,10 +222,10 @@ struct setIntfPwrStateConfirmALME
 ////////////////////////////////////////////////////////////////////////////////
 struct getIntfPwrStateRequestALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_GET_INTF_PWR_STATE_REQUEST
 
-    INT8U  interface_address[6];   // MAC address of the interface
+    uint8_t  interface_address[6];   // MAC address of the interface
 };
 
 
@@ -234,12 +234,12 @@ struct getIntfPwrStateRequestALME
 ////////////////////////////////////////////////////////////////////////////////
 struct getIntfPwrStateResponseALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_GET_INTF_PWR_STATE_RESPONSE
 
-    INT8U  interface_address[6];   // MAC address of the interface
+    uint8_t  interface_address[6];   // MAC address of the interface
 
-    INT8U  power_state;            // One of the values from "POWER_STATE_*"
+    uint8_t  power_state;            // One of the values from "POWER_STATE_*"
 };
 
 
@@ -248,14 +248,14 @@ struct getIntfPwrStateResponseALME
 ////////////////////////////////////////////////////////////////////////////////
 struct setFwdRuleRequestALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_SET_FWD_RULE_REQUEST
 
     struct _classificationSet  classification_set;
                                    // Bit matching pattern
 
-    INT8U    addresses_nr;
-    INT8U  (*addresses)[6];        // List of physical MAC addresses of the
+    uint8_t    addresses_nr;
+    uint8_t  (*addresses)[6];        // List of physical MAC addresses of the
                                    // underlying network technology MACs to
                                    // which the frames matching the
                                    // classification_set shall be forwarded
@@ -267,12 +267,12 @@ struct setFwdRuleRequestALME
 ////////////////////////////////////////////////////////////////////////////////
 struct setFwdRuleConfirmALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_SET_FWD_RULE_CONFIRM
 
-    INT16U rule_id;                // Unique ID of the added forwarding rule
+    uint16_t rule_id;                // Unique ID of the added forwarding rule
 
-    INT8U  reason_code;            // One of the values from "REASON_CODE_*"
+    uint8_t  reason_code;            // One of the values from "REASON_CODE_*"
 };
 
 
@@ -281,7 +281,7 @@ struct setFwdRuleConfirmALME
 ////////////////////////////////////////////////////////////////////////////////
 struct getFwdRulesRequestALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_GET_FWD_RULES_REQUEST
 };
 
@@ -294,13 +294,13 @@ struct _fwdRuleListEntries
     struct _classificationSet classification_set;
                                    // Bit matching pattern
 
-    INT8U    addresses_nr;
-    INT8U  (*addresses)[6];        // List of physical MAC addresses of the
+    uint8_t    addresses_nr;
+    uint8_t  (*addresses)[6];        // List of physical MAC addresses of the
                                    // underlying network technology MACs to
                                    // which the frames matching the
                                    // classification_set shall be forwarded
 
-    INT16U  last_matched;          // The time interval (expressed in seconds)
+    uint16_t  last_matched;          // The time interval (expressed in seconds)
                                    // from the last time the classification_set
                                    // has been matched to the time the
                                    // ALME-SET-FWD-RULES.request primitive has
@@ -317,10 +317,10 @@ struct _fwdRuleListEntries
 
 struct getFwdRulesResponseALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_GET_FWD_RULES_RESPONSE
 
-    INT8U                        rules_nr;
+    uint8_t                        rules_nr;
     struct _fwdRuleListEntries  *rules;
                                    // The list of forwarding rules in the
                                    // forwarding database of the 1905.1 AL's
@@ -333,13 +333,13 @@ struct getFwdRulesResponseALME
 ////////////////////////////////////////////////////////////////////////////////
 struct modifyFwdRuleRequestALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_MODIFY_FWD_RULE_REQUEST
 
-    INT16U rule_id;                // Rule ID of the rule to modify
+    uint16_t rule_id;                // Rule ID of the rule to modify
 
-    INT8U    addresses_nr;
-    INT8U  (*addresses)[6];        // List of physical MAC addresses of the
+    uint8_t    addresses_nr;
+    uint8_t  (*addresses)[6];        // List of physical MAC addresses of the
                                    // underlying network technology MACs to
                                    // which the frames matching the
                                    // classification_set shall be forwarded
@@ -351,12 +351,12 @@ struct modifyFwdRuleRequestALME
 ////////////////////////////////////////////////////////////////////////////////
 struct modifyFwdRuleConfirmALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_MODIFY_FWD_RULE_CONFIRM
 
-    INT16U rule_id;                // Rule ID of the modified forwarding rule
+    uint16_t rule_id;                // Rule ID of the modified forwarding rule
 
-    INT8U  reason_code;            // One of the values from "REASON_CODE_*"
+    uint8_t  reason_code;            // One of the values from "REASON_CODE_*"
 };
 
 
@@ -365,10 +365,10 @@ struct modifyFwdRuleConfirmALME
 ////////////////////////////////////////////////////////////////////////////////
 struct removeFwdRuleRequestALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_REMOVE_FWD_RULE_REQUEST
 
-    INT16U rule_id;                // Rule ID of the rule to remove
+    uint16_t rule_id;                // Rule ID of the rule to remove
 };
 
 
@@ -377,12 +377,12 @@ struct removeFwdRuleRequestALME
 ////////////////////////////////////////////////////////////////////////////////
 struct removeFwdRuleConfirmALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_MODIFY_FWD_RULE_CONFIRM
 
-    INT16U rule_id;                // Rule ID of the modified forwarding rule
+    uint16_t rule_id;                // Rule ID of the modified forwarding rule
 
-    INT8U  reason_code;            // One of the values from "REASON_CODE_*"
+    uint8_t  reason_code;            // One of the values from "REASON_CODE_*"
 };
 
 
@@ -391,10 +391,10 @@ struct removeFwdRuleConfirmALME
 ////////////////////////////////////////////////////////////////////////////////
 struct getMetricRequestALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_GET_METRIC_REQUEST
 
-    INT8U   interface_address[6];  // MAC address of a neighbor 1905 device
+    uint8_t   interface_address[6];  // MAC address of a neighbor 1905 device
                                    // or NULL
 };
 
@@ -404,14 +404,14 @@ struct getMetricRequestALME
 ////////////////////////////////////////////////////////////////////////////////
 struct _metricDescriptorsEntries
 {
-    INT8U  neighbor_dev_address[6];  // AL MAC address of the 1905 neighbor
+    uint8_t  neighbor_dev_address[6];  // AL MAC address of the 1905 neighbor
                                      // device associated with the 1905 link
                                      // metrics
 
     char   local_intf_address[6];    // MAC address of the local interface
                                      // associated with the 1905 link metrics
 
-    INT8U  bridge_flag;              // Boolean flag to indicate that the 1905
+    uint8_t  bridge_flag;              // Boolean flag to indicate that the 1905
                                      // neighbor device is connected on this
                                      // particular interface:
                                      //   - Through one or more IEEE 802.1
@@ -424,16 +424,16 @@ struct _metricDescriptorsEntries
 
 struct getMetricResponseALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_GET_METRIC_RESPONSE
 
-    INT8U                              metrics_nr;
+    uint8_t                              metrics_nr;
     struct _metricDescriptorsEntries  *metrics;
                                    // The link metrics of the transmission
                                    // channel of the 1905 link between the
                                    // current 1905 device and a 1905 neighbor.
 
-    INT8U  reason_code;            // One of the values from "REASON_CODE_*"
+    uint8_t  reason_code;            // One of the values from "REASON_CODE_*"
 };
 
 
@@ -444,11 +444,11 @@ struct getMetricResponseALME
 ////////////////////////////////////////////////////////////////////////////////
 struct customCommandRequestALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_CUSTOM_COMMAND_REQUEST
 
     #define CUSTOM_COMMAND_DUMP_NETWORK_DEVICES   (0x01)
-    INT8U   command;               // One of the values from above. To see what
+    uint8_t   command;               // One of the values from above. To see what
                                    // each of these commands is asking for, read
                                    // the comments inside the
                                    // "customCommandResponseALME" structure.
@@ -462,10 +462,10 @@ struct customCommandRequestALME
 ////////////////////////////////////////////////////////////////////////////////
 struct customCommandResponseALME
 {
-    INT8U  alme_type;              // Must always be set to
+    uint8_t  alme_type;              // Must always be set to
                                    // ALME_TYPE_CUSTOM_COMMAND_RESPONSE
 
-    INT16U                         bytes_nr;
+    uint16_t                         bytes_nr;
     char                          *bytes;
                                    // Custom payload. Its contents depend on the
                                    // actual command:
@@ -552,7 +552,7 @@ struct customCommandResponseALME
 // Otherwise, the returned structure is dynamically allocated, and once it is
 // no longer needed, the user must call the "free_1905_ALME_structure()" function
 //
-INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream);
+uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream);
 
 
 // This is the opposite of "parse_1905_ALME_from_packet()": it receives a
@@ -571,7 +571,7 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream);
 // Note that the input structure is *not* freed. You still need to later call
 // "free_ALME_TLV_structure()"
 //
-INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len);
+uint8_t *forge_1905_ALME_from_structure(uint8_t *memory_structure, uint16_t *len);
 
 
 
@@ -585,7 +585,7 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len);
 // "memory_structure" must point to a structure of one of the types returned by
 // "parse_1905_ALME_from_packet()"
 //
-void free_1905_ALME_structure(INT8U *memory_structure);
+void free_1905_ALME_structure(uint8_t *memory_structure);
 
 
 // 'forge_1905_ALME_from_structure()' returns a regular buffer which can be
@@ -600,7 +600,7 @@ void free_1905_ALME_structure(INT8U *memory_structure);
 // "memory_structure_1" and "memory_structure_2" must point (each) to a
 // structure of one of the types returned by "parse_1905_ALME_from_packet()"
 //
-INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_structure_2);
+uint8_t compare_1905_ALME_structures(uint8_t *memory_structure_1, uint8_t *memory_structure_2);
 
 
 // The next function is used to call function "callback()" on each element of
@@ -629,7 +629,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
 //     function prints before anything else to make it easy to follow the
 //     structure traversing order)
 //
-void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
+void visit_1905_ALME_structure(uint8_t *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
 
 
 // Use this function for debug purposes. It turns a ALME_TYPE_* variable into
@@ -639,7 +639,7 @@ void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callbac
 //
 // Return "Unknown" if the provided type does not exist.
 //
-char *convert_1905_ALME_type_to_string(INT8U alme_type);
+char *convert_1905_ALME_type_to_string(uint8_t alme_type);
 
 #endif
 

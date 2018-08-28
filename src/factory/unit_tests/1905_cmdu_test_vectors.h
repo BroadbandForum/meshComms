@@ -23,24 +23,24 @@
 #include "1905_tlvs.h"
 
 extern struct CMDU   x1905_cmdu_structure_001;
-extern INT8U        *x1905_cmdu_streams_001[];
-extern INT16U        x1905_cmdu_streams_len_001[];
+extern uint8_t        *x1905_cmdu_streams_001[];
+extern uint16_t        x1905_cmdu_streams_len_001[];
 
 extern struct CMDU   x1905_cmdu_structure_002;
-extern INT8U        *x1905_cmdu_streams_002[];
-extern INT16U        x1905_cmdu_streams_len_002[];
+extern uint8_t        *x1905_cmdu_streams_002[];
+extern uint16_t        x1905_cmdu_streams_len_002[];
 
 extern struct CMDU   x1905_cmdu_structure_003;
-extern INT8U        *x1905_cmdu_streams_003[];
-extern INT16U        x1905_cmdu_streams_len_003[];
+extern uint8_t        *x1905_cmdu_streams_003[];
+extern uint16_t        x1905_cmdu_streams_len_003[];
 
 extern struct CMDU   x1905_cmdu_structure_004;
-extern INT8U        *x1905_cmdu_streams_004[];
-extern INT16U        x1905_cmdu_streams_len_004[];
+extern uint8_t        *x1905_cmdu_streams_004[];
+extern uint16_t        x1905_cmdu_streams_len_004[];
 
 extern struct CMDU   x1905_cmdu_structure_005;
-extern INT8U        *x1905_cmdu_streams_005[];
-extern INT16U        x1905_cmdu_streams_len_005[];
+extern uint8_t        *x1905_cmdu_streams_005[];
+extern uint16_t        x1905_cmdu_streams_len_005[];
 
 /** @defgroup tv_cmdu_header CMDU header parsing test vectors
  */

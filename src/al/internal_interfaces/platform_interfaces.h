@@ -30,7 +30,7 @@ struct interfaceInfo
 {
     char  *name;           // Example: "eth0"
 
-    INT8U mac_address[6];  // 6  bytes long MAC address of the interface.
+    uint8_t mac_address[6];  // 6  bytes long MAC address of the interface.
 
 
     char manufacturer_name[64]; // Marvell
@@ -55,7 +55,7 @@ struct interfaceInfo
     #define INTERFACE_TYPE_IEEE_1901_FFT                   (0x0201)
     #define INTERFACE_TYPE_MOCA_V1_1                       (0x0300)
     #define INTERFACE_TYPE_UNKNOWN                         (0xFFFF)
-    INT16U interface_type;  // Indicates the MAC/PHY type of the underlying
+    uint16_t interface_type;  // Indicates the MAC/PHY type of the underlying
                             // network technology.
                             // Valid values: any "INTERFACE_TYPE_*" value.
                             // If your interface is of a type not listed here,
@@ -69,7 +69,7 @@ struct interfaceInfo
         //
         struct _ieee80211Data
         {
-            INT8U  bssid[6];        // This is the BSSID (MAC address of the
+            uint8_t  bssid[6];        // This is the BSSID (MAC address of the
                                     // registrar AP on a wifi network).
                                     // On unconfigured nodes (ie. STAs which
                                     // have not yet joined a network or non-
@@ -86,19 +86,19 @@ struct interfaceInfo
             #define IEEE80211_ROLE_WIFI_P2P_CLIENT      (0x8)
             #define IEEE80211_ROLE_WIFI_P2P_GROUP_OWNER (0x9)
             #define IEEE80211_ROLE_AD_PCP               (0xa)
-            INT8U  role;            // One of the values from above
+            uint8_t  role;            // One of the values from above
 
-            INT8U ap_channel_band;  // Hex value of dot11CurrentChannelBandwidth
+            uint8_t ap_channel_band;  // Hex value of dot11CurrentChannelBandwidth
                                     // (see "IEEE P802.11ac/D3.0" for
                                     // description)
 
-            INT8U ap_channel_center_frequency_index_1;
+            uint8_t ap_channel_center_frequency_index_1;
                                     // Hex value of
                                     // dot11CurrentChannelCenterFrequencyIndex1
                                     // (see "IEEE P802.11ac/D3.0" for
                                     // description)
 
-            INT8U ap_channel_center_frequency_index_2;
+            uint8_t ap_channel_center_frequency_index_2;
                                     // Hex value of
                                     // dot11CurrentChannelCenterFrequencyIndex2
                                     // (see "IEEE P802.11ac/D3.0" for
@@ -109,7 +109,7 @@ struct interfaceInfo
             #define IEEE80211_AUTH_MODE_WPAPSK  (0x0004)
             #define IEEE80211_AUTH_MODE_WPA2    (0x0008)
             #define IEEE80211_AUTH_MODE_WPA2PSK (0x0010)
-            INT16U authentication_mode;
+            uint16_t authentication_mode;
                                     // For APs: list of supported modes that
                                     // clients can use (OR'ed list of flags)
                                     // For STAs: current mode being used with
@@ -118,7 +118,7 @@ struct interfaceInfo
             #define IEEE80211_ENCRYPTION_MODE_NONE (0x0001)
             #define IEEE80211_ENCRYPTION_MODE_TKIP (0x0002)
             #define IEEE80211_ENCRYPTION_MODE_AES  (0x0004)
-            INT16U encryption_mode;
+            uint16_t encryption_mode;
                                     // For APs: list of supported modes that
                                     // clients can use (OR'ed list of flags)
                                     // For STAs: current mode being used with
@@ -144,7 +144,7 @@ struct interfaceInfo
                            // (and only one!) of the structures of this union
                            // must be filled
 
-    INT8U is_secured;      // Contains "1" if the interface is secure, "0"
+    uint8_t is_secured;      // Contains "1" if the interface is secure, "0"
                            // otherwise.
                            //
                            // Note that "secure" in this context means that the
@@ -174,7 +174,7 @@ struct interfaceInfo
                            // "secured" if there is at least one STA connected
                            // to it by means of an encrypted channel.
 
-    INT8U push_button_on_going;
+    uint8_t push_button_on_going;
                            // Some types of interfaces support a technology-
                            // specific "push button" configuration mechanism
                            // (ex: "802.11", "G.hn"). Others don't (ex: "eth").
@@ -192,7 +192,7 @@ struct interfaceInfo
                            //   - "2" if the interface does not support the
                            //     "push button" configuration mechanism.
 
-    INT8U push_button_new_mac_address[6];
+    uint8_t push_button_new_mac_address[6];
                            // 6  bytes long MAC address of the device that has
                            // just joined the network as a result of a "push
                            // button configuration" process (ie., just after
@@ -209,11 +209,11 @@ struct interfaceInfo
     #define INTERFACE_POWER_STATE_ON     (0x00)
     #define INTERFACE_POWER_STATE_SAVE   (0x01)
     #define INTERFACE_POWER_STATE_OFF    (0x02)
-    INT8U power_state;     // Contains one of the INTERFACE_POWER_STATE_* values
+    uint8_t power_state;     // Contains one of the INTERFACE_POWER_STATE_* values
                            // from above
 
     #define INTERFACE_NEIGHBORS_UNKNOWN (0xFF)
-    INT8U  neighbor_mac_addresses_nr;
+    uint8_t  neighbor_mac_addresses_nr;
                              // Number of other MAC addresses (pertaining -or
                              // not- to 1905 devices) this interface has
                              // received packets from in the past (not
@@ -225,22 +225,22 @@ struct interfaceInfo
                              // this is different from "0" which means "I know I
                              // have zero neighbors")
 
-    INT8U  (*neighbor_mac_addresses)[6];
+    uint8_t  (*neighbor_mac_addresses)[6];
                              // List containing those MAC addreses just
                              // described in the comment above.
 
-    INT8U  ipv4_nr;          // Number of IPv4 this device responds to
+    uint8_t  ipv4_nr;          // Number of IPv4 this device responds to
     struct _ipv4
     {
         #define IPV4_UNKNOWN (0)
         #define IPV4_DHCP    (1)
         #define IPV4_STATIC  (2)
         #define IPV4_AUTOIP  (3)
-        INT8U type;          // One of the values from above
+        uint8_t type;          // One of the values from above
 
-        INT8U address[4];    // IPv4 address
+        uint8_t address[4];    // IPv4 address
 
-        INT8U dhcp_server[4];// If the ip was obtained by DHCP, this
+        uint8_t dhcp_server[4];// If the ip was obtained by DHCP, this
                              // variable holds the IPv4 of the server
                              // (if known). Set to all zeros otherwise
 
@@ -248,18 +248,18 @@ struct interfaceInfo
                              // element represents one of the IPv4 of
                              // this device.
 
-    INT8U  ipv6_nr;          // Number of IPv6 this device responds to
+    uint8_t  ipv6_nr;          // Number of IPv6 this device responds to
     struct _ipv6
     {
         #define IPV6_UNKNOWN (0)
         #define IPV6_DHCP    (1)
         #define IPV6_STATIC  (2)
         #define IPV6_SLAAC   (3)
-        INT8U type;          // One of the values from above
+        uint8_t type;          // One of the values from above
 
-        INT8U address[16];   // IPv6 address
+        uint8_t address[16];   // IPv6 address
 
-        INT8U origin[16];    // If type == IPV6_TYPE_DHCP, this field
+        uint8_t origin[16];    // If type == IPV6_TYPE_DHCP, this field
                              // contains the IPv6 address of the DHCPv6 server.
                              // If type == IPV6_TYPE_SLAAC, this field contains
                              // the IPv6 address of the router that provided
@@ -271,17 +271,17 @@ struct interfaceInfo
                              // element represents one of the IPv6 of
                              // this device.
 
-    INT8U  vendor_specific_elements_nr;
+    uint8_t  vendor_specific_elements_nr;
                            // Number of items in the "vendor_specific_elements"
                            // array
 
     struct _vendorSpecificInfoElement
     {
-        INT8U    oui[3];    // 24 bits globally unique IEEE-RA assigned
+        uint8_t    oui[3];    // 24 bits globally unique IEEE-RA assigned
                             // number to the vendor
 
-        INT16U   vendor_data_len;  // Number of bytes in "vendor_data"
-        INT8U   *vendor_data;      // Vendor specific data
+        uint16_t   vendor_data_len;  // Number of bytes in "vendor_data"
+        uint8_t   *vendor_data;      // Vendor specific data
     } *vendor_specific_elements;
 };
 
@@ -310,14 +310,14 @@ struct interfaceInfo
 //   interfaces, such as a "management" ethernet port) you can return a reduced
 //   list of interfaces.
 //
-char **PLATFORM_GET_LIST_OF_1905_INTERFACES(INT8U *nr);
+char **PLATFORM_GET_LIST_OF_1905_INTERFACES(uint8_t *nr);
 
 // Used to free the pointer returned by a previous call to
 // "PLATFORM_GET_LIST_OF_1905_INTERFACES()"
 //
 // 'nr' is the same one returned by "PLATFORM_GET_LIST_OF_1905_INTERFACES()"
 //
-void PLATFORM_FREE_LIST_OF_1905_INTERFACES(char **x, INT8U nr);
+void PLATFORM_FREE_LIST_OF_1905_INTERFACES(char **x, uint8_t nr);
 
 // Return a "struct interfaceInfo" structure containing all kinds of information
 // associated to the provided 'interface_name'
@@ -347,16 +347,16 @@ void PLATFORM_FREE_1905_INTERFACE_INFO(struct interfaceInfo *i);
 
 struct linkMetrics
 {
-    INT8U   local_interface_address[6];     // A MAC address belonging to one of
+    uint8_t   local_interface_address[6];     // A MAC address belonging to one of
                                             // the local interfaces.
                                             // Let's call this MAC "A"
 
-    INT8U   neighbor_interface_address[6];  // A MAC address belonging to a
+    uint8_t   neighbor_interface_address[6];  // A MAC address belonging to a
                                             // neighbor interface that is
                                             // directly reachable from "A".
                                             // Let's call this MAC "B".
 
-    INT32U  measures_window;   // Time in seconds representing how far back in
+    uint32_t  measures_window;   // Time in seconds representing how far back in
                                // time statistics have been being recorded for
                                // this interface.
                                // For example, if this value is set to "5" and
@@ -369,33 +369,33 @@ struct linkMetrics
                                //   ellapsed since the interface was brought
                                //   up.
 
-    INT32U  tx_packet_ok;      // Estimated number of transmitted packets from
+    uint32_t  tx_packet_ok;      // Estimated number of transmitted packets from
                                // "A" to "B" in the last 'measures_window'
                                // seconds.
 
-    INT32U  tx_packet_errors;  // Estimated number of packets with errors
+    uint32_t  tx_packet_errors;  // Estimated number of packets with errors
                                // transmitted from "A" to "B" in the last
                                // 'measures_window' seconds.
 
-    INT16U  tx_max_xput;       // Extimated maximum MAC throughput from "A" to
+    uint16_t  tx_max_xput;       // Extimated maximum MAC throughput from "A" to
                                // "B" in Mbits/s.
 
-    INT16U  tx_phy_rate;       // Extimated PHY rate from "A" to "B" in Mbits/s.
+    uint16_t  tx_phy_rate;       // Extimated PHY rate from "A" to "B" in Mbits/s.
 
-    INT16U  tx_link_availability;
+    uint16_t  tx_link_availability;
                                // Estimated average percentage of time that the
                                // link is available to transmit data from "A"
                                // to "B" in the last 'measures_window' seconds.
 
-    INT32U  rx_packet_ok;      // Estimated number of transmitted packets from
+    uint32_t  rx_packet_ok;      // Estimated number of transmitted packets from
                                // "B" to "A" in the last 'measures_window'
                                // seconds.
 
-    INT32U  rx_packet_errors;  // Estimated number of packets with errors
+    uint32_t  rx_packet_errors;  // Estimated number of packets with errors
                                // transmitted from "B" to "A" i nthe last
                                // 'measures_window' seconds.
 
-    INT8U   rx_rssi;           // Estimated RSSI when receiving data from "B" to
+    uint8_t   rx_rssi;           // Estimated RSSI when receiving data from "B" to
                                // "A" in dB.
 };
 
@@ -432,7 +432,7 @@ struct linkMetrics
 //        'neighbor_interface_address' parameter).
 //        This is better than reporting nothing at all.
 //
-struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, INT8U *neighbor_interface_address);
+struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, uint8_t *neighbor_interface_address);
 
 // Free the memory used by a "struct linkMetrics" structure previously
 // obtained by calling "PLATFORM_GET_LINK_METRICS()"
@@ -447,12 +447,12 @@ struct bridge
 {
     char   *name;           // Example: "br0"
 
-    INT8U   bridged_interfaces_nr;
+    uint8_t   bridged_interfaces_nr;
     char   *bridged_interfaces[10];
                             // Names of the interfaces (such as "eth0") that
                             // belong to this bridge
 
-    INT8U   forwarding_rules_nr;
+    uint8_t   forwarding_rules_nr;
     struct _forwardingRules
     {
         // To be defined...
@@ -467,14 +467,14 @@ struct bridge
 // When the returned list is no longer needed, it can be freed by calling
 // "PLATFORM_FREE_LIST_OF_BRIDGES()"
 //
-struct bridge *PLATFORM_GET_LIST_OF_BRIDGES(INT8U *nr);
+struct bridge *PLATFORM_GET_LIST_OF_BRIDGES(uint8_t *nr);
 
 // Used to free the pointer returned by a previous call to
 // "PLATFORM_GET_LIST_OF_BRIDGES()"
 //
 // 'nr' is the same one returned by "PLATFORM_GET_LIST_OF_BRIDGES()"
 //
-void PLATFORM_FREE_LIST_OF_BRIDGES(struct bridge *x, INT8U nr);
+void PLATFORM_FREE_LIST_OF_BRIDGES(struct bridge *x, uint8_t nr);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -492,7 +492,7 @@ void PLATFORM_FREE_LIST_OF_BRIDGES(struct bridge *x, INT8U nr);
 // If there is a problem and the packet cannot be sent, this function returns
 // "0", otherwise it returns "1"
 //
-INT8U PLATFORM_SEND_RAW_PACKET(char *interface_name, INT8U *dst_mac, INT8U *src_mac, INT16U eth_type, INT8U *payload, INT16U payload_len);
+uint8_t PLATFORM_SEND_RAW_PACKET(char *interface_name, uint8_t *dst_mac, uint8_t *src_mac, uint16_t eth_type, uint8_t *payload, uint16_t payload_len);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -558,7 +558,7 @@ INT8U PLATFORM_SEND_RAW_PACKET(char *interface_name, INT8U *dst_mac, INT8U *src_
 //   calls "PLATFORM_GET_1905_INTERFACE_INFO()" on this interface, the field
 //   'push_button_on_going' must return a value of "1".
 //
-INT8U PLATFORM_START_PUSH_BUTTON_CONFIGURATION(char *interface_name, INT8U queue_id, INT8U *al_mac, INT16U mid);
+uint8_t PLATFORM_START_PUSH_BUTTON_CONFIGURATION(char *interface_name, uint8_t queue_id, uint8_t *al_mac, uint16_t mid);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -588,7 +588,7 @@ INT8U PLATFORM_START_PUSH_BUTTON_CONFIGURATION(char *interface_name, INT8U queue
 #define INTERFACE_POWER_RESULT_NO_CHANGE    (0x01)
 #define INTERFACE_POWER_RESULT_ALTERNATIVE  (0x02)
 #define INTERFACE_POWER_RESULT_KO           (0x03)
-INT8U PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, INT8U power_mode);
+uint8_t PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, uint8_t power_mode);
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Security configuration
@@ -616,6 +616,6 @@ INT8U PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, INT8U power_mode);
 // 'network_key' is a NULL terminated string representing the "network key" the
 // AP is going to use.
 //
-INT8U PLATFORM_CONFIGURE_80211_AP(char *interface_name, INT8U *ssid, INT8U *bssid, INT16U auth_mode, INT16U encryption_mode, INT8U *network_key);
+uint8_t PLATFORM_CONFIGURE_80211_AP(char *interface_name, uint8_t *ssid, uint8_t *bssid, uint16_t auth_mode, uint16_t encryption_mode, uint8_t *network_key);
 
 #endif

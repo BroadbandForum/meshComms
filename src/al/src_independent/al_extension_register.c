@@ -31,7 +31,7 @@
 // //   #include "bbf_send.h"                                                                                    //
 // //   #include "bbf_recv.h"                                                                                    //
 // //                                                                                                            //
-// //   INT8U start1905ALProtocolExtension(void)                                                                 //
+// //   uint8_t start1905ALProtocolExtension(void)                                                                 //
 // //   {                                                                                                        //
 // //       // BBF protocol extension                                                                            //
 // //       //                                                                                                   //
@@ -150,7 +150,7 @@
 // Public function (extensions entry point).
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U start1905ALExtensions(void)
+uint8_t start1905ALExtensions(void)
 {
 #ifdef REGISTER_EXTENSION_BBF
     // BBF protocol extension

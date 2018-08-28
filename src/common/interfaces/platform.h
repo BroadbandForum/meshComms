@@ -20,9 +20,8 @@
 #define _PLATFORM_H_
 
 #include <stdarg.h>   // va_list
-  // NOTE: This is part of the C standard, thus *all* platforms should have it
-  // available... and that's why this include can exist in this "platform
-  // independent" file
+#include <stddef.h>
+#include <stdint.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Hardware stuff
@@ -46,14 +45,6 @@
 //                                       platform related reason, packets must
 //                                       be smaller than 1500.
 //
-//  INT8U  |                             These types must be adjusted to that
-//  INT16U |---------------------------> they represent 1, 2 and 4 bytes
-//  INT32U |                             unsigned integers respectively.
-//
-//  INT8S  |                             These types must be adjusted to that
-//  INT16S |---------------------------> they represent 1, 2 and 4 bytes signed
-//  INT32S |                             integers respectively.
-//
 //
 // In the next few lines we are just going to check that these are defined,
 // nothing else.
@@ -71,14 +62,6 @@
 #  error  "You must define 'MAX_NETWORK_SEGMENT_SIZE' to some value (for example, '1500')"
 #endif
 
-#if !defined(INT8U) || !defined(INT16U) || !defined(INT32U)
-#  error  "You must define 'INT8U', 'INT16U' and 'INT32U' to represent 8, 16 and 32 bit unsigned integers respectively"
-#endif
-
-#if !defined(INT8S) || !defined(INT16S) || !defined(INT32S)
-#  error  "You must define 'INT8S', 'INT16S' and 'INT32S' to represent 8, 16 and 32 bit signed integers respectively"
-#endif
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Typical libc stuff
@@ -89,7 +72,7 @@
 // If no memory can be allocated, this function must *not* return (instead of
 // returning a NULL pointer), and the program must be exited immediately.
 //
-void *PLATFORM_MALLOC(INT32U size);
+void *PLATFORM_MALLOC(size_t size);
 
 // Free a memory area previously obtained with "PLATFORM_MALLOC()"
 //
@@ -100,7 +83,7 @@ void PLATFORM_FREE(void *ptr);
 // If no memory can be allocated, this function must *not* return (instead of
 // returning a NULL pointer), and the program must be exited immediately.
 //
-void *PLATFORM_REALLOC(void *ptr, INT32U size);
+void *PLATFORM_REALLOC(void *ptr, size_t size);
 
 // Output the provided format string (see 'man 3 printf' on any Linux box)
 //
@@ -125,7 +108,7 @@ void PLATFORM_PRINTF_DEBUG_SET_VERBOSITY_LEVEL(int level);
 
 // Return the number of milliseconds ellapsed since the program started
 //
-INT32U PLATFORM_GET_TIMESTAMP(void);
+uint32_t PLATFORM_GET_TIMESTAMP(void);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,6 +135,6 @@ INT32U PLATFORM_GET_TIMESTAMP(void);
 // [PLATFORM PORTING NOTE]
 //   Use this function to reserve memory, initialize semaphores, etc...
 //
-INT8U PLATFORM_INIT(void);
+uint8_t PLATFORM_INIT(void);
 
 #endif

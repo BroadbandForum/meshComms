@@ -201,7 +201,7 @@ static const struct cmdu_info cmdu_info[] =
 // have the flag set to either '0' or '1' and its actual value for this
 // particular message must be specified in some other way"
 //
-static INT8U _relayed_CMDU[] = \
+static uint8_t _relayed_CMDU[] = \
 {
     /* CMDU_TYPE_TOPOLOGY_DISCOVERY             */  0,
     /* CMDU_TYPE_TOPOLOGY_NOTIFICATION          */  1,
@@ -279,12 +279,12 @@ static INT8U _relayed_CMDU[] = \
 //
 #define CHECK_CMDU_TX_RULES (1)
 #define CHECK_CMDU_RX_RULES (2)
-static INT8U _check_CMDU_rules(const struct CMDU *p, INT8U rules_type)
+static uint8_t _check_CMDU_rules(const struct CMDU *p, uint8_t rules_type)
 {
     unsigned  i;
-    INT8U  structure_has_been_modified;
-    INT8U  counter[TLV_TYPE_NUM];
-    INT8U  tlvs_to_remove[TLV_TYPE_NUM];
+    uint8_t  structure_has_been_modified;
+    uint8_t  counter[TLV_TYPE_NUM];
+    uint8_t  tlvs_to_remove[TLV_TYPE_NUM];
 
     if ((NULL == p) || (NULL == p->list_of_TLVs))
     {
@@ -442,7 +442,7 @@ static INT8U _check_CMDU_rules(const struct CMDU *p, INT8U rules_type)
         //
         if (1 == tlvs_to_remove[*(p->list_of_TLVs[i])])
         {
-            INT8U j;
+            uint8_t j;
 
             free_1905_TLV_structure(p->list_of_TLVs[i]);
 
@@ -480,16 +480,16 @@ static INT8U _check_CMDU_rules(const struct CMDU *p, INT8U rules_type)
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
+struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams)
 {
     struct CMDU *ret;
 
-    INT8U  fragments_nr;
-    INT8U  current_fragment;
+    uint8_t  fragments_nr;
+    uint8_t  current_fragment;
 
-    INT8U  tlvs_nr;
+    uint8_t  tlvs_nr;
 
-    INT8U  error;
+    uint8_t  error;
 
     if (NULL == packet_streams)
     {
@@ -519,7 +519,7 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
     // re-allocate and fill.
     //
     ret = (struct CMDU *)PLATFORM_MALLOC(sizeof(struct CMDU) * 1);
-    ret->list_of_TLVs = (INT8U **)PLATFORM_MALLOC(sizeof(INT8U *) * 1);
+    ret->list_of_TLVs = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *) * 1);
     ret->list_of_TLVs[0] = NULL;
     tlvs_nr = 0;
 
@@ -528,20 +528,20 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
     error = 0;
     for (current_fragment = 0; current_fragment<fragments_nr; current_fragment++)
     {
-        INT8U *p;
-        INT8U i;
+        uint8_t *p;
+        uint8_t i;
 
-        INT8U   message_version;
-        INT8U   reserved_field;
-        INT16U  message_type;
-        INT16U  message_id;
-        INT8U   fragment_id;
-        INT8U   indicators;
+        uint8_t   message_version;
+        uint8_t   reserved_field;
+        uint16_t  message_type;
+        uint16_t  message_id;
+        uint8_t   fragment_id;
+        uint8_t   indicators;
 
-        INT8U   relay_indicator;
-        INT8U   last_fragment_indicator;
+        uint8_t   relay_indicator;
+        uint8_t   last_fragment_indicator;
 
-        INT8U *parsed;
+        uint8_t *parsed;
 
         // We want to traverse fragments in order, thus lets search for the
         // fragment whose 'fragment_id' matches 'current_fragment' (which will
@@ -662,9 +662,9 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
                 // Error while parsing a TLV
                 // Dump TLV for visual inspection
 
-                INT8U *p2 = p;
-                INT16U len;
-                INT8U  aux;
+                uint8_t *p2 = p;
+                uint16_t len;
+                uint8_t  aux;
 
                 _E1B(&p2, &aux);
                 _E2B(&p2, &len);
@@ -693,8 +693,8 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
 
             // Advance 'p' to the next TLV.
             //
-            INT8U  tlv_type;
-            INT16U tlv_len;
+            uint8_t  tlv_type;
+            uint16_t tlv_len;
 
             _E1B(&p, &tlv_type);
             _E2B(&p, &tlv_len);
@@ -705,7 +705,7 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
             // with more space first)
             //
             tlvs_nr++;
-            ret->list_of_TLVs = (INT8U **)PLATFORM_REALLOC(ret->list_of_TLVs, sizeof(INT8U *) * (tlvs_nr+1));
+            ret->list_of_TLVs = (uint8_t **)PLATFORM_REALLOC(ret->list_of_TLVs, sizeof(uint8_t *) * (tlvs_nr+1));
             ret->list_of_TLVs[tlvs_nr-1] = parsed;
             ret->list_of_TLVs[tlvs_nr]   = NULL;
         }
@@ -752,7 +752,7 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
 
                     if (NULL != ret->list_of_TLVs)
                     {
-                        INT8U i;
+                        uint8_t i;
 
                         i = 0;
                         while (ret->list_of_TLVs[i])
@@ -809,18 +809,18 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams)
 }
 
 
-INT8U **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, INT16U **lens)
+uint8_t **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, uint16_t **lens)
 {
-    INT8U **ret;
+    uint8_t **ret;
 
-    INT8U tlv_start;
-    INT8U tlv_stop;
+    uint8_t tlv_start;
+    uint8_t tlv_stop;
 
-    INT8U fragments_nr;
+    uint8_t fragments_nr;
 
-    INT32U max_tlvs_block_size;
+    uint32_t max_tlvs_block_size;
 
-    INT8U error;
+    uint8_t error;
 
     error = 0;
 
@@ -850,10 +850,10 @@ INT8U **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, INT1
     // Initially we will just have an empty list (ie. it contains a single
     // element marking the end-of-list: a NULL pointer)
     //
-    ret = (INT8U **)PLATFORM_MALLOC(sizeof(INT8U *) * 1);
+    ret = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *) * 1);
     ret[0] = NULL;
 
-    *lens = (INT16U *)PLATFORM_MALLOC(sizeof(INT16U) * 1);
+    *lens = (uint16_t *)PLATFORM_MALLOC(sizeof(uint16_t) * 1);
     (*lens)[0] = 0;
 
     fragments_nr = 0;
@@ -885,24 +885,24 @@ INT8U **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, INT1
     tlv_stop            = 0;
     do
     {
-        INT8U *s;
-        INT8U  i;
+        uint8_t *s;
+        uint8_t  i;
 
-        INT16U current_X_size;
+        uint16_t current_X_size;
 
-        INT8U reserved_field;
-        INT8U fragment_id;
-        INT8U indicators;
+        uint8_t reserved_field;
+        uint8_t fragment_id;
+        uint8_t indicators;
 
-        INT8U no_space;
+        uint8_t no_space;
 
         current_X_size = 0;
         no_space       = 0;
         while(memory_structure->list_of_TLVs[tlv_stop])
         {
-            INT8U  *p;
-            INT8U  *tlv_stream;
-            INT16U  tlv_stream_size;
+            uint8_t  *p;
+            uint8_t  *tlv_stream;
+            uint16_t  tlv_stream_size;
 
             p = memory_structure->list_of_TLVs[tlv_stop];
 
@@ -949,11 +949,11 @@ INT8U **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, INT1
         //
         fragments_nr++;
 
-        ret = (INT8U **)PLATFORM_REALLOC(ret, sizeof(INT8U *) * (fragments_nr + 1));
-        ret[fragments_nr-1] = (INT8U *)PLATFORM_MALLOC(MAX_NETWORK_SEGMENT_SIZE);
+        ret = (uint8_t **)PLATFORM_REALLOC(ret, sizeof(uint8_t *) * (fragments_nr + 1));
+        ret[fragments_nr-1] = (uint8_t *)PLATFORM_MALLOC(MAX_NETWORK_SEGMENT_SIZE);
         ret[fragments_nr]   = NULL;
 
-        *lens = (INT16U *)PLATFORM_REALLOC(*lens, sizeof(INT16U *) * (fragments_nr + 1));
+        *lens = (uint16_t *)PLATFORM_REALLOC(*lens, sizeof(uint16_t *) * (fragments_nr + 1));
         (*lens)[fragments_nr-1] = 0; // To be updated a few lines later
         (*lens)[fragments_nr]   = 0;
 
@@ -995,8 +995,8 @@ INT8U **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, INT1
 
         for (i=tlv_start; i<tlv_stop; i++)
         {
-            INT8U  *tlv_stream;
-            INT16U  tlv_stream_size;
+            uint8_t  *tlv_stream;
+            uint16_t  tlv_stream_size;
 
             tlv_stream = forge_1905_TLV_from_structure(memory_structure->list_of_TLVs[i], &tlv_stream_size);
 
@@ -1038,12 +1038,12 @@ INT8U **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, INT1
 }
 
 
-bool parse_1905_CMDU_header_from_packet(INT8U *packet_buffer, size_t len, struct CMDU_header *cmdu_header)
+bool parse_1905_CMDU_header_from_packet(uint8_t *packet_buffer, size_t len, struct CMDU_header *cmdu_header)
 {
-    INT16U  ether_type;
-    INT8U   message_version;
-    INT8U   reserved_field;
-    INT8U   indicators;
+    uint16_t  ether_type;
+    uint8_t   message_version;
+    uint8_t   reserved_field;
+    uint8_t   indicators;
 
     if (NULL == packet_buffer || NULL == cmdu_header)
     {
@@ -1087,7 +1087,7 @@ void free_1905_CMDU_structure(struct CMDU *memory_structure)
 
     if ((NULL != memory_structure) && (NULL != memory_structure->list_of_TLVs))
     {
-        INT8U i;
+        uint8_t i;
 
         i = 0;
         while (memory_structure->list_of_TLVs[i])
@@ -1104,9 +1104,9 @@ void free_1905_CMDU_structure(struct CMDU *memory_structure)
 }
 
 
-void free_1905_CMDU_packets(INT8U **packet_streams)
+void free_1905_CMDU_packets(uint8_t **packet_streams)
 {
-    INT8U i;
+    uint8_t i;
 
     if (NULL == packet_streams)
     {
@@ -1125,9 +1125,9 @@ void free_1905_CMDU_packets(INT8U **packet_streams)
 }
 
 
-INT8U compare_1905_CMDU_structures(const struct CMDU *memory_structure_1, const struct CMDU *memory_structure_2)
+uint8_t compare_1905_CMDU_structures(const struct CMDU *memory_structure_1, const struct CMDU *memory_structure_2)
 {
-    INT8U i;
+    uint8_t i;
 
     if (NULL == memory_structure_1 || NULL == memory_structure_2)
     {
@@ -1181,7 +1181,7 @@ void visit_1905_CMDU_structure(const struct CMDU *memory_structure, visitor_call
     //
     #define MAX_PREFIX  100
 
-    INT8U i;
+    uint8_t i;
 
     if (NULL == memory_structure)
     {
@@ -1209,7 +1209,7 @@ void visit_1905_CMDU_structure(const struct CMDU *memory_structure, visitor_call
     return;
 }
 
-char *convert_1905_CMDU_type_to_string(INT8U cmdu_type)
+char *convert_1905_CMDU_type_to_string(uint8_t cmdu_type)
 {
     switch (cmdu_type)
     {

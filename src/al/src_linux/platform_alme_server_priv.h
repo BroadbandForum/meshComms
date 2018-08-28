@@ -31,7 +31,7 @@
 //
 struct almeServerThreadData
 {
-    INT8U  queue_id;
+    uint8_t  queue_id;
 };
 
 void *almeServerThread(void *p);

@@ -42,7 +42,7 @@
 //
 // Return '0' if there was a problem, '1' otherwise
 //
-INT8U CBKSend1905BBFExtensions(struct CMDU *memory_structure);
+uint8_t CBKSend1905BBFExtensions(struct CMDU *memory_structure);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Datamodel extension callbacks
@@ -62,7 +62,7 @@ INT8U CBKSend1905BBFExtensions(struct CMDU *memory_structure);
 //
 // 'nr' is the number of local extensions
 //
-void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U *nr);
+void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions, uint8_t *nr);
 
 // This function updates the datamodel extensions section with non-standard info
 //
@@ -78,7 +78,7 @@ void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U
 //
 // 'al_mac_address' is the AL mac address of the requested device.
 //
-void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV  **extensions, INT8U  nr, INT8U *al_mac_address);
+void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV  **extensions, uint8_t  nr, uint8_t *al_mac_address);
 
 // This function extendes the ALME 'dnd' report
 //
@@ -121,8 +121,8 @@ void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV  **extensions, INT8U  nr,
 // function, which is defined in the 'bbf_tlvs.h' file and it's responsible for
 // converting the datamodel structure data into user friendly text.
 //
-void CBKDumpBBFExtendedInfo(INT8U **memory_structure,
-                            INT8U   structure_nr,
+void CBKDumpBBFExtendedInfo(uint8_t **memory_structure,
+                            uint8_t   structure_nr,
                             visitor_callback callback,
                             void  (*write_function)(const char *fmt, ...),
                             const char *prefix);

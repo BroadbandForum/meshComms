@@ -22,20 +22,20 @@
 #include "1905_tlvs.h"
 
 extern struct endOfLldppduTLV     lldp_tlv_structure_001;
-extern INT8U                      lldp_tlv_stream_001[];
-extern INT16U                     lldp_tlv_stream_len_001;
+extern uint8_t                      lldp_tlv_stream_001[];
+extern uint16_t                     lldp_tlv_stream_len_001;
 
 extern struct chassisIdTLV        lldp_tlv_structure_002;
-extern INT8U                      lldp_tlv_stream_002[];
-extern INT16U                     lldp_tlv_stream_len_002;
+extern uint8_t                      lldp_tlv_stream_002[];
+extern uint16_t                     lldp_tlv_stream_len_002;
 
 extern struct portIdTLV           lldp_tlv_structure_003;
-extern INT8U                      lldp_tlv_stream_003[];
-extern INT16U                     lldp_tlv_stream_len_003;
+extern uint8_t                      lldp_tlv_stream_003[];
+extern uint16_t                     lldp_tlv_stream_len_003;
 
 extern struct timeToLiveTypeTLV   lldp_tlv_structure_004;
-extern INT8U                      lldp_tlv_stream_004[];
-extern INT16U                     lldp_tlv_stream_len_004;
+extern uint8_t                      lldp_tlv_stream_004[];
+extern uint16_t                     lldp_tlv_stream_len_004;
 
 #endif
 

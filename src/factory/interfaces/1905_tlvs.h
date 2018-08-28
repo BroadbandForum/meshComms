@@ -113,35 +113,35 @@
 ////////////////////////////////////////////////////////////////////////////////
 struct _ieee80211SpecificInformation
 {
-    INT8U  network_membership[6]; // BSSID
+    uint8_t  network_membership[6]; // BSSID
 
     #define IEEE80211_SPECIFIC_INFO_ROLE_AP                   (0x0)
     #define IEEE80211_SPECIFIC_INFO_ROLE_NON_AP_NON_PCP_STA   (0x4)
     #define IEEE80211_SPECIFIC_INFO_ROLE_WIFI_P2P_CLIENT      (0x8)
     #define IEEE80211_SPECIFIC_INFO_ROLE_WIFI_P2P_GROUP_OWNER (0x9)
     #define IEEE80211_SPECIFIC_INFO_ROLE_AD_PCP               (0xa)
-    INT8U  role;                  // One of the values from above
+    uint8_t  role;                  // One of the values from above
 
-    INT8U ap_channel_band;        // Hex value of dot11CurrentChannelBandwidth
+    uint8_t ap_channel_band;        // Hex value of dot11CurrentChannelBandwidth
                                   // (see "IEEE P802.11ac/D3.0" for description)
 
-    INT8U ap_channel_center_frequency_index_1;
+    uint8_t ap_channel_center_frequency_index_1;
                                   // Hex value of
                                   // dot11CurrentChannelCenterFrequencyIndex1
                                   // (see "IEEE P802.11ac/D3.0" for description)
 
-    INT8U ap_channel_center_frequency_index_2;
+    uint8_t ap_channel_center_frequency_index_2;
                                   // Hex value of
                                   // dot11CurrentChannelCenterFrequencyIndex2
                                   // (see "IEEE P802.11ac/D3.0" for description)
 };
 struct _ieee1901SpecificInformation
 {
-    INT8U network_identifier[7];  // Network membership
+    uint8_t network_identifier[7];  // Network membership
 };
 union _mediaSpecificData
 {
-    INT8U                                dummy;    // Empty placeholder
+    uint8_t                                dummy;    // Empty placeholder
     struct _ieee80211SpecificInformation ieee80211;
     struct _ieee1901SpecificInformation  ieee1901;
 
@@ -153,15 +153,15 @@ union _mediaSpecificData
 ////////////////////////////////////////////////////////////////////////////////
 struct _genericPhyCommonData
 {
-    INT8U   oui[3];                   // OUI of the generic phy networking
+    uint8_t   oui[3];                   // OUI of the generic phy networking
                                       // technology of the local interface
 
-    INT8U   variant_index;            // Variant index of the generic phy
+    uint8_t   variant_index;            // Variant index of the generic phy
                                       // networking technology of the local
                                       // interface
 
-    INT8U   media_specific_bytes_nr;
-    INT8U  *media_specific_bytes;     // Media specific information of the
+    uint8_t   media_specific_bytes_nr;
+    uint8_t  *media_specific_bytes;     // Media specific information of the
                                       // variant.
                                       // This field contains
                                       // "media_specific_bytes_nr" bytes.
@@ -173,7 +173,7 @@ struct _genericPhyCommonData
 ////////////////////////////////////////////////////////////////////////////////
 struct endOfMessageTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_END_OF_MESSAGE
 
     // This structure does not contain anything at all
@@ -185,15 +185,15 @@ struct endOfMessageTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct vendorSpecificTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_VENDOR_SPECIFIC
 
-    INT8U  vendorOUI[3];          // Vendor specific OUI, the value of the 24
+    uint8_t  vendorOUI[3];          // Vendor specific OUI, the value of the 24
                                   // bit globally unique IEEE-SA assigned number
                                   // to the vendor
 
-    INT16U  m_nr;                 // Bytes in the following field
-    INT8U  *m;                    // Vendor specific information
+    uint16_t  m_nr;                 // Bytes in the following field
+    uint8_t  *m;                    // Vendor specific information
 };
 
 
@@ -202,10 +202,10 @@ struct vendorSpecificTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct alMacAddressTypeTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_AL_MAC_ADDRESS_TYPE
 
-    INT8U   al_mac_address[6];    // 1905 AL MAC address of the transmitting
+    uint8_t   al_mac_address[6];    // 1905 AL MAC address of the transmitting
                                   // device
 };
 
@@ -215,10 +215,10 @@ struct alMacAddressTypeTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct macAddressTypeTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_MAC_ADDRESS_TYPE
 
-    INT8U   mac_address[6];       // MAC address of the interface on which the
+    uint8_t   mac_address[6];       // MAC address of the interface on which the
                                   // message is transmitted
 };
 
@@ -228,11 +228,11 @@ struct macAddressTypeTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct _localInterfaceEntries
 {
-    INT8U   mac_address[6];       // MAC address of the local interface
+    uint8_t   mac_address[6];       // MAC address of the local interface
 
-    INT16U  media_type;           // One of the MEDIA_TYPE_* values
+    uint16_t  media_type;           // One of the MEDIA_TYPE_* values
 
-    INT8U   media_specific_data_size;
+    uint8_t   media_specific_data_size;
                                   // Number of bytes in ensuing field
                                   // Its value is '10' when 'media_type' is one
                                   // of the valid MEDIA_TYPE_IEEE_802_11*
@@ -253,12 +253,12 @@ struct _localInterfaceEntries
 };
 struct deviceInformationTypeTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_DEVICE_INFORMATION_TYPE
 
-    INT8U   al_mac_address[6];    // 1905 AL MAC address of the device
+    uint8_t   al_mac_address[6];    // 1905 AL MAC address of the device
 
-    INT8U   local_interfaces_nr;  // Number of local interfaces
+    uint8_t   local_interfaces_nr;  // Number of local interfaces
 
     struct _localInterfaceEntries  *local_interfaces;
 
@@ -270,12 +270,12 @@ struct deviceInformationTypeTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct _bridgingTupleMacEntries
 {
-    INT8U   mac_address[6];       // MAC address of a 1905 device's network
+    uint8_t   mac_address[6];       // MAC address of a 1905 device's network
                                   // interface that belongs to a bridging tuple
 };
 struct _bridgingTupleEntries
 {
-    INT8U   bridging_tuple_macs_nr; // Number of MAC addresses in this bridging
+    uint8_t   bridging_tuple_macs_nr; // Number of MAC addresses in this bridging
                                     // tuple
 
     struct  _bridgingTupleMacEntries  *bridging_tuple_macs;
@@ -285,10 +285,10 @@ struct _bridgingTupleEntries
 };
 struct deviceBridgingCapabilityTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES
 
-    INT8U   bridging_tuples_nr;   // Number of MAC addresses in this bridging
+    uint8_t   bridging_tuples_nr;   // Number of MAC addresses in this bridging
                                   // tuple
 
     struct _bridgingTupleEntries  *bridging_tuples;
@@ -301,16 +301,16 @@ struct deviceBridgingCapabilityTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct _non1905neighborEntries
 {
-    INT8U   mac_address[6];       // MAC address of the non-1905 device
+    uint8_t   mac_address[6];       // MAC address of the non-1905 device
 };
 struct non1905NeighborDeviceListTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST
 
-    INT8U   local_mac_address[6]; // MAC address of the local interface
+    uint8_t   local_mac_address[6]; // MAC address of the local interface
 
-    INT8U                           non_1905_neighbors_nr;
+    uint8_t                           non_1905_neighbors_nr;
     struct _non1905neighborEntries *non_1905_neighbors;
                                   // One entry for each non-1905 detected
                                   // neighbor
@@ -322,21 +322,21 @@ struct non1905NeighborDeviceListTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct _neighborEntries
 {
-    INT8U   mac_address[6];       // AL MAC address of the 1905 neighbor
+    uint8_t   mac_address[6];       // AL MAC address of the 1905 neighbor
 
-    INT8U   bridge_flag;          // "0" --> no IEEE 802.1 bridge exists
+    uint8_t   bridge_flag;          // "0" --> no IEEE 802.1 bridge exists
                                   // "1" --> at least one IEEE 802.1 bridge
                                   //         exists between this device and the
                                   //         neighbor
 };
 struct neighborDeviceListTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_NEIGHBOR_DEVICE_LIST
 
-    INT8U   local_mac_address[6]; // MAC address of the local interface
+    uint8_t   local_mac_address[6]; // MAC address of the local interface
 
-    INT8U                     neighbors_nr;
+    uint8_t                     neighbors_nr;
     struct _neighborEntries  *neighbors;
                                   // One entry for each 1905 detected neighbor
 };
@@ -347,21 +347,21 @@ struct neighborDeviceListTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct linkMetricQueryTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_LINK_METRIC_QUERY
 
     #define LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS      (0x00)
     #define LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR  (0x01)
-    INT8U  destination;           // One of the values from above
+    uint8_t  destination;           // One of the values from above
 
-    INT8U  specific_neighbor[6];  // Only significant when the 'destination'
+    uint8_t  specific_neighbor[6];  // Only significant when the 'destination'
                                   // field is set to
                                   // 'LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR'
 
     #define LINK_METRIC_QUERY_TLV_TX_LINK_METRICS_ONLY         (0x00)
     #define LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY         (0x01)
     #define LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS  (0x02)
-    INT8U  link_metrics_type;     // One of the values from above
+    uint8_t  link_metrics_type;     // One of the values from above
 };
 
 
@@ -370,56 +370,56 @@ struct linkMetricQueryTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct _transmitterLinkMetricEntries
 {
-    INT8U   local_interface_address[6];      // MAC address of an interface in
+    uint8_t   local_interface_address[6];      // MAC address of an interface in
                                              // the receiving AL, which connects
                                              // to an interface in the neighbor
                                              // AL
 
-    INT8U   neighbor_interface_address[6];   // MAC addres of an interface in a
+    uint8_t   neighbor_interface_address[6];   // MAC addres of an interface in a
                                              // neighbor AL, which connects to
                                              // an interface in the receiving
                                              // AL
 
-    INT16U  intf_type;                // Underlaying network technology
+    uint16_t  intf_type;                // Underlaying network technology
                                       // One of the MEDIA_TYPE_* values.
 
-    INT8U   bridge_flag;              // Indicates whether or not the 1905 link
+    uint8_t   bridge_flag;              // Indicates whether or not the 1905 link
                                       // includes one or more IEEE 802.11
                                       // bridges
 
-    INT32U  packet_errors;            // Estimated number of lost packets on the
+    uint32_t  packet_errors;            // Estimated number of lost packets on the
                                       // transmitting side of the link during
                                       // the measurement period (5 seconds??)
 
-    INT32U  transmitted_packets;      // Estimated number of packets transmitted
+    uint32_t  transmitted_packets;      // Estimated number of packets transmitted
                                       // on the same measurement period used to
                                       // estimate 'packet_errors'
 
-    INT16U  mac_throughput_capacity;  // The maximum MAC throughput of the link
+    uint16_t  mac_throughput_capacity;  // The maximum MAC throughput of the link
                                       // estimated at the transmitter and
                                       // expressed in Mb/s
 
-    INT16U  link_availability;        // The estimated average percentage of
+    uint16_t  link_availability;        // The estimated average percentage of
                                       // time that the link is available for
                                       // data transmissions
 
-    INT16U  phy_rate;                 // This value is the PHY rate estimated at
+    uint16_t  phy_rate;                 // This value is the PHY rate estimated at
                                       // the transmitter of the link expressed
                                       // in Mb/s
 };
 struct transmitterLinkMetricTLV
 {
-    INT8U  tlv_type;               // Must always be set to
+    uint8_t  tlv_type;               // Must always be set to
                                    // TLV_TYPE_TRANSMITTER_LINK_METRIC
 
-    INT8U  local_al_address[6];    // AL MAC address of the device that
+    uint8_t  local_al_address[6];    // AL MAC address of the device that
                                    // transmits the response message that
                                    // contains this TLV
 
-    INT8U  neighbor_al_address[6]; // AL MAC address of the neighbor whose
+    uint8_t  neighbor_al_address[6]; // AL MAC address of the neighbor whose
                                    // link metric is reported in this TLV
 
-    INT8U                                  transmitter_link_metrics_nr;
+    uint8_t                                  transmitter_link_metrics_nr;
     struct _transmitterLinkMetricEntries  *transmitter_link_metrics;
                                    // Link metric information for the above
                                    // interface pair between the receiving AL
@@ -432,43 +432,43 @@ struct transmitterLinkMetricTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct  _receiverLinkMetricEntries
 {
-    INT8U   local_interface_address[6];      // MAC address of an interface in
+    uint8_t   local_interface_address[6];      // MAC address of an interface in
                                              // the receiving AL, which connects
                                              // to an interface in the neighbor
                                              // AL
 
-    INT8U   neighbor_interface_address[6];   // MAC addres of an interface in a
+    uint8_t   neighbor_interface_address[6];   // MAC addres of an interface in a
                                              // neighbor AL, which connects to
                                              // an interface in the receiving
                                              // AL
 
-    INT16U  intf_type;                // Underlaying network technology
+    uint16_t  intf_type;                // Underlaying network technology
 
-    INT32U  packet_errors;            // Estimated number of lost packets on the
+    uint32_t  packet_errors;            // Estimated number of lost packets on the
                                       // receiving side of the link during
                                       // the measurement period (5 seconds??)
 
-    INT32U  packets_received;         // Estimated number of packets received on
+    uint32_t  packets_received;         // Estimated number of packets received on
                                       // the same measurement period used to
                                       // estimate 'packet_errors'
 
-    INT8U  rssi;                      // This value is the estimated RSSI at the
+    uint8_t  rssi;                      // This value is the estimated RSSI at the
                                       // receive side of the link expressed in
                                       // dB
 };
 struct receiverLinkMetricTLV
 {
-    INT8U   tlv_type;              // Must always be set to
+    uint8_t   tlv_type;              // Must always be set to
                                    // TLV_TYPE_RECEIVER_LINK_METRIC
 
-    INT8U local_al_address[6];     // AL MAC address of the device that
+    uint8_t local_al_address[6];     // AL MAC address of the device that
                                    // transmits the response message that
                                    // contains this TLV
 
-    INT8U neighbor_al_address[6];  // AL MAC address of the neighbor whose
+    uint8_t neighbor_al_address[6];  // AL MAC address of the neighbor whose
                                    // link metric is reported in this TLV
 
-    INT8U                               receiver_link_metrics_nr;
+    uint8_t                               receiver_link_metrics_nr;
     struct _receiverLinkMetricEntries  *receiver_link_metrics;
                                    // Link metric information for the above
                                    // interface pair between the receiving AL
@@ -481,11 +481,11 @@ struct receiverLinkMetricTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct linkMetricResultCodeTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_LINK_METRIC_RESULT_CODE
 
     #define LINK_METRIC_RESULT_CODE_TLV_INVALID_NEIGHBOR  (0x00)
-    INT8U   result_code;          // One of the values from above
+    uint8_t   result_code;          // One of the values from above
 };
 
 
@@ -494,10 +494,10 @@ struct linkMetricResultCodeTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct searchedRoleTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_SEARCHED_ROLE
 
-    INT8U   role;                 // One of the values from IEEE80211_ROLE_*
+    uint8_t   role;                 // One of the values from IEEE80211_ROLE_*
 };
 
 
@@ -506,10 +506,10 @@ struct searchedRoleTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct autoconfigFreqBandTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_AUTOCONFIG_FREQ_BAND
 
-    INT8U   freq_band;            // Frequency band of the unconfigured
+    uint8_t   freq_band;            // Frequency band of the unconfigured
                                   // interface requesting an autoconfiguration.
                                   // Use one of the values in
                                   // IEEE80211_FREQUENCY_BAND_*
@@ -521,10 +521,10 @@ struct autoconfigFreqBandTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct supportedRoleTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_SUPPORTED_ROLE
 
-    INT8U   role;                 // One of the values from IEEE80211_ROLE_*
+    uint8_t   role;                 // One of the values from IEEE80211_ROLE_*
 };
 
 
@@ -534,10 +534,10 @@ struct supportedRoleTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct supportedFreqBandTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_SUPPORTED_FREQ_BAND
 
-    INT8U   freq_band;            // Frequency band of the unconfigured
+    uint8_t   freq_band;            // Frequency band of the unconfigured
                                   // interface requesting an autoconfiguration.
                                   // Use one of the values in
                                   // IEEE80211_FREQUENCY_BAND_*
@@ -549,11 +549,11 @@ struct supportedFreqBandTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct wscTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_WSC
 
-    INT16U  wsc_frame_size;
-    INT8U  *wsc_frame;            // Pointer to a buffer containing the M1 or
+    uint16_t  wsc_frame_size;
+    uint8_t  *wsc_frame;            // Pointer to a buffer containing the M1 or
                                   // M2 message.
 };
 
@@ -563,13 +563,13 @@ struct wscTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct _mediaTypeEntries
 {
-    INT16U  media_type;           // A media type for which a push button
+    uint16_t  media_type;           // A media type for which a push button
                                   // configuration method has been activated on
                                   // the device that originates the push button
                                   // event notification
                                   // One of the MEDIA_TYPE_* values
 
-    INT8U   media_specific_data_size;  // Number of bytes in ensuing field
+    uint8_t   media_specific_data_size;  // Number of bytes in ensuing field
 
     union _mediaSpecificData media_specific_data;
                                   // Media specific data
@@ -583,10 +583,10 @@ struct _mediaTypeEntries
 };
 struct pushButtonEventNotificationTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION
 
-    INT8U   media_types_nr;       // Number of media types included in this
+    uint8_t   media_types_nr;       // Number of media types included in this
                                   // message: can be "0" or larger
 
     struct _mediaTypeEntries *media_types;
@@ -598,21 +598,21 @@ struct pushButtonEventNotificationTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct pushButtonJoinNotificationTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_AL_MAC_ADDRESS_TYPE
 
-    INT8U   al_mac_address[6];    // 1905 AL MAC address of the device that sent
+    uint8_t   al_mac_address[6];    // 1905 AL MAC address of the device that sent
                                   // the push button event notification message
 
-    INT16U  message_identifier;   // The message identifier (MID) of the push
+    uint16_t  message_identifier;   // The message identifier (MID) of the push
                                   // button event notification message
 
-    INT8U   mac_address[6];       // Interface specific MAC address of the
+    uint8_t   mac_address[6];       // Interface specific MAC address of the
                                   // interface of the transmitting device
                                   // belonging to the medium on which a new
                                   // device joined
 
-    INT8U   new_mac_address[6];   // Interface specific MAC address of the
+    uint8_t   new_mac_address[6];   // Interface specific MAC address of the
                                   // interface of the new device that was joined
                                   // to the network as a result of the push
                                   // button configuration sequence
@@ -624,7 +624,7 @@ struct pushButtonJoinNotificationTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct _genericPhyDeviceEntries
 {
-    INT8U   local_interface_address[6];
+    uint8_t   local_interface_address[6];
                                       // MAC address of the local interface
 
     struct _genericPhyCommonData generic_phy_common_data;
@@ -632,10 +632,10 @@ struct _genericPhyDeviceEntries
                                       // variant index and media specific
                                       // information of the local interface
 
-    INT8U   variant_name[32];         // Variant name UTF-8 string (NULL
+    uint8_t   variant_name[32];         // Variant name UTF-8 string (NULL
                                       // terminated)
 
-    INT8U   generic_phy_description_xml_url_len;
+    uint8_t   generic_phy_description_xml_url_len;
     char   *generic_phy_description_xml_url;
                                       // URL to the "Generic Phy XML Description
                                       // Document" of the variant.
@@ -647,13 +647,13 @@ struct _genericPhyDeviceEntries
 };
 struct genericPhyDeviceInformationTypeTLV
 {
-    INT8U  tlv_type;                  // Must always be set to
+    uint8_t  tlv_type;                  // Must always be set to
                                       // TLV_TYPE_GENERIC_PHY_DEVICE_INFORMATION
 
-    INT8U   al_mac_address[6];        // 1905 AL MAC address of the device
+    uint8_t   al_mac_address[6];        // 1905 AL MAC address of the device
 
 
-    INT8U                            local_interfaces_nr;
+    uint8_t                            local_interfaces_nr;
     struct _genericPhyDeviceEntries *local_interfaces;
                                       // List of local interfaces that are
                                       // going to be reported as
@@ -666,7 +666,7 @@ struct genericPhyDeviceInformationTypeTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct deviceIdentificationTypeTLV
 {
-    INT8U  tlv_type;                  // Must always be set to
+    uint8_t  tlv_type;                  // Must always be set to
                                       // TLV_TYPE_DEVICE_IDENTIFICATION
 
     char  friendly_name[64];         // Friendly name UTF-8 string (NULL
@@ -686,7 +686,7 @@ struct deviceIdentificationTypeTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct controlUrlTypeTLV
 {
-    INT8U  tlv_type;                  // Must always be set to
+    uint8_t  tlv_type;                  // Must always be set to
                                       // TLV_TYPE_CONTROL_URL
 
     char   *url;                      // Pointer to a NULL terminated string
@@ -704,16 +704,16 @@ struct _ipv4Entries
     #define IPV4_TYPE_DHCP    (1)
     #define IPV4_TYPE_STATIC  (2)
     #define IPV4_TYPE_AUTOIP  (3)
-    INT8U type;                     // One of the values from above
+    uint8_t type;                     // One of the values from above
 
-    INT8U ipv4_address[4];          // IPv4 address associated to the interface
+    uint8_t ipv4_address[4];          // IPv4 address associated to the interface
 
-    INT8U ipv4_dhcp_server[4];      // IPv4 address of the DHCP server (if
+    uint8_t ipv4_dhcp_server[4];      // IPv4 address of the DHCP server (if
                                     // known, otherwise set to all zeros)
 };
 struct _ipv4InterfaceEntries
 {
-    INT8U   mac_address[6];          // MAC address of the interface whose IPv4s
+    uint8_t   mac_address[6];          // MAC address of the interface whose IPv4s
                                      // are going to be reported.
                                      //
                                      //   NOTE: The standard says it can also
@@ -723,16 +723,16 @@ struct _ipv4InterfaceEntries
                                      //   the device (no matter the interface
                                      //   they are "binded" to) are reported.
 
-    INT8U                   ipv4_nr;
+    uint8_t                   ipv4_nr;
     struct  _ipv4Entries   *ipv4;    // List of IPv4s associated to this
                                      // interface
 };
 struct ipv4TypeTLV
 {
-    INT8U  tlv_type;                  // Must always be set to
+    uint8_t  tlv_type;                  // Must always be set to
                                       // TLV_TYPE_IPV4
 
-    INT8U                          ipv4_interfaces_nr;
+    uint8_t                          ipv4_interfaces_nr;
     struct _ipv4InterfaceEntries  *ipv4_interfaces;
                                       // List of interfaces with at least one
                                       // IPv4 assigned
@@ -748,11 +748,11 @@ struct _ipv6Entries
     #define IPV6_TYPE_DHCP    (1)
     #define IPV6_TYPE_STATIC  (2)
     #define IPV6_TYPE_SLAAC   (3)
-    INT8U type;                     // One of the values from above
+    uint8_t type;                     // One of the values from above
 
-    INT8U ipv6_address[16];         // IPv6 address associated to the interface
+    uint8_t ipv6_address[16];         // IPv6 address associated to the interface
 
-    INT8U ipv6_address_origin[16];  // If type == IPV6_TYPE_DHCP, this field
+    uint8_t ipv6_address_origin[16];  // If type == IPV6_TYPE_DHCP, this field
                                     // contains the IPv6 address of the DHCPv6
                                     // server.
                                     // If type == IPV6_TYPE_SLAAC, this field
@@ -763,7 +763,7 @@ struct _ipv6Entries
 };
 struct _ipv6InterfaceEntries
 {
-    INT8U   mac_address[6];          // MAC address of the interface whose IPv4s
+    uint8_t   mac_address[6];          // MAC address of the interface whose IPv4s
                                      // are going to be reported.
                                      //
                                      //   NOTE: The standard says it can also
@@ -773,20 +773,20 @@ struct _ipv6InterfaceEntries
                                      //   the device (no matter the interface
                                      //   they are "binded" to) are reported.
 
-    INT8U  ipv6_link_local_address[16];
+    uint8_t  ipv6_link_local_address[16];
                                      // IPv6 link local address corresponding to
                                      // this interface
 
-    INT8U                   ipv6_nr;
+    uint8_t                   ipv6_nr;
     struct  _ipv6Entries   *ipv6;    // List of IPv4s associated to this
                                      // interface
 };
 struct ipv6TypeTLV
 {
-    INT8U  tlv_type;                  // Must always be set to
+    uint8_t  tlv_type;                  // Must always be set to
                                       // TLV_TYPE_IPV6
 
-    INT8U                          ipv6_interfaces_nr;
+    uint8_t                          ipv6_interfaces_nr;
     struct _ipv6InterfaceEntries  *ipv6_interfaces;
                                       // List of interfaces with at least one
                                       // IPv6 assigned
@@ -799,10 +799,10 @@ struct ipv6TypeTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct pushButtonGenericPhyEventNotificationTLV
 {
-    INT8U  tlv_type;               // Must always be set to
+    uint8_t  tlv_type;               // Must always be set to
                                    // TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION
 
-    INT8U                            local_interfaces_nr;
+    uint8_t                            local_interfaces_nr;
     struct _genericPhyCommonData    *local_interfaces;
                                    // List of local interfaces of type
                                    // MEDIA_TYPE_UNKNOWN for which a push button
@@ -817,12 +817,12 @@ struct pushButtonGenericPhyEventNotificationTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct x1905ProfileVersionTLV
 {
-    INT8U   tlv_type;             // Must always be set to
+    uint8_t   tlv_type;             // Must always be set to
                                   // TLV_TYPE_1905_PROFILE_VERSION
 
     #define PROFILE_1905_1   (0x00)
     #define PROFILE_1905_1A  (0x01)
-    INT8U   profile;              // One of the values from above
+    uint8_t   profile;              // One of the values from above
 };
 
 
@@ -831,10 +831,10 @@ struct x1905ProfileVersionTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct _powerOffInterfaceEntries
 {
-    INT8U   interface_address[6];     // MAC address of an interface in the
+    uint8_t   interface_address[6];     // MAC address of an interface in the
                                       // "power off" state
 
-    INT16U  media_type;               // Underlaying network technology
+    uint16_t  media_type;               // Underlaying network technology
                                       // One of the MEDIA_TYPE_* values
 
     struct _genericPhyCommonData generic_phy_common_data;
@@ -846,10 +846,10 @@ struct _powerOffInterfaceEntries
 };
 struct powerOffInterfaceTLV
 {
-    INT8U  tlv_type;               // Must always be set to
+    uint8_t  tlv_type;               // Must always be set to
                                    // TLV_TYPE_POWER_OFF_INTERFACE
 
-    INT8U                              power_off_interfaces_nr;
+    uint8_t                              power_off_interfaces_nr;
     struct _powerOffInterfaceEntries  *power_off_interfaces;
                                    // List of local interfaces in the "power
                                    // off" state.
@@ -862,20 +862,20 @@ struct powerOffInterfaceTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct _powerChangeInformationEntries
 {
-    INT8U   interface_address[6];     // MAC address of an interface in the
+    uint8_t   interface_address[6];     // MAC address of an interface in the
                                       // "power off" state
 
     #define POWER_STATE_REQUEST_OFF  (0x00)
     #define POWER_STATE_REQUEST_ON   (0x01)
     #define POWER_STATE_REQUEST_SAVE (0x02)
-    INT8U   requested_power_state;    // One of the values from above
+    uint8_t   requested_power_state;    // One of the values from above
 };
 struct interfacePowerChangeInformationTLV
 {
-    INT8U  tlv_type;             // Must always be set to
+    uint8_t  tlv_type;             // Must always be set to
                                  // TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION
 
-    INT8U                                   power_change_interfaces_nr;
+    uint8_t                                   power_change_interfaces_nr;
     struct _powerChangeInformationEntries  *power_change_interfaces;
                                  // List of local interfaces for which a power
                                  // status change is requested
@@ -887,20 +887,20 @@ struct interfacePowerChangeInformationTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct _powerChangeStatusEntries
 {
-    INT8U   interface_address[6];     // MAC address of an interface in the
+    uint8_t   interface_address[6];     // MAC address of an interface in the
                                       // "power off" state
 
     #define POWER_STATE_RESULT_COMPLETED          (0x00)
     #define POWER_STATE_RESULT_NO_CHANGE          (0x01)
     #define POWER_STATE_RESULT_ALTERNATIVE_CHANGE (0x02)
-    INT8U   result;                   // One of the values from above
+    uint8_t   result;                   // One of the values from above
 };
 struct interfacePowerChangeStatusTLV
 {
-    INT8U  tlv_type;             // Must always be set to
+    uint8_t  tlv_type;             // Must always be set to
                                  // TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS
 
-    INT8U                              power_change_interfaces_nr;
+    uint8_t                              power_change_interfaces_nr;
     struct _powerChangeStatusEntries  *power_change_interfaces;
                                  // List of local interfaces whose power status
                                  // change operation result is being reported
@@ -912,11 +912,11 @@ struct interfacePowerChangeStatusTLV
 ////////////////////////////////////////////////////////////////////////////////
 struct _l2NeighborsEntries
 {
-    INT8U   l2_neighbor_mac_address[6];     // MAC address of remote interface
+    uint8_t   l2_neighbor_mac_address[6];     // MAC address of remote interface
                                             // sharing the same L2 medium
 
-    INT16U    behind_mac_addresses_nr;
-    INT8U   (*behind_mac_addresses)[6];     // List of MAC addresses the remote
+    uint16_t    behind_mac_addresses_nr;
+    uint8_t   (*behind_mac_addresses)[6];     // List of MAC addresses the remote
                                             // device (owner of the remote
                                             // interface) "knows" and that are
                                             // not visible on this interface.
@@ -924,20 +924,20 @@ struct _l2NeighborsEntries
 };
 struct _l2InterfacesEntries
 {
-    INT8U   local_mac_address[6];    // MAC address of the local interface whose
+    uint8_t   local_mac_address[6];    // MAC address of the local interface whose
                                      // L2 neighbors are going to be reported
 
-    INT16U                         l2_neighbors_nr;
+    uint16_t                         l2_neighbors_nr;
     struct  _l2NeighborsEntries   *l2_neighbors;
                                      // List of neighbors that share the same L2
                                      // medium as the local interface
 };
 struct l2NeighborDeviceTLV
 {
-    INT8U  tlv_type;                  // Must always be set to
+    uint8_t  tlv_type;                  // Must always be set to
                                       // TLV_TYPE_L2_NEIGHBOR_DEVICE
 
-    INT8U                         local_interfaces_nr;
+    uint8_t                         local_interfaces_nr;
     struct _l2InterfacesEntries  *local_interfaces;
                                       // List of interfaces with at least one
                                       // IPv4 assigned
@@ -956,8 +956,8 @@ enum serviceType {
 
 struct supportedServiceTLV
 {
-    INT8U  tlv_type; /**< @brief TLV type, must always be set to TLV_TYPE_SUPPORTED_SERVICE. */
-    INT8U  supported_service_nr; /**< @brief Number of supported_service. */
+    uint8_t  tlv_type; /**< @brief TLV type, must always be set to TLV_TYPE_SUPPORTED_SERVICE. */
+    uint8_t  supported_service_nr; /**< @brief Number of supported_service. */
     enum serviceType *supported_service; /**< @brief List of supported services. */
 };
 
@@ -1025,7 +1025,7 @@ struct apOperationalBssTLV
 // Otherwise, the returned structure is dynamically allocated, and once it is
 // no longer needed, the user must call the "free_1905_TLV_structure()" function
 //
-INT8U *parse_1905_TLV_from_packet(INT8U *packet_stream);
+uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream);
 
 
 // This is the opposite of "parse_1905_TLV_from_packet()": it receives a
@@ -1043,7 +1043,7 @@ INT8U *parse_1905_TLV_from_packet(INT8U *packet_stream);
 // Note that the input structure is *not* freed. You still need to later call
 // "free_1905_TLV_structure()"
 //
-INT8U *forge_1905_TLV_from_structure(INT8U *memory_structure, INT16U *len);
+uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len);
 
 
 
@@ -1057,7 +1057,7 @@ INT8U *forge_1905_TLV_from_structure(INT8U *memory_structure, INT16U *len);
 // "memory_structure" must point to a structure of one of the types returned by
 // "parse_1905_TLV_from_packet()"
 //
-void free_1905_TLV_structure(INT8U *memory_structure);
+void free_1905_TLV_structure(uint8_t *memory_structure);
 
 
 // 'forge_1905_TLV_from_structure()' returns a regular buffer which can be freed
@@ -1072,7 +1072,7 @@ void free_1905_TLV_structure(INT8U *memory_structure);
 // "memory_structure_1" and "memory_structure_2" must point (each) to a
 // structure of one of the types returned by "parse_1905_TLV_from_packet()"
 //
-INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_structure_2);
+uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory_structure_2);
 
 
 // The next function is used to call function "callback()" on each element of
@@ -1101,7 +1101,7 @@ INT8U compare_1905_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
 //     function prints before anything else to make it easy to follow the
 //     structure traversing order)
 //
-void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
+void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
 
 
 // Use this function for debug purposes. It turns a TLV_TYPE_* variable into its
@@ -1111,6 +1111,6 @@ void visit_1905_TLV_structure(INT8U *memory_structure, visitor_callback callback
 //
 // Return "Unknown" if the provided type does not exist.
 //
-const char *convert_1905_TLV_type_to_string(INT8U tlv_type);
+const char *convert_1905_TLV_type_to_string(uint8_t tlv_type);
 
 #endif

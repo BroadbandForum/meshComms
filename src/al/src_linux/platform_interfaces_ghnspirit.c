@@ -38,7 +38,7 @@ pthread_mutex_t lcmp_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // These are static values to fill the "interface_type_data" field
 //
-static INT8U itu_ghn_oui[]                 = {0x00, 0x19, 0xa7};
+static uint8_t itu_ghn_oui[]                 = {0x00, 0x19, 0xa7};
 static char  itu_ghn_generic_phy_xml_url[] = "http://handle.itu.int/11.1002/3000/1706";
 
 #define VARIANT_POWERLINE (0x00)
@@ -175,7 +175,7 @@ void _getInterfaceInfoFromGhnSpiritDevice(char *interface_name, char *ghnspirit_
     // "PHYMNG.GENERAL.RUNNING_PHYMODE_ID" and "PHYMNG.GENERAL.PHYMODE_ID_INFO"
     //
     {
-        INT8U variant = VARIANT_POWERLINE;
+        uint8_t variant = VARIANT_POWERLINE;
 
         m->interface_type_data.other.variant_index = variant;
         m->interface_type_data.other.variant_name  = strdup(variant_names[variant]);
@@ -506,7 +506,7 @@ void _getInterfaceInfoFromGhnSpiritDevice(char *interface_name, char *ghnspirit_
             char *saveptr;
             char *aux;
 
-            INT8U mac_addr[6];
+            uint8_t mac_addr[6];
 
             // The G.hn modem reports *all* G.hn neighbor MACs (including our
             // own MAC address). That's why we must be aware of which is our own
@@ -558,11 +558,11 @@ void _getInterfaceInfoFromGhnSpiritDevice(char *interface_name, char *ghnspirit_
                     if (NULL == m->neighbor_mac_addresses)
                     {
                         m->neighbor_mac_addresses_nr = 0;
-                        m->neighbor_mac_addresses    = (INT8U (*)[6])malloc(sizeof(INT8U[6]) * 1);
+                        m->neighbor_mac_addresses    = (uint8_t (*)[6])malloc(sizeof(uint8_t[6]) * 1);
                     }
                     else
                     {
-                        m->neighbor_mac_addresses = (INT8U (*)[6])realloc(m->neighbor_mac_addresses, sizeof(INT8U[6]) * (m->neighbor_mac_addresses_nr + 1));
+                        m->neighbor_mac_addresses = (uint8_t (*)[6])realloc(m->neighbor_mac_addresses, sizeof(uint8_t[6]) * (m->neighbor_mac_addresses_nr + 1));
                     }
                     memcpy(m->neighbor_mac_addresses[m->neighbor_mac_addresses_nr], mac_addr, 6);
 
@@ -720,7 +720,7 @@ void _getMetricsFromGhnSpiritDevice(char *interface_name, char *ghnspirit_extend
         {
             char   *aux;
             char   *str;
-            INT8U   i;
+            uint8_t   i;
 
             // BFT.GENERAL.MACS_INFO parameter is a table where each
             // row brings together a group of different data:
@@ -757,13 +757,13 @@ void _getMetricsFromGhnSpiritDevice(char *interface_name, char *ghnspirit_extend
         }
         else if (0 == strncmp(line, "BFT.GENERAL.MACS_INFO=", strlen("BFT.GENERAL.MACS_INFO=")))
         {
-            INT8U  *elements;
+            uint8_t  *elements;
 
             if ((bft_row_size >= 0) && (bft_mac_index >= 0) && (bft_did_index >= 0))
             {
                 char   *aux;
 
-                elements = (INT8U *)malloc(bft_row_size);
+                elements = (uint8_t *)malloc(bft_row_size);
 
                 // Find the DID value corresponding to the neighbor interface mac address
                 //
@@ -779,10 +779,10 @@ void _getMetricsFromGhnSpiritDevice(char *interface_name, char *ghnspirit_extend
                     // The first 6 bytes correspond to the mac, then the port (1 byte),
                     // the did (1 byte), etc...
                     //
-                    INT8U   i;
-                    INT8U   did;
+                    uint8_t   i;
+                    uint8_t   did;
                     int     value;
-                    INT8U  *mac_addr;
+                    uint8_t  *mac_addr;
                     char   *str;
                     char   *saveptr;
 
@@ -839,7 +839,7 @@ void _getMetricsFromGhnSpiritDevice(char *interface_name, char *ghnspirit_extend
             if (dest_id >= 0)
             {
                 char *aux;
-                INT8U index;
+                uint8_t index;
 
                 didmng_index = -1;
                 index        =  1; // CFL index starts at 1 (not 0)
@@ -873,7 +873,7 @@ void _getMetricsFromGhnSpiritDevice(char *interface_name, char *ghnspirit_extend
         }
         else if (0 == strncmp(line, "DIDMNG.GENERAL.TX_BPS=", strlen("DIDMNG.GENERAL.TX_BPS=")))
         {
-            INT32U  tx_bps;
+            uint32_t  tx_bps;
 
             // Compute Phyrate based on DIDMNG.GENERAL.TX_BPS.index value
             // Note: 'DIDMNG.GENERAL index' was obtained from DIDMNG.GENERAL.DIDS
@@ -886,7 +886,7 @@ void _getMetricsFromGhnSpiritDevice(char *interface_name, char *ghnspirit_extend
             {
                 char   *aux;
                 char   *str;
-                INT8U   index;
+                uint8_t   index;
 
                 aux = value;
                 for (index=1; index<=didmng_index ;index++)

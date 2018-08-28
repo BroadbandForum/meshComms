@@ -29,11 +29,11 @@
 
 #include <string.h> // memcmp(), memcpy(), ...
 
-INT8U _check(const char *test_description, struct PAYLOAD *input, INT8U *expected_output, INT16U expected_output_len)
+uint8_t _check(const char *test_description, struct PAYLOAD *input, uint8_t *expected_output, uint16_t expected_output_len)
 {
-    INT8U  result;
-    INT8U *real_output;
-    INT16U real_output_len;
+    uint8_t  result;
+    uint8_t *real_output;
+    uint16_t real_output_len;
 
     real_output = forge_lldp_PAYLOAD_from_structure(input, &real_output_len);
 
@@ -52,7 +52,7 @@ INT8U _check(const char *test_description, struct PAYLOAD *input, INT8U *expecte
     }
     else
     {
-        INT16U i;
+        uint16_t i;
 
         result = 1;
         PLATFORM_PRINTF("%-100s: KO !!!\n", test_description);
@@ -76,7 +76,7 @@ INT8U _check(const char *test_description, struct PAYLOAD *input, INT8U *expecte
 
 int main(void)
 {
-    INT8U result = 0;
+    uint8_t result = 0;
 
     #define LLDPPAYLOADFORGE001 "LLDPPAYLOADFORGE001 - Forge LLDP bridge discovery message (lldp_payload_structure_001)"
     result += _check(LLDPPAYLOADFORGE001, &lldp_payload_structure_001, lldp_payload_stream_001, lldp_payload_stream_len_001);

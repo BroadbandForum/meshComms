@@ -71,8 +71,8 @@ static pthread_mutex_t tcp_server_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  tcp_server_cond  = PTHREAD_COND_INITIALIZER;
 static int             tcp_server_flag  = 0;
 
-static INT8U  *alme_response;
-static INT16U  alme_response_len;
+static uint8_t  *alme_response;
+static uint16_t  alme_response_len;
 
 // This variable holds the number of the port number the server will use
 //
@@ -91,8 +91,8 @@ void *almeServerThread(void *p)
     struct sockaddr_in server_addr;
 
     #define ALME_TCP_SERVER_MAX_MESSAGE_SIZE (3*MAX_NETWORK_SEGMENT_SIZE)
-    INT8U  queue_message[4+ALME_TCP_SERVER_MAX_MESSAGE_SIZE];
-    INT8U *alme_message;
+    uint8_t  queue_message[4+ALME_TCP_SERVER_MAX_MESSAGE_SIZE];
+    uint8_t *alme_message;
 
     // The first three bytes of the message that this thread is going to insert
     // into the AL queue every time a new ALME message arrives looks like this:
@@ -203,16 +203,16 @@ void *almeServerThread(void *p)
         {
             // Connection closed, forward ALME message to the AL entity
             //
-            INT16U  message_len = total_size + 1;
-            INT8U   message_len_msb;
-            INT8U   message_len_lsb;
+            uint16_t  message_len = total_size + 1;
+            uint8_t   message_len_msb;
+            uint8_t   message_len_lsb;
 
 #if _HOST_IS_LITTLE_ENDIAN_ == 1
-            message_len_msb = *(((INT8U *)&message_len)+1);
-            message_len_lsb = *(((INT8U *)&message_len)+0);
+            message_len_msb = *(((uint8_t *)&message_len)+1);
+            message_len_lsb = *(((uint8_t *)&message_len)+0);
 #else
-            message_len_msb = *(((INT8U *)&message_len)+0);
-            message_len_lsb = *(((INT8U *)&message_len)+1);
+            message_len_msb = *(((uint8_t *)&message_len)+0);
+            message_len_lsb = *(((uint8_t *)&message_len)+1);
 #endif
 
             queue_message[0] = PLATFORM_QUEUE_EVENT_NEW_ALME_MESSAGE;
@@ -232,7 +232,7 @@ void *almeServerThread(void *p)
             }
             else
             {
-                INT32U total_sent;
+                uint32_t total_sent;
 
                 // Wait for response
                 //
@@ -297,7 +297,7 @@ void almeServerPortSet(int port_number)
 // files (functions declarations are  found in "../interfaces/platform.h)
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U PLATFORM_SEND_ALME_REPLY(INT8U alme_client_id, INT8U *alme_message, INT16U alme_message_len)
+uint8_t PLATFORM_SEND_ALME_REPLY(uint8_t alme_client_id, uint8_t *alme_message, uint16_t alme_message_len)
 {
     int i, first_time;
     char aux1[200];
@@ -350,7 +350,7 @@ INT8U PLATFORM_SEND_ALME_REPLY(INT8U alme_client_id, INT8U *alme_message, INT16U
             }
             else
             {
-                alme_response = (INT8U *)malloc(alme_message_len);
+                alme_response = (uint8_t *)malloc(alme_message_len);
                 if (NULL == alme_response)
                 {
                     PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Cannot allocate memory for the ALME RESPONSE/CONFIRMATION message\n");

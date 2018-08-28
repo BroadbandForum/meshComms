@@ -31,7 +31,7 @@
 
 // Identify a processed BBF query
 //
-INT8U bbf_query = 0;
+uint8_t bbf_query = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ INT8U bbf_query = 0;
 //
 // Example: this is how you would use this function:
 //
-//   struct non1905NeighborDeviceListTLV **a;   INT8U a_nr;
+//   struct non1905NeighborDeviceListTLV **a;   uint8_t a_nr;
 //
 //   _obtainLocalNon1905NeighborsTLV(&a, &a_nr);
 //
@@ -58,11 +58,11 @@ INT8U bbf_query = 0;
 // 'non_1905_neighbors_nr' is the number of entries in the above array
 //
 static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_neighbors,
-                                            INT8U *non_1905_neighbors_nr)
+                                            uint8_t *non_1905_neighbors_nr)
 {
     char                  **interfaces_names;
-    INT8U                   interfaces_names_nr;
-    INT8U                   i, j;
+    uint8_t                   interfaces_names_nr;
+    uint8_t                   i, j;
 
     if ((NULL == non_1905_neighbors) || (NULL == non_1905_neighbors_nr))
     {
@@ -72,8 +72,8 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
     *non_1905_neighbors    = NULL;
     *non_1905_neighbors_nr = 0;
 
-    INT8U (*al_mac_addresses)[6];
-    INT8U al_mac_addresses_nr;
+    uint8_t (*al_mac_addresses)[6];
+    uint8_t al_mac_addresses_nr;
 
     interfaces_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&interfaces_names_nr);
 
@@ -107,7 +107,7 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
         //
         if (x->neighbor_mac_addresses_nr != INTERFACE_NEIGHBORS_UNKNOWN)
         {
-            INT8U *al_mac_address_has_been_reported;
+            uint8_t *al_mac_address_has_been_reported;
 
             // Keep track of all the AL MACs that the interface reports he is
             // seeing.
@@ -117,14 +117,14 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
                 // Originally, none of the neighbors in the data model has been
                 // reported...
                 //
-                al_mac_address_has_been_reported = (INT8U *)PLATFORM_MALLOC(sizeof(INT8U) * al_mac_addresses_nr);
+                al_mac_address_has_been_reported = (uint8_t *)PLATFORM_MALLOC(sizeof(uint8_t) * al_mac_addresses_nr);
                 memset(al_mac_address_has_been_reported, 0x0, al_mac_addresses_nr);
             }
 
             for (j=0; j<x->neighbor_mac_addresses_nr; j++)
             {
-                INT8U *al_mac;
-                INT8U k;
+                uint8_t *al_mac;
+                uint8_t k;
 
                 al_mac = DMmacToAlMac(x->neighbor_mac_addresses[j]);
 
@@ -132,7 +132,7 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
                 {
                     // Non-1905 neighbor
 
-                    INT8U already_added;
+                    uint8_t already_added;
 
                     // Make sure it has not already been added
                     //
@@ -236,14 +236,14 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
 // Return a list of non-repeated mac addresses found in the input arguments
 // (non1905_neighbors). So, it's the list of non-1905 neighbor mac addresses.
 //
-static INT8U (*_getListOfNon1905Neighbors(struct non1905NeighborDeviceListTLV  **non1905_neighbors,
-                                          INT8U                                  non1905_neighbors_nr,
-                                          INT8U                                 *mac_addresses_nr))[6]
+static uint8_t (*_getListOfNon1905Neighbors(struct non1905NeighborDeviceListTLV  **non1905_neighbors,
+                                          uint8_t                                  non1905_neighbors_nr,
+                                          uint8_t                                 *mac_addresses_nr))[6]
 {
-    INT8U i, j, k;
+    uint8_t i, j, k;
 
-    INT8U total;
-    INT8U (*ret)[6];
+    uint8_t total;
+    uint8_t (*ret)[6];
 
     if ((NULL == non1905_neighbors) || (NULL == mac_addresses_nr))
     {
@@ -259,7 +259,7 @@ static INT8U (*_getListOfNon1905Neighbors(struct non1905NeighborDeviceListTLV  *
         {
             // Check for duplicates
             //
-            INT8U already_present;
+            uint8_t already_present;
 
             already_present = 0;
             for (k=0; k<total; k++)
@@ -281,11 +281,11 @@ static INT8U (*_getListOfNon1905Neighbors(struct non1905NeighborDeviceListTLV  *
             //
             if (NULL == ret)
             {
-                ret = (INT8U (*)[6])PLATFORM_MALLOC(sizeof(INT8U[6]));
+                ret = (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]));
             }
             else
             {
-                ret = (INT8U (*)[6])PLATFORM_REALLOC(ret, sizeof(INT8U[6])*(total + 1));
+                ret = (uint8_t (*)[6])PLATFORM_REALLOC(ret, sizeof(uint8_t[6])*(total + 1));
             }
             memcpy(&ret[total], non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6);
 
@@ -322,13 +322,13 @@ static INT8U (*_getListOfNon1905Neighbors(struct non1905NeighborDeviceListTLV  *
 // Return a list of links with the non-1905 device wit 'neighbor_mac_address'
 // mac address
 //
-INT8U (*_getListOfLinksWithNon1905Neighbor(struct non1905NeighborDeviceListTLV  **non1905_neighbors, INT8U non1905_neighbors_nr,
-                                           INT8U *neighbor_mac_address, char ***interfaces, INT8U *links_nr))[6]
+uint8_t (*_getListOfLinksWithNon1905Neighbor(struct non1905NeighborDeviceListTLV  **non1905_neighbors, uint8_t non1905_neighbors_nr,
+                                           uint8_t *neighbor_mac_address, char ***interfaces, uint8_t *links_nr))[6]
 {
-    INT8U i, j;
-    INT8U total;
+    uint8_t i, j;
+    uint8_t total;
 
-    INT8U (*ret)[6];
+    uint8_t (*ret)[6];
     char  **intfs;
 
     if ((NULL == non1905_neighbors) || (NULL == neighbor_mac_address) || (NULL == interfaces) || (NULL == links_nr))
@@ -356,12 +356,12 @@ INT8U (*_getListOfLinksWithNon1905Neighbor(struct non1905NeighborDeviceListTLV  
 
                 if (NULL == ret)
                 {
-                    ret   = (INT8U (*)[6])PLATFORM_MALLOC(sizeof(INT8U[6]));
+                    ret   = (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]));
                     intfs = (char **)PLATFORM_MALLOC(sizeof(char *));
                 }
                 else
                 {
-                    ret   = (INT8U (*)[6])PLATFORM_REALLOC(ret, sizeof(INT8U[6])*(total + 1));
+                    ret   = (uint8_t (*)[6])PLATFORM_REALLOC(ret, sizeof(uint8_t[6])*(total + 1));
                     intfs = (char **)PLATFORM_REALLOC(intfs, sizeof(char *)*(total + 1));
                 }
                 memcpy(&ret[total], non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6);
@@ -388,9 +388,9 @@ INT8U (*_getListOfLinksWithNon1905Neighbor(struct non1905NeighborDeviceListTLV  
 //
 // 'non_1905_neighbors_nr' is the size og the above array
 //
-static void _freeLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_neighbors, INT8U *non_1905_neighbors_nr)
+static void _freeLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_neighbors, uint8_t *non_1905_neighbors_nr)
 {
-    INT8U i;
+    uint8_t i;
 
     if ((NULL != non_1905_neighbors) && (NULL != *non_1905_neighbors) && (NULL != non_1905_neighbors_nr))
     {
@@ -440,23 +440,23 @@ static void _freeLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV **
 // If there is a problem (example: a specific neighbor was not found), this
 // function returns '0', otherwise it returns '1'.
 //
-static void _obtainLocalNon1905MetricsTLV(INT8U destination, INT8U *specific_neighbor, INT8U metrics_type,
+static void _obtainLocalNon1905MetricsTLV(uint8_t destination, uint8_t *specific_neighbor, uint8_t metrics_type,
                                           struct transmitterLinkMetricTLV ***tx,
                                           struct receiverLinkMetricTLV    ***rx,
-                                          INT8U *nr)
+                                          uint8_t *nr)
 {
-    INT8U (*mac_addresses)[6];
-    INT8U   mac_addresses_nr;
-    INT8U   empty_addresses[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
+    uint8_t (*mac_addresses)[6];
+    uint8_t   mac_addresses_nr;
+    uint8_t   empty_addresses[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
 
     struct transmitterLinkMetricTLV   **tx_tlvs;
     struct receiverLinkMetricTLV      **rx_tlvs;
 
-    INT8U total_tlvs;
-    INT8U i, j;
+    uint8_t total_tlvs;
+    uint8_t i, j;
 
     struct non1905NeighborDeviceListTLV  **non1905_neighbors;
-    INT8U                                  non1905_neighbors_nr;
+    uint8_t                                  non1905_neighbors_nr;
 
 
     // Get the list of non1905 neighbors (classified by interface)
@@ -517,9 +517,9 @@ static void _obtainLocalNon1905MetricsTLV(INT8U destination, INT8U *specific_nei
     total_tlvs = 0;
     for (i=0; i<mac_addresses_nr; i++)
     {
-        INT8U  (*remote_macs)[6];
+        uint8_t  (*remote_macs)[6];
         char   **local_interfaces;
-        INT8U    links_nr = 0;
+        uint8_t    links_nr = 0;
 
         // Check if we are really interested in obtaining metrics information
         // regarding this particular neighbor
@@ -689,9 +689,9 @@ static void _obtainLocalNon1905MetricsTLV(INT8U destination, INT8U *specific_nei
 //
 // 'total_tlvs' is the number of metric pairs (tx/rx) TLVs
 //
-static void _freeLocalNon1905MetricsTLVs(struct transmitterLinkMetricTLV ***tx_tlvs, struct receiverLinkMetricTLV ***rx_tlvs, INT8U *total_tlvs)
+static void _freeLocalNon1905MetricsTLVs(struct transmitterLinkMetricTLV ***tx_tlvs, struct receiverLinkMetricTLV ***rx_tlvs, uint8_t *total_tlvs)
 {
-    INT8U i;
+    uint8_t i;
 
     if (NULL != tx_tlvs && NULL != *tx_tlvs)
     {
@@ -725,15 +725,15 @@ static void _freeLocalNon1905MetricsTLVs(struct transmitterLinkMetricTLV ***tx_t
 ////////////////////////////////////////////////////////////////////////////////
 
 void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions,
-                                   INT8U                      *nr)
+                                   uint8_t                      *nr)
 {
     struct transmitterLinkMetricTLV  **tx_tlvs;
     struct receiverLinkMetricTLV     **rx_tlvs;
     struct vendorSpecificTLV          *vendor_specific;
     struct vendorSpecificTLV         **tlvs;
 
-    INT8U total_tlvs;
-    INT8U total_extensions;
+    uint8_t total_tlvs;
+    uint8_t total_extensions;
 
     // Currently, the BBF actor only takes care of TLVs containing non-1905
     // metrics. This may be extended in the future.
@@ -752,7 +752,7 @@ void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions,
     total_extensions = 0;
     if (total_tlvs > 0)
     {
-        INT8U i;
+        uint8_t i;
 
         // Build two TLV extensions (tx and rx) per neighbor
         //
@@ -760,13 +760,13 @@ void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions,
 
         for (i=0; i<total_tlvs; i++)
         {
-            vendor_specific = vendorSpecificTLVEmbedExtension(tx_tlvs[i], forge_bbf_TLV_from_structure, (INT8U *)BBF_OUI);
+            vendor_specific = vendorSpecificTLVEmbedExtension(tx_tlvs[i], forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
             tlvs[total_extensions++] = vendor_specific;
         }
 
         for (i=0; i<total_tlvs; i++)
         {
-            vendor_specific = vendorSpecificTLVEmbedExtension(rx_tlvs[i], forge_bbf_TLV_from_structure, (INT8U *)BBF_OUI);
+            vendor_specific = vendorSpecificTLVEmbedExtension(rx_tlvs[i], forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
             tlvs[total_extensions++] = vendor_specific;
         }
     }
@@ -782,14 +782,14 @@ void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions,
         result_tlvs->tlv_type  = BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE;
         result_tlvs->result_code = LINK_METRIC_RESULT_CODE_TLV_INVALID_NEIGHBOR;
 
-        vendor_specific = vendorSpecificTLVEmbedExtension(result_tlvs, forge_bbf_TLV_from_structure, (INT8U *)BBF_OUI);
+        vendor_specific = vendorSpecificTLVEmbedExtension(result_tlvs, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
 
         tlvs = (struct vendorSpecificTLV **)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV*));
         tlvs[total_extensions++] = vendor_specific;
 
         // Free no longer used resources
         //
-        free_bbf_TLV_structure((INT8U *)result_tlvs);
+        free_bbf_TLV_structure((uint8_t *)result_tlvs);
     }
 
     // Free tx_tlvs and rx_tlvs (no longer used)
@@ -801,11 +801,11 @@ void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions,
 }
 
 
-void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV **extensions, INT8U nr, INT8U *al_mac_address)
+void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV **extensions, uint8_t nr, uint8_t *al_mac_address)
 {
-    INT8U                         i;
-    INT8U                         non1905_metrics = 0;
-    INT8U                        *dm_extensions_nr;
+    uint8_t                         i;
+    uint8_t                         non1905_metrics = 0;
+    uint8_t                        *dm_extensions_nr;
     struct vendorSpecificTLV   ***dm_extensions;       // device extensions
 
     if ((NULL == extensions) || (NULL == al_mac_address))
@@ -864,7 +864,7 @@ void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV **extensions, INT8U nr, I
     //
     if (non1905_metrics)
     {
-        INT8U original_nr;
+        uint8_t original_nr;
 
         original_nr = *dm_extensions_nr;
 
@@ -876,7 +876,7 @@ void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV **extensions, INT8U nr, I
                 (BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC    == (*dm_extensions)[i]->m[0]) ||
                 (BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE == (*dm_extensions)[i]->m[0]) )
             {
-                free_1905_TLV_structure((INT8U *)(*dm_extensions)[i]);
+                free_1905_TLV_structure((uint8_t *)(*dm_extensions)[i]);
 
                 if (i == (*dm_extensions_nr))
                 {
@@ -922,8 +922,8 @@ void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV **extensions, INT8U nr, I
 }
 
 
-void CBKDumpBBFExtendedInfo(INT8U **memory_structure,
-                            INT8U   structure_nr,
+void CBKDumpBBFExtendedInfo(uint8_t **memory_structure,
+                            uint8_t   structure_nr,
                             visitor_callback callback,
                             void  (*write_function)(const char *fmt, ...),
                             const char *prefix)
@@ -933,14 +933,14 @@ void CBKDumpBBFExtendedInfo(INT8U **memory_structure,
     struct vendorSpecificTLV   *extension_tlv;
     struct vendorSpecificTLV  **tx_metrics;
     struct vendorSpecificTLV  **rx_metrics;
-    INT8U                     (*mac_metrics)[6];
-    INT8U                       metrics_nr;
-    INT8U                      *real_output;
-    INT8U                      *TO_interface_mac_address; // Neighbor interface
+    uint8_t                     (*mac_metrics)[6];
+    uint8_t                       metrics_nr;
+    uint8_t                      *real_output;
+    uint8_t                      *TO_interface_mac_address; // Neighbor interface
                                                           // mac adress
-    INT8U                       i;
-    INT8U                       j;
-    INT8U                       dump_ignore;
+    uint8_t                       i;
+    uint8_t                       j;
+    uint8_t                       dump_ignore;
 
     if ((NULL == memory_structure) || (NULL == callback) || (NULL == write_function) || (NULL == prefix))
     {
@@ -1037,13 +1037,13 @@ void CBKDumpBBFExtendedInfo(INT8U **memory_structure,
                 {
                     tx_metrics  = (struct vendorSpecificTLV **)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV *));
                     rx_metrics  = (struct vendorSpecificTLV **)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV *));
-                    mac_metrics =                (INT8U (*)[6])PLATFORM_MALLOC(sizeof(INT8U[6]));
+                    mac_metrics =                (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]));
                 }
                 else
                 {
                     tx_metrics  = (struct vendorSpecificTLV **)PLATFORM_REALLOC(tx_metrics, sizeof(struct vendorSpecificTLV *) * (metrics_nr+1));
                     rx_metrics  = (struct vendorSpecificTLV **)PLATFORM_REALLOC(rx_metrics, sizeof(struct vendorSpecificTLV *) * (metrics_nr+1));
-                    mac_metrics =                (INT8U (*)[6])PLATFORM_REALLOC(mac_metrics, sizeof(INT8U[6]) * (metrics_nr+1));
+                    mac_metrics =                (uint8_t (*)[6])PLATFORM_REALLOC(mac_metrics, sizeof(uint8_t[6]) * (metrics_nr+1));
                 }
 
                 // Keep metrics owner track
@@ -1106,7 +1106,7 @@ void CBKDumpBBFExtendedInfo(INT8U **memory_structure,
 // CMDU extension callbacks
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U CBKSend1905BBFExtensions(struct CMDU *memory_structure)
+uint8_t CBKSend1905BBFExtensions(struct CMDU *memory_structure)
 {
     if ((NULL == memory_structure) || (NULL == memory_structure->list_of_TLVs))
     {
@@ -1141,7 +1141,7 @@ INT8U CBKSend1905BBFExtensions(struct CMDU *memory_structure)
 
             // Embed the TLV inside a BBF Vendor Specific TLV
             //
-            vendor_specific = vendorSpecificTLVEmbedExtension(non_1905_metric_query_tlv, forge_bbf_TLV_from_structure, (INT8U *)BBF_OUI);
+            vendor_specific = vendorSpecificTLVEmbedExtension(non_1905_metric_query_tlv, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
 
             // Insert the Vendor Specific TLV in CMDU
             //
@@ -1157,8 +1157,8 @@ INT8U CBKSend1905BBFExtensions(struct CMDU *memory_structure)
             struct transmitterLinkMetricTLV  **tx_tlvs;
             struct receiverLinkMetricTLV     **rx_tlvs;
 
-            INT8U total_tlvs;
-            INT8U i;
+            uint8_t total_tlvs;
+            uint8_t i;
 
             // Insert BBF metrics only if they were requested
             //
@@ -1179,7 +1179,7 @@ INT8U CBKSend1905BBFExtensions(struct CMDU *memory_structure)
                     {
                         // Embed the TLV inside a BBF Vendor Specific TLV
                         //
-                        vendor_specific = vendorSpecificTLVEmbedExtension(tx_tlvs[i], forge_bbf_TLV_from_structure, (INT8U *)BBF_OUI);
+                        vendor_specific = vendorSpecificTLVEmbedExtension(tx_tlvs[i], forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
 
                         // Insert the Vendor Specific TLV in CMDU
                         //
@@ -1192,7 +1192,7 @@ INT8U CBKSend1905BBFExtensions(struct CMDU *memory_structure)
                     {
                         // Embed the TLV inside a BBF Vendor Specific TLV
                         //
-                        vendor_specific = vendorSpecificTLVEmbedExtension(rx_tlvs[i], forge_bbf_TLV_from_structure, (INT8U *)BBF_OUI);
+                        vendor_specific = vendorSpecificTLVEmbedExtension(rx_tlvs[i], forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
 
                         // Insert the Vendor Specific TLV in CMDU
                         //

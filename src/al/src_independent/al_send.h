@@ -42,7 +42,7 @@
 //
 // Return '0' if there was a problem, '1' otherwise.
 //
-INT8U send1905RawPacket(char *interface_name, INT16U mid, INT8U *dst_mac_address, struct CMDU *cmdu);
+uint8_t send1905RawPacket(char *interface_name, uint16_t mid, uint8_t *dst_mac_address, struct CMDU *cmdu);
 
 // This function sends a "1905 ALME reply" (the one represented by the provided
 // 'out' pointer, which must point to a "struct *ALME" structure).
@@ -53,7 +53,7 @@ INT8U send1905RawPacket(char *interface_name, INT16U mid, INT8U *dst_mac_address
 //
 // Return '0' if there was a problem, '1' otherwise.
 //
-INT8U send1905RawALME(INT8U alme_client_id, INT8U *out);
+uint8_t send1905RawALME(uint8_t alme_client_id, uint8_t *out);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ INT8U send1905RawALME(INT8U alme_client_id, INT8U *out);
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905TopologyDiscoveryPacket(char *interface_name, INT16U mid);
+uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid);
 
 // This function sends a "1905 topology query packet" on the provided
 // interface.
@@ -93,7 +93,7 @@ INT8U send1905TopologyDiscoveryPacket(char *interface_name, INT16U mid);
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905TopologyQueryPacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address);
+uint8_t send1905TopologyQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 topology response packet" on the provided
 // interface.
@@ -115,7 +115,7 @@ INT8U send1905TopologyQueryPacket(char *interface_name, INT16U mid, INT8U *desti
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address);
+uint8_t send1905TopologyResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 topology notification packet" on the provided
 // interface.
@@ -131,7 +131,7 @@ INT8U send1905TopologyResponsePacket(char *interface_name, INT16U mid, INT8U *de
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905TopologyNotificationPacket(char *interface_name, INT16U mid);
+uint8_t send1905TopologyNotificationPacket(char *interface_name, uint16_t mid);
 
 // This function sends a "1905 metrics query packet" on the provided
 // interface.
@@ -153,7 +153,7 @@ INT8U send1905TopologyNotificationPacket(char *interface_name, INT16U mid);
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905MetricsQueryPacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address);
+uint8_t send1905MetricsQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 metrics response packet" on the provided
 // interface.
@@ -191,7 +191,7 @@ INT8U send1905MetricsQueryPacket(char *interface_name, INT16U mid, INT8U *destin
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905MetricsResponsePacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address, INT8U destination, INT8U *specific_neighbor, INT8U metrics_type);
+uint8_t send1905MetricsResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t destination, uint8_t *specific_neighbor, uint8_t metrics_type);
 
 // This function sends a "1905 push button event notification packet" on the
 // provided interface.
@@ -223,7 +223,7 @@ INT8U send1905MetricsResponsePacket(char *interface_name, INT16U mid, INT8U *des
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905PushButtonEventNotificationPacket(char *interface_name, INT16U mid, char **all_interfaces_names, INT8U *push_button_mask, INT8U nr);
+uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t mid, char **all_interfaces_names, uint8_t *push_button_mask, uint8_t nr);
 
 // This function sends a "1905 push join notification packet" on the provided
 // interface.
@@ -257,7 +257,7 @@ INT8U send1905PushButtonEventNotificationPacket(char *interface_name, INT16U mid
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905PushButtonJoinNotificationPacket(char *interface_name, INT16U mid, INT8U *original_al_mac_address, INT16U original_mid, INT8U *local_mac_address, INT8U *new_mac_address);
+uint8_t send1905PushButtonJoinNotificationPacket(char *interface_name, uint16_t mid, uint8_t *original_al_mac_address, uint16_t original_mid, uint8_t *local_mac_address, uint8_t *new_mac_address);
 
 // This function sends a "AP-autoconfiguration search packet" on the provided
 // interface.
@@ -281,7 +281,7 @@ INT8U send1905PushButtonJoinNotificationPacket(char *interface_name, INT16U mid,
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905APAutoconfigurationSearchPacket(char *interface_name, INT16U mid, INT8U freq_band);
+uint8_t send1905APAutoconfigurationSearchPacket(char *interface_name, uint16_t mid, uint8_t freq_band);
 
 // This function sends a "AP-autoconfiguration response packet" on the provided
 // interface.
@@ -310,8 +310,8 @@ INT8U send1905APAutoconfigurationSearchPacket(char *interface_name, INT16U mid, 
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905APAutoconfigurationResponsePacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address,
-                                                INT8U freq_band, bool include_easymesh);
+uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address,
+                                                uint8_t freq_band, bool include_easymesh);
 
 // This function sends a "AP-autoconfiguration WSC packet" on the provided
 // interface.
@@ -341,7 +341,7 @@ INT8U send1905APAutoconfigurationResponsePacket(char *interface_name, INT16U mid
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905APAutoconfigurationWSCPacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address, INT8U *wsc_frame, INT16U wsc_frame_size);
+uint8_t send1905APAutoconfigurationWSCPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t *wsc_frame, uint16_t wsc_frame_size);
 
 // This function sends a "1905 generic phy query packet" on the provided
 // interface.
@@ -360,7 +360,7 @@ INT8U send1905APAutoconfigurationWSCPacket(char *interface_name, INT16U mid, INT
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905GenericPhyQueryPacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address);
+uint8_t send1905GenericPhyQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 generic phy response packet" on the provided
 // interface.
@@ -382,7 +382,7 @@ INT8U send1905GenericPhyQueryPacket(char *interface_name, INT16U mid, INT8U *des
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905GenericPhyResponsePacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address);
+uint8_t send1905GenericPhyResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 high layer query packet" on the provided
 // interface.
@@ -401,7 +401,7 @@ INT8U send1905GenericPhyResponsePacket(char *interface_name, INT16U mid, INT8U *
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905HighLayerQueryPacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address);
+uint8_t send1905HighLayerQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 high layer response packet" on the provided
 // interface.
@@ -423,7 +423,7 @@ INT8U send1905HighLayerQueryPacket(char *interface_name, INT16U mid, INT8U *dest
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905HighLayerResponsePacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address);
+uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends an "interface power change information packet" on the
 // provided interface.
@@ -453,7 +453,7 @@ INT8U send1905HighLayerResponsePacket(char *interface_name, INT16U mid, INT8U *d
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905InterfacePowerChangeRequestPacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address, INT8U (*remote_interfaces)[6], INT8U *new_states, INT8U nr);
+uint8_t send1905InterfacePowerChangeRequestPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t (*remote_interfaces)[6], uint8_t *new_states, uint8_t nr);
 
 // This function sends an "interface power change request packet" on the
 // provided interface.
@@ -488,7 +488,7 @@ INT8U send1905InterfacePowerChangeRequestPacket(char *interface_name, INT16U mid
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U send1905InterfacePowerChangeResponsePacket(char *interface_name, INT16U mid, INT8U *destination_al_mac_address, INT8U (*local_interfaces)[6], INT8U *results, INT8U nr);
+uint8_t send1905InterfacePowerChangeResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t (*local_interfaces)[6], uint8_t *results, uint8_t nr);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions to send LLDP messages
@@ -506,7 +506,7 @@ INT8U send1905InterfacePowerChangeResponsePacket(char *interface_name, INT16U mi
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-INT8U sendLLDPBridgeDiscoveryPacket(char *interface_name);
+uint8_t sendLLDPBridgeDiscoveryPacket(char *interface_name);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -517,7 +517,7 @@ INT8U sendLLDPBridgeDiscoveryPacket(char *interface_name);
 //
 // 'alme_client_id' must be the same one used to receive the original request.
 //
-INT8U send1905InterfaceListResponseALME(INT8U alme_client_id);
+uint8_t send1905InterfaceListResponseALME(uint8_t alme_client_id);
 
 // Compose and send an "ALME-GET-METRIC.response" message
 //
@@ -528,7 +528,7 @@ INT8U send1905InterfaceListResponseALME(INT8U alme_client_id);
 // If 'mac_address' is NULL, all metrics between the current node and all its
 // neighbors are reported instead.
 //
-INT8U send1905MetricsResponseALME(INT8U alme_client_id, INT8U *mac_address);
+uint8_t send1905MetricsResponseALME(uint8_t alme_client_id, uint8_t *mac_address);
 
 
 // Compose and send an "ALME-CUSTOM-COMMAND.response" message
@@ -539,6 +539,6 @@ INT8U send1905MetricsResponseALME(INT8U alme_client_id, INT8U *mac_address);
 // generated and sent back (ie. the 'command' contained in the original request)
 // This 'command' can take any of the "CUSTOM_COMMAND_*" available values.
 //
-INT8U send1905CustomCommandResponseALME(INT8U alme_client_id, INT8U command);
+uint8_t send1905CustomCommandResponseALME(uint8_t alme_client_id, uint8_t command);
 
 #endif

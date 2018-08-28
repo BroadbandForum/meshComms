@@ -28,17 +28,17 @@
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U *parse_lldp_TLV_from_packet(INT8U *packet_stream)
+uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
 {
     if (NULL == packet_stream)
     {
         return NULL;
     }
 
-    INT8U *p;
-    INT8U byte1, byte2;
-    INT8U type;
-    INT16U len;
+    uint8_t *p;
+    uint8_t byte1, byte2;
+    uint8_t type;
+    uint16_t len;
 
     p = packet_stream;
 
@@ -81,7 +81,7 @@ INT8U *parse_lldp_TLV_from_packet(INT8U *packet_stream)
 
             ret->tlv_type = TLV_TYPE_END_OF_LLDPPDU;
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case TLV_TYPE_CHASSIS_ID:
@@ -124,7 +124,7 @@ INT8U *parse_lldp_TLV_from_packet(INT8U *packet_stream)
 
             _EnB(&p, ret->chassis_id, 6);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case TLV_TYPE_PORT_ID:
@@ -167,7 +167,7 @@ INT8U *parse_lldp_TLV_from_packet(INT8U *packet_stream)
 
             _EnB(&p, ret->port_id, 6);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case TLV_TYPE_TIME_TO_LIVE:
@@ -193,7 +193,7 @@ INT8U *parse_lldp_TLV_from_packet(INT8U *packet_stream)
 
             _E2B(&p, &ret->ttl);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         default:
@@ -210,7 +210,7 @@ INT8U *parse_lldp_TLV_from_packet(INT8U *packet_stream)
 }
 
 
-INT8U *forge_lldp_TLV_from_structure(INT8U *memory_structure, INT16U *len)
+uint8_t *forge_lldp_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 {
     if (NULL == memory_structure)
     {
@@ -227,18 +227,18 @@ INT8U *forge_lldp_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             // This forging is done according to the information detailed in
             // "IEEE Std 802.1AB-2009 Section 8.5.1"
 
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct endOfLldppduTLV *m;
-            INT8U byte1, byte2;
+            uint8_t byte1, byte2;
 
-            INT16U tlv_length;
+            uint16_t tlv_length;
 
             m = (struct endOfLldppduTLV *)memory_structure;
 
             tlv_length = 0;
             *len = 1 + 1 + tlv_length;
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 1 + tlv_length);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 1 + tlv_length);
 
             byte1 = (m->tlv_type << 1) | ((tlv_length & 0x80) >> 7);
             byte2 = tlv_length & 0x7f;
@@ -254,11 +254,11 @@ INT8U *forge_lldp_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             // This forging is done according to the information detailed in
             // "IEEE Std 802.1AB-2009 Section 8.5.2"
 
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct chassisIdTLV *m;
-            INT8U byte1, byte2;
+            uint8_t byte1, byte2;
 
-            INT16U tlv_length;
+            uint16_t tlv_length;
 
             m = (struct chassisIdTLV *)memory_structure;
 
@@ -272,7 +272,7 @@ INT8U *forge_lldp_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             tlv_length = 1+6;  // subtype (1 byte) + AL MAC address (6 bytes)
             *len = 1 + 1 + tlv_length;
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 1 + tlv_length);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 1 + tlv_length);
 
             byte1 = (m->tlv_type << 1) | ((tlv_length & 0x80) >> 7);
             byte2 = tlv_length & 0x7f;
@@ -290,11 +290,11 @@ INT8U *forge_lldp_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             // This forging is done according to the information detailed in
             // "IEEE Std 802.1AB-2009 Section 8.5.3"
 
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct portIdTLV *m;
-            INT8U byte1, byte2;
+            uint8_t byte1, byte2;
 
-            INT16U tlv_length;
+            uint16_t tlv_length;
 
             m = (struct portIdTLV *)memory_structure;
 
@@ -308,7 +308,7 @@ INT8U *forge_lldp_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             tlv_length = 1+6;  // subtype (1 byte) + AL MAC address (6 bytes)
             *len = 1 + 1 + tlv_length;
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 1 + tlv_length);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 1 + tlv_length);
 
             byte1 = (m->tlv_type << 1) | ((tlv_length & 0x80) >> 7);
             byte2 = tlv_length & 0x7f;
@@ -326,11 +326,11 @@ INT8U *forge_lldp_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             // This forging is done according to the information detailed in
             // "IEEE Std 802.1AB-2009 Section 8.5.4"
 
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct timeToLiveTypeTLV *m;
-            INT8U byte1, byte2;
+            uint8_t byte1, byte2;
 
-            INT16U tlv_length;
+            uint16_t tlv_length;
 
             m = (struct timeToLiveTypeTLV *)memory_structure;
 
@@ -344,7 +344,7 @@ INT8U *forge_lldp_TLV_from_structure(INT8U *memory_structure, INT16U *len)
             tlv_length = 2;
             *len = 1 + 1 + tlv_length;
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(1 + 1 + tlv_length);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 1 + tlv_length);
 
             byte1 = (m->tlv_type << 1) | ((tlv_length & 0x80) >> 7);
             byte2 = tlv_length & 0x7f;
@@ -370,7 +370,7 @@ INT8U *forge_lldp_TLV_from_structure(INT8U *memory_structure, INT16U *len)
 }
 
 
-void free_lldp_TLV_structure(INT8U *memory_structure)
+void free_lldp_TLV_structure(uint8_t *memory_structure)
 {
     if (NULL == memory_structure)
     {
@@ -406,7 +406,7 @@ void free_lldp_TLV_structure(INT8U *memory_structure)
 }
 
 
-INT8U compare_lldp_TLV_structures(INT8U *memory_structure_1, INT8U *memory_structure_2)
+uint8_t compare_lldp_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory_structure_2)
 {
     if (NULL == memory_structure_1 || NULL == memory_structure_2)
     {
@@ -502,7 +502,7 @@ INT8U compare_lldp_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struc
 }
 
 
-void visit_lldp_TLV_structure(INT8U *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
+void visit_lldp_TLV_structure(uint8_t *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     if (NULL == memory_structure)
     {
@@ -569,7 +569,7 @@ void visit_lldp_TLV_structure(INT8U *memory_structure, visitor_callback callback
     return;
 }
 
-char *convert_lldp_TLV_type_to_string(INT8U tlv_type)
+char *convert_lldp_TLV_type_to_string(uint8_t tlv_type)
 {
     switch (tlv_type)
     {

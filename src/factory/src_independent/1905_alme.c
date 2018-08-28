@@ -316,7 +316,7 @@
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
+uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
 {
     if (NULL == packet_stream)
     {
@@ -332,7 +332,7 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
         {
             struct getIntfListRequestALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -340,15 +340,15 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
 
             _E1B(&p, &ret->alme_type);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_GET_INTF_LIST_RESPONSE:
         {
             struct getIntfListResponseALME  *ret;
 
-            INT8U *p;
-            INT8U i, j;
+            uint8_t *p;
+            uint8_t i, j;
 
             p = packet_stream;
 
@@ -380,7 +380,7 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
 
                             if (ret->interface_descriptors[i].vendor_specific_info[j].length_field > 3)
                             {
-                                ret->interface_descriptors[i].vendor_specific_info[j].vendor_si = (INT8U *)PLATFORM_MALLOC(sizeof(INT8U) * ((ret->interface_descriptors[i].vendor_specific_info[j].length_field - 3)));
+                                ret->interface_descriptors[i].vendor_specific_info[j].vendor_si = (uint8_t *)PLATFORM_MALLOC(sizeof(uint8_t) * ((ret->interface_descriptors[i].vendor_specific_info[j].length_field - 3)));
 
                                 _EnB(&p, ret->interface_descriptors[i].vendor_specific_info[j].vendor_si, ret->interface_descriptors[i].vendor_specific_info[j].length_field - 3);
                             }
@@ -393,14 +393,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
                 }
             }
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_SET_INTF_PWR_STATE_REQUEST:
         {
             struct setIntfPwrStateRequestALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -410,14 +410,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
             _EnB(&p,  ret->interface_address, 6);
             _E1B(&p, &ret->power_state);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_SET_INTF_PWR_STATE_CONFIRM:
         {
             struct setIntfPwrStateConfirmALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -427,14 +427,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
             _EnB(&p,  ret->interface_address, 6);
             _E1B(&p, &ret->reason_code);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_GET_INTF_PWR_STATE_REQUEST:
         {
             struct getIntfPwrStateRequestALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -443,14 +443,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
             _E1B(&p, &ret->alme_type);
             _EnB(&p,  ret->interface_address, 6);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_GET_INTF_PWR_STATE_RESPONSE:
         {
             struct getIntfPwrStateResponseALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -460,15 +460,15 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
             _EnB(&p,  ret->interface_address, 6);
             _E1B(&p, &ret->power_state);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_SET_FWD_RULE_REQUEST:
         {
             struct setFwdRuleRequestALME  *ret;
 
-            INT8U *p;
-            INT8U i;
+            uint8_t *p;
+            uint8_t i;
 
             p = packet_stream;
 
@@ -489,7 +489,7 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
 
             if (ret->addresses_nr > 0)
             {
-                ret->addresses = (INT8U (*)[6])PLATFORM_MALLOC(sizeof(INT8U[6]) * ret->addresses_nr);
+                ret->addresses = (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]) * ret->addresses_nr);
 
                 for (i=0; i<ret->addresses_nr; i++)
                 {
@@ -497,14 +497,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
                 }
             }
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_SET_FWD_RULE_CONFIRM:
         {
             struct setFwdRuleConfirmALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -514,14 +514,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
             _E2B(&p, &ret->rule_id);
             _E1B(&p, &ret->reason_code);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_GET_FWD_RULES_REQUEST:
         {
             struct getFwdRulesRequestALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -529,15 +529,15 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
 
             _E1B(&p, &ret->alme_type);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_GET_FWD_RULES_RESPONSE:
         {
             struct getFwdRulesResponseALME  *ret;
 
-            INT8U *p;
-            INT8U i, j;
+            uint8_t *p;
+            uint8_t i, j;
 
             p = packet_stream;
 
@@ -566,7 +566,7 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
 
                     if (ret->rules[i].addresses_nr > 0)
                     {
-                        ret->rules[i].addresses = (INT8U (*)[6])PLATFORM_MALLOC(sizeof(INT8U[6]) * ret->rules[i].addresses_nr);
+                        ret->rules[i].addresses = (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]) * ret->rules[i].addresses_nr);
 
                         for (j=0; j<ret->rules[i].addresses_nr; j++)
                         {
@@ -578,15 +578,15 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
                 }
             }
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_MODIFY_FWD_RULE_REQUEST:
         {
             struct modifyFwdRuleRequestALME  *ret;
 
-            INT8U *p;
-            INT8U i;
+            uint8_t *p;
+            uint8_t i;
 
             p = packet_stream;
 
@@ -598,7 +598,7 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
 
             if (ret->addresses_nr > 0)
             {
-                ret->addresses = (INT8U (*)[6])PLATFORM_MALLOC(sizeof(INT8U[6]) * ret->addresses_nr);
+                ret->addresses = (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]) * ret->addresses_nr);
 
                 for (i=0; i<ret->addresses_nr; i++)
                 {
@@ -606,14 +606,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
                 }
             }
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_MODIFY_FWD_RULE_CONFIRM:
         {
             struct modifyFwdRuleConfirmALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -623,14 +623,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
             _E2B(&p, &ret->rule_id);
             _E1B(&p, &ret->reason_code);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_REMOVE_FWD_RULE_REQUEST:
         {
             struct removeFwdRuleRequestALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -639,14 +639,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
             _E1B(&p, &ret->alme_type);
             _E2B(&p, &ret->rule_id);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_REMOVE_FWD_RULE_CONFIRM:
         {
             struct removeFwdRuleConfirmALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -656,14 +656,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
             _E2B(&p, &ret->rule_id);
             _E1B(&p, &ret->reason_code);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_GET_METRIC_REQUEST:
         {
             struct getMetricRequestALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -672,15 +672,15 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
             _E1B(&p, &ret->alme_type);
             _EnB(&p,  ret->interface_address, 6);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_GET_METRIC_RESPONSE:
         {
             struct getMetricResponseALME  *ret;
 
-            INT8U *p;
-            INT8U i;
+            uint8_t *p;
+            uint8_t i;
 
             p = packet_stream;
 
@@ -698,8 +698,8 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
                     struct transmitterLinkMetricTLV *tx;
                     struct receiverLinkMetricTLV    *rx;
 
-                    INT8U  aux1;
-                    INT16U aux2;
+                    uint8_t  aux1;
+                    uint16_t aux2;
 
                     _EnB(&p,  ret->metrics[i].neighbor_dev_address, 6);
                     _EnB(&p,  ret->metrics[i].local_intf_address,   6);
@@ -719,7 +719,7 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
                         //
                         if (NULL != tx)
                         {
-                            free_1905_TLV_structure((INT8U *)tx);
+                            free_1905_TLV_structure((uint8_t *)tx);
                         }
                         PLATFORM_FREE(ret->metrics);
                         PLATFORM_FREE(ret);
@@ -744,7 +744,7 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
                         //
                         if (NULL != rx)
                         {
-                            free_1905_TLV_structure((INT8U *)rx);
+                            free_1905_TLV_structure((uint8_t *)rx);
                         }
                         PLATFORM_FREE(ret->metrics);
                         PLATFORM_FREE(ret);
@@ -762,14 +762,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
 
             _E1B(&p, &ret->reason_code);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_CUSTOM_COMMAND_REQUEST:
         {
             struct customCommandRequestALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -778,14 +778,14 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
             _E1B(&p, &ret->alme_type);
             _E1B(&p, &ret->command);
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         case ALME_TYPE_CUSTOM_COMMAND_RESPONSE:
         {
             struct customCommandResponseALME  *ret;
 
-            INT8U *p;
+            uint8_t *p;
 
             p = packet_stream;
 
@@ -800,7 +800,7 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
                 _EnB(&p, ret->bytes, ret->bytes_nr);
             }
 
-            return (INT8U *)ret;
+            return (uint8_t *)ret;
         }
 
         default:
@@ -817,7 +817,7 @@ INT8U *parse_1905_ALME_from_packet(INT8U *packet_stream)
     return NULL;
 }
 
-INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
+uint8_t *forge_1905_ALME_from_structure(uint8_t *memory_structure, uint16_t *len)
 {
     if (NULL == memory_structure)
     {
@@ -831,14 +831,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
     {
         case ALME_TYPE_GET_INTF_LIST_REQUEST:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct getIntfListRequestALME *m;
 
             m = (struct getIntfListRequestALME *)memory_structure;
 
             *len = 1; // alme_type
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,  &p);
 
@@ -847,10 +847,10 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_GET_INTF_LIST_RESPONSE:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct getIntfListResponseALME *m;
 
-            INT8U i, j;
+            uint8_t i, j;
 
             m = (struct getIntfListResponseALME *)memory_structure;
 
@@ -869,7 +869,7 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
                 }
             }
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,                 &p);
             _I1B(&m->interface_descriptors_nr,  &p);
@@ -899,14 +899,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_SET_INTF_PWR_STATE_REQUEST:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct setIntfPwrStateRequestALME *m;
 
             m = (struct setIntfPwrStateRequestALME *)memory_structure;
 
             *len = 8; // alme_type + interface_address + power_state
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,          &p);
             _InB( m->interface_address,  &p,  6);
@@ -917,14 +917,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_SET_INTF_PWR_STATE_CONFIRM:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct setIntfPwrStateConfirmALME *m;
 
             m = (struct setIntfPwrStateConfirmALME *)memory_structure;
 
             *len = 8; // alme_type + interface_address + reason_code
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,          &p);
             _InB( m->interface_address,  &p,  6);
@@ -935,14 +935,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_GET_INTF_PWR_STATE_REQUEST:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct getIntfPwrStateRequestALME *m;
 
             m = (struct getIntfPwrStateRequestALME *)memory_structure;
 
             *len = 7; // alme_type + interface_address
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,          &p);
             _InB( m->interface_address,  &p,  6);
@@ -952,14 +952,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_GET_INTF_PWR_STATE_RESPONSE:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct getIntfPwrStateResponseALME *m;
 
             m = (struct getIntfPwrStateResponseALME *)memory_structure;
 
             *len = 8; // alme_type + interface_address + power_state
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,          &p);
             _InB( m->interface_address,  &p,  6);
@@ -970,17 +970,17 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_SET_FWD_RULE_REQUEST:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct setFwdRuleRequestALME *m;
 
-            INT8U i;
+            uint8_t i;
 
             m = (struct setFwdRuleRequestALME *)memory_structure;
 
             *len  = 24;  // alme_type + classification_set + addresses_nr
             *len += 6 * m->addresses_nr; // addresses
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,                           &p);
             _InB( m->classification_set.mac_da,           &p,  6);
@@ -1005,14 +1005,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_SET_FWD_RULE_CONFIRM:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct setFwdRuleConfirmALME *m;
 
             m = (struct setFwdRuleConfirmALME *)memory_structure;
 
             *len = 4; // alme_type + rule_id + reason_code
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,    &p);
             _I2B(&m->rule_id,      &p);
@@ -1023,14 +1023,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_GET_FWD_RULES_REQUEST:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct getFwdRulesRequestALME *m;
 
             m = (struct getFwdRulesRequestALME *)memory_structure;
 
             *len = 1; // alme_type
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,          &p);
 
@@ -1039,10 +1039,10 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_GET_FWD_RULES_RESPONSE:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct getFwdRulesResponseALME *m;
 
-            INT8U i, j;
+            uint8_t i, j;
 
             m = (struct getFwdRulesResponseALME *)memory_structure;
 
@@ -1054,7 +1054,7 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
                 *len += 2; // last_matched
             }
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type, &p);
             _I1B(&m->rules_nr,  &p);
@@ -1086,17 +1086,17 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_MODIFY_FWD_RULE_REQUEST:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct modifyFwdRuleRequestALME *m;
 
-            INT8U i;
+            uint8_t i;
 
             m = (struct modifyFwdRuleRequestALME *)memory_structure;
 
             *len  = 4;  // alme_type + rule_id + addresses_nr
             *len += 6 * m->addresses_nr; // addresses
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,    &p);
             _I2B(&m->rule_id,      &p);
@@ -1112,14 +1112,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_MODIFY_FWD_RULE_CONFIRM:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct modifyFwdRuleConfirmALME *m;
 
             m = (struct modifyFwdRuleConfirmALME *)memory_structure;
 
             *len = 4;  // alme_type + rule_id + reason_code
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,    &p);
             _I2B(&m->rule_id,      &p);
@@ -1130,14 +1130,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_REMOVE_FWD_RULE_REQUEST:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct removeFwdRuleRequestALME *m;
 
             m = (struct removeFwdRuleRequestALME *)memory_structure;
 
             *len = 3;  // alme_type + rule_id
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,    &p);
             _I2B(&m->rule_id,      &p);
@@ -1147,14 +1147,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_REMOVE_FWD_RULE_CONFIRM:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct removeFwdRuleConfirmALME *m;
 
             m = (struct removeFwdRuleConfirmALME *)memory_structure;
 
             *len = 4;  // alme_type + rule_id + reason_code
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,    &p);
             _I2B(&m->rule_id,      &p);
@@ -1165,14 +1165,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_GET_METRIC_REQUEST:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct getMetricRequestALME *m;
 
             m = (struct getMetricRequestALME *)memory_structure;
 
             *len  = 7;  // alme_type + interface_address
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,         &p);
             _InB( m->interface_address, &p, 6);
@@ -1182,24 +1182,24 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_GET_METRIC_RESPONSE:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct getMetricResponseALME *m;
 
-            INT8U i;
+            uint8_t i;
 
             m = (struct getMetricResponseALME *)memory_structure;
 
             *len = 2;  // alme_type + metrics_nr
             for (i=0; i<m->metrics_nr; i++)
             {
-                INT8U  *metric_stream;
-                INT16U  metric_stream_len;
+                uint8_t  *metric_stream;
+                uint16_t  metric_stream_len;
 
                 *len += 6; // neighbor_dev_address
                 *len += 6; // local_intf_address
                 *len += 1; // bridge_flag
 
-                metric_stream = forge_1905_TLV_from_structure((INT8U *)m->metrics[i].tx_metric, &metric_stream_len);
+                metric_stream = forge_1905_TLV_from_structure((uint8_t *)m->metrics[i].tx_metric, &metric_stream_len);
                 if (NULL == metric_stream || 0 == metric_stream_len)
                 {
                     // Forging error
@@ -1211,7 +1211,7 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
                 *len += metric_stream_len;
                 free_1905_TLV_packet(metric_stream);
 
-                metric_stream = forge_1905_TLV_from_structure((INT8U *)m->metrics[i].rx_metric, &metric_stream_len);
+                metric_stream = forge_1905_TLV_from_structure((uint8_t *)m->metrics[i].rx_metric, &metric_stream_len);
                 if (NULL == metric_stream || 0 == metric_stream_len)
                 {
                     // Forging error
@@ -1225,15 +1225,15 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
             }
             *len += 1;  // reason_code
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type,  &p);
             _I1B(&m->metrics_nr, &p);
 
             for (i=0; i<m->metrics_nr; i++)
             {
-                INT8U  *metric_stream;
-                INT16U  metric_stream_len;
+                uint8_t  *metric_stream;
+                uint16_t  metric_stream_len;
 
                 struct transmitterLinkMetricTLV *tx;
                 struct receiverLinkMetricTLV    *rx;
@@ -1264,7 +1264,7 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
                     return NULL;
                 }
 
-                metric_stream = forge_1905_TLV_from_structure((INT8U *)tx, &metric_stream_len);
+                metric_stream = forge_1905_TLV_from_structure((uint8_t *)tx, &metric_stream_len);
                 if (NULL == metric_stream || 0 == metric_stream_len)
                 {
                     // Forging error
@@ -1276,7 +1276,7 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
                 _InB( metric_stream,  &p, metric_stream_len);
                 free_1905_TLV_packet(metric_stream);
 
-                metric_stream = forge_1905_TLV_from_structure((INT8U *)rx, &metric_stream_len);
+                metric_stream = forge_1905_TLV_from_structure((uint8_t *)rx, &metric_stream_len);
                 if (NULL == metric_stream || 0 == metric_stream_len)
                 {
                     // Forging error
@@ -1296,14 +1296,14 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_CUSTOM_COMMAND_REQUEST:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct customCommandRequestALME *m;
 
             m = (struct customCommandRequestALME *)memory_structure;
 
             *len  = 2;  // alme_type + command
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type, &p);
             _I1B(&m->command,   &p);
@@ -1313,7 +1313,7 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 
         case ALME_TYPE_CUSTOM_COMMAND_RESPONSE:
         {
-            INT8U *ret, *p;
+            uint8_t *ret, *p;
             struct customCommandResponseALME *m;
 
             m = (struct customCommandResponseALME *)memory_structure;
@@ -1321,7 +1321,7 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
             *len  = 3;  // alme_type + length
             *len += m->bytes_nr;
 
-            p = ret = (INT8U *)PLATFORM_MALLOC(*len);
+            p = ret = (uint8_t *)PLATFORM_MALLOC(*len);
 
             _I1B(&m->alme_type, &p);
             _I2B(&m->bytes_nr,  &p);
@@ -1349,7 +1349,7 @@ INT8U *forge_1905_ALME_from_structure(INT8U *memory_structure, INT16U *len)
 }
 
 
-void free_1905_ALME_structure(INT8U *memory_structure)
+void free_1905_ALME_structure(uint8_t *memory_structure)
 {
     if (NULL == memory_structure)
     {
@@ -1382,7 +1382,7 @@ void free_1905_ALME_structure(INT8U *memory_structure)
         case ALME_TYPE_GET_INTF_LIST_RESPONSE:
         {
             struct getIntfListResponseALME *m;
-            INT8U i, j;
+            uint8_t i, j;
 
             m = (struct getIntfListResponseALME *)memory_structure;
 
@@ -1427,7 +1427,7 @@ void free_1905_ALME_structure(INT8U *memory_structure)
         case ALME_TYPE_GET_FWD_RULES_RESPONSE:
         {
             struct getFwdRulesResponseALME *m;
-            INT8U i;
+            uint8_t i;
 
             m = (struct getFwdRulesResponseALME *)memory_structure;
 
@@ -1465,7 +1465,7 @@ void free_1905_ALME_structure(INT8U *memory_structure)
         case ALME_TYPE_GET_METRIC_RESPONSE:
         {
             struct getMetricResponseALME *m;
-            INT8U i;
+            uint8_t i;
 
             m = (struct getMetricResponseALME *)memory_structure;
 
@@ -1473,8 +1473,8 @@ void free_1905_ALME_structure(INT8U *memory_structure)
             {
                 for (i=0; i < m->metrics_nr; i++)
                 {
-                    free_1905_TLV_structure((INT8U *)m->metrics[i].tx_metric);
-                    free_1905_TLV_structure((INT8U *)m->metrics[i].rx_metric);
+                    free_1905_TLV_structure((uint8_t *)m->metrics[i].tx_metric);
+                    free_1905_TLV_structure((uint8_t *)m->metrics[i].rx_metric);
                 }
                 PLATFORM_FREE(m->metrics);
             }
@@ -1514,7 +1514,7 @@ void free_1905_ALME_structure(INT8U *memory_structure)
 }
 
 
-INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_structure_2)
+uint8_t compare_1905_ALME_structures(uint8_t *memory_structure_1, uint8_t *memory_structure_2)
 {
     if (NULL == memory_structure_1 || NULL == memory_structure_2)
     {
@@ -1540,7 +1540,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
         case ALME_TYPE_GET_INTF_LIST_RESPONSE:
         {
             struct getIntfListResponseALME *p1, *p2;
-            INT8U i, j;
+            uint8_t i, j;
 
             p1 = (struct getIntfListResponseALME *)memory_structure_1;
             p2 = (struct getIntfListResponseALME *)memory_structure_2;
@@ -1666,7 +1666,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
         case ALME_TYPE_SET_FWD_RULE_REQUEST:
         {
             struct setFwdRuleRequestALME *p1, *p2;
-            INT8U i;
+            uint8_t i;
 
             p1 = (struct setFwdRuleRequestALME *)memory_structure_1;
             p2 = (struct setFwdRuleRequestALME *)memory_structure_2;
@@ -1734,7 +1734,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
         case ALME_TYPE_GET_FWD_RULES_RESPONSE:
         {
             struct getFwdRulesResponseALME *p1, *p2;
-            INT8U i, j;
+            uint8_t i, j;
 
             p1 = (struct getFwdRulesResponseALME *)memory_structure_1;
             p2 = (struct getFwdRulesResponseALME *)memory_structure_2;
@@ -1793,7 +1793,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
         case ALME_TYPE_MODIFY_FWD_RULE_REQUEST:
         {
             struct modifyFwdRuleRequestALME *p1, *p2;
-            INT8U i;
+            uint8_t i;
 
             p1 = (struct modifyFwdRuleRequestALME *)memory_structure_1;
             p2 = (struct modifyFwdRuleRequestALME *)memory_structure_2;
@@ -1893,7 +1893,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
         case ALME_TYPE_GET_METRIC_RESPONSE:
         {
             struct getMetricResponseALME *p1, *p2;
-            INT8U i;
+            uint8_t i;
 
             p1 = (struct getMetricResponseALME *)memory_structure_1;
             p2 = (struct getMetricResponseALME *)memory_structure_2;
@@ -1920,8 +1920,8 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
                                            memcmp(p1->metrics[i].neighbor_dev_address,               p2->metrics[i].neighbor_dev_address, 6)      ||
                                            memcmp(p1->metrics[i].local_intf_address,                 p2->metrics[i].local_intf_address,   6)      ||
                                                            p1->metrics[i].bridge_flag            !=           p2->metrics[i].bridge_flag                   ||
-                     compare_1905_TLV_structures((INT8U *)p1->metrics[i].tx_metric,                  (INT8U *)p2->metrics[i].tx_metric)                    ||
-                     compare_1905_TLV_structures((INT8U *)p1->metrics[i].rx_metric,                  (INT8U *)p2->metrics[i].rx_metric)
+                     compare_1905_TLV_structures((uint8_t *)p1->metrics[i].tx_metric,                  (uint8_t *)p2->metrics[i].tx_metric)                    ||
+                     compare_1905_TLV_structures((uint8_t *)p1->metrics[i].rx_metric,                  (uint8_t *)p2->metrics[i].rx_metric)
 
                    )
                 {
@@ -1980,7 +1980,7 @@ INT8U compare_1905_ALME_structures(INT8U *memory_structure_1, INT8U *memory_stru
 }
 
 
-void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
+void visit_1905_ALME_structure(uint8_t *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     // Buffer size to store a prefix string that will be used to show each
     // element of a structure on screen
@@ -2007,7 +2007,7 @@ void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callbac
         case ALME_TYPE_GET_INTF_LIST_RESPONSE:
         {
             struct getIntfListResponseALME *p;
-            INT8U i, j;
+            uint8_t i, j;
 
             p = (struct getIntfListResponseALME *)memory_structure;
 
@@ -2090,7 +2090,7 @@ void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callbac
         case ALME_TYPE_SET_FWD_RULE_REQUEST:
         {
             struct setFwdRuleRequestALME *p;
-            INT8U i;
+            uint8_t i;
 
             p = (struct setFwdRuleRequestALME *)memory_structure;
 
@@ -2141,7 +2141,7 @@ void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callbac
         case ALME_TYPE_GET_FWD_RULES_RESPONSE:
         {
             struct getFwdRulesResponseALME *p;
-            INT8U i, j;
+            uint8_t i, j;
 
             p = (struct getFwdRulesResponseALME *)memory_structure;
 
@@ -2173,7 +2173,7 @@ void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callbac
         case ALME_TYPE_MODIFY_FWD_RULE_REQUEST:
         {
             struct modifyFwdRuleRequestALME *p;
-            INT8U i;
+            uint8_t i;
 
             p = (struct modifyFwdRuleRequestALME *)memory_structure;
 
@@ -2242,7 +2242,7 @@ void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callbac
         case ALME_TYPE_GET_METRIC_RESPONSE:
         {
             struct getMetricResponseALME *p;
-            INT8U i;
+            uint8_t i;
 
             p = (struct getMetricResponseALME *)memory_structure;
 
@@ -2262,12 +2262,12 @@ void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callbac
                 snprintf(new_prefix, MAX_PREFIX-1, "%smetrics[%d]->tx_metric->", prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
-                visit_1905_TLV_structure((INT8U *)p->metrics[i].tx_metric, callback, write_function, new_prefix);
+                visit_1905_TLV_structure((uint8_t *)p->metrics[i].tx_metric, callback, write_function, new_prefix);
 
                 snprintf(new_prefix, MAX_PREFIX-1, "%smetrics[%d]->rx_metric->", prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
-                visit_1905_TLV_structure((INT8U *)p->metrics[i].rx_metric, callback, write_function, new_prefix);
+                visit_1905_TLV_structure((uint8_t *)p->metrics[i].rx_metric, callback, write_function, new_prefix);
             }
 
             return;
@@ -2309,7 +2309,7 @@ void visit_1905_ALME_structure(INT8U *memory_structure, visitor_callback callbac
     return;
 }
 
-char *convert_1905_ALME_type_to_string(INT8U alme_type)
+char *convert_1905_ALME_type_to_string(uint8_t alme_type)
 {
     switch (alme_type)
     {

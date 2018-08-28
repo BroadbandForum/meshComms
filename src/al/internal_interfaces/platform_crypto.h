@@ -29,7 +29,7 @@
 //
 // Return "0" if there was a problem, "1" otherwise
 //
-INT8U PLATFORM_GET_RANDOM_BYTES(INT8U *p, INT16U len);
+uint8_t PLATFORM_GET_RANDOM_BYTES(uint8_t *p, uint16_t len);
 
 
 // Return a Diffie Hellman pair of private and public keys (and its lengths) in
@@ -44,7 +44,7 @@ INT8U PLATFORM_GET_RANDOM_BYTES(INT8U *p, INT16U len);
 //
 // Return "0" if there was a problem, "1" otherwise
 //
-INT8U PLATFORM_GENERATE_DH_KEY_PAIR(INT8U **priv, INT16U *priv_len, INT8U **pub, INT16U *pub_len);
+uint8_t PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, uint16_t *priv_len, uint8_t **pub, uint16_t *pub_len);
 
 // Return the Diffie Hell shared secret (in output argument "shared_secret"
 // which is "shared_secret_len" bytes long) associated to a remote public key
@@ -56,7 +56,7 @@ INT8U PLATFORM_GENERATE_DH_KEY_PAIR(INT8U **priv, INT16U *priv_len, INT8U **pub,
 //
 // Return "0" if there was a problem, "1" otherwise
 //
-INT8U PLATFORM_COMPUTE_DH_SHARED_SECRET(INT8U **shared_secret, INT16U *shared_secret_len, INT8U *remote_pub, INT16U remote_pub_len, INT8U *local_priv, INT8U local_priv_len);
+uint8_t PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shared_secret, uint16_t *shared_secret_len, uint8_t *remote_pub, uint16_t remote_pub_len, uint8_t *local_priv, uint8_t local_priv_len);
 
 // Return the SHA256 digest of the provided input.
 //
@@ -67,7 +67,7 @@ INT8U PLATFORM_COMPUTE_DH_SHARED_SECRET(INT8U **shared_secret, INT16U *shared_se
 // The digest is returned in the 'digest' output argument which must point to
 // a preallocated buffer of "SHA256_MAC_LEN" bytes.
 //
-INT8U PLATFORM_SHA256(INT8U num_elem, INT8U **addr, INT32U *len, INT8U *digest);
+uint8_t PLATFORM_SHA256(uint8_t num_elem, uint8_t **addr, uint32_t *len, uint8_t *digest);
 
 
 // Return the HMAC_SHA256 digest of the provided input using the provided 'key'
@@ -80,7 +80,7 @@ INT8U PLATFORM_SHA256(INT8U num_elem, INT8U **addr, INT32U *len, INT8U *digest);
 // The digest is returned in the 'hmac' output argument which must point to
 // a preallocated buffer of "SHA256_MAC_LEN" bytes.
 //
-INT8U PLATFORM_HMAC_SHA256(INT8U *key, INT32U keylen, INT8U num_elem, INT8U **addr, INT32U *len, INT8U *hmac);
+uint8_t PLATFORM_HMAC_SHA256(uint8_t *key, uint32_t keylen, uint8_t num_elem, uint8_t **addr, uint32_t *len, uint8_t *hmac);
 
 // Encrypt the provided 'data' (which is a pointer to buffer of size
 // n*AES_BLOCK_SIZE) using the AES 128 CBC algorithm with the provided
@@ -95,11 +95,11 @@ INT8U PLATFORM_HMAC_SHA256(INT8U *key, INT32U keylen, INT8U num_elem, INT8U **ad
 //
 // Return "0" if there was a problem, "1" otherwise
 //
-INT8U PLATFORM_AES_ENCRYPT(INT8U *key, INT8U *iv, INT8U *data, INT32U data_len);
+uint8_t PLATFORM_AES_ENCRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, uint32_t data_len);
 
 // Works exactly like "PLATFORM_AES_ENCRYPT", but now the 'data' buffer
 // originally contains encrypted data and after the call it contains
 // unencrypted data.
-INT8U PLATFORM_AES_DECRYPT(INT8U *key, INT8U *iv, INT8U *data, INT32U data_len);
+uint8_t PLATFORM_AES_DECRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, uint32_t data_len);
 
 #endif

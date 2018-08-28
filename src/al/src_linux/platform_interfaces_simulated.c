@@ -350,7 +350,7 @@ void _getInterfaceInfoFromSimulatedDevice(__attribute__((unused)) char *interfac
             }
             else if (0 == strcmp(param, "ieee80211.authentication_mode"))
             {
-                INT16U am = 0;
+                uint16_t am = 0;
 
                 char *token;
 
@@ -386,7 +386,7 @@ void _getInterfaceInfoFromSimulatedDevice(__attribute__((unused)) char *interfac
             }
             else if (0 == strcmp(param, "ieee80211.encryption_mode"))
             {
-                INT16U em = 0;
+                uint16_t em = 0;
 
                 char *token;
 
@@ -463,11 +463,11 @@ void _getInterfaceInfoFromSimulatedDevice(__attribute__((unused)) char *interfac
                    if (NULL == m->interface_type_data.other.media_specific.unsupported.bytes)
                    {
                        m->interface_type_data.other.media_specific.unsupported.bytes_nr = 0;
-                       m->interface_type_data.other.media_specific.unsupported.bytes    = (INT8U *)malloc(sizeof(INT8U) * 1);
+                       m->interface_type_data.other.media_specific.unsupported.bytes    = (uint8_t *)malloc(sizeof(uint8_t) * 1);
                    }
                    else
                    {
-                       m->interface_type_data.other.media_specific.unsupported.bytes     = (INT8U *)realloc(m->interface_type_data.other.media_specific.unsupported.bytes, sizeof(INT8U) * (m->interface_type_data.other.media_specific.unsupported.bytes_nr + 1));
+                       m->interface_type_data.other.media_specific.unsupported.bytes     = (uint8_t *)realloc(m->interface_type_data.other.media_specific.unsupported.bytes, sizeof(uint8_t) * (m->interface_type_data.other.media_specific.unsupported.bytes_nr + 1));
                    }
 
                    sscanf(p, "%02hhx", &(m->interface_type_data.other.media_specific.unsupported.bytes[m->interface_type_data.other.media_specific.unsupported.bytes_nr]));
@@ -530,11 +530,11 @@ void _getInterfaceInfoFromSimulatedDevice(__attribute__((unused)) char *interfac
                     if (NULL == m->neighbor_mac_addresses)
                     {
                         m->neighbor_mac_addresses_nr = 0;
-                        m->neighbor_mac_addresses    = (INT8U (*)[6])malloc(sizeof(INT8U[6]) * 1);
+                        m->neighbor_mac_addresses    = (uint8_t (*)[6])malloc(sizeof(uint8_t[6]) * 1);
                     }
                     else
                     {
-                        m->neighbor_mac_addresses = (INT8U (*)[6])realloc(m->neighbor_mac_addresses, sizeof(INT8U[6]) * (m->neighbor_mac_addresses_nr + 1));
+                        m->neighbor_mac_addresses = (uint8_t (*)[6])realloc(m->neighbor_mac_addresses, sizeof(uint8_t[6]) * (m->neighbor_mac_addresses_nr + 1));
                     }
 
                     sscanf(value, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
@@ -693,11 +693,11 @@ void _getInterfaceInfoFromSimulatedDevice(__attribute__((unused)) char *interfac
                    if (NULL == m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data)
                    {
                        m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data_len = 0;
-                       m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data     = (INT8U *)malloc(sizeof(INT8U) * 1);
+                       m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data     = (uint8_t *)malloc(sizeof(uint8_t) * 1);
                    }
                    else
                    {
-                       m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data = (INT8U *)realloc(m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data, sizeof(INT8U) * (m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data_len + 1));
+                       m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data = (uint8_t *)realloc(m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data, sizeof(uint8_t) * (m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data_len + 1));
                    }
 
                    sscanf(p, "%02hhx", &(m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data[m->vendor_specific_elements[m->vendor_specific_elements_nr-1].vendor_data_len]));

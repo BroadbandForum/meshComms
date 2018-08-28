@@ -28,14 +28,14 @@
 
 #include <string.h> // memcmp(), memcpy(), ...
 
-INT8U _check(const char *test_description, INT8U mode, INT8U *input, INT8U *expected_output, INT16U expected_output_len)
+uint8_t _check(const char *test_description, uint8_t mode, uint8_t *input, uint8_t *expected_output, uint16_t expected_output_len)
 {
-    INT8U  result;
-    INT8U *real_output;
-    INT16U real_output_len;
+    uint8_t  result;
+    uint8_t *real_output;
+    uint16_t real_output_len;
 
     // Build the packet
-    real_output = forge_bbf_TLV_from_structure((INT8U *)input, &real_output_len);
+    real_output = forge_bbf_TLV_from_structure((uint8_t *)input, &real_output_len);
 
     if (NULL == real_output)
     {
@@ -56,7 +56,7 @@ INT8U _check(const char *test_description, INT8U mode, INT8U *input, INT8U *expe
         }
         else
         {
-            INT16U i;
+            uint16_t i;
 
             result = 1;
             PLATFORM_PRINTF("%-100s: KO !!!\n", test_description);
@@ -95,12 +95,12 @@ INT8U _check(const char *test_description, INT8U mode, INT8U *input, INT8U *expe
     return result;
 }
 
-INT8U _checkTrue(const char *test_description, INT8U *input, INT8U *expected_output, INT16U expected_output_len)
+uint8_t _checkTrue(const char *test_description, uint8_t *input, uint8_t *expected_output, uint16_t expected_output_len)
 {
   return _check(test_description, CHECK_TRUE, input, expected_output, expected_output_len);
 }
 
-INT8U _checkFalse(const char *test_description, INT8U *input, INT8U *expected_output, INT16U expected_output_len)
+uint8_t _checkFalse(const char *test_description, uint8_t *input, uint8_t *expected_output, uint16_t expected_output_len)
 {
   return _check(test_description, CHECK_FALSE, input, expected_output, expected_output_len);
 }
@@ -108,28 +108,28 @@ INT8U _checkFalse(const char *test_description, INT8U *input, INT8U *expected_ou
 
 int main(void)
 {
-    INT8U result = 0;
+    uint8_t result = 0;
 
     #define BBFTLVFORGE001 "BBFTLVFORGE001 - Forge non-1905 link metric query TLV (bbf_tlv_structure_001)"
-    result += _checkTrue(BBFTLVFORGE001, (INT8U *)&bbf_tlv_structure_001, bbf_tlv_stream_001, bbf_tlv_stream_len_001);
+    result += _checkTrue(BBFTLVFORGE001, (uint8_t *)&bbf_tlv_structure_001, bbf_tlv_stream_001, bbf_tlv_stream_len_001);
 
     #define BBFTLVFORGE002 "BBFTLVFORGE002 - Forge non-1905 link metric query TLV (bbf_tlv_structure_002)"
-    result += _checkTrue(BBFTLVFORGE002, (INT8U *)&bbf_tlv_structure_002, bbf_tlv_stream_002, bbf_tlv_stream_len_002);
+    result += _checkTrue(BBFTLVFORGE002, (uint8_t *)&bbf_tlv_structure_002, bbf_tlv_stream_002, bbf_tlv_stream_len_002);
 
     #define BBFTLVFORGE003 "BBFTLVFORGE003 - Forge non-1905 link metric query TLV (bbf_tlv_structure_003)"
-    result += _checkTrue(BBFTLVFORGE003, (INT8U *)&bbf_tlv_structure_003, bbf_tlv_stream_003, bbf_tlv_stream_len_003);
+    result += _checkTrue(BBFTLVFORGE003, (uint8_t *)&bbf_tlv_structure_003, bbf_tlv_stream_003, bbf_tlv_stream_len_003);
 
     #define BBFTLVFORGE004 "BBFTLVFORGE004 - Forge non-1905 transmitter link metric TLV (bbf_tlv_structure_004)"
-    result += _checkTrue(BBFTLVFORGE004, (INT8U *)&bbf_tlv_structure_004, bbf_tlv_stream_004, bbf_tlv_stream_len_004);
+    result += _checkTrue(BBFTLVFORGE004, (uint8_t *)&bbf_tlv_structure_004, bbf_tlv_stream_004, bbf_tlv_stream_len_004);
 
     #define BBFTLVFORGE005 "BBFTLVFORGE005 - Forge non-1905 transmitter link metric TLV (bbf_tlv_structure_005)"
-    result += _checkTrue(BBFTLVFORGE005, (INT8U *)&bbf_tlv_structure_005, bbf_tlv_stream_005, bbf_tlv_stream_len_005);
+    result += _checkTrue(BBFTLVFORGE005, (uint8_t *)&bbf_tlv_structure_005, bbf_tlv_stream_005, bbf_tlv_stream_len_005);
 
     #define BBFTLVFORGE006 "BBFTLVFORGE006 - Forge non-1905 receiver link metric TLV (bbf_tlv_structure_006)"
-    result += _checkTrue(BBFTLVFORGE006, (INT8U *)&bbf_tlv_structure_006, bbf_tlv_stream_006, bbf_tlv_stream_len_006);
+    result += _checkTrue(BBFTLVFORGE006, (uint8_t *)&bbf_tlv_structure_006, bbf_tlv_stream_006, bbf_tlv_stream_len_006);
 
     #define BBFTLVFORGE007 "BBFTLVFORGE007 - Forge non-1905 receiver link metric TLV (bbf_tlv_structure_007)"
-    result += _checkTrue(BBFTLVFORGE007, (INT8U *)&bbf_tlv_structure_007, bbf_tlv_stream_007, bbf_tlv_stream_len_007);
+    result += _checkTrue(BBFTLVFORGE007, (uint8_t *)&bbf_tlv_structure_007, bbf_tlv_stream_007, bbf_tlv_stream_len_007);
 
     // Return the number of test cases that failed
     //

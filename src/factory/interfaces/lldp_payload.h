@@ -28,7 +28,7 @@
 struct PAYLOAD
 {
     #define MAX_LLDP_TLVS 10
-    INT8U   *list_of_TLVs[MAX_LLDP_TLVS+1];
+    uint8_t   *list_of_TLVs[MAX_LLDP_TLVS+1];
                                    // NULL-terminated list of pointers to TLV
                                    // structures.
                                    // The "end of lldppdu" TLV is not included
@@ -62,7 +62,7 @@ struct PAYLOAD
 // instead, otherwise remember to free the received structure once you don't
 // need it anymore (using the "free_lldp_PAYLOAD_structure()" function)
 //
-struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(INT8U *packet_stream);
+struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(uint8_t *packet_stream);
 
 
 // This is the opposite of "parse_lldp_PAYLOAD_from_packet_from_packets()": it
@@ -89,7 +89,7 @@ struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(INT8U *packet_stream);
 //
 //   - The returned stream, which can be freed with 'free_lldp_PAYLOAD_packet()'
 //
-INT8U *forge_lldp_PAYLOAD_from_structure(struct PAYLOAD *memory_structure, INT16U *len);
+uint8_t *forge_lldp_PAYLOAD_from_structure(struct PAYLOAD *memory_structure, uint16_t *len);
 
 
 
@@ -114,7 +114,7 @@ void free_lldp_PAYLOAD_structure(struct PAYLOAD *memory_structure);
 // This function returns '0' if the two given pointers represent PAYLOAD
 // structures that contain the same data
 //
-INT8U compare_lldp_PAYLOAD_structures(struct PAYLOAD *memory_structure_1, struct PAYLOAD *memory_structure_2);
+uint8_t compare_lldp_PAYLOAD_structures(struct PAYLOAD *memory_structure_1, struct PAYLOAD *memory_structure_2);
 
 
 // The next function is used to call function "callback()" on each element of

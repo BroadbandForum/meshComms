@@ -80,7 +80,7 @@ pthread_mutex_t interface_mutex = PTHREAD_MUTEX_INITIALIZER;
 //
 struct _stubTable
 {
-    INT8U  stub_entries_nr;
+    uint8_t  stub_entries_nr;
 
     struct _stubEntry
     {
@@ -98,11 +98,11 @@ struct _stubTable
 //
 // Return '1' if the handler was executed correctly, '0' otherwise
 //
-INT8U _executeInterfaceStub(char *interface_name, INT8U stub_type, ...)
+uint8_t _executeInterfaceStub(char *interface_name, uint8_t stub_type, ...)
 {
     va_list   args;
     void     *f;
-    INT8U     i, j;
+    uint8_t     i, j;
 
     struct _stubTable  *t;
 
@@ -206,7 +206,7 @@ INT8U _executeInterfaceStub(char *interface_name, INT8U stub_type, ...)
 #define INTF_TYPE_ETHERNET       (1)
 #define INTF_TYPE_WIFI           (2)
 #define INTF_TYPE_UNKNOWN        (0xFF)
-INT8U _getInterfaceType(char *interface_name)
+uint8_t _getInterfaceType(char *interface_name)
 {
     // According to www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net
     //
@@ -218,7 +218,7 @@ INT8U _getInterfaceType(char *interface_name)
     //
     // /sys/class/net/<iface>/wireless    <Does not exist>          <Exists>
 
-    INT8U  ret;
+    uint8_t  ret;
 
     FILE *fp;
 
@@ -280,10 +280,10 @@ INT8U _getInterfaceType(char *interface_name)
 //
 struct _pushButtonThreadData
 {
-    INT8U     queue_id;
+    uint8_t     queue_id;
     char     *interface_name;
-    INT8U     al_mac_address[6];
-    INT16U    mid;
+    uint8_t     al_mac_address[6];
+    uint16_t    mid;
 };
 static void *_pushButtonConfigurationThread(void *p)
 {
@@ -315,8 +315,8 @@ static void *_pushButtonConfigurationThread(void *p)
 
     int           push_button_result;
     unsigned char new_mac[6];
-    INT16U        interface_type;
-    INT8U         local_interface_mac_address[6];
+    uint16_t        interface_type;
+    uint8_t         local_interface_mac_address[6];
 
     int executed;
 
@@ -454,7 +454,7 @@ static void *_pushButtonConfigurationThread(void *p)
         // Post a "PLATFORM_QUEUE_EVENT_AUTHENTICATED_LINK" message
         //
         {
-            INT8U                  message[3+20];
+            uint8_t                  message[3+20];
 
             message[0]  = PLATFORM_QUEUE_EVENT_AUTHENTICATED_LINK;
             message[1]  = 0x00;
@@ -479,11 +479,11 @@ static void *_pushButtonConfigurationThread(void *p)
             message[20] = aux->al_mac_address[0];
 
 #if _HOST_IS_LITTLE_ENDIAN_ == 1
-            message[21] = *(((INT8U *)&aux->mid)+1);
-            message[22] = *(((INT8U *)&aux->mid)+0);
+            message[21] = *(((uint8_t *)&aux->mid)+1);
+            message[22] = *(((uint8_t *)&aux->mid)+0);
 #else
-            message[21] = *(((INT8U *)&aux->mid)+0);
-            message[22] = *(((INT8U *)&aux->mid)+1);
+            message[21] = *(((uint8_t *)&aux->mid)+0);
+            message[22] = *(((uint8_t *)&aux->mid)+1);
 #endif
             PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] *Push button configuration thread* Sending 23 bytes to queue (0x%02x, 0x%02x, 0x%02x, ...)\n", message[0], message[1], message[2]);
 
@@ -500,12 +500,12 @@ static void *_pushButtonConfigurationThread(void *p)
     return NULL;
 }
 
-// Returns an INT32U obtained by reading the first line of file
+// Returns an uint32_t obtained by reading the first line of file
 // "/sys/class/net/<interface_name>/<parameter_name>"
 //
-static INT32S _readInterfaceParameter(char *interface_name, char *parameter_name)
+static int32_t _readInterfaceParameter(char *interface_name, char *parameter_name)
 {
-    INT32S ret;
+    int32_t ret;
 
     FILE *fp;
 
@@ -529,12 +529,12 @@ static INT32S _readInterfaceParameter(char *interface_name, char *parameter_name
     return ret;
 }
 
-// Returns an INT32S obtained by reading the output of
+// Returns an int32_t obtained by reading the output of
 // "iw dev $INTERFACE station get $MAC | grep $PARAMETER_NAME"
 //
-static INT32S _readWifiNeighborParameter(char *interface_name, INT8U *neighbor_interface_address, char *parameter_name)
+static int32_t _readWifiNeighborParameter(char *interface_name, uint8_t *neighbor_interface_address, char *parameter_name)
 {
-    INT32S   ret;
+    int32_t   ret;
     FILE    *pipe;
     char    *line;
     size_t   len;
@@ -599,9 +599,9 @@ static INT32S _readWifiNeighborParameter(char *interface_name, INT8U *neighbor_i
 // Internal API: to be used by other platform-specific files (functions
 // declaration is found in "./platform_interfaces_priv.h")
 ////////////////////////////////////////////////////////////////////////////////
-INT8U registerInterfaceStub(char *interface_type, INT8U stub_type, void *f)
+uint8_t registerInterfaceStub(char *interface_type, uint8_t stub_type, void *f)
 {
-    INT8U                i;
+    uint8_t                i;
     struct _stubTable   *t;
 
     if (stub_type > STUB_TYPE_MAX)
@@ -700,14 +700,14 @@ void addInterface(char *long_interface_name)
 // Platform API: Interface related functions to be used by platform-independent
 // files (functions declarations are  found in "../interfaces/platform.h)
 ////////////////////////////////////////////////////////////////////////////////
-char **PLATFORM_GET_LIST_OF_1905_INTERFACES(INT8U *nr)
+char **PLATFORM_GET_LIST_OF_1905_INTERFACES(uint8_t *nr)
 {
     *nr = interfaces_nr;
 
     return interfaces_list;
 }
 
-void PLATFORM_FREE_LIST_OF_1905_INTERFACES(__attribute__((unused)) char **x, __attribute__((unused)) INT8U nr)
+void PLATFORM_FREE_LIST_OF_1905_INTERFACES(__attribute__((unused)) char **x, __attribute__((unused)) uint8_t nr)
 {
     // The list must never be freed, so that future calls to
     // "PLATFORM_GET_1905_INTERFACE_INFO()" can make use of it
@@ -721,8 +721,8 @@ struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
 
     struct ifreq s;
 
-    INT8U executed;
-    INT8U i;
+    uint8_t executed;
+    uint8_t i;
 
     PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Retrieving info for interface %s\n", interface_name);
 
@@ -961,8 +961,8 @@ struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
               INTERFACE_TYPE_UNKNOWN == m->interface_type
             )
     {
-        INT16U  len;
-        INT8U  *data;
+        uint16_t  len;
+        uint8_t  *data;
 
         PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM]     generic interface data\n");
         PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM]       OUI                           : %02x:%02x:%02x\n", m->interface_type_data.other.oui[0], m->interface_type_data.other.oui[1], m->interface_type_data.other.oui[2]);
@@ -1021,7 +1021,7 @@ struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
 
 void PLATFORM_FREE_1905_INTERFACE_INFO(struct interfaceInfo *x)
 {
-    INT8U i;
+    uint8_t i;
 
     free(x->name);
 
@@ -1084,13 +1084,13 @@ void PLATFORM_FREE_1905_INTERFACE_INFO(struct interfaceInfo *x)
     free(x);
 }
 
-struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, INT8U *neighbor_interface_address)
+struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, uint8_t *neighbor_interface_address)
 {
     struct linkMetrics    *ret;
     struct interfaceInfo  *x;
 
-    INT32S tmp;
-    INT8U  executed;
+    int32_t tmp;
+    uint8_t  executed;
 
     ret = (struct linkMetrics *)malloc(sizeof(struct linkMetrics));
     if (NULL == ret)
@@ -1160,8 +1160,8 @@ struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, INT8U 
             //   "iw dev $INTERFACE station get $NEIGHBOR_MAC | grep "tx packets"" and
             //   "iw dev $INTERFACE station get $NEIGHBOR_MAC | grep "tx failed""
             //
-            ret->tx_packet_ok     = (INT32U)_readWifiNeighborParameter(local_interface_name, ret->neighbor_interface_address, "\"tx packets\"");
-            ret->tx_packet_errors = (INT32U)_readWifiNeighborParameter(local_interface_name, ret->neighbor_interface_address, "\"tx failed\"");
+            ret->tx_packet_ok     = (uint32_t)_readWifiNeighborParameter(local_interface_name, ret->neighbor_interface_address, "\"tx packets\"");
+            ret->tx_packet_errors = (uint32_t)_readWifiNeighborParameter(local_interface_name, ret->neighbor_interface_address, "\"tx failed\"");
 
             // Obtain the estimated max MAC xput and PHY rate when transmitting
             // data from "A" to "B".
@@ -1170,8 +1170,8 @@ struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, INT8U 
             //
             //   "iw dev $INTERFACE station get $NEIGHBOR_MAC | grep speed"
             //
-            ret->tx_max_xput = (INT16U)_readWifiNeighborParameter(local_interface_name, ret->neighbor_interface_address, "\"tx bitrate\"");
-            ret->tx_phy_rate = (INT16U)_readWifiNeighborParameter(local_interface_name, ret->neighbor_interface_address, "\"tx bitrate\"");
+            ret->tx_max_xput = (uint16_t)_readWifiNeighborParameter(local_interface_name, ret->neighbor_interface_address, "\"tx bitrate\"");
+            ret->tx_phy_rate = (uint16_t)_readWifiNeighborParameter(local_interface_name, ret->neighbor_interface_address, "\"tx bitrate\"");
 
             // Obtain the estimated average percentage of time that the link is
             // available for transmission.
@@ -1192,7 +1192,7 @@ struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, INT8U 
             //   Right now it's assigned a zero value. Investigate how to
             //   obtain this value.
             //
-            ret->rx_packet_ok     = (INT32U)_readWifiNeighborParameter(local_interface_name, ret->neighbor_interface_address, "\"rx packets\"");
+            ret->rx_packet_ok     = (uint32_t)_readWifiNeighborParameter(local_interface_name, ret->neighbor_interface_address, "\"rx packets\"");
             ret->rx_packet_errors = 0;
 
 
@@ -1250,8 +1250,8 @@ struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, INT8U 
             //   "/sys/class/net/<interface_name>/statistics/tx_packets" and
             //   "/sys/class/net/<interface_name>/statistics/tx_errors"
             //
-            ret->tx_packet_ok     = (INT32U)_readInterfaceParameter(local_interface_name, "statistics/tx_packets");
-            ret->tx_packet_errors = (INT32U)_readInterfaceParameter(local_interface_name, "statistics/tx_errors");
+            ret->tx_packet_ok     = (uint32_t)_readInterfaceParameter(local_interface_name, "statistics/tx_packets");
+            ret->tx_packet_errors = (uint32_t)_readInterfaceParameter(local_interface_name, "statistics/tx_errors");
 
             // Obtain the estimatid max MAC xput and PHY rate when transmitting
             // data from "A" to "B".
@@ -1266,8 +1266,8 @@ struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, INT8U 
             // NOTE: I'll set both parameters to the same value. Is there a
             // better way to do this?
             //
-            ret->tx_max_xput = (INT16U)_readInterfaceParameter(local_interface_name, "speed");
-            ret->tx_phy_rate = (INT16U)_readInterfaceParameter(local_interface_name, "speed");
+            ret->tx_max_xput = (uint16_t)_readInterfaceParameter(local_interface_name, "speed");
+            ret->tx_phy_rate = (uint16_t)_readInterfaceParameter(local_interface_name, "speed");
 
             // Obtain the estimated average percentage of time that the link is
             // available for transmission.
@@ -1292,8 +1292,8 @@ struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, INT8U 
             //   "/sys/class/net/<interface_name>/statistics/rx_packets" and
             //   "/sys/class/net/<interface_name>/statistics/rx_errors"
             //
-            ret->rx_packet_ok     = (INT32U)_readInterfaceParameter(local_interface_name, "statistics/rx_packets");
-            ret->rx_packet_errors = (INT32U)_readInterfaceParameter(local_interface_name, "statistics/rx_errors");
+            ret->rx_packet_ok     = (uint32_t)_readInterfaceParameter(local_interface_name, "statistics/rx_packets");
+            ret->rx_packet_errors = (uint32_t)_readInterfaceParameter(local_interface_name, "statistics/rx_errors");
 
             // Obtain the estimated RX RSSI
             //
@@ -1318,7 +1318,7 @@ void PLATFORM_FREE_LINK_METRICS(struct linkMetrics *l)
 }
 
 
-struct bridge *PLATFORM_GET_LIST_OF_BRIDGES(INT8U *nr)
+struct bridge *PLATFORM_GET_LIST_OF_BRIDGES(uint8_t *nr)
 {
     // TODO
 
@@ -1326,7 +1326,7 @@ struct bridge *PLATFORM_GET_LIST_OF_BRIDGES(INT8U *nr)
     return NULL;
 }
 
-void PLATFORM_FREE_LIST_OF_BRIDGES(struct bridge *x, INT8U nr)
+void PLATFORM_FREE_LIST_OF_BRIDGES(struct bridge *x, uint8_t nr)
 {
     // TODO
     //
@@ -1338,7 +1338,7 @@ void PLATFORM_FREE_LIST_OF_BRIDGES(struct bridge *x, INT8U nr)
     return;
 }
 
-INT8U PLATFORM_SEND_RAW_PACKET(char *interface_name, INT8U *dst_mac, INT8U *src_mac, INT16U eth_type, INT8U *payload, INT16U payload_len)
+uint8_t PLATFORM_SEND_RAW_PACKET(char *interface_name, uint8_t *dst_mac, uint8_t *src_mac, uint16_t eth_type, uint8_t *payload, uint16_t payload_len)
 {
     int i, first_time;
     char aux1[200];
@@ -1349,7 +1349,7 @@ INT8U PLATFORM_SEND_RAW_PACKET(char *interface_name, INT8U *dst_mac, INT8U *src_
     int                 ifindex;
     struct sockaddr_ll  socket_address;
 
-    INT8U buffer[MAX_NETWORK_SEGMENT_SIZE];
+    uint8_t buffer[MAX_NETWORK_SEGMENT_SIZE];
     struct ether_header *eh;
 
     // Print packet (used for debug purposes)
@@ -1473,7 +1473,7 @@ INT8U PLATFORM_SEND_RAW_PACKET(char *interface_name, INT8U *dst_mac, INT8U *src_
     return 1;
 }
 
-INT8U PLATFORM_START_PUSH_BUTTON_CONFIGURATION(char *interface_name, INT8U queue_id, INT8U *al_mac_address, INT16U mid)
+uint8_t PLATFORM_START_PUSH_BUTTON_CONFIGURATION(char *interface_name, uint8_t queue_id, uint8_t *al_mac_address, uint16_t mid)
 {
     pthread_t                     thread;
     struct _pushButtonThreadData *p;
@@ -1520,7 +1520,7 @@ INT8U PLATFORM_START_PUSH_BUTTON_CONFIGURATION(char *interface_name, INT8U queue
 }
 
 
-INT8U PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, INT8U power_mode)
+uint8_t PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, uint8_t power_mode)
 {
     // TODO
     switch(power_mode)
@@ -1550,7 +1550,7 @@ INT8U PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, INT8U power_mode)
     return INTERFACE_POWER_RESULT_EXPECTED;
 }
 
-INT8U PLATFORM_CONFIGURE_80211_AP(char *interface_name, INT8U *ssid, INT8U *bssid, INT16U auth_type, INT16U encryption_type, INT8U *network_key)
+uint8_t PLATFORM_CONFIGURE_80211_AP(char *interface_name, uint8_t *ssid, uint8_t *bssid, uint16_t auth_type, uint16_t encryption_type, uint8_t *network_key)
 {
     PLATFORM_PRINTF_DEBUG_INFO("Applying WSC configuration (%s): \n", interface_name);
     PLATFORM_PRINTF_DEBUG_INFO("  - SSID            : %s\n", ssid);

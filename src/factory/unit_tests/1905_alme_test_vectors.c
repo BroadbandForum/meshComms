@@ -69,12 +69,12 @@ struct getIntfListRequestALME x1905_alme_structure_001 =
     .alme_type         = ALME_TYPE_GET_INTF_LIST_REQUEST,
 };
 
-INT8U x1905_alme_stream_001[] =
+uint8_t x1905_alme_stream_001[] =
 {
     0x01,
 };
 
-INT16U x1905_alme_stream_len_001 = 1;
+uint16_t x1905_alme_stream_len_001 = 1;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ struct getIntfListResponseALME x1905_alme_structure_002 =
         }
 };
 
-INT8U x1905_alme_stream_002[] =
+uint8_t x1905_alme_stream_002[] =
 {
     0x02,
     0x01,
@@ -107,7 +107,7 @@ INT8U x1905_alme_stream_002[] =
     0x00,
 };
 
-INT16U x1905_alme_stream_len_002 = 12;
+uint16_t x1905_alme_stream_len_002 = 12;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,13 +131,13 @@ struct getIntfListResponseALME x1905_alme_structure_003 =
                             .ie_type      = 1,
                             .length_field = 11,
                             .oui          = {0x0a, 0x0b, 0x0c},
-                            .vendor_si    = (INT8U []){0xde, 0xde, 0xde, 0xde, 0xde, 0xde, 0xde, 0xaa},
+                            .vendor_si    = (uint8_t []){0xde, 0xde, 0xde, 0xde, 0xde, 0xde, 0xde, 0xaa},
                         },
                         {
                             .ie_type      = 1,
                             .length_field = 4,
                             .oui          = {0x0d, 0x0e, 0x0f},
-                            .vendor_si    = (INT8U []){0xff},
+                            .vendor_si    = (uint8_t []){0xff},
                         },
                     },
             },
@@ -151,7 +151,7 @@ struct getIntfListResponseALME x1905_alme_structure_003 =
         }
 };
 
-INT8U x1905_alme_stream_003[] =
+uint8_t x1905_alme_stream_003[] =
 {
     0x02,
     0x02,
@@ -173,7 +173,7 @@ INT8U x1905_alme_stream_003[] =
     0x00,
 };
 
-INT16U x1905_alme_stream_len_003 = 45;
+uint16_t x1905_alme_stream_len_003 = 45;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -187,13 +187,13 @@ struct getIntfListResponseALME x1905_alme_structure_004 =
     .interface_descriptors     = NULL,
 };
 
-INT8U x1905_alme_stream_004[] =
+uint8_t x1905_alme_stream_004[] =
 {
     0x02,
     0x00,
 };
 
-INT16U x1905_alme_stream_len_004 = 2;
+uint16_t x1905_alme_stream_len_004 = 2;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -207,14 +207,14 @@ struct setIntfPwrStateRequestALME x1905_alme_structure_005 =
     .power_state               = POWER_STATE_PWR_ON,
 };
 
-INT8U x1905_alme_stream_005[] =
+uint8_t x1905_alme_stream_005[] =
 {
     0x03,
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
     0x00,
 };
 
-INT16U x1905_alme_stream_len_005 = 8;
+uint16_t x1905_alme_stream_len_005 = 8;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -228,14 +228,14 @@ struct setIntfPwrStateRequestALME x1905_alme_structure_006 =
     .power_state               = POWER_STATE_PWR_OFF,
 };
 
-INT8U x1905_alme_stream_006[] =
+uint8_t x1905_alme_stream_006[] =
 {
     0x03,
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
     0x02,
 };
 
-INT16U x1905_alme_stream_len_006 = 8;
+uint16_t x1905_alme_stream_len_006 = 8;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -249,14 +249,14 @@ struct setIntfPwrStateConfirmALME x1905_alme_structure_007 =
     .reason_code               = REASON_CODE_SUCCESS,
 };
 
-INT8U x1905_alme_stream_007[] =
+uint8_t x1905_alme_stream_007[] =
 {
     0x04,
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
     0x00,
 };
 
-INT16U x1905_alme_stream_len_007 = 8;
+uint16_t x1905_alme_stream_len_007 = 8;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -270,14 +270,14 @@ struct setIntfPwrStateConfirmALME x1905_alme_structure_008 =
     .reason_code               = REASON_CODE_UNAVAILABLE_PWR_STATE,
 };
 
-INT8U x1905_alme_stream_008[] =
+uint8_t x1905_alme_stream_008[] =
 {
     0x04,
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
     0x03,
 };
 
-INT16U x1905_alme_stream_len_008 = 8;
+uint16_t x1905_alme_stream_len_008 = 8;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -290,13 +290,13 @@ struct getIntfPwrStateRequestALME x1905_alme_structure_009 =
     .interface_address         = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
 };
 
-INT8U x1905_alme_stream_009[] =
+uint8_t x1905_alme_stream_009[] =
 {
     0x05,
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
 };
 
-INT16U x1905_alme_stream_len_009 = 7;
+uint16_t x1905_alme_stream_len_009 = 7;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -310,14 +310,14 @@ struct getIntfPwrStateResponseALME x1905_alme_structure_010 =
     .power_state               = POWER_STATE_PWR_SAVE,
 };
 
-INT8U x1905_alme_stream_010[] =
+uint8_t x1905_alme_stream_010[] =
 {
     0x06,
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
     0x01
 };
 
-INT16U x1905_alme_stream_len_010 = 8;
+uint16_t x1905_alme_stream_len_010 = 8;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -342,12 +342,12 @@ struct setFwdRuleRequestALME x1905_alme_structure_011 =
         },
     .addresses_nr              = 1,
     .addresses                 =
-        (INT8U [][6]){
+        (uint8_t [][6]){
             {0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
         },
 };
 
-INT8U x1905_alme_stream_011[] =
+uint8_t x1905_alme_stream_011[] =
 {
     0x07,
     0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
@@ -364,7 +364,7 @@ INT8U x1905_alme_stream_011[] =
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
 };
 
-INT16U x1905_alme_stream_len_011 = 30;
+uint16_t x1905_alme_stream_len_011 = 30;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -389,14 +389,14 @@ struct setFwdRuleRequestALME x1905_alme_structure_012 =
         },
     .addresses_nr              = 3,
     .addresses                 =
-        (INT8U [][6]){
+        (uint8_t [][6]){
             {0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
             {0x11, 0x12, 0x13, 0x14, 0x15, 0x16},
             {0x21, 0x22, 0x23, 0x24, 0x25, 0x26},
         },
 };
 
-INT8U x1905_alme_stream_012[] =
+uint8_t x1905_alme_stream_012[] =
 {
     0x07,
     0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
@@ -415,7 +415,7 @@ INT8U x1905_alme_stream_012[] =
     0x21, 0x22, 0x23, 0x24, 0x25, 0x26,
 };
 
-INT16U x1905_alme_stream_len_012 = 42;
+uint16_t x1905_alme_stream_len_012 = 42;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -429,14 +429,14 @@ struct setFwdRuleConfirmALME x1905_alme_structure_013 =
     .reason_code               = REASON_CODE_SUCCESS,
 };
 
-INT8U x1905_alme_stream_013[] =
+uint8_t x1905_alme_stream_013[] =
 {
     0x08,
     0x10, 0x07,
     0x00
 };
 
-INT16U x1905_alme_stream_len_013 = 4;
+uint16_t x1905_alme_stream_len_013 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -448,12 +448,12 @@ struct getFwdRulesRequestALME x1905_alme_structure_014 =
     .alme_type                 = ALME_TYPE_GET_FWD_RULES_REQUEST,
 };
 
-INT8U x1905_alme_stream_014[] =
+uint8_t x1905_alme_stream_014[] =
 {
     0x09,
 };
 
-INT16U x1905_alme_stream_len_014 = 1;
+uint16_t x1905_alme_stream_len_014 = 1;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -467,13 +467,13 @@ struct getFwdRulesResponseALME x1905_alme_structure_015 =
     .rules                     = NULL,
 };
 
-INT8U x1905_alme_stream_015[] =
+uint8_t x1905_alme_stream_015[] =
 {
     0x0a,
     0x00,
 };
 
-INT16U x1905_alme_stream_len_015 = 2;
+uint16_t x1905_alme_stream_len_015 = 2;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -502,7 +502,7 @@ struct getFwdRulesResponseALME x1905_alme_structure_016 =
                     },
                 .addresses_nr              = 3,
                 .addresses                 =
-                    (INT8U [][6]){
+                    (uint8_t [][6]){
                         {0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
                         {0x11, 0x12, 0x13, 0x14, 0x15, 0x16},
                         {0x21, 0x22, 0x23, 0x24, 0x25, 0x26},
@@ -512,7 +512,7 @@ struct getFwdRulesResponseALME x1905_alme_structure_016 =
         },
 };
 
-INT8U x1905_alme_stream_016[] =
+uint8_t x1905_alme_stream_016[] =
 {
     0x0a,
     0x01,
@@ -533,7 +533,7 @@ INT8U x1905_alme_stream_016[] =
     0x00, 0xa0,
 };
 
-INT16U x1905_alme_stream_len_016 = 45;
+uint16_t x1905_alme_stream_len_016 = 45;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -562,7 +562,7 @@ struct getFwdRulesResponseALME x1905_alme_structure_017 =
                     },
                 .addresses_nr              = 3,
                 .addresses                 =
-                    (INT8U [][6]){
+                    (uint8_t [][6]){
                         {0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
                         {0x11, 0x12, 0x13, 0x14, 0x15, 0x16},
                         {0x21, 0x22, 0x23, 0x24, 0x25, 0x26},
@@ -585,7 +585,7 @@ struct getFwdRulesResponseALME x1905_alme_structure_017 =
                     },
                 .addresses_nr              = 1,
                 .addresses                 =
-                    (INT8U [][6]){
+                    (uint8_t [][6]){
                         {0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
                     },
                 .last_matched = 0x0000,
@@ -593,7 +593,7 @@ struct getFwdRulesResponseALME x1905_alme_structure_017 =
         },
 };
 
-INT8U x1905_alme_stream_017[] =
+uint8_t x1905_alme_stream_017[] =
 {
     0x0a,
     0x02,
@@ -627,7 +627,7 @@ INT8U x1905_alme_stream_017[] =
     0x00, 0x00,
 };
 
-INT16U x1905_alme_stream_len_017 = 76;
+uint16_t x1905_alme_stream_len_017 = 76;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -640,13 +640,13 @@ struct modifyFwdRuleRequestALME x1905_alme_structure_018 =
     .rule_id                   = 0x011a,
     .addresses_nr              = 2,
     .addresses                 =
-        (INT8U [][6]){
+        (uint8_t [][6]){
             {0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
             {0x11, 0x12, 0x13, 0x14, 0x15, 0x16},
         },
 };
 
-INT8U x1905_alme_stream_018[] =
+uint8_t x1905_alme_stream_018[] =
 {
     0x0b,
     0x01, 0x1a,
@@ -655,7 +655,7 @@ INT8U x1905_alme_stream_018[] =
     0x11, 0x12, 0x13, 0x14, 0x15, 0x16,
 };
 
-INT16U x1905_alme_stream_len_018 = 16;
+uint16_t x1905_alme_stream_len_018 = 16;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -669,14 +669,14 @@ struct modifyFwdRuleConfirmALME x1905_alme_structure_019 =
     .reason_code               = REASON_CODE_SUCCESS,
 };
 
-INT8U x1905_alme_stream_019[] =
+uint8_t x1905_alme_stream_019[] =
 {
     0x0c,
     0x01, 0x1a,
     0x00,
 };
 
-INT16U x1905_alme_stream_len_019 = 4;
+uint16_t x1905_alme_stream_len_019 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -690,14 +690,14 @@ struct modifyFwdRuleConfirmALME x1905_alme_structure_020 =
     .reason_code               = REASON_CODE_INVALID_RULE_ID,
 };
 
-INT8U x1905_alme_stream_020[] =
+uint8_t x1905_alme_stream_020[] =
 {
     0x0c,
     0x01, 0x1a,
     0x05,
 };
 
-INT16U x1905_alme_stream_len_020 = 4;
+uint16_t x1905_alme_stream_len_020 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -710,13 +710,13 @@ struct removeFwdRuleRequestALME x1905_alme_structure_021 =
     .rule_id                   = 0x011a,
 };
 
-INT8U x1905_alme_stream_021[] =
+uint8_t x1905_alme_stream_021[] =
 {
     0x0d,
     0x01, 0x1a,
 };
 
-INT16U x1905_alme_stream_len_021 = 3;
+uint16_t x1905_alme_stream_len_021 = 3;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -730,14 +730,14 @@ struct removeFwdRuleConfirmALME x1905_alme_structure_022 =
     .reason_code               = REASON_CODE_SUCCESS,
 };
 
-INT8U x1905_alme_stream_022[] =
+uint8_t x1905_alme_stream_022[] =
 {
     0x0e,
     0x01, 0x1a,
     0x00,
 };
 
-INT16U x1905_alme_stream_len_022 = 4;
+uint16_t x1905_alme_stream_len_022 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -750,13 +750,13 @@ struct getMetricRequestALME x1905_alme_structure_023 =
     .interface_address         = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
 };
 
-INT8U x1905_alme_stream_023[] =
+uint8_t x1905_alme_stream_023[] =
 {
     0x0f,
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
 };
 
-INT16U x1905_alme_stream_len_023 = 7;
+uint16_t x1905_alme_stream_len_023 = 7;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -821,7 +821,7 @@ struct getMetricResponseALME x1905_alme_structure_024 =
     .reason_code               = REASON_CODE_SUCCESS,
 };
 
-INT8U x1905_alme_stream_024[] =
+uint8_t x1905_alme_stream_024[] =
 {
     0x10,
     0x01,
@@ -857,7 +857,7 @@ INT8U x1905_alme_stream_024[] =
     0x00,
 };
 
-INT16U x1905_alme_stream_len_024 = 98;
+uint16_t x1905_alme_stream_len_024 = 98;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -872,13 +872,13 @@ struct getMetricResponseALME x1905_alme_structure_025 =
     .reason_code               = REASON_CODE_UNMATCHED_NEIGHBOR_MAC_ADDRESS,
 };
 
-INT8U x1905_alme_stream_025[] =
+uint8_t x1905_alme_stream_025[] =
 {
     0x10,
     0x00,
     0x07,
 };
 
-INT16U x1905_alme_stream_len_025 = 3;
+uint16_t x1905_alme_stream_len_025 = 3;
 
 

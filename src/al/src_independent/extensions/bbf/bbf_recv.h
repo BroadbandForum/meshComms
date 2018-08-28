@@ -35,7 +35,7 @@
 //
 // Return '0' if there was a problem, '1' otherwise
 //
-INT8U CBKprocess1905BBFExtensions(struct CMDU *memory_structure);
+uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure);
 
 #endif
 

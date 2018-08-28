@@ -79,17 +79,17 @@ struct CMDU_header
 
 struct CMDU
 {
-    INT8U   message_version;       // One of "CMDU_MESSAGE_VERSION_*" values
+    uint8_t   message_version;       // One of "CMDU_MESSAGE_VERSION_*" values
 
-    INT16U  message_type;          // Any of the CMDU_TYPE_* types
+    uint16_t  message_type;          // Any of the CMDU_TYPE_* types
 
-    INT16U  message_id;            // Identifies the message
+    uint16_t  message_id;            // Identifies the message
 
-    INT8U   relay_indicator;       // Set to '1' to indicate that his packet
+    uint8_t   relay_indicator;       // Set to '1' to indicate that his packet
                                    // must be relayed by 1905 AL to its
                                    // neighbors.
 
-    INT8U   **list_of_TLVs;        // NULL-terminated list of pointers to TLV
+    uint8_t   **list_of_TLVs;        // NULL-terminated list of pointers to TLV
                                    // structures.
                                    // The "end of message" TLV is not included
                                    // in this list.
@@ -208,7 +208,7 @@ struct CMDU
 //         contains a different 'message_version' from another fragment or if
 //         two streams contain fragments with the same 'fragment_id', etc...
 //
-struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams);
+struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams);
 
 
 // This is the opposite of "parse_1905_CMDU_from_packets()": it receives a
@@ -254,7 +254,7 @@ struct CMDU *parse_1905_CMDU_from_packets(INT8U **packet_streams);
 //     be freed with 'free_1905_CMDU_packets()'
 //
 //
-INT8U **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, INT16U **lens);
+uint8_t **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, uint16_t **lens);
 
 
 
@@ -273,7 +273,7 @@ INT8U **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, INT1
  * @return @a true if a valid CMDU header was found (@a cmdu_header is filled with the header information), @a false
  *         if not (@a cmdu_header may be partially overwritten).
  */
-bool parse_1905_CMDU_header_from_packet(INT8U *packet_buffer, size_t len, struct CMDU_header *cmdu_header);
+bool parse_1905_CMDU_header_from_packet(uint8_t *packet_buffer, size_t len, struct CMDU_header *cmdu_header);
 
 
 // This function receives a pointer to a CMDU structure and then traverses it
@@ -288,13 +288,13 @@ void free_1905_CMDU_structure(struct CMDU *memory_structure);
 // structures
 //
 //
-void free_1905_CMDU_packets(INT8U **packet_streams);
+void free_1905_CMDU_packets(uint8_t **packet_streams);
 
 
 // This function returns '0' if the two given pointers represent CMDU structures
 // that contain the same data
 //
-INT8U compare_1905_CMDU_structures(const struct CMDU *memory_structure_1, const struct CMDU *memory_structure_2);
+uint8_t compare_1905_CMDU_structures(const struct CMDU *memory_structure_1, const struct CMDU *memory_structure_2);
 
 
 // The next function is used to call function "callback()" on each element of
@@ -335,5 +335,5 @@ void visit_1905_CMDU_structure(const struct CMDU *memory_structure,
 //
 // Return "Unknown" if the provided type does not exist.
 //
-char *convert_1905_CMDU_type_to_string(INT8U cmdu_type);
+char *convert_1905_CMDU_type_to_string(uint8_t cmdu_type);
 #endif

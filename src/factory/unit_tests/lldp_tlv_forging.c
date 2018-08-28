@@ -27,13 +27,13 @@
 
 #include <string.h> // memcmp(), memcpy(), ...
 
-INT8U _check(const char *test_description, INT8U *input, INT8U *expected_output, INT16U expected_output_len)
+uint8_t _check(const char *test_description, uint8_t *input, uint8_t *expected_output, uint16_t expected_output_len)
 {
-    INT8U  result;
-    INT8U *real_output;
-    INT16U real_output_len;
+    uint8_t  result;
+    uint8_t *real_output;
+    uint16_t real_output_len;
 
-    real_output = forge_lldp_TLV_from_structure((INT8U *)input, &real_output_len);
+    real_output = forge_lldp_TLV_from_structure((uint8_t *)input, &real_output_len);
 
     if (NULL == real_output)
     {
@@ -50,7 +50,7 @@ INT8U _check(const char *test_description, INT8U *input, INT8U *expected_output,
     }
     else
     {
-        INT16U i;
+        uint16_t i;
 
         result = 1;
         PLATFORM_PRINTF("%-100s: KO !!!\n", test_description);
@@ -74,19 +74,19 @@ INT8U _check(const char *test_description, INT8U *input, INT8U *expected_output,
 
 int main(void)
 {
-    INT8U result = 0;
+    uint8_t result = 0;
 
     #define LLDPTLVFORGE001 "LLDPTLVFORGE001 - Forge end of LLDP TLV (lldp_tlv_structure_001)"
-    result += _check(LLDPTLVFORGE001, (INT8U *)&lldp_tlv_structure_001, lldp_tlv_stream_001, lldp_tlv_stream_len_001);
+    result += _check(LLDPTLVFORGE001, (uint8_t *)&lldp_tlv_structure_001, lldp_tlv_stream_001, lldp_tlv_stream_len_001);
 
     #define LLDPTLVFORGE002 "LLDPTLVFORGE002 - Forge chassis ID TLV (lldp_tlv_structure_002)"
-    result += _check(LLDPTLVFORGE002, (INT8U *)&lldp_tlv_structure_002, lldp_tlv_stream_002, lldp_tlv_stream_len_002);
+    result += _check(LLDPTLVFORGE002, (uint8_t *)&lldp_tlv_structure_002, lldp_tlv_stream_002, lldp_tlv_stream_len_002);
 
     #define LLDPTLVFORGE003 "LLDPTLVFORGE003 - Forge port ID TLV (lldp_tlv_structure_003)"
-    result += _check(LLDPTLVFORGE003, (INT8U *)&lldp_tlv_structure_003, lldp_tlv_stream_003, lldp_tlv_stream_len_003);
+    result += _check(LLDPTLVFORGE003, (uint8_t *)&lldp_tlv_structure_003, lldp_tlv_stream_003, lldp_tlv_stream_len_003);
 
     #define LLDPTLVFORGE004 "LLDPTLVFORGE004 - Forge time to live TLV (lldp_tlv_structure_004)"
-    result += _check(LLDPTLVFORGE004, (INT8U *)&lldp_tlv_structure_004, lldp_tlv_stream_004, lldp_tlv_stream_len_004);
+    result += _check(LLDPTLVFORGE004, (uint8_t *)&lldp_tlv_structure_004, lldp_tlv_stream_004, lldp_tlv_stream_len_004);
 
     // Return the number of test cases that failed
     //

@@ -26,7 +26,7 @@
 // Public API
 ////////////////////////////////////////////////////////////////////////////////
 //
-void print_callback(void (*write_function)(const char *fmt, ...), const char *prefix, INT8U size, const char *name, const char *fmt, const void *p)
+void print_callback(void (*write_function)(const char *fmt, ...), const char *prefix, uint8_t size, const char *name, const char *fmt, const void *p)
 {
 
        if (0 == memcmp(fmt, "%s", 3))
@@ -57,19 +57,19 @@ void print_callback(void (*write_function)(const char *fmt, ...), const char *pr
 
            if (1 == size)
            {
-               write_function(fmt_line, prefix, name, *(const INT8U *)p);
+               write_function(fmt_line, prefix, name, *(const uint8_t *)p);
 
                return;
            }
            else if (2 == size)
            {
-               write_function(fmt_line, prefix, name, *(const INT16U *)p);
+               write_function(fmt_line, prefix, name, *(const uint16_t *)p);
 
                return;
            }
            else if (4 == size)
            {
-               write_function(fmt_line, prefix, name, *(const INT32U *)p);
+               write_function(fmt_line, prefix, name, *(const uint32_t *)p);
 
                return;
            }
@@ -81,7 +81,7 @@ void print_callback(void (*write_function)(const char *fmt, ...), const char *pr
            #define AUX1_SIZE 200  // Store a whole output line
            #define AUX2_SIZE  20  // Store a fmt conversion
 
-           INT16U i, j;
+           uint16_t i, j;
 
            char aux1[AUX1_SIZE];
            char aux2[AUX2_SIZE];
@@ -99,7 +99,7 @@ void print_callback(void (*write_function)(const char *fmt, ...), const char *pr
            {
                // Write one element to aux2
                //
-               j = snprintf(aux2, AUX2_SIZE-1, fmt, *((const INT8U *)p+i));
+               j = snprintf(aux2, AUX2_SIZE-1, fmt, *((const uint8_t *)p+i));
                if (j >= AUX2_SIZE)
                {
                    j = AUX2_SIZE - 1;

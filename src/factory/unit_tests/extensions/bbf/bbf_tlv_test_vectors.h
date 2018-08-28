@@ -25,35 +25,35 @@
 #define CHECK_FALSE    1 // Check a wrong parse operation (malformed frame)
 
 extern struct linkMetricQueryTLV                       bbf_tlv_structure_001;
-extern INT8U                                           bbf_tlv_stream_001[];
-extern INT16U                                          bbf_tlv_stream_len_001;
+extern uint8_t                                           bbf_tlv_stream_001[];
+extern uint16_t                                          bbf_tlv_stream_len_001;
 
 extern struct linkMetricQueryTLV                       bbf_tlv_structure_002;
-extern INT8U                                           bbf_tlv_stream_002[];
-extern INT8U                                           bbf_tlv_stream_002b[];
-extern INT16U                                          bbf_tlv_stream_len_002;
+extern uint8_t                                           bbf_tlv_stream_002[];
+extern uint8_t                                           bbf_tlv_stream_002b[];
+extern uint16_t                                          bbf_tlv_stream_len_002;
 
 extern struct linkMetricQueryTLV                       bbf_tlv_structure_003;
-extern INT8U                                           bbf_tlv_stream_003[];
-extern INT16U                                          bbf_tlv_stream_len_003;
+extern uint8_t                                           bbf_tlv_stream_003[];
+extern uint16_t                                          bbf_tlv_stream_len_003;
 
 extern struct linkMetricQueryTLV                       bbf_tlv_structure_004;
-extern INT8U                                           bbf_tlv_stream_004[];
-extern INT8U                                           bbf_tlv_stream_004b[];
-extern INT16U                                          bbf_tlv_stream_len_004;
+extern uint8_t                                           bbf_tlv_stream_004[];
+extern uint8_t                                           bbf_tlv_stream_004b[];
+extern uint16_t                                          bbf_tlv_stream_len_004;
 
 extern struct linkMetricQueryTLV                       bbf_tlv_structure_005;
-extern INT8U                                           bbf_tlv_stream_005[];
-extern INT16U                                          bbf_tlv_stream_len_005;
+extern uint8_t                                           bbf_tlv_stream_005[];
+extern uint16_t                                          bbf_tlv_stream_len_005;
 
 extern struct linkMetricQueryTLV                       bbf_tlv_structure_006;
-extern INT8U                                           bbf_tlv_stream_006[];
-extern INT8U                                           bbf_tlv_stream_006b[];
-extern INT16U                                          bbf_tlv_stream_len_006;
+extern uint8_t                                           bbf_tlv_stream_006[];
+extern uint8_t                                           bbf_tlv_stream_006b[];
+extern uint16_t                                          bbf_tlv_stream_len_006;
 
 extern struct linkMetricQueryTLV                       bbf_tlv_structure_007;
-extern INT8U                                           bbf_tlv_stream_007[];
-extern INT16U                                          bbf_tlv_stream_len_007;
+extern uint8_t                                           bbf_tlv_stream_007[];
+extern uint16_t                                          bbf_tlv_stream_len_007;
 
 #endif
 

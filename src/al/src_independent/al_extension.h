@@ -29,20 +29,20 @@
 
 
 // Insert, process, free third-party extensions in a CMDU
-typedef INT8U (*CMDU_EXTENSION_CBK)(struct CMDU *);
+typedef uint8_t (*CMDU_EXTENSION_CBK)(struct CMDU *);
 
 // Obtain third-party local node informatiom
 typedef void  (*DM_OBTAIN_LOCAL_INFO_CBK)(struct vendorSpecificTLV ***extensions,
-                                          INT8U                      *nr);
+                                          uint8_t                      *nr);
 
 // Update obtained info in the datamodel
 typedef void  (*DM_UPDATE_LOCAL_INFO_CBK)(struct vendorSpecificTLV  **extensions,
-                                          INT8U                       nr,
-                                          INT8U                      *al_mac_address);
+                                          uint8_t                       nr,
+                                          uint8_t                      *al_mac_address);
 
 // Dump third-party info
-typedef void  (*DM_EXTENSION_CBK)(INT8U **memory_structure,
-                                  INT8U   structure_nr,
+typedef void  (*DM_EXTENSION_CBK)(uint8_t **memory_structure,
+                                  uint8_t   structure_nr,
                                   visitor_callback callback,
                                   void  (*write_function)(const char *fmt, ...),
                                   const char *prefix);
@@ -72,7 +72,7 @@ typedef void  (*DM_EXTENSION_CBK)(INT8U **memory_structure,
 //
 // Return '0' if there was a problem, '1' otherwise.
 //
-INT8U process1905CmduExtensions(struct CMDU *c);
+uint8_t process1905CmduExtensions(struct CMDU *c);
 
 // This funtion runs through all the registered 'send' callbacks.
 // Each registered 'send' callback is responsible for adding its own
@@ -87,7 +87,7 @@ INT8U process1905CmduExtensions(struct CMDU *c);
 //
 // Return '0' if there was a problem, '1' otherwise.
 //
-INT8U send1905CmduExtensions(struct CMDU *c);
+uint8_t send1905CmduExtensions(struct CMDU *c);
 
 // This funtion releases all the Vendor Specific TLVs found in the CMDU's TLV
 // list, It is used to free the resources previously allocated by
@@ -102,7 +102,7 @@ INT8U send1905CmduExtensions(struct CMDU *c);
 //
 // Return '0' if there was a problem, '1' otherwise.
 //
-INT8U free1905CmduExtensions(struct CMDU *c);
+uint8_t free1905CmduExtensions(struct CMDU *c);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,14 +148,14 @@ INT8U free1905CmduExtensions(struct CMDU *c);
 // - Finally, call 'dumpExtendedInfo()' once for each device to get the
 //   non-standard report data
 //
-INT8U obtainExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U *nr);
-INT8U updateExtendedInfo(struct vendorSpecificTLV  **extensions, INT8U  nr, INT8U *al_mac_address);
-INT8U dumpExtendedInfo(INT8U **memory_structure,
-                       INT8U   structure_nr,
+uint8_t obtainExtendedLocalInfo(struct vendorSpecificTLV ***extensions, uint8_t *nr);
+uint8_t updateExtendedInfo(struct vendorSpecificTLV  **extensions, uint8_t  nr, uint8_t *al_mac_address);
+uint8_t dumpExtendedInfo(uint8_t **memory_structure,
+                       uint8_t   structure_nr,
                        visitor_callback callback,
                        void  (*write_function)(const char *fmt, ...),
                        const char *prefix);
-void freeExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U *nr);
+void freeExtendedLocalInfo(struct vendorSpecificTLV ***extensions, uint8_t *nr);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -182,7 +182,7 @@ void freeExtendedLocalInfo(struct vendorSpecificTLV ***extensions, INT8U *nr);
 // Return a pointer to the new allocated Vendor Specific TLV or NULL in case of
 // error
 //
-struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure, INT8U *forge(INT8U *memory_structure, INT16U *len), INT8U oui[3]);
+struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure, uint8_t *forge(uint8_t *memory_structure, uint16_t *len), uint8_t oui[3]);
 
 // This function inserts a Vendor Specific TLV in the CMDU's TLV list
 //
@@ -192,7 +192,7 @@ struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure
 //
 // Return '0' if there was a problem, '1' otherwise.
 //
-INT8U vendorSpecificTLVInsertInCDMU(struct CMDU *memory_structure, struct vendorSpecificTLV *vendor_specific);
+uint8_t vendorSpecificTLVInsertInCDMU(struct CMDU *memory_structure, struct vendorSpecificTLV *vendor_specific);
 
 // This function duplicates a Vendor Specific TLV
 //
@@ -229,7 +229,7 @@ struct vendorSpecificTLV *vendorSpecificTLVDuplicate(struct vendorSpecificTLV *t
 // non-standard TLVs), no action here is required (the group is already
 // registered)
 //
-INT8U start1905ALExtensions(void);
+uint8_t start1905ALExtensions(void);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -250,7 +250,7 @@ INT8U start1905ALExtensions(void);
 //
 // Return '0' if there was a problem, '1' otherwise.
 //
-INT8U register1905CmduExtension(char *name,
+uint8_t register1905CmduExtension(char *name,
                                 CMDU_EXTENSION_CBK process,
                                 CMDU_EXTENSION_CBK send);
 
@@ -270,7 +270,7 @@ INT8U register1905CmduExtension(char *name,
 //
 // Return '0' if there was a problem, '1' otherwise.
 //
-INT8U register1905AlmeDumpExtension(char *name,
+uint8_t register1905AlmeDumpExtension(char *name,
                                     DM_OBTAIN_LOCAL_INFO_CBK obtain,
                                     DM_UPDATE_LOCAL_INFO_CBK update,
                                     DM_EXTENSION_CBK         dump);
@@ -284,6 +284,6 @@ INT8U register1905AlmeDumpExtension(char *name,
 //
 // Return '0' if there was a problem, '1' otherwise.
 //
-INT8U start1905ALExtensions(void);
+uint8_t start1905ALExtensions(void);
 
 #endif

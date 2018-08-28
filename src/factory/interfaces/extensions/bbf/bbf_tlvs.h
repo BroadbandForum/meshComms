@@ -39,7 +39,7 @@
                                                      // points to the last one.
 
 
-static const INT8U BBF_OUI[3] = {0x00, 0x25, 0x6d};
+static const uint8_t BBF_OUI[3] = {0x00, 0x25, 0x6d};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Main API functions
@@ -64,7 +64,7 @@ static const INT8U BBF_OUI[3] = {0x00, 0x25, 0x6d};
 // Otherwise, the returned structure is dynamically allocated, and once it is
 // no longer needed, the user must call the "free_bbf_TLV_structure()"
 //
-INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream);
+uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream);
 
 
  // This is the opposite of "parse_bbf_TLV_from_packet()": it receives a
@@ -82,7 +82,7 @@ INT8U *parse_bbf_TLV_from_packet(INT8U *packet_stream);
  // Note that the input structure is *not* freed. You still need to later call
  // "free_bbf_TLV_structure()"
  //
-INT8U *forge_bbf_TLV_from_structure(INT8U *memory_structure, INT16U *len);
+uint8_t *forge_bbf_TLV_from_structure(uint8_t *memory_structure, uint16_t *len);
 
 
 
@@ -96,7 +96,7 @@ INT8U *forge_bbf_TLV_from_structure(INT8U *memory_structure, INT16U *len);
 // "memory_structure" must point to a structure of one of the types returned by
 // "parse_bbf_TLV_from_packet()"
 //
-void free_bbf_TLV_structure(INT8U *memory_structure);
+void free_bbf_TLV_structure(uint8_t *memory_structure);
 
 
 // 'forge_bbf_TLV_from_structure()' returns a regular buffer which can be freed
@@ -111,7 +111,7 @@ void free_bbf_TLV_structure(INT8U *memory_structure);
 // "memory_structure_1" and "memory_structure_2" must point (each) to a
 // structure of one of the types returned by "parse_bbf_TLV_from_packet()"
 //
-INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_structure_2);
+uint8_t compare_bbf_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory_structure_2);
 
 
 // The next function is used to call function "callback()" on each element of
@@ -140,7 +140,7 @@ INT8U compare_bbf_TLV_structures(INT8U *memory_structure_1, INT8U *memory_struct
 //     function prints before anything else to make it easy to follow the
 //     structure traversing order)
 //
-void visit_bbf_TLV_structure(INT8U *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
+void visit_bbf_TLV_structure(uint8_t *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
 
 
 // Use this function for debug purposes. It turns a TLV_TYPE_* variable into its
@@ -150,6 +150,6 @@ void visit_bbf_TLV_structure(INT8U *memory_structure, visitor_callback callback,
 //
 // Return "Unknown" if the provided type does not exist.
 //
-char *convert_bbf_TLV_type_to_string(INT8U tlv_type);
+char *convert_bbf_TLV_type_to_string(uint8_t tlv_type);
 
 #endif // END _BBF_TLVS_H_

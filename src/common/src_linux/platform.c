@@ -75,7 +75,7 @@ pthread_mutex_t printf_mutex = PTHREAD_MUTEX_INITIALIZER;
 // Platform API: libc stuff
 ////////////////////////////////////////////////////////////////////////////////
 
-void *PLATFORM_MALLOC(INT32U size)
+void *PLATFORM_MALLOC(size_t size)
 {
     void *p;
 
@@ -97,7 +97,7 @@ void PLATFORM_FREE(void *ptr)
 }
 
 
-void *PLATFORM_REALLOC(void *ptr, INT32U size)
+void *PLATFORM_REALLOC(void *ptr, size_t size)
 {
     void *p;
 
@@ -139,7 +139,7 @@ void PLATFORM_PRINTF_DEBUG_SET_VERBOSITY_LEVEL(int level)
 void PLATFORM_PRINTF_DEBUG_ERROR(const char *format, ...)
 {
     va_list arglist;
-    INT32U ts;
+    uint32_t ts;
 
     if (verbosity_level < 0)
     {
@@ -168,7 +168,7 @@ void PLATFORM_PRINTF_DEBUG_ERROR(const char *format, ...)
 void PLATFORM_PRINTF_DEBUG_WARNING(const char *format, ...)
 {
     va_list arglist;
-    INT32U ts;
+    uint32_t ts;
 
     if (verbosity_level < 1)
     {
@@ -197,7 +197,7 @@ void PLATFORM_PRINTF_DEBUG_WARNING(const char *format, ...)
 void PLATFORM_PRINTF_DEBUG_INFO(const char *format, ...)
 {
     va_list arglist;
-    INT32U ts;
+    uint32_t ts;
 
     if (verbosity_level < 2)
     {
@@ -226,7 +226,7 @@ void PLATFORM_PRINTF_DEBUG_INFO(const char *format, ...)
 void PLATFORM_PRINTF_DEBUG_DETAIL(const char *format, ...)
 {
     va_list arglist;
-    INT32U ts;
+    uint32_t ts;
 
     if (verbosity_level < 3)
     {
@@ -252,10 +252,10 @@ void PLATFORM_PRINTF_DEBUG_DETAIL(const char *format, ...)
     return;
 }
 
-INT32U PLATFORM_GET_TIMESTAMP(void)
+uint32_t PLATFORM_GET_TIMESTAMP(void)
 {
     struct timeval tv_end;
-    INT32U diff;
+    uint32_t diff;
 
     gettimeofday(&tv_end, NULL);
 
@@ -269,7 +269,7 @@ INT32U PLATFORM_GET_TIMESTAMP(void)
 // Platform API: Initialization functions
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U PLATFORM_INIT(void)
+uint8_t PLATFORM_INIT(void)
 {
 
     // Call "_timeval_print()" for the first time so that the initialization
@@ -305,7 +305,7 @@ int getIfIndex(const char *interface_name)
     return ifr.ifr_ifindex;
 }
 
-int openPacketSocket(int ifindex, INT16U eth_type)
+int openPacketSocket(int ifindex, uint16_t eth_type)
 {
     int                 s;
     struct sockaddr_ll  socket_address;

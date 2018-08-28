@@ -24,10 +24,10 @@
 // Public functions (exported only to files in this same folder)
 ////////////////////////////////////////////////////////////////////////////////
 
-INT16U getNextMid(void)
+uint16_t getNextMid(void)
 {
-    static INT16U mid       = 0;
-    static INT8U first_time = 1;
+    static uint16_t mid       = 0;
+    static uint8_t first_time = 1;
 
     if (1 == first_time)
     {
@@ -39,7 +39,7 @@ INT16U getNextMid(void)
         // already processed these messages in the past)
         //
         first_time = 0;
-        PLATFORM_GET_RANDOM_BYTES((INT8U*)&mid, sizeof(INT16U));
+        PLATFORM_GET_RANDOM_BYTES((uint8_t*)&mid, sizeof(uint16_t));
     }
     else
     {

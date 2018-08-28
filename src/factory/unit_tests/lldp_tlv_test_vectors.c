@@ -63,12 +63,12 @@ struct endOfLldppduTLV lldp_tlv_structure_001 =
     .tlv_type          = TLV_TYPE_END_OF_LLDPPDU,
 };
 
-INT8U lldp_tlv_stream_001[] =
+uint8_t lldp_tlv_stream_001[] =
 {
     0x00, 0x00,
 };
 
-INT16U lldp_tlv_stream_len_001 = 2;
+uint16_t lldp_tlv_stream_len_001 = 2;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,14 +82,14 @@ struct chassisIdTLV lldp_tlv_structure_002 =
     .chassis_id          = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
 };
 
-INT8U lldp_tlv_stream_002[] =
+uint8_t lldp_tlv_stream_002[] =
 {
     0x02, 0x07,
     0x04,
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
 };
 
-INT16U lldp_tlv_stream_len_002 = 9;
+uint16_t lldp_tlv_stream_len_002 = 9;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,14 +103,14 @@ struct portIdTLV lldp_tlv_structure_003 =
     .port_id             = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
 };
 
-INT8U lldp_tlv_stream_003[] =
+uint8_t lldp_tlv_stream_003[] =
 {
     0x04, 0x07,
     0x03,
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
 };
 
-INT16U lldp_tlv_stream_len_003 = 9;
+uint16_t lldp_tlv_stream_len_003 = 9;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,10 +123,10 @@ struct timeToLiveTypeTLV lldp_tlv_structure_004 =
     .ttl                 = TIME_TO_LIVE_TLV_1905_DEFAULT_VALUE,
 };
 
-INT8U lldp_tlv_stream_004[] =
+uint8_t lldp_tlv_stream_004[] =
 {
     0x06, 0x02,
     0x00, 0xb4,
 };
 
-INT16U lldp_tlv_stream_len_004 = 4;
+uint16_t lldp_tlv_stream_len_004 = 4;

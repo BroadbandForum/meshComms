@@ -28,9 +28,9 @@
 #include "lldp_tlvs.h"
 #include "lldp_payload_test_vectors.h"
 
-INT8U _check(const char *test_description, INT8U *input, struct PAYLOAD *expected_output)
+uint8_t _check(const char *test_description, uint8_t *input, struct PAYLOAD *expected_output)
 {
-    INT8U  result;
+    uint8_t  result;
     struct PAYLOAD *real_output;
 
     real_output = parse_lldp_PAYLOAD_from_packet(input);
@@ -56,7 +56,7 @@ INT8U _check(const char *test_description, INT8U *input, struct PAYLOAD *expecte
 
 int main(void)
 {
-    INT8U result = 0;
+    uint8_t result = 0;
 
     #define LLDPPAYLOADPARSE001 "LLDPPAYLOADPARSE001 - Parse LLDP bridge discovery message (lldp_payload_stream_001)"
     result += _check(LLDPPAYLOADPARSE001, lldp_payload_stream_001, &lldp_payload_structure_001);

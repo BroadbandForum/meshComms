@@ -27,11 +27,11 @@
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U *forge_media_specific_blob(struct genericInterfaceType *m, INT16U *len)
+uint8_t *forge_media_specific_blob(struct genericInterfaceType *m, uint16_t *len)
 {
     #define ITU_T_GHN_XML "http://handle.itu.int/11.1002/3000/1706"
 
-    INT8U *ret;
+    uint8_t *ret;
 
     ret = NULL;
 
@@ -76,7 +76,7 @@ INT8U *forge_media_specific_blob(struct genericInterfaceType *m, INT16U *len)
            // (see ITU-T G.9979 Tables 8.2 and 8.3)
            //
            *len   = 5;
-           ret    = (INT8U *)PLATFORM_MALLOC(*len);
+           ret    = (uint8_t *)PLATFORM_MALLOC(*len);
            ret[0] = 0x01;
            ret[1] = 0x00;
            ret[2] = 0x02;
@@ -92,7 +92,7 @@ INT8U *forge_media_specific_blob(struct genericInterfaceType *m, INT16U *len)
         // we will simply return the contents of the "unsupported" structure.
         //
         *len = m->media_specific.unsupported.bytes_nr;
-        ret  = (INT8U *)PLATFORM_MALLOC(*len);
+        ret  = (uint8_t *)PLATFORM_MALLOC(*len);
 
         memcpy(ret, m->media_specific.unsupported.bytes, *len);
     }

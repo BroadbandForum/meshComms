@@ -103,7 +103,7 @@ struct deviceInfo *PLATFORM_GET_DEVICE_INFO(void);
 // If something goes wrong, this function returns "0", otherwise it returns
 // a number greater than "0" representing a "queue id"
 //
-INT8U PLATFORM_CREATE_QUEUE(const char *name);
+uint8_t PLATFORM_CREATE_QUEUE(const char *name);
 
 // This function takes:
 //
@@ -379,15 +379,15 @@ INT8U PLATFORM_CREATE_QUEUE(const char *name);
 struct event1905Packet
 {
     char     *interface_name;
-    INT8U     interface_mac_address[6];
-    INT8U     al_mac_address[6];
+    uint8_t     interface_mac_address[6];
+    uint8_t     al_mac_address[6];
 };
 struct eventTimeOut
 {
-    INT32U    timeout_ms;
-    INT32U    token;
+    uint32_t    timeout_ms;
+    uint32_t    token;
 };
-INT8U PLATFORM_REGISTER_QUEUE_EVENT(INT8U queue_id, INT8U event_type, void *data);
+uint8_t PLATFORM_REGISTER_QUEUE_EVENT(uint8_t queue_id, uint8_t event_type, void *data);
 
 // Wait until a new message is available in the queue represented by 'queue_id'
 // (which is the value obtained when calling "PLATFORM_CREATE_QUEUE()"), and
@@ -397,6 +397,6 @@ INT8U PLATFORM_REGISTER_QUEUE_EVENT(INT8U queue_id, INT8U event_type, void *data
 //
 // If there is a problem this function returns "0", otherwise it returns "1"
 //
-INT8U PLATFORM_READ_QUEUE(INT8U queue_id, INT8U *message_buffer);
+uint8_t PLATFORM_READ_QUEUE(uint8_t queue_id, uint8_t *message_buffer);
 
 #endif

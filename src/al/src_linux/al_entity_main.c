@@ -57,7 +57,7 @@ static char _asciiToLowCase (char c)
 // Convert a MAC string representation (example: "0a:fa:41:a3:ff:40") into a
 // six bytes array (example: {0x0a, 0xfa, 0x41, 0xa3, 0xff, 0x40})
 //
-static void _asciiToMac (const char *str, INT8U *addr)
+static void _asciiToMac (const char *str, uint8_t *addr)
 {
     int i = 0;
 
@@ -75,7 +75,7 @@ static void _asciiToMac (const char *str, INT8U *addr)
 
     while (0x00 != *str && i < 6)
     {
-        INT8U byte = 0;
+        uint8_t byte = 0;
 
         while (0x00 != *str && ':' != *str)
         {
@@ -176,8 +176,8 @@ static void _printUsage(char *program_name)
 
 int main(int argc, char *argv[])
 {
-    INT8U al_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    INT8U map_whole_network = 0;
+    uint8_t al_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t map_whole_network = 0;
 
     int   c;
     char *al_mac              = NULL;

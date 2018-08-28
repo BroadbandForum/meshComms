@@ -58,7 +58,7 @@ static char _asciiToLowCase (char c)
 // Convert a MAC string representation (example: "0a:fa:41:a3:ff:40") into a
 // six bytes array (example: {0x0a, 0xfa, 0x41, 0xa3, 0xff, 0x40})
 //
-static void _asciiToMac (const char *str, INT8U *addr)
+static void _asciiToMac (const char *str, uint8_t *addr)
 {
     int i = 0;
 
@@ -76,7 +76,7 @@ static void _asciiToMac (const char *str, INT8U *addr)
 
     while (0x00 != *str && i < 6)
     {
-        INT8U byte = 0;
+        uint8_t byte = 0;
 
         while (0x00 != *str && ':' != *str)
         {
@@ -113,9 +113,9 @@ static void _asciiToMac (const char *str, INT8U *addr)
 // Some types of ALME requests require arguments. These are taken from the
 // arguments the executable was called with.
 //
-INT8U *_build_alme_request(char *alme_request_type, int argc, char **argv)
+uint8_t *_build_alme_request(char *alme_request_type, int argc, char **argv)
 {
-    INT8U *ret = NULL;
+    uint8_t *ret = NULL;
 
     if      (0 == strcmp(alme_request_type, "ALME-GET-INTF-LIST.request"))
     {
@@ -129,13 +129,13 @@ INT8U *_build_alme_request(char *alme_request_type, int argc, char **argv)
         }
         p->alme_type = ALME_TYPE_GET_INTF_LIST_REQUEST;
 
-        ret = (INT8U *)p;
+        ret = (uint8_t *)p;
     }
     else if (0 == strcmp(alme_request_type, "ALME-GET-METRIC.request"))
     {
         struct getMetricRequestALME *p;
 
-        INT8U mac_address[8];
+        uint8_t mac_address[8];
 
         // When an ALME-GET-METRIC.request is solicited, the user can either
         // ask for a specific neighbor (in that case an extra argument is
@@ -167,7 +167,7 @@ INT8U *_build_alme_request(char *alme_request_type, int argc, char **argv)
         p->alme_type = ALME_TYPE_GET_METRIC_REQUEST;
         memcpy(p->interface_address, mac_address, 6);
 
-        ret = (INT8U *)p;
+        ret = (uint8_t *)p;
     }
     else if (0 == strcmp(alme_request_type, "ALME-CUSTOM-COMMAND.request"))
     {
@@ -200,7 +200,7 @@ INT8U *_build_alme_request(char *alme_request_type, int argc, char **argv)
             return NULL;
         }
 
-        ret = (INT8U *)p;
+        ret = (uint8_t *)p;
     }
     else
     {
@@ -232,7 +232,7 @@ INT8U *_build_alme_request(char *alme_request_type, int argc, char **argv)
 // 'alme_response' after they are no longer needed (ie. this function does not
 // allocate/free memory at all).
 //
-int _sendAlmeRequestAndWaitForReply(char *server_ip_and_port, INT8U *alme_request, int alme_request_len, INT8U *alme_reply, int *alme_reply_len)
+int _sendAlmeRequestAndWaitForReply(char *server_ip_and_port, uint8_t *alme_request, int alme_request_len, uint8_t *alme_reply, int *alme_reply_len)
 {
     int sock;
 
@@ -390,16 +390,16 @@ int main(int argc, char *argv[])
     char *al_ip_address_and_tcp_port = NULL;
     char *alme_request_type          = NULL;
 
-    INT8U  *alme_request_structure    = NULL;
-    INT8U  *alme_request_payload      = NULL;
-    INT16U  alme_request_payload_len  = 0;
+    uint8_t  *alme_request_structure    = NULL;
+    uint8_t  *alme_request_payload      = NULL;
+    uint16_t  alme_request_payload_len  = 0;
 
     int verbosity_counter = 1; // Only ERROR and WARNING messages
 
     #define MAX_REPLY_SIZE (100*MAX_NETWORK_SEGMENT_SIZE)
 
-    INT8U  *alme_reply_structure;
-    INT8U   alme_reply_payload[MAX_REPLY_SIZE];
+    uint8_t  *alme_reply_structure;
+    uint8_t   alme_reply_payload[MAX_REPLY_SIZE];
     int     alme_reply_payload_len = MAX_REPLY_SIZE;
 
     char aux[300*1024];

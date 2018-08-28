@@ -92,7 +92,7 @@
 //
 //   - 'len' is the length of this 'packet_buffer' in bytes
 //
-struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
+struct CMDU *_reAssembleFragmentedCMDUs(uint8_t *packet_buffer, uint16_t len)
 {
     #define MAX_MIDS_IN_FLIGHT     5
     #define MAX_FRAGMENTS_PER_MID  3
@@ -104,22 +104,22 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
     //
     static struct _midsInFlight
     {
-        INT8U in_use;  // Is this entry free?
+        uint8_t in_use;  // Is this entry free?
 
-        INT8U mid;     // 'mid' associated to this CMDU
+        uint8_t mid;     // 'mid' associated to this CMDU
 
-        INT8U src_addr[6];
-        INT8U dst_addr[6];
+        uint8_t src_addr[6];
+        uint8_t dst_addr[6];
                        // These two (together with the 'mid' field) will be used
                        // to identify fragments belonging to one same CMDU.
 
-        INT8U fragments[MAX_FRAGMENTS_PER_MID];
+        uint8_t fragments[MAX_FRAGMENTS_PER_MID];
                        // Each entry represents a fragment number.
                        //   - "1" means that fragment has been received
                        //   - "0" means no fragment with that number has been
                        //     received.
 
-        INT8U last_fragment;
+        uint8_t last_fragment;
                        // Number of the fragment carrying the
                        // 'last_fragment_indicator' flag.
                        // This is always a number between 0 and
@@ -128,7 +128,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
                        // meaning that no fragment with the
                        // 'last_fragment_indicator' flag has been received yet.
 
-        INT8U *streams[MAX_FRAGMENTS_PER_MID+1];
+        uint8_t *streams[MAX_FRAGMENTS_PER_MID+1];
                        // Each of the bit streams associated to each fragment
                        //
                        // The size is "MAX_FRAGMENTS_PER_MID+1" instead of
@@ -136,17 +136,17 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
                        // (this makes it easier to later call
                        // "parse_1905_CMDU_header_from_packet()"
 
-        INT32U age;    // Used to keep track of which is the oldest CMDU for
+        uint32_t age;    // Used to keep track of which is the oldest CMDU for
                        // which a fragment was received (so that we can free
                        // it when the CMDUs buffer is full)
 
     } mids_in_flight[MAX_MIDS_IN_FLIGHT] = \
     {[ 0 ... MAX_MIDS_IN_FLIGHT-1 ] = (struct _midsInFlight) { .in_use = 0 }};
 
-    static INT32U current_age = 0;
+    static uint32_t current_age = 0;
 
-    INT8U  i, j;
-    INT8U *p;
+    uint8_t  i, j;
+    uint8_t *p;
     struct CMDU_header cmdu_header;
 
     if (!parse_1905_CMDU_header_from_packet(packet_buffer, len, &cmdu_header))
@@ -228,7 +228,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
                 mids_in_flight[i].last_fragment = cmdu_header.fragment_id;
             }
 
-            mids_in_flight[i].streams[cmdu_header.fragment_id] = (INT8U *)PLATFORM_MALLOC((sizeof(INT8U) * len));
+            mids_in_flight[i].streams[cmdu_header.fragment_id] = (uint8_t *)PLATFORM_MALLOC((sizeof(uint8_t) * len));
             memcpy(mids_in_flight[i].streams[cmdu_header.fragment_id], p, len);
 
             mids_in_flight[i].age = current_age++;
@@ -259,7 +259,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
             // We need to discard the oldest one (ie. the one with the lowest
             // 'age')
             //
-            INT32U lowest_age;
+            uint32_t lowest_age;
 
             lowest_age = mids_in_flight[0].age;
             j          = 0;
@@ -308,7 +308,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
         mids_in_flight[i].streams[MAX_FRAGMENTS_PER_MID] = NULL;
 
         mids_in_flight[i].fragments[cmdu_header.fragment_id]  = 1;
-        mids_in_flight[i].streams[cmdu_header.fragment_id]    = (INT8U *)PLATFORM_MALLOC((sizeof(INT8U) * len));
+        mids_in_flight[i].streams[cmdu_header.fragment_id]    = (uint8_t *)PLATFORM_MALLOC((sizeof(uint8_t) * len));
         memcpy(mids_in_flight[i].streams[cmdu_header.fragment_id], p, len);
 
         if (1 == cmdu_header.last_fragment_indicator)
@@ -402,19 +402,19 @@ struct CMDU *_reAssembleFragmentedCMDUs(INT8U *packet_buffer, INT16U len)
 //   2. Otherwise, the entry is added (discarding, if needed, the oldest entry)
 //      and this function returns '0'
 //
-INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
+uint8_t _checkDuplicates(uint8_t *src_mac_address, struct CMDU *c)
 {
     #define MAX_DUPLICATES_LOG_ENTRIES 10
 
-    static INT8U  mac_addresses[MAX_DUPLICATES_LOG_ENTRIES][6];
-    static INT16U message_ids  [MAX_DUPLICATES_LOG_ENTRIES];
+    static uint8_t  mac_addresses[MAX_DUPLICATES_LOG_ENTRIES][6];
+    static uint16_t message_ids  [MAX_DUPLICATES_LOG_ENTRIES];
 
-    static INT8U start = 0;
-    static INT8U total = 0;
+    static uint8_t start = 0;
+    static uint8_t total = 0;
 
-    INT8U mac_address[6];
+    uint8_t mac_address[6];
 
-    INT8U i;
+    uint8_t i;
 
     if(
         CMDU_TYPE_TOPOLOGY_RESPONSE               == c->message_type ||
@@ -467,8 +467,8 @@ INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
     memcpy(mac_address, src_mac_address, 6);
     if (1 == c->relay_indicator)
     {
-        INT8U i;
-        INT8U *p;
+        uint8_t i;
+        uint8_t *p;
 
         i = 0;
         while (NULL != (p = c->list_of_TLVs[i]))
@@ -500,7 +500,7 @@ INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
     //
     for (i=0; i<total; i++)
     {
-        INT8U index;
+        uint8_t index;
 
         index = (start + i) % MAX_DUPLICATES_LOG_ENTRIES;
 
@@ -521,7 +521,7 @@ INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
     {
         // There is space for new entries
         //
-        INT8U index;
+        uint8_t index;
 
         index = (start + total) % MAX_DUPLICATES_LOG_ENTRIES;
 
@@ -555,14 +555,14 @@ INT8U _checkDuplicates(INT8U *src_mac_address, struct CMDU *c)
 // 'destination_mac_addr' and the same "message id" (MID) as the one contained
 // in the originally received 'c' structure.
 //
-void _checkForwarding(INT8U *receiving_interface_addr, INT8U *destination_mac_addr, struct CMDU *c)
+void _checkForwarding(uint8_t *receiving_interface_addr, uint8_t *destination_mac_addr, struct CMDU *c)
 {
-    INT8U i;
+    uint8_t i;
 
     if (c->relay_indicator)
     {
         char **ifs_names;
-        INT8U  ifs_nr;
+        uint8_t  ifs_nr;
 
         char *aux;
 
@@ -571,8 +571,8 @@ void _checkForwarding(INT8U *receiving_interface_addr, INT8U *destination_mac_ad
         ifs_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&ifs_nr);
         for (i=0; i<ifs_nr; i++)
         {
-            INT8U authenticated;
-            INT8U power_state;
+            uint8_t authenticated;
+            uint8_t power_state;
 
             struct interfaceInfo *x;
 
@@ -716,14 +716,14 @@ void _checkForwarding(INT8U *receiving_interface_addr, INT8U *destination_mac_ad
 //
 void _triggerAPSearchProcess(void)
 {
-    INT8U  i;
-    INT16U mid;
+    uint8_t  i;
+    uint16_t mid;
 
     char **ifs_names;
-    INT8U  ifs_nr;
+    uint8_t  ifs_nr;
 
-    INT8U unconfigured_ap_exists = 0;
-    INT8U unconfigured_ap_band   = 0;
+    uint8_t unconfigured_ap_exists = 0;
+    uint8_t unconfigured_ap_band   = 0;
 
     ifs_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&ifs_nr);
 
@@ -799,8 +799,8 @@ void _triggerAPSearchProcess(void)
         mid = getNextMid();
         for (i=0; i<ifs_nr; i++)
         {
-            INT8U authenticated;
-            INT8U power_state;
+            uint8_t authenticated;
+            uint8_t power_state;
 
             struct interfaceInfo *x;
 
@@ -851,15 +851,15 @@ void _triggerAPSearchProcess(void)
 // Public functions
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *registrar_interface)
+uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, char *registrar_interface)
 {
-    INT8U   queue_id;
-    INT8U  *queue_message;
+    uint8_t   queue_id;
+    uint8_t  *queue_message;
 
     char   **interfaces_names;
-    INT8U    interfaces_nr;
+    uint8_t    interfaces_nr;
 
-    INT8U i;
+    uint8_t i;
 
     // Initialize platform-specific code
     //
@@ -1101,14 +1101,14 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
     // Prepare the message queue
     //
     PLATFORM_PRINTF_DEBUG_DETAIL("Allocating memory to hold a queue message...\n");
-    queue_message = (INT8U *)PLATFORM_MALLOC(MAX_NETWORK_SEGMENT_SIZE+3);
+    queue_message = (uint8_t *)PLATFORM_MALLOC(MAX_NETWORK_SEGMENT_SIZE+3);
 
     PLATFORM_PRINTF_DEBUG_DETAIL("Entering read-process loop...\n");
     while(1)
     {
-        INT8U  *p;
-        INT8U   message_type;
-        INT16U  message_len;
+        uint8_t  *p;
+        uint8_t   message_type;
+        uint16_t  message_len;
 
         PLATFORM_PRINTF_DEBUG_DETAIL("\n");
         PLATFORM_PRINTF_DEBUG_DETAIL("Waiting for new queue message...\n");
@@ -1129,15 +1129,15 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
         {
             case PLATFORM_QUEUE_EVENT_NEW_1905_PACKET:
             {
-                INT8U *q;
+                uint8_t *q;
 
                 struct interfaceInfo *x;
 
-                INT8U  dst_addr[6];
-                INT8U  src_addr[6];
-                INT16U ether_type;
+                uint8_t  dst_addr[6];
+                uint8_t  src_addr[6];
+                uint16_t ether_type;
 
-                INT8U  receiving_interface_addr[6];
+                uint8_t  receiving_interface_addr[6];
                 char  *receiving_interface_name;
 
                 // The first six bytes of the message payload contain the MAC
@@ -1231,7 +1231,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                             }
                             else
                             {
-                                INT8U res;
+                                uint8_t res;
 
                                 PLATFORM_PRINTF_DEBUG_DETAIL("CMDU message contents:\n");
                                 visit_1905_CMDU_structure(c, print_callback, PLATFORM_PRINTF_DEBUG_DETAIL, "");
@@ -1278,8 +1278,8 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                 //
                 // We just need to convert it into a struct and process it:
                 //
-                INT8U   alme_client_id;
-                INT8U  *alme_tlv;
+                uint8_t   alme_client_id;
+                uint8_t  *alme_tlv;
 
                 _E1B(&p, &alme_client_id);
 
@@ -1292,7 +1292,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                 }
 
                 PLATFORM_PRINTF_DEBUG_DETAIL("ALME message contents:\n");
-                visit_1905_ALME_structure((INT8U *)alme_tlv, print_callback, PLATFORM_PRINTF_DEBUG_DETAIL, "");
+                visit_1905_ALME_structure((uint8_t *)alme_tlv, print_callback, PLATFORM_PRINTF_DEBUG_DETAIL, "");
 
                 process1905Alme(alme_tlv, alme_client_id);
 
@@ -1304,7 +1304,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
             case PLATFORM_QUEUE_EVENT_TIMEOUT:
             case PLATFORM_QUEUE_EVENT_TIMEOUT_PERIODIC:
             {
-                INT32U  timer_id;
+                uint32_t  timer_id;
 
                 // The message payload of this type of messages only contains
                 // four bytes with the "timer ID" that expired.
@@ -1317,10 +1317,10 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                 {
                     case TIMER_TOKEN_DISCOVERY:
                     {
-                        INT16U mid;
+                        uint16_t mid;
 
                         char **ifs_names;
-                        INT8U  ifs_nr;
+                        uint8_t  ifs_nr;
 
                         // According to "Section 8.2.1.1" and "Section 8.2.1.2"
                         // we now have to send a "Topology discovery message"
@@ -1333,8 +1333,8 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                         mid       = getNextMid();
                         for (i=0; i<ifs_nr; i++)
                         {
-                            INT8U authenticated;
-                            INT8U power_state;
+                            uint8_t authenticated;
+                            uint8_t power_state;
 
                             struct interfaceInfo *x;
 
@@ -1389,10 +1389,10 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
 
                         if (DMrunGarbageCollector() > 0)
                         {
-                            INT16U mid;
+                            uint16_t mid;
 
                             char **ifs_names;
-                            INT8U  ifs_nr;
+                            uint8_t  ifs_nr;
 
                             PLATFORM_PRINTF_DEBUG_DETAIL("Some elements were removed. Sending a topology change notification...");
 
@@ -1406,8 +1406,8 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                             mid       = getNextMid();
                             for (i=0; i<ifs_nr; i++)
                             {
-                                INT8U authenticated;
-                                INT8U power_state;
+                                uint8_t authenticated;
+                                uint8_t power_state;
 
                                 struct interfaceInfo *x;
 
@@ -1461,13 +1461,13 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
 
             case PLATFORM_QUEUE_EVENT_PUSH_BUTTON:
             {
-                INT16U mid;
+                uint16_t mid;
 
                 char **ifs_names;
-                INT8U  ifs_nr;
+                uint8_t  ifs_nr;
 
-                INT8U  *no_push_button;
-                INT8U   at_least_one_unsupported_interface;
+                uint8_t  *no_push_button;
+                uint8_t   at_least_one_unsupported_interface;
 
                 PLATFORM_PRINTF_DEBUG_DETAIL("New queue message arrived: push button event\n");
 
@@ -1517,7 +1517,7 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                 // those who don't by setting the corresponding byte in array
                 // "no_push_button" to '1'
                 //
-                no_push_button = (INT8U *)PLATFORM_MALLOC(sizeof(INT8U) * ifs_nr);
+                no_push_button = (uint8_t *)PLATFORM_MALLOC(sizeof(uint8_t) * ifs_nr);
 
                 for (i=0; i<ifs_nr; i++)
                 {
@@ -1628,8 +1628,8 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                 //
                 for (i=0; i<ifs_nr; i++)
                 {
-                    INT8U authenticated;
-                    INT8U power_state;
+                    uint8_t authenticated;
+                    uint8_t power_state;
 
                     struct interfaceInfo *x;
 
@@ -1683,15 +1683,15 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                 //   2. According to "Section 10.1", the "AP-autoconfiguration"
                 //      process is triggered.
 
-                INT16U mid;
+                uint16_t mid;
 
-                INT8U   local_mac_addr[6];
-                INT8U   new_mac_addr[6];
-                INT8U   original_al_mac_addr[6];
-                INT16U  original_mid;
+                uint8_t   local_mac_addr[6];
+                uint8_t   new_mac_addr[6];
+                uint8_t   original_al_mac_addr[6];
+                uint16_t  original_mid;
 
                 char **ifs_names;
-                INT8U  ifs_nr;
+                uint8_t  ifs_nr;
 
                 // The first six bytes of the message payload contain the MAC
                 // address of the interface where the "push button"
@@ -1750,8 +1750,8 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                     mid       = getNextMid();
                     for (i=0; i<ifs_nr; i++)
                     {
-                        INT8U authenticated;
-                        INT8U power_state;
+                        uint8_t authenticated;
+                        uint8_t power_state;
 
                         struct interfaceInfo *x;
 
@@ -1807,10 +1807,10 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
 
             case PLATFORM_QUEUE_EVENT_TOPOLOGY_CHANGE_NOTIFICATION:
             {
-                INT16U mid;
+                uint16_t mid;
 
                 char **ifs_names;
-                INT8U  ifs_nr;
+                uint8_t  ifs_nr;
 
                 PLATFORM_PRINTF_DEBUG_DETAIL("New queue message arrived: topology change notification event\n");
 
@@ -1833,8 +1833,8 @@ INT8U start1905AL(INT8U *al_mac_address, INT8U map_whole_network_flag, char *reg
                 mid       = getNextMid();
                 for (i=0; i<ifs_nr; i++)
                 {
-                    INT8U authenticated;
-                    INT8U power_state;
+                    uint8_t authenticated;
+                    uint8_t power_state;
 
                     struct interfaceInfo *x;
 

@@ -30,16 +30,16 @@
 #include <stdio.h>  // vsnprintf
 #include <stdarg.h> // va_start etc.
 
-INT8U _check(const char *test_description, struct CMDU *input, INT8U **expected_output, INT16U *expected_output_lens)
+uint8_t _check(const char *test_description, struct CMDU *input, uint8_t **expected_output, uint16_t *expected_output_lens)
 {
-    INT8U   result;
-    INT8U **real_output;
-    INT16U *real_output_lens;
+    uint8_t   result;
+    uint8_t **real_output;
+    uint16_t *real_output_lens;
 
-    INT8U expected_elements_nr;
-    INT8U real_elements_nr;
+    uint8_t expected_elements_nr;
+    uint8_t real_elements_nr;
 
-    INT8U i;
+    uint8_t i;
 
     if (NULL == expected_output || NULL == expected_output_lens)
     {
@@ -165,7 +165,7 @@ INT8U _check(const char *test_description, struct CMDU *input, INT8U **expected_
         PLATFORM_PRINTF("  Expected output:\n");
         for (i=0; i<expected_elements_nr; i++)
         {
-            INT8U j;
+            uint8_t j;
 
             PLATFORM_PRINTF("    STREAM #%d: ", i);
             for (j=0; j<expected_output_lens[i]; j++)
@@ -177,7 +177,7 @@ INT8U _check(const char *test_description, struct CMDU *input, INT8U **expected_
         PLATFORM_PRINTF("  Real output:\n");
         for (i=0; i<real_elements_nr; i++)
         {
-            INT8U j;
+            uint8_t j;
 
             PLATFORM_PRINTF("    STREAM #%d: ", i);
             for (j=0; j<real_output_lens[i]; j++)
@@ -216,7 +216,7 @@ static void check_print(const char *format, ...)
 
 int main(void)
 {
-    INT8U result = 0;
+    uint8_t result = 0;
 
     #define x1905CMDUFORGE001 "x1905CMDUFORGE001 - Forge link metric query CMDU (x1905_cmdu_001)"
     result += _check(x1905CMDUFORGE001, &x1905_cmdu_structure_001, x1905_cmdu_streams_001, x1905_cmdu_streams_len_001);

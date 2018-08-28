@@ -121,7 +121,7 @@ struct CMDU *expect_cmdu(int s, unsigned timeout_ms, const char *testname, uint1
             }
             else
             {
-                INT8U *packets[] = {(INT8U *)buf + (6+6+2), NULL};
+                uint8_t *packets[] = {(uint8_t *)buf + (6+6+2), NULL};
                 struct CMDU *cmdu = parse_1905_CMDU_from_packets(packets);
                 if (NULL == cmdu)
                 {
@@ -173,8 +173,8 @@ int expect_cmdu_match(int s, unsigned timeout_ms, const char *testname, const st
 
 int send_cmdu(int s, mac_address dst_addr, mac_address src_addr, const struct CMDU *cmdu)
 {
-    INT8U  **streams;
-    INT16U  *streams_lens;
+    uint8_t  **streams;
+    uint16_t  *streams_lens;
     int i;
     int ret = 0;
 

@@ -63,8 +63,8 @@
 //   - When receiving a AP search response (ie. when we want to configure an
 //     unconfigured AP interface and a registrar has been found):
 //
-//       INT8U  *m1;
-//       INT16U  m1_size;
+//       uint8_t  *m1;
+//       uint16_t  m1_size;
 //       void   *key;
 //
 //       wscBuildM1("wlan0", &m1, &m1_size, &key);
@@ -78,8 +78,8 @@
 //       {
 //         // Registrar
 //
-//         INT8U  *m2;
-//         INT16U  m2_size;
+//         uint8_t  *m2;
+//         uint16_t  m2_size;
 //
 //         wscBuildM2(m, m_size, &m2, &m2_size);
 //         <send TLV/CMDU containing "m2">
@@ -104,19 +104,19 @@
 // By the way, all the next functions return "0" if there a problem an "1"
 // otherwise (except for "wscGetType()", which returns the message type)
 
-INT8U  wscBuildM1(char *interface_name, INT8U **m1, INT16U *m1_size, void **key);
-INT8U  wscProcessM2(void *key, INT8U *m1, INT16U m1_size, INT8U *m2, INT16U m2_size);
+uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void **key);
+uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, uint8_t *m2, uint16_t m2_size);
 
 
-INT8U wscBuildM2(INT8U *m1, INT16U m1_size, INT8U **m2, INT16U *m2_size);
-INT8U wscFreeM2(INT8U *m, INT16U m_size);
+uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_size);
+uint8_t wscFreeM2(uint8_t *m, uint16_t m_size);
 
 
 #define WSC_TYPE_M1      (0x00)
 #define WSC_TYPE_M2      (0x01)
 #define WSC_TYPE_UNKNOWN (0xFF)
 
-INT8U wscGetType(INT8U *m, INT16U m_size);
+uint8_t wscGetType(uint8_t *m, uint16_t m_size);
 
 
 #endif

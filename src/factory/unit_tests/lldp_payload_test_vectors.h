@@ -23,7 +23,7 @@
 #include "lldp_tlvs.h"
 
 extern struct PAYLOAD  lldp_payload_structure_001;
-extern INT8U           lldp_payload_stream_001[];
-extern INT16U          lldp_payload_stream_len_001;
+extern uint8_t           lldp_payload_stream_001[];
+extern uint16_t          lldp_payload_stream_len_001;
 
 #endif

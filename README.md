@@ -1058,10 +1058,10 @@ declaration:
 ```
      struct deviceIdentificationTypeTLV
      {
-         INT8U  tlv_type;
-         INT8U  friendly_name[64];
-         INT8U  manufacturer_name[64];
-         INT8U  manufacturer_model[64];
+         uint8_t  tlv_type;
+         uint8_t  friendly_name[64];
+         uint8_t  manufacturer_name[64];
+         uint8_t  manufacturer_model[64];
      };
 ```
 ...which will be returned by the corresponding "*parse*" function when applied
@@ -1516,7 +1516,7 @@ functionality. This is a two steps process:
          #include "bbf_send.h"
          #include "bbf_recv.h"
 
-         INT8U start1905ALProtocolExtension(void)
+         uint8_t start1905ALProtocolExtension(void)
          {
              // BBF protocol extension
              //

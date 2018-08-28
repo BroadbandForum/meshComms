@@ -73,7 +73,7 @@
 #define STUB_TYPE_GET_METRICS         (1)
 #define STUB_TYPE_PUSH_BUTTON_START   (2)
 #define STUB_TYPE_MAX                 (2)
-INT8U registerInterfaceStub(char *interface_type, INT8U stub_type, void *f);
+uint8_t registerInterfaceStub(char *interface_type, uint8_t stub_type, void *f);
 
 // This function is used to initialize the "interfaces list database" from the
 // arguments obtained from the command line.

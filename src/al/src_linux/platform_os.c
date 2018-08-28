@@ -56,19 +56,19 @@ struct linux_interface_info {
     /** @brief File descriptor of the packet socket bound to the LLDP protocol. */
     int sock_lldp_fd;
 
-    INT8U     al_mac_address[6];
-    INT8U     queue_id;
+    uint8_t     al_mac_address[6];
+    uint8_t     queue_id;
 };
 
 // *********** IPC stuff *******************************************************
 
-// Queue related function in the PLATFORM API return queue IDs that are INT8U
+// Queue related function in the PLATFORM API return queue IDs that are uint8_t
 // elements.
 // However, in POSIX all queue related functions deal with a 'mqd_t' type.
 // The following global arrays are used to store the association between a
-// "PLATFORM INT8U ID" and a "POSIX mqd_t ID"
+// "PLATFORM uint8_t ID" and a "POSIX mqd_t ID"
 
-#define MAX_QUEUE_IDS  256  // Number of values that fit in an INT8U
+#define MAX_QUEUE_IDS  256  // Number of values that fit in an uint8_t
 
 static mqd_t           queues_id[MAX_QUEUE_IDS] = {[ 0 ... MAX_QUEUE_IDS-1 ] = (mqd_t) -1};
 static pthread_mutex_t queues_id_mutex          = PTHREAD_MUTEX_INITIALIZER;
@@ -76,12 +76,12 @@ static pthread_mutex_t queues_id_mutex          = PTHREAD_MUTEX_INITIALIZER;
 
 // *********** Receiving packets ********************************************
 
-static void handlePacket(INT8U queue_id, const uint8_t *packet, size_t packet_len, mac_address interface_mac_address)
+static void handlePacket(uint8_t queue_id, const uint8_t *packet, size_t packet_len, mac_address interface_mac_address)
 {
-    INT8U   message[9+MAX_NETWORK_SEGMENT_SIZE];
-    INT16U  message_len;
-    INT8U   message_len_msb;
-    INT8U   message_len_lsb;
+    uint8_t   message[9+MAX_NETWORK_SEGMENT_SIZE];
+    uint16_t  message_len;
+    uint8_t   message_len_msb;
+    uint8_t   message_len_lsb;
 
     if (packet_len > MAX_NETWORK_SEGMENT_SIZE)
     {
@@ -97,11 +97,11 @@ static void handlePacket(INT8U queue_id, const uint8_t *packet, size_t packet_le
     //
     message_len = packet_len + 6;
 #if _HOST_IS_LITTLE_ENDIAN_ == 1
-    message_len_msb = *(((INT8U *)&message_len)+1);
-    message_len_lsb = *(((INT8U *)&message_len)+0);
+    message_len_msb = *(((uint8_t *)&message_len)+1);
+    message_len_lsb = *(((uint8_t *)&message_len)+0);
 #else
-    message_len_msb = *(((INT8U *)&message_len)+0);
-    message_len_lsb = *(((INT8U *)&message_len)+1);
+    message_len_msb = *(((uint8_t *)&message_len)+0);
+    message_len_lsb = *(((uint8_t *)&message_len)+1);
 #endif
 
     message[0] = PLATFORM_QUEUE_EVENT_NEW_1905_PACKET;
@@ -272,9 +272,9 @@ static void *recvLoopThread(void *p)
 
 struct _timerHandlerThreadData
 {
-    INT8U    queue_id;
-    INT32U   token;
-    INT8U    periodic;
+    uint8_t    queue_id;
+    uint32_t   token;
+    uint8_t    periodic;
     timer_t  timer_id;
 };
 
@@ -282,14 +282,14 @@ static void _timerHandler(union sigval s)
 {
     struct _timerHandlerThreadData *aux;
 
-    INT8U   message[3+4];
-    INT16U  packet_len;
-    INT8U   packet_len_msb;
-    INT8U   packet_len_lsb;
-    INT8U   token_msb;
-    INT8U   token_2nd_msb;
-    INT8U   token_3rd_msb;
-    INT8U   token_lsb;
+    uint8_t   message[3+4];
+    uint16_t  packet_len;
+    uint8_t   packet_len_msb;
+    uint8_t   packet_len_lsb;
+    uint8_t   token_msb;
+    uint8_t   token_2nd_msb;
+    uint8_t   token_3rd_msb;
+    uint8_t   token_lsb;
 
     aux = (struct _timerHandlerThreadData *)s.sival_ptr;
 
@@ -300,21 +300,21 @@ static void _timerHandler(union sigval s)
     packet_len = 4;
 
 #if _HOST_IS_LITTLE_ENDIAN_ == 1
-    packet_len_msb = *(((INT8U *)&packet_len)+1);
-    packet_len_lsb = *(((INT8U *)&packet_len)+0);
+    packet_len_msb = *(((uint8_t *)&packet_len)+1);
+    packet_len_lsb = *(((uint8_t *)&packet_len)+0);
 
-    token_msb      = *(((INT8U *)&aux->token)+3);
-    token_2nd_msb  = *(((INT8U *)&aux->token)+2);
-    token_3rd_msb  = *(((INT8U *)&aux->token)+1);
-    token_lsb      = *(((INT8U *)&aux->token)+0);
+    token_msb      = *(((uint8_t *)&aux->token)+3);
+    token_2nd_msb  = *(((uint8_t *)&aux->token)+2);
+    token_3rd_msb  = *(((uint8_t *)&aux->token)+1);
+    token_lsb      = *(((uint8_t *)&aux->token)+0);
 #else
-    packet_len_msb = *(((INT8U *)&packet_len)+0);
-    packet_len_lsb = *(((INT8U *)&packet_len)+1);
+    packet_len_msb = *(((uint8_t *)&packet_len)+0);
+    packet_len_lsb = *(((uint8_t *)&packet_len)+1);
 
-    token_msb     = *(((INT8U *)&aux->token)+0);
-    token_2nd_msb = *(((INT8U *)&aux->token)+1);
-    token_3rd_msb = *(((INT8U *)&aux->token)+2);
-    token_lsb     = *(((INT8U *)&aux->token)+3);
+    token_msb     = *(((uint8_t *)&aux->token)+0);
+    token_2nd_msb = *(((uint8_t *)&aux->token)+1);
+    token_3rd_msb = *(((uint8_t *)&aux->token)+2);
+    token_lsb     = *(((uint8_t *)&aux->token)+3);
 #endif
 
     message[0] = 1 == aux->periodic ? PLATFORM_QUEUE_EVENT_TIMEOUT_PERIODIC : PLATFORM_QUEUE_EVENT_TIMEOUT;
@@ -377,7 +377,7 @@ static void _timerHandler(union sigval s)
 //
 struct _pushButtonThreadData
 {
-    INT8U     queue_id;
+    uint8_t     queue_id;
 };
 
 static void *_pushButtonThread(void *p)
@@ -415,7 +415,7 @@ static void *_pushButtonThread(void *p)
 
     struct pollfd fdset[2];
 
-    INT8U queue_id;
+    uint8_t queue_id;
 
     queue_id = ((struct _pushButtonThreadData *)p)->queue_id;;
 
@@ -511,7 +511,7 @@ static void *_pushButtonThread(void *p)
     while(1)
     {
         int   nfds;
-        INT8U button_pressed;
+        uint8_t button_pressed;
 
         memset((void*)fdset, 0, sizeof(fdset));
 
@@ -571,7 +571,7 @@ static void *_pushButtonThread(void *p)
 
         if (1 == button_pressed)
         {
-            INT8U   message[3];
+            uint8_t   message[3];
 
             message[0] = PLATFORM_QUEUE_EVENT_PUSH_BUTTON;
             message[1] = 0x0;
@@ -611,7 +611,7 @@ static void *_pushButtonThread(void *p)
 //
 struct _topologyMonitorThreadData
 {
-    INT8U     queue_id;
+    uint8_t     queue_id;
 };
 
 static void *_topologyMonitorThread(void *p)
@@ -622,7 +622,7 @@ static void *_topologyMonitorThread(void *p)
 
     struct pollfd fdset[2];
 
-    INT8U  queue_id;
+    uint8_t  queue_id;
 
     queue_id = ((struct _topologyMonitorThreadData *)p)->queue_id;
 
@@ -653,7 +653,7 @@ static void *_topologyMonitorThread(void *p)
     while (1)
     {
         int   nfds;
-        INT8U notification_activated;
+        uint8_t notification_activated;
 
         memset((void*)fdset, 0, sizeof(fdset));
 
@@ -695,7 +695,7 @@ static void *_topologyMonitorThread(void *p)
 
         if (1 == notification_activated)
         {
-            INT8U  message[3];
+            uint8_t  message[3];
 
             message[0] = PLATFORM_QUEUE_EVENT_TOPOLOGY_CHANGE_NOTIFICATION;
             message[1] = 0x0;
@@ -722,7 +722,7 @@ static void *_topologyMonitorThread(void *p)
 // declaration is found in "./platform_os_priv.h")
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U sendMessageToAlQueue(INT8U queue_id, INT8U *message, INT16U message_len)
+uint8_t sendMessageToAlQueue(uint8_t queue_id, uint8_t *message, uint16_t message_len)
 {
     mqd_t   mqdes;
 
@@ -776,7 +776,7 @@ struct deviceInfo *PLATFORM_GET_DEVICE_INFO(void)
 // files (functions declarations are  found in "../interfaces/platform_os.h)
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U PLATFORM_CREATE_QUEUE(const char *name)
+uint8_t PLATFORM_CREATE_QUEUE(const char *name)
 {
     mqd_t          mqdes;
     struct mq_attr attr;
@@ -843,7 +843,7 @@ INT8U PLATFORM_CREATE_QUEUE(const char *name)
     return i;
 }
 
-INT8U PLATFORM_REGISTER_QUEUE_EVENT(INT8U queue_id, INT8U event_type, void *data)
+uint8_t PLATFORM_REGISTER_QUEUE_EVENT(uint8_t queue_id, uint8_t event_type, void *data)
 {
     switch (event_type)
     {
@@ -1064,7 +1064,7 @@ INT8U PLATFORM_REGISTER_QUEUE_EVENT(INT8U queue_id, INT8U event_type, void *data
     return 1;
 }
 
-INT8U PLATFORM_READ_QUEUE(INT8U queue_id, INT8U *message_buffer)
+uint8_t PLATFORM_READ_QUEUE(uint8_t queue_id, uint8_t *message_buffer)
 {
     mqd_t    mqdes;
     ssize_t  len;
@@ -1094,11 +1094,11 @@ INT8U PLATFORM_READ_QUEUE(INT8U queue_id, INT8U *message_buffer)
     }
     else
     {
-        INT16U payload_len;
+        uint16_t payload_len;
 
         PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Receiving %d bytes from queue (%02x, %02x, %02x, ...)\n", len, message_buffer[0], message_buffer[1], message_buffer[2]);
 
-        payload_len = *(((INT8U *)message_buffer)+1) * 256 + *(((INT8U *)message_buffer)+2);
+        payload_len = *(((uint8_t *)message_buffer)+1) * 256 + *(((uint8_t *)message_buffer)+2);
 
         if (payload_len != len-3)
         {

@@ -41,7 +41,7 @@
 // Public functions (exported only to files in this same folder)
 ////////////////////////////////////////////////////////////////////////////////
 
-INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *src_addr, INT8U queue_id)
+uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8_t *src_addr, uint8_t queue_id)
 {
     if (NULL == c)
     {
@@ -62,16 +62,16 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // interface MACs are seen on each interface) and send a "topology
             // query" message asking for more details.
 
-            INT8U *p;
-            INT8U  i;
+            uint8_t *p;
+            uint8_t  i;
 
-            INT8U  dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t  dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-            INT8U  al_mac_address[6];
-            INT8U  mac_address[6];
+            uint8_t  al_mac_address[6];
+            uint8_t  mac_address[6];
 
-            INT8U  first_discovery;
-            INT32U ellapsed;
+            uint8_t  first_discovery;
+            uint32_t ellapsed;
 
             memcpy(al_mac_address, dummy_mac_address, 6);
             memcpy(mac_address,    dummy_mac_address, 6);
@@ -193,12 +193,12 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // The "sender" AL MAC address is contained in the unique TLV
             // embedded in the just received "topology notification" CMDU.
 
-            INT8U *p;
-            INT8U  i;
+            uint8_t *p;
+            uint8_t  i;
 
-            INT8U dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-            INT8U  al_mac_address[6];
+            uint8_t  al_mac_address[6];
 
 
             memcpy(al_mac_address, dummy_mac_address, 6);
@@ -283,8 +283,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // information from the platform and then package and send it back
             // in a "topology response" message.
 
-            INT8U *dst_mac;
-            INT8U *p;
+            uint8_t *dst_mac;
+            uint8_t *p;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_TOPOLOGY_QUERY (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -328,8 +328,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // internal database (that keeps track of which 1905 devices are
             // present in the network)
 
-            INT8U *p;
-            INT8U  i;
+            uint8_t *p;
+            uint8_t  i;
 
             struct deviceInformationTypeTLV      *info = NULL;
             struct deviceBridgingCapabilityTLV  **x    = NULL;
@@ -339,13 +339,13 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             struct l2NeighborDeviceTLV          **r    = NULL;
             struct supportedServiceTLV           *s    = NULL;
 
-            INT8U bridges_nr;
-            INT8U non1905_neighbors_nr;
-            INT8U x1905_neighbors_nr;
-            INT8U power_off_nr;
-            INT8U l2_neighbors_nr;
+            uint8_t bridges_nr;
+            uint8_t non1905_neighbors_nr;
+            uint8_t x1905_neighbors_nr;
+            uint8_t power_off_nr;
+            uint8_t l2_neighbors_nr;
 
-            INT8U xi, yi, zi, qi, ri;
+            uint8_t xi, yi, zi, qi, ri;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_TOPOLOGY_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -603,13 +603,13 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                 //
                 for (i=0; i<zi; i++)
                 {
-                    INT8U j;
+                    uint8_t j;
 
                     // For each neighbor's neighbor on that interface
                     //
                     for (j=0; j<z[i]->neighbors_nr; j++)
                     {
-                        INT8U ii, jj;
+                        uint8_t ii, jj;
 
                         // Discard the current node (obviously)
                         //
@@ -660,10 +660,10 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
         }
         case CMDU_TYPE_LINK_METRIC_QUERY:
         {
-            INT8U *p;
-            INT8U  i;
+            uint8_t *p;
+            uint8_t  i;
 
-            INT8U *dst_mac;
+            uint8_t *dst_mac;
 
             struct linkMetricQueryTLV *t;
 
@@ -784,8 +784,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // internal database (that keeps track of which 1905 devices are
             // present in the network)
 
-            INT8U *p;
-            INT8U  i;
+            uint8_t *p;
+            uint8_t  i;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_LINK_METRIC_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -850,24 +850,24 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // response" message must be sent.
             // Otherwise, the message is ignored.
 
-            INT8U *p;
-            INT8U i;
+            uint8_t *p;
+            uint8_t i;
 
-            INT8U dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
             char **ifs_names;
-            INT8U  ifs_nr;
+            uint8_t  ifs_nr;
 
-            INT8U searched_role_is_present;
-            INT8U searched_role;
+            uint8_t searched_role_is_present;
+            uint8_t searched_role;
 
-            INT8U freq_band_is_present;
-            INT8U freq_band;
+            uint8_t freq_band_is_present;
+            uint8_t freq_band;
 
             bool supported_service_is_present = false;
             bool searched_service_is_present = false;
 
-            INT8U  al_mac_address[6];
+            uint8_t  al_mac_address[6];
 
             searched_role_is_present = 0;
             freq_band_is_present     = 0;
@@ -1028,17 +1028,17 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // the same freq band as the one contained in the message and send
             // a AP-autoconfig WSC-M1
 
-            INT8U *p;
-            INT8U i;
+            uint8_t *p;
+            uint8_t i;
 
             char **ifs_names;
-            INT8U  ifs_nr;
+            uint8_t  ifs_nr;
 
-            INT8U supported_role_is_present;
-            INT8U supported_role;
+            uint8_t supported_role_is_present;
+            uint8_t supported_role;
 
-            INT8U supported_freq_band_is_present;
-            INT8U supported_freq_band;
+            uint8_t supported_freq_band_is_present;
+            uint8_t supported_freq_band;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -1149,12 +1149,12 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                      )
                    )
                 {
-                    INT8U   *m1;
-                    INT16U   m1_size;
+                    uint8_t   *m1;
+                    uint16_t   m1_size;
                     void    *key;
 
-                    INT8U *dst_mac;
-                    INT8U *p;
+                    uint8_t *dst_mac;
+                    uint8_t *p;
 
                     PLATFORM_PRINTF_DEBUG_DETAIL("Interface %s is an unconfigured AP and uses the same freq band. Sending WSC-M1...\n",ifs_names[i]);
 
@@ -1209,13 +1209,13 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
         }
         case CMDU_TYPE_AP_AUTOCONFIGURATION_WSC:
         {
-            INT8U *p;
-            INT8U i;
+            uint8_t *p;
+            uint8_t i;
 
-            INT8U  *wsc_frame;
-            INT16U  wsc_frame_size;
+            uint8_t  *wsc_frame;
+            uint16_t  wsc_frame_size;
 
-            INT8U wsc_type;
+            uint8_t wsc_type;
 
             // When a "AP-autoconfig WSC" is received we first have to find out
             // if the contained message is M1 or M2.
@@ -1292,11 +1292,11 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                 //
                 // Process it and send an M2 response.
                 //
-                INT8U   *m2;
-                INT16U   m2_size;
+                uint8_t   *m2;
+                uint16_t   m2_size;
 
-                INT8U   *dst_mac;
-                INT8U   *p;
+                uint8_t   *dst_mac;
+                uint8_t   *p;
 
                 wscBuildM2(wsc_frame, wsc_frame_size, &m2, &m2_size);
 
@@ -1362,17 +1362,17 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             //           the received message did not contain 802.11 media type
             //           information.
 
-            INT8U *p;
-            INT8U i;
+            uint8_t *p;
+            uint8_t i;
 
-            INT8U dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
             char **ifs_names;
-            INT8U  ifs_nr;
+            uint8_t  ifs_nr;
 
-            INT8U wifi_data_is_present;
+            uint8_t wifi_data_is_present;
 
-            INT8U  al_mac_address[6];
+            uint8_t  al_mac_address[6];
 
             wifi_data_is_present = 0;
             memcpy(al_mac_address, dummy_mac_address, 6);
@@ -1403,7 +1403,7 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
                     }
                     case TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION:
                     {
-                        INT8U j;
+                        uint8_t j;
                         struct pushButtonEventNotificationTLV *t = (struct pushButtonEventNotificationTLV *)p;
 
 
@@ -1537,8 +1537,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // 'media type' is "MEDIA_TYPE_UNKNOWN") the response will be sent
             // (containing a TLV that says there are "zero" generic interfaces)
 
-            INT8U *dst_mac;
-            INT8U *p;
+            uint8_t *dst_mac;
+            uint8_t *p;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_GENERIC_PHY_QUERY (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -1584,8 +1584,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
 
             struct genericPhyDeviceInformationTypeTLV *t;
 
-            INT8U *p;
-            INT8U  i;
+            uint8_t *p;
+            uint8_t  i;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_GENERIC_PHY_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -1669,8 +1669,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             // When a "high layer query" is received we must reply with the
             // list of items inside a "high layer response" CMDU.
 
-            INT8U *dst_mac;
-            INT8U *p;
+            uint8_t *dst_mac;
+            uint8_t *p;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_HIGHER_LAYER_QUERY (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -1720,11 +1720,11 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
             struct ipv4TypeTLV                 *ipv4            = NULL;
             struct ipv6TypeTLV                 *ipv6            = NULL;
 
-            INT8U  al_mac_address[6];
-            INT8U  al_mac_address_is_present;
+            uint8_t  al_mac_address[6];
+            uint8_t  al_mac_address_is_present;
 
-            INT8U *p;
-            INT8U  i;
+            uint8_t *p;
+            uint8_t  i;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_HIGHER_LAYER_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -1839,8 +1839,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
 
             struct interfacePowerChangeInformationTLV *t;
 
-            INT8U *p;
-            INT8U  i;
+            uint8_t *p;
+            uint8_t  i;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_INTERFACE_POWER_CHANGE_REQUEST (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -1881,8 +1881,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
 
             for (i=0; i<t->power_change_interfaces_nr; i++)
             {
-                INT8U r;
-                INT8U results;
+                uint8_t r;
+                uint8_t results;
 
 #ifndef DO_NOT_ACCEPT_UNAUTHENTICATED_COMMANDS
                 r = PLATFORM_SET_INTERFACE_POWER_MODE(DMmacToInterfaceName(t->power_change_interfaces[i].interface_address), t->power_change_interfaces[i].requested_power_state);
@@ -1944,8 +1944,8 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
 
             struct interfacePowerChangeStatusTLV *t;
 
-            INT8U *p;
-            INT8U  i;
+            uint8_t *p;
+            uint8_t  i;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_INTERFACE_POWER_CHANGE_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -2007,15 +2007,15 @@ INT8U process1905Cmdu(struct CMDU *c, INT8U *receiving_interface_addr, INT8U *sr
     return PROCESS_CMDU_OK;
 }
 
-INT8U processLlpdPayload(struct PAYLOAD *payload, INT8U *receiving_interface_addr)
+uint8_t processLlpdPayload(struct PAYLOAD *payload, uint8_t *receiving_interface_addr)
 {
-    INT8U *p;
-    INT8U  i;
+    uint8_t *p;
+    uint8_t  i;
 
-    INT8U dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    INT8U  al_mac_address[6];
-    INT8U  mac_address[6];
+    uint8_t  al_mac_address[6];
+    uint8_t  mac_address[6];
 
     memcpy(al_mac_address, dummy_mac_address, 6);
     memcpy(mac_address,    dummy_mac_address, 6);
@@ -2099,7 +2099,7 @@ INT8U processLlpdPayload(struct PAYLOAD *payload, INT8U *receiving_interface_add
     return 1;
 }
 
-INT8U process1905Alme(INT8U *alme_tlv, INT8U alme_client_id)
+uint8_t process1905Alme(uint8_t *alme_tlv, uint8_t alme_client_id)
 {
     if (NULL == alme_tlv)
     {
@@ -2157,7 +2157,7 @@ INT8U process1905Alme(INT8U *alme_tlv, INT8U alme_client_id)
             //
             struct getMetricRequestALME *p;
 
-            INT8U dummy_mac_address[6] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+            uint8_t dummy_mac_address[6] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- ALME_TYPE_GET_METRIC_REQUEST\n");
 

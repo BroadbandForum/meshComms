@@ -62,21 +62,21 @@ struct PAYLOAD lldp_payload_structure_001 =
 {
     .list_of_TLVs    =
         {
-            (INT8U *)(struct chassisIdTLV[]){
+            (uint8_t *)(struct chassisIdTLV[]){
                 {
                     .tlv_type           = TLV_TYPE_CHASSIS_ID,
                     .chassis_id_subtype = CHASSIS_ID_TLV_SUBTYPE_MAC_ADDRESS,
                     .chassis_id         = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06},
                 },
             },
-            (INT8U *)(struct portIdTLV[]){
+            (uint8_t *)(struct portIdTLV[]){
                 {
                     .tlv_type           = TLV_TYPE_PORT_ID,
                     .port_id_subtype    = PORT_ID_TLV_SUBTYPE_MAC_ADDRESS,
                     .port_id            = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66},
                 },
             },
-            (INT8U *)(struct timeToLiveTypeTLV[]){
+            (uint8_t *)(struct timeToLiveTypeTLV[]){
                 {
                     .tlv_type           = TLV_TYPE_TIME_TO_LIVE,
                     .ttl                = TIME_TO_LIVE_TLV_1905_DEFAULT_VALUE,
@@ -86,7 +86,7 @@ struct PAYLOAD lldp_payload_structure_001 =
         },
 };
 
-INT8U lldp_payload_stream_001[] =
+uint8_t lldp_payload_stream_001[] =
 {
     0x02, 0x07,
     0x04,
@@ -99,6 +99,6 @@ INT8U lldp_payload_stream_001[] =
     0x00, 0x00,
 };
 
-INT16U lldp_payload_stream_len_001 = 24;
+uint16_t lldp_payload_stream_len_001 = 24;
 
 

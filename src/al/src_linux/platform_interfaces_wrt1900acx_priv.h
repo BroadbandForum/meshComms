@@ -24,11 +24,11 @@
 // "interface_name") by obtaining information from the OpenWRT UCI subsystem.
 //
 //
-INT8U linksys_wrt1900acx_get_interface_info(char *interface_name, struct interfaceInfo *m);
+uint8_t linksys_wrt1900acx_get_interface_info(char *interface_name, struct interfaceInfo *m);
 
 // Modify the current Wifi configuration according to the values passed as
 // parameters. Modifications take effect immediately.
 //
-INT8U linksys_wrt1900acx_apply_80211_configuration(char *interface_name, INT8U *ssid, INT8U *network_key);
+uint8_t linksys_wrt1900acx_apply_80211_configuration(char *interface_name, uint8_t *ssid, uint8_t *network_key);
 
 #endif
