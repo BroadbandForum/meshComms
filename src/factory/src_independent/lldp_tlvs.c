@@ -67,7 +67,7 @@ uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
 
             struct endOfLldppduTLV  *ret;
 
-            ret = (struct endOfLldppduTLV *)PLATFORM_MALLOC(sizeof(struct endOfLldppduTLV));
+            ret = (struct endOfLldppduTLV *)memalloc(sizeof(struct endOfLldppduTLV));
 
             // According to the standard, the length *must* be 0
             //
@@ -91,7 +91,7 @@ uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
 
             struct chassisIdTLV  *ret;
 
-            ret = (struct chassisIdTLV *)PLATFORM_MALLOC(sizeof(struct chassisIdTLV));
+            ret = (struct chassisIdTLV *)memalloc(sizeof(struct chassisIdTLV));
 
             // In the 1905 context we are only interested in processing those
             // TLVs whose length is "6+1" (ie. it contains a 6 bytes MAC address
@@ -134,7 +134,7 @@ uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
 
             struct portIdTLV  *ret;
 
-            ret = (struct portIdTLV *)PLATFORM_MALLOC(sizeof(struct portIdTLV));
+            ret = (struct portIdTLV *)memalloc(sizeof(struct portIdTLV));
 
             // In the 1905 context we are only interested in processing those
             // TLVs whose length is "6+1" (ie. it contains a 6 bytes MAC address
@@ -177,7 +177,7 @@ uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
 
             struct timeToLiveTypeTLV  *ret;
 
-            ret = (struct timeToLiveTypeTLV *)PLATFORM_MALLOC(sizeof(struct timeToLiveTypeTLV));
+            ret = (struct timeToLiveTypeTLV *)memalloc(sizeof(struct timeToLiveTypeTLV));
 
             // According to the standard, the length *must* be 2
             //
@@ -238,7 +238,7 @@ uint8_t *forge_lldp_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
             tlv_length = 0;
             *len = 1 + 1 + tlv_length;
 
-            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 1 + tlv_length);
+            p = ret = (uint8_t *)memalloc(1 + 1 + tlv_length);
 
             byte1 = (m->tlv_type << 1) | ((tlv_length & 0x80) >> 7);
             byte2 = tlv_length & 0x7f;
@@ -272,7 +272,7 @@ uint8_t *forge_lldp_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
             tlv_length = 1+6;  // subtype (1 byte) + AL MAC address (6 bytes)
             *len = 1 + 1 + tlv_length;
 
-            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 1 + tlv_length);
+            p = ret = (uint8_t *)memalloc(1 + 1 + tlv_length);
 
             byte1 = (m->tlv_type << 1) | ((tlv_length & 0x80) >> 7);
             byte2 = tlv_length & 0x7f;
@@ -308,7 +308,7 @@ uint8_t *forge_lldp_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
             tlv_length = 1+6;  // subtype (1 byte) + AL MAC address (6 bytes)
             *len = 1 + 1 + tlv_length;
 
-            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 1 + tlv_length);
+            p = ret = (uint8_t *)memalloc(1 + 1 + tlv_length);
 
             byte1 = (m->tlv_type << 1) | ((tlv_length & 0x80) >> 7);
             byte2 = tlv_length & 0x7f;
@@ -344,7 +344,7 @@ uint8_t *forge_lldp_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
             tlv_length = 2;
             *len = 1 + 1 + tlv_length;
 
-            p = ret = (uint8_t *)PLATFORM_MALLOC(1 + 1 + tlv_length);
+            p = ret = (uint8_t *)memalloc(1 + 1 + tlv_length);
 
             byte1 = (m->tlv_type << 1) | ((tlv_length & 0x80) >> 7);
             byte2 = tlv_length & 0x7f;

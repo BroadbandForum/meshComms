@@ -20,6 +20,8 @@
 #define _UTILS_H_
 
 #include <stdint.h>
+#include <stdlib.h> // malloc(), NULL
+#include <stdio.h> // fprintf
 
 /** @brief Get the number of elements in an array.
  *
@@ -27,6 +29,26 @@
  * parameter is indeed an array. Calling it with a pointer parameter will lead to incorrect results.
  */
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof(*(a)))
+
+
+/** @ brief Allocate a chunk of 'n' bytes and return a pointer to it.
+ *
+ * If no memory can be allocated, this function exits immediately.
+ */
+static inline void *memalloc(size_t size)
+{
+    void *p;
+
+    p = malloc(size);
+
+    if (NULL == p)
+    {
+        fprintf(stderr, "ERROR: Out of memory!\n");
+        exit(1);
+    }
+
+    return p;
+}
 
 typedef void (*visitor_callback) (void (*write_function)(const char *fmt, ...), const char *prefix, uint8_t size, const char *name, const char *fmt, const void *p);
 

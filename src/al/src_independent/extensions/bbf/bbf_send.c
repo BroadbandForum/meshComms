@@ -91,7 +91,7 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
 
         al_mac_addresses = DMgetListOfInterfaceNeighbors(interfaces_names[i], &al_mac_addresses_nr);
 
-        no  = (struct non1905NeighborDeviceListTLV *)PLATFORM_MALLOC(sizeof(struct non1905NeighborDeviceListTLV));
+        no  = (struct non1905NeighborDeviceListTLV *)memalloc(sizeof(struct non1905NeighborDeviceListTLV));
 
         no->tlv_type              = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST;
         no->local_mac_address[0]  = x->mac_address[0];
@@ -117,7 +117,7 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
                 // Originally, none of the neighbors in the data model has been
                 // reported...
                 //
-                al_mac_address_has_been_reported = (uint8_t *)PLATFORM_MALLOC(sizeof(uint8_t) * al_mac_addresses_nr);
+                al_mac_address_has_been_reported = (uint8_t *)memalloc(sizeof(uint8_t) * al_mac_addresses_nr);
                 memset(al_mac_address_has_been_reported, 0x0, al_mac_addresses_nr);
             }
 
@@ -152,7 +152,7 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
                         //
                         if (0 == no->non_1905_neighbors_nr)
                         {
-                            no->non_1905_neighbors = (struct _non1905neighborEntries *)PLATFORM_MALLOC(sizeof(struct _non1905neighborEntries));
+                            no->non_1905_neighbors = (struct _non1905neighborEntries *)memalloc(sizeof(struct _non1905neighborEntries));
                         }
                         else
                         {
@@ -197,7 +197,7 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
             //
             if (0 == *non_1905_neighbors_nr)
             {
-                *non_1905_neighbors = (struct non1905NeighborDeviceListTLV **)PLATFORM_MALLOC(sizeof(struct non1905NeighborDeviceListTLV *));
+                *non_1905_neighbors = (struct non1905NeighborDeviceListTLV **)memalloc(sizeof(struct non1905NeighborDeviceListTLV *));
             }
             else
             {
@@ -281,7 +281,7 @@ static uint8_t (*_getListOfNon1905Neighbors(struct non1905NeighborDeviceListTLV 
             //
             if (NULL == ret)
             {
-                ret = (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]));
+                ret = (uint8_t (*)[6])memalloc(sizeof(uint8_t[6]));
             }
             else
             {
@@ -356,8 +356,8 @@ uint8_t (*_getListOfLinksWithNon1905Neighbor(struct non1905NeighborDeviceListTLV
 
                 if (NULL == ret)
                 {
-                    ret   = (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]));
-                    intfs = (char **)PLATFORM_MALLOC(sizeof(char *));
+                    ret   = (uint8_t (*)[6])memalloc(sizeof(uint8_t[6]));
+                    intfs = (char **)memalloc(sizeof(char *));
                 }
                 else
                 {
@@ -481,14 +481,14 @@ static void _obtainLocalNon1905MetricsTLV(uint8_t destination, uint8_t *specific
                  LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS == metrics_type
                )
             {
-                tx_tlvs = (struct transmitterLinkMetricTLV **)PLATFORM_MALLOC(sizeof(struct transmitterLinkMetricTLV*) * mac_addresses_nr);
+                tx_tlvs = (struct transmitterLinkMetricTLV **)memalloc(sizeof(struct transmitterLinkMetricTLV*) * mac_addresses_nr);
             }
             if (
                  LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY        == metrics_type ||
                  LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS == metrics_type
                )
             {
-                rx_tlvs = (struct receiverLinkMetricTLV **)PLATFORM_MALLOC(sizeof(struct receiverLinkMetricTLV*) * mac_addresses_nr);
+                rx_tlvs = (struct receiverLinkMetricTLV **)memalloc(sizeof(struct receiverLinkMetricTLV*) * mac_addresses_nr);
             }
         }
         else
@@ -498,14 +498,14 @@ static void _obtainLocalNon1905MetricsTLV(uint8_t destination, uint8_t *specific
                  LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS == metrics_type
                )
             {
-                tx_tlvs = (struct transmitterLinkMetricTLV **)PLATFORM_MALLOC(sizeof(struct transmitterLinkMetricTLV*) * 1);
+                tx_tlvs = (struct transmitterLinkMetricTLV **)memalloc(sizeof(struct transmitterLinkMetricTLV*) * 1);
             }
             if (
                  LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY        == metrics_type ||
                  LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS == metrics_type
                )
             {
-                rx_tlvs = (struct receiverLinkMetricTLV **)PLATFORM_MALLOC(sizeof(struct receiverLinkMetricTLV*) * 1);
+                rx_tlvs = (struct receiverLinkMetricTLV **)memalloc(sizeof(struct receiverLinkMetricTLV*) * 1);
             }
         }
     }
@@ -548,23 +548,23 @@ static void _obtainLocalNon1905MetricsTLV(uint8_t destination, uint8_t *specific
             //
             if (NULL != tx_tlvs)
             {
-                tx_tlvs[total_tlvs] = (struct transmitterLinkMetricTLV *)PLATFORM_MALLOC(sizeof(struct transmitterLinkMetricTLV));
+                tx_tlvs[total_tlvs] = (struct transmitterLinkMetricTLV *)memalloc(sizeof(struct transmitterLinkMetricTLV));
 
                                 tx_tlvs[total_tlvs]->tlv_type                    = BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC;
                 memcpy(tx_tlvs[total_tlvs]->local_al_address,             DMalMacGet(),                       6);
                 memcpy(tx_tlvs[total_tlvs]->neighbor_al_address,          empty_addresses,                    6);
                                 tx_tlvs[total_tlvs]->transmitter_link_metrics_nr = links_nr;
-                                tx_tlvs[total_tlvs]->transmitter_link_metrics    = PLATFORM_MALLOC(sizeof(struct _transmitterLinkMetricEntries) * links_nr);
+                                tx_tlvs[total_tlvs]->transmitter_link_metrics    = memalloc(sizeof(struct _transmitterLinkMetricEntries) * links_nr);
             }
             if (NULL != rx_tlvs)
             {
-                rx_tlvs[total_tlvs] = (struct receiverLinkMetricTLV *)PLATFORM_MALLOC(sizeof(struct receiverLinkMetricTLV));
+                rx_tlvs[total_tlvs] = (struct receiverLinkMetricTLV *)memalloc(sizeof(struct receiverLinkMetricTLV));
 
                                 rx_tlvs[total_tlvs]->tlv_type                    = BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC;
                 memcpy(rx_tlvs[total_tlvs]->local_al_address,             DMalMacGet(),                       6);
                 memcpy(rx_tlvs[total_tlvs]->neighbor_al_address,          empty_addresses,                    6);
                                 rx_tlvs[total_tlvs]->receiver_link_metrics_nr    = links_nr;
-                                rx_tlvs[total_tlvs]->receiver_link_metrics       = PLATFORM_MALLOC(sizeof(struct _receiverLinkMetricEntries) * links_nr);
+                                rx_tlvs[total_tlvs]->receiver_link_metrics       = memalloc(sizeof(struct _receiverLinkMetricEntries) * links_nr);
             }
 
             // ...and then, for each link, fill the specific link information:
@@ -756,7 +756,7 @@ void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions,
 
         // Build two TLV extensions (tx and rx) per neighbor
         //
-        tlvs = (struct vendorSpecificTLV **)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV*) * total_tlvs * 2);
+        tlvs = (struct vendorSpecificTLV **)memalloc(sizeof(struct vendorSpecificTLV*) * total_tlvs * 2);
 
         for (i=0; i<total_tlvs; i++)
         {
@@ -778,13 +778,13 @@ void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions,
         // metrics. This (mark) will later force the update of metrics
         // extensions
         //
-        result_tlvs = (struct linkMetricResultCodeTLV *)PLATFORM_MALLOC(sizeof(struct linkMetricResultCodeTLV));
+        result_tlvs = (struct linkMetricResultCodeTLV *)memalloc(sizeof(struct linkMetricResultCodeTLV));
         result_tlvs->tlv_type  = BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE;
         result_tlvs->result_code = LINK_METRIC_RESULT_CODE_TLV_INVALID_NEIGHBOR;
 
         vendor_specific = vendorSpecificTLVEmbedExtension(result_tlvs, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
 
-        tlvs = (struct vendorSpecificTLV **)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV*));
+        tlvs = (struct vendorSpecificTLV **)memalloc(sizeof(struct vendorSpecificTLV*));
         tlvs[total_extensions++] = vendor_specific;
 
         // Free no longer used resources
@@ -903,7 +903,7 @@ void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV **extensions, uint8_t nr,
             }
             else if (0 == original_nr)
             {
-                (*dm_extensions) = (struct vendorSpecificTLV **)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV *) * ((*dm_extensions_nr) + nr));
+                (*dm_extensions) = (struct vendorSpecificTLV **)memalloc(sizeof(struct vendorSpecificTLV *) * ((*dm_extensions_nr) + nr));
             }
             else
             {
@@ -1035,9 +1035,9 @@ void CBKDumpBBFExtendedInfo(uint8_t **memory_structure,
                 //
                 if (0 == metrics_nr)
                 {
-                    tx_metrics  = (struct vendorSpecificTLV **)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV *));
-                    rx_metrics  = (struct vendorSpecificTLV **)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV *));
-                    mac_metrics =                (uint8_t (*)[6])PLATFORM_MALLOC(sizeof(uint8_t[6]));
+                    tx_metrics  = (struct vendorSpecificTLV **)memalloc(sizeof(struct vendorSpecificTLV *));
+                    rx_metrics  = (struct vendorSpecificTLV **)memalloc(sizeof(struct vendorSpecificTLV *));
+                    mac_metrics =                (uint8_t (*)[6])memalloc(sizeof(uint8_t[6]));
                 }
                 else
                 {
@@ -1128,7 +1128,7 @@ uint8_t CBKSend1905BBFExtensions(struct CMDU *memory_structure)
 
             // Fill non-1905 metric query TLV
             //
-            non_1905_metric_query_tlv                       = (struct linkMetricQueryTLV *)PLATFORM_MALLOC(sizeof(struct linkMetricQueryTLV));
+            non_1905_metric_query_tlv                       = (struct linkMetricQueryTLV *)memalloc(sizeof(struct linkMetricQueryTLV));
             non_1905_metric_query_tlv->tlv_type             = BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY;
             non_1905_metric_query_tlv->destination          = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
             non_1905_metric_query_tlv->specific_neighbor[0] = 0x00;

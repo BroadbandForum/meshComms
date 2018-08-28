@@ -60,7 +60,7 @@
 //     which is always bigger than '0':
 //
 //       AL_ERROR_OUT_OF_MEMORY:
-//         A call to "PLATFORM_MALLOC()" failed, meaning there is no more memory
+//         A call to "memalloc()" failed, meaning there is no more memory
 //         available in the system.
 //
 //       AL_ERROR_INVALID_ARGUMENTS:

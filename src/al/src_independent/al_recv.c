@@ -426,23 +426,23 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             //
             if (bridges_nr > 0)
             {
-                x = (struct deviceBridgingCapabilityTLV  **)PLATFORM_MALLOC(sizeof(struct deviceBridgingCapabilityTLV *)  * bridges_nr);
+                x = (struct deviceBridgingCapabilityTLV  **)memalloc(sizeof(struct deviceBridgingCapabilityTLV *)  * bridges_nr);
             }
             if (non1905_neighbors_nr > 0)
             {
-                y = (struct non1905NeighborDeviceListTLV **)PLATFORM_MALLOC(sizeof(struct non1905NeighborDeviceListTLV *) * non1905_neighbors_nr);
+                y = (struct non1905NeighborDeviceListTLV **)memalloc(sizeof(struct non1905NeighborDeviceListTLV *) * non1905_neighbors_nr);
             }
             if (x1905_neighbors_nr > 0)
             {
-                z = (struct neighborDeviceListTLV        **)PLATFORM_MALLOC(sizeof(struct neighborDeviceListTLV        *) * x1905_neighbors_nr);
+                z = (struct neighborDeviceListTLV        **)memalloc(sizeof(struct neighborDeviceListTLV        *) * x1905_neighbors_nr);
             }
             if (power_off_nr > 0)
             {
-                q = (struct powerOffInterfaceTLV         **)PLATFORM_MALLOC(sizeof(struct powerOffInterfaceTLV         *) * power_off_nr);
+                q = (struct powerOffInterfaceTLV         **)memalloc(sizeof(struct powerOffInterfaceTLV         *) * power_off_nr);
             }
             if (l2_neighbors_nr > 0)
             {
-                r = (struct l2NeighborDeviceTLV          **)PLATFORM_MALLOC(sizeof(struct l2NeighborDeviceTLV          *) * l2_neighbors_nr);
+                r = (struct l2NeighborDeviceTLV          **)memalloc(sizeof(struct l2NeighborDeviceTLV          *) * l2_neighbors_nr);
             }
 
             xi = 0;

@@ -111,7 +111,7 @@ SRC_FOLDER    := $(shell pwd)/src
 OUTPUT_FOLDER := $(shell pwd)/output
 
 # "Common" library. Includes platform specific code that is used by both the
-# AL and HLE entities (example: "PLATFORM_MALLOC()", "PLATFORM_PRINTF()", ...)
+# AL and HLE entities (example: "memalloc()", "PLATFORM_PRINTF()", ...)
 #
 COMMON_LIB    := $(OUTPUT_FOLDER)/libcommon.a
 COMMON_INC    := $(SRC_FOLDER)/common/interfaces

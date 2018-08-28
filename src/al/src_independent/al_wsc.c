@@ -285,7 +285,7 @@ uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void 
         return 0;
     }
 
-    buffer = (uint8_t *)PLATFORM_MALLOC(sizeof(uint8_t)*1000);
+    buffer = (uint8_t *)memalloc(sizeof(uint8_t)*1000);
     p      = buffer;
 
     // VERSION
@@ -340,8 +340,8 @@ uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void 
                                                                           _InB( pub,         &p, pub_len);
         // The private key is one of the output arguments
         //
-        private_key          = (struct wscKey *)PLATFORM_MALLOC(sizeof(struct wscKey));
-        private_key->key     = (uint8_t *)PLATFORM_MALLOC(priv_len);
+        private_key          = (struct wscKey *)memalloc(sizeof(struct wscKey));
+        private_key->key     = (uint8_t *)memalloc(priv_len);
         private_key->key_len = priv_len;
         memcpy(private_key->key, priv, priv_len);
         memcpy(private_key->mac, x->mac_address, 6);
@@ -1091,7 +1091,7 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         return 0;
     }
 
-    buffer = (uint8_t *)PLATFORM_MALLOC(sizeof(uint8_t)*1000);
+    buffer = (uint8_t *)memalloc(sizeof(uint8_t)*1000);
     p      = buffer;
 
     // VERSION

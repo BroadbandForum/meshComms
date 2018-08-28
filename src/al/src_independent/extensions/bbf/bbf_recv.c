@@ -164,7 +164,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
                               //
                               if (NULL == extensions)
                               {
-                                  extensions = (struct vendorSpecificTLV **)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV *));
+                                  extensions = (struct vendorSpecificTLV **)memalloc(sizeof(struct vendorSpecificTLV *));
                               }
                               else
                               {
@@ -263,13 +263,13 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
               // metrics This (mark) will later force the update of metrics
               // extensions
               //
-              result_tlvs = (struct linkMetricResultCodeTLV *)PLATFORM_MALLOC(sizeof(struct linkMetricResultCodeTLV));
+              result_tlvs = (struct linkMetricResultCodeTLV *)memalloc(sizeof(struct linkMetricResultCodeTLV));
               result_tlvs->tlv_type  = BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE;
               result_tlvs->result_code = LINK_METRIC_RESULT_CODE_TLV_INVALID_NEIGHBOR;
 
               vendor_specific = vendorSpecificTLVEmbedExtension(result_tlvs, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
 
-              extensions = (struct vendorSpecificTLV **)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV *));
+              extensions = (struct vendorSpecificTLV **)memalloc(sizeof(struct vendorSpecificTLV *));
               extensions[extensions_nr++] = vendor_specific;
 
               // Because there is not any non1905-metrics TLV, we use the AL

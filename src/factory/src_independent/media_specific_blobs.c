@@ -16,7 +16,7 @@
  *  limitations under the License.
  */
 
-#include "platform.h"
+#include <utils.h>
 
 #include "media_specific_blobs.h"
 
@@ -76,7 +76,7 @@ uint8_t *forge_media_specific_blob(struct genericInterfaceType *m, uint16_t *len
            // (see ITU-T G.9979 Tables 8.2 and 8.3)
            //
            *len   = 5;
-           ret    = (uint8_t *)PLATFORM_MALLOC(*len);
+           ret    = (uint8_t *)memalloc(*len);
            ret[0] = 0x01;
            ret[1] = 0x00;
            ret[2] = 0x02;
@@ -92,7 +92,7 @@ uint8_t *forge_media_specific_blob(struct genericInterfaceType *m, uint16_t *len
         // we will simply return the contents of the "unsupported" structure.
         //
         *len = m->media_specific.unsupported.bytes_nr;
-        ret  = (uint8_t *)PLATFORM_MALLOC(*len);
+        ret  = (uint8_t *)memalloc(*len);
 
         memcpy(ret, m->media_specific.unsupported.bytes, *len);
     }

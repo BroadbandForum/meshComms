@@ -518,8 +518,8 @@ struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams)
     // Initially it will contain an empty list of TLVs that we will later
     // re-allocate and fill.
     //
-    ret = (struct CMDU *)PLATFORM_MALLOC(sizeof(struct CMDU) * 1);
-    ret->list_of_TLVs = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *) * 1);
+    ret = (struct CMDU *)memalloc(sizeof(struct CMDU) * 1);
+    ret->list_of_TLVs = (uint8_t **)memalloc(sizeof(uint8_t *) * 1);
     ret->list_of_TLVs[0] = NULL;
     tlvs_nr = 0;
 
@@ -850,10 +850,10 @@ uint8_t **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, ui
     // Initially we will just have an empty list (ie. it contains a single
     // element marking the end-of-list: a NULL pointer)
     //
-    ret = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *) * 1);
+    ret = (uint8_t **)memalloc(sizeof(uint8_t *) * 1);
     ret[0] = NULL;
 
-    *lens = (uint16_t *)PLATFORM_MALLOC(sizeof(uint16_t) * 1);
+    *lens = (uint16_t *)memalloc(sizeof(uint16_t) * 1);
     (*lens)[0] = 0;
 
     fragments_nr = 0;
@@ -950,7 +950,7 @@ uint8_t **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, ui
         fragments_nr++;
 
         ret = (uint8_t **)PLATFORM_REALLOC(ret, sizeof(uint8_t *) * (fragments_nr + 1));
-        ret[fragments_nr-1] = (uint8_t *)PLATFORM_MALLOC(MAX_NETWORK_SEGMENT_SIZE);
+        ret[fragments_nr-1] = (uint8_t *)memalloc(MAX_NETWORK_SEGMENT_SIZE);
         ret[fragments_nr]   = NULL;
 
         *lens = (uint16_t *)PLATFORM_REALLOC(*lens, sizeof(uint16_t *) * (fragments_nr + 1));

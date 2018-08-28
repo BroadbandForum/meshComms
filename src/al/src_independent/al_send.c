@@ -111,7 +111,7 @@ void _obtainLocalDeviceInfoTLV(struct deviceInformationTypeTLV *device_info)
 
         if (0 == device_info->local_interfaces_nr)
         {
-            device_info->local_interfaces = (struct _localInterfaceEntries *)PLATFORM_MALLOC(sizeof(struct _localInterfaceEntries));
+            device_info->local_interfaces = (struct _localInterfaceEntries *)memalloc(sizeof(struct _localInterfaceEntries));
         }
         else
         {
@@ -207,7 +207,7 @@ void _obtainLocalBridgingCapabilitiesTLV(struct deviceBridgingCapabilityTLV *bri
     else
     {
         bridge_info->bridging_tuples_nr = br_nr;
-        bridge_info->bridging_tuples    = (struct _bridgingTupleEntries *)PLATFORM_MALLOC(sizeof(struct _bridgingTupleEntries) * br_nr);
+        bridge_info->bridging_tuples    = (struct _bridgingTupleEntries *)memalloc(sizeof(struct _bridgingTupleEntries) * br_nr);
 
         for (i=0; i<br_nr; i++)
         {
@@ -219,7 +219,7 @@ void _obtainLocalBridgingCapabilitiesTLV(struct deviceBridgingCapabilityTLV *bri
             }
             else
             {
-                bridge_info->bridging_tuples[i].bridging_tuple_macs = (struct _bridgingTupleMacEntries *)PLATFORM_MALLOC(sizeof(struct _bridgingTupleMacEntries) * br[i].bridged_interfaces_nr);
+                bridge_info->bridging_tuples[i].bridging_tuple_macs = (struct _bridgingTupleMacEntries *)memalloc(sizeof(struct _bridgingTupleMacEntries) * br[i].bridged_interfaces_nr);
 
                 for (j=0; j<bridge_info->bridging_tuples[i].bridging_tuple_macs_nr; j++)
                 {
@@ -314,8 +314,8 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
 
         al_mac_addresses = DMgetListOfInterfaceNeighbors(interfaces_names[i], &al_mac_addresses_nr);
 
-        no  = (struct non1905NeighborDeviceListTLV *)PLATFORM_MALLOC(sizeof(struct non1905NeighborDeviceListTLV));
-        yes = (struct neighborDeviceListTLV *)       PLATFORM_MALLOC(sizeof(struct neighborDeviceListTLV));
+        no  = (struct non1905NeighborDeviceListTLV *)memalloc(sizeof(struct non1905NeighborDeviceListTLV));
+        yes = (struct neighborDeviceListTLV *)       memalloc(sizeof(struct neighborDeviceListTLV));
 
         no->tlv_type              = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST;
         no->local_mac_address[0]  = x->mac_address[0];
@@ -351,7 +351,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                 // Originally, none of the neighbors in the data model has been
                 // reported...
                 //
-                al_mac_address_has_been_reported = (uint8_t *)PLATFORM_MALLOC(sizeof(uint8_t) * al_mac_addresses_nr);
+                al_mac_address_has_been_reported = (uint8_t *)memalloc(sizeof(uint8_t) * al_mac_addresses_nr);
                 memset(al_mac_address_has_been_reported, 0x0, al_mac_addresses_nr);
             }
 
@@ -386,7 +386,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                         //
                         if (0 == no->non_1905_neighbors_nr)
                         {
-                            no->non_1905_neighbors = (struct _non1905neighborEntries *)PLATFORM_MALLOC(sizeof(struct _non1905neighborEntries));
+                            no->non_1905_neighbors = (struct _non1905neighborEntries *)memalloc(sizeof(struct _non1905neighborEntries));
                         }
                         else
                         {
@@ -438,7 +438,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                         //
                         if (0 == yes->neighbors_nr)
                         {
-                            yes->neighbors = (struct _neighborEntries *)PLATFORM_MALLOC(sizeof(struct _neighborEntries));
+                            yes->neighbors = (struct _neighborEntries *)memalloc(sizeof(struct _neighborEntries));
                         }
                         else
                         {
@@ -508,7 +508,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                     //
                     if (0 == yes->neighbors_nr)
                     {
-                        yes->neighbors = (struct _neighborEntries *)PLATFORM_MALLOC(sizeof(struct _neighborEntries));
+                        yes->neighbors = (struct _neighborEntries *)memalloc(sizeof(struct _neighborEntries));
                     }
                     else
                     {
@@ -541,7 +541,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
             //
             if (0 == *non_1905_neighbors_nr)
             {
-                *non_1905_neighbors = (struct non1905NeighborDeviceListTLV **)PLATFORM_MALLOC(sizeof(struct non1905NeighborDeviceListTLV *));
+                *non_1905_neighbors = (struct non1905NeighborDeviceListTLV **)memalloc(sizeof(struct non1905NeighborDeviceListTLV *));
             }
             else
             {
@@ -562,7 +562,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
             //
             if (0 == *neighbors_nr)
             {
-                *neighbors = (struct neighborDeviceListTLV **)PLATFORM_MALLOC(sizeof(struct neighborDeviceListTLV *));
+                *neighbors = (struct neighborDeviceListTLV **)memalloc(sizeof(struct neighborDeviceListTLV *));
             }
             else
             {
@@ -656,7 +656,7 @@ void _obtainLocalPowerOffInterfacesTLV(struct powerOffInterfaceTLV *power_off)
 
         if (0 == power_off->power_off_interfaces_nr)
         {
-            power_off->power_off_interfaces = (struct _powerOffInterfaceEntries *)PLATFORM_MALLOC(sizeof(struct _powerOffInterfaceEntries));
+            power_off->power_off_interfaces = (struct _powerOffInterfaceEntries *)memalloc(sizeof(struct _powerOffInterfaceEntries));
         }
         else
         {
@@ -856,7 +856,7 @@ void _obtainLocalL2NeighborsTLV(struct l2NeighborDeviceTLV *l2_neighbors)
 
         if (0 == l2_neighbors->local_interfaces_nr)
         {
-            l2_neighbors->local_interfaces = (struct _l2InterfacesEntries *)PLATFORM_MALLOC(sizeof(struct _l2InterfacesEntries));
+            l2_neighbors->local_interfaces = (struct _l2InterfacesEntries *)memalloc(sizeof(struct _l2InterfacesEntries));
         }
         else
         {
@@ -866,7 +866,7 @@ void _obtainLocalL2NeighborsTLV(struct l2NeighborDeviceTLV *l2_neighbors)
         memcpy(l2_neighbors->local_interfaces[l2_neighbors->local_interfaces_nr].local_mac_address, x->mac_address, 6);
 
         l2_neighbors->local_interfaces[l2_neighbors->local_interfaces_nr].l2_neighbors_nr = x->neighbor_mac_addresses_nr;
-        l2_neighbors->local_interfaces[l2_neighbors->local_interfaces_nr].l2_neighbors    = (struct _l2NeighborsEntries *)PLATFORM_MALLOC(sizeof(struct _l2NeighborsEntries) * x->neighbor_mac_addresses_nr);
+        l2_neighbors->local_interfaces[l2_neighbors->local_interfaces_nr].l2_neighbors    = (struct _l2NeighborsEntries *)memalloc(sizeof(struct _l2NeighborsEntries) * x->neighbor_mac_addresses_nr);
 
         for (j=0; j<x->neighbor_mac_addresses_nr; j++)
         {
@@ -1009,14 +1009,14 @@ void _obtainLocalMetricsTLVs(uint8_t destination, uint8_t *specific_neighbor, ui
                  LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS == metrics_type
                )
             {
-                tx_tlvs = (struct transmitterLinkMetricTLV **)PLATFORM_MALLOC(sizeof(struct transmitterLinkMetricTLV*) * al_mac_addresses_nr);
+                tx_tlvs = (struct transmitterLinkMetricTLV **)memalloc(sizeof(struct transmitterLinkMetricTLV*) * al_mac_addresses_nr);
             }
             if (
                  LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY        == metrics_type ||
                  LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS == metrics_type
                )
             {
-                rx_tlvs = (struct receiverLinkMetricTLV **)PLATFORM_MALLOC(sizeof(struct receiverLinkMetricTLV*) * al_mac_addresses_nr);
+                rx_tlvs = (struct receiverLinkMetricTLV **)memalloc(sizeof(struct receiverLinkMetricTLV*) * al_mac_addresses_nr);
             }
         }
         else
@@ -1026,14 +1026,14 @@ void _obtainLocalMetricsTLVs(uint8_t destination, uint8_t *specific_neighbor, ui
                  LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS == metrics_type
                )
             {
-                tx_tlvs = (struct transmitterLinkMetricTLV **)PLATFORM_MALLOC(sizeof(struct transmitterLinkMetricTLV*) * 1);
+                tx_tlvs = (struct transmitterLinkMetricTLV **)memalloc(sizeof(struct transmitterLinkMetricTLV*) * 1);
             }
             if (
                  LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY        == metrics_type ||
                  LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS == metrics_type
                )
             {
-                rx_tlvs = (struct receiverLinkMetricTLV **)PLATFORM_MALLOC(sizeof(struct receiverLinkMetricTLV*) * 1);
+                rx_tlvs = (struct receiverLinkMetricTLV **)memalloc(sizeof(struct receiverLinkMetricTLV*) * 1);
             }
         }
     }
@@ -1075,23 +1075,23 @@ void _obtainLocalMetricsTLVs(uint8_t destination, uint8_t *specific_neighbor, ui
             //
             if (NULL != tx_tlvs)
             {
-                tx_tlvs[total_tlvs] = (struct transmitterLinkMetricTLV *)PLATFORM_MALLOC(sizeof(struct transmitterLinkMetricTLV));
+                tx_tlvs[total_tlvs] = (struct transmitterLinkMetricTLV *)memalloc(sizeof(struct transmitterLinkMetricTLV));
 
                                 tx_tlvs[total_tlvs]->tlv_type                    = TLV_TYPE_TRANSMITTER_LINK_METRIC;
                 memcpy(tx_tlvs[total_tlvs]->local_al_address,             DMalMacGet(),                       6);
                 memcpy(tx_tlvs[total_tlvs]->neighbor_al_address,          al_mac_addresses[i],                6);
                                 tx_tlvs[total_tlvs]->transmitter_link_metrics_nr = links_nr;
-                                tx_tlvs[total_tlvs]->transmitter_link_metrics    = PLATFORM_MALLOC(sizeof(struct _transmitterLinkMetricEntries) * links_nr);
+                                tx_tlvs[total_tlvs]->transmitter_link_metrics    = memalloc(sizeof(struct _transmitterLinkMetricEntries) * links_nr);
             }
             if (NULL != rx_tlvs)
             {
-                rx_tlvs[total_tlvs] = (struct receiverLinkMetricTLV *)PLATFORM_MALLOC(sizeof(struct receiverLinkMetricTLV));
+                rx_tlvs[total_tlvs] = (struct receiverLinkMetricTLV *)memalloc(sizeof(struct receiverLinkMetricTLV));
 
                                 rx_tlvs[total_tlvs]->tlv_type                    = TLV_TYPE_RECEIVER_LINK_METRIC;
                 memcpy(rx_tlvs[total_tlvs]->local_al_address,             DMalMacGet(),                       6);
                 memcpy(rx_tlvs[total_tlvs]->neighbor_al_address,          al_mac_addresses[i],                6);
                                 rx_tlvs[total_tlvs]->receiver_link_metrics_nr    = links_nr;
-                                rx_tlvs[total_tlvs]->receiver_link_metrics       = PLATFORM_MALLOC(sizeof(struct _receiverLinkMetricEntries) * links_nr);
+                                rx_tlvs[total_tlvs]->receiver_link_metrics       = memalloc(sizeof(struct _receiverLinkMetricEntries) * links_nr);
             }
 
             // ...and then, for each link, fill the specific link information:
@@ -1352,14 +1352,14 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                         {
                             // ...as NEW TLVs, if this is the first time
                             //
-                            new_tx_tlvs    = (struct transmitterLinkMetricTLV **)PLATFORM_MALLOC(sizeof(struct transmitterLinkMetricTLV*));
-                            new_tx_tlvs[0] = (struct transmitterLinkMetricTLV  *)PLATFORM_MALLOC(sizeof(struct transmitterLinkMetricTLV));
+                            new_tx_tlvs    = (struct transmitterLinkMetricTLV **)memalloc(sizeof(struct transmitterLinkMetricTLV*));
+                            new_tx_tlvs[0] = (struct transmitterLinkMetricTLV  *)memalloc(sizeof(struct transmitterLinkMetricTLV));
 
                                             new_tx_tlvs[0]->tlv_type                    = tx_tlvs[i]->tlv_type;
                             memcpy(new_tx_tlvs[0]->local_al_address,             tx_tlvs[i]->local_al_address,    6);
                             memcpy(new_tx_tlvs[0]->neighbor_al_address,          tx_tlvs[i]->neighbor_al_address, 6);
                                             new_tx_tlvs[0]->transmitter_link_metrics_nr = 1;
-                                            new_tx_tlvs[0]->transmitter_link_metrics    = (struct _transmitterLinkMetricEntries *)PLATFORM_MALLOC(sizeof(struct _transmitterLinkMetricEntries));
+                                            new_tx_tlvs[0]->transmitter_link_metrics    = (struct _transmitterLinkMetricEntries *)memalloc(sizeof(struct _transmitterLinkMetricEntries));
                             memcpy(new_tx_tlvs[0]->transmitter_link_metrics,     &(tx_tlvs[i]->transmitter_link_metrics[k]), sizeof(struct _transmitterLinkMetricEntries));
 
                             new_total_tlvs_tx = 1;
@@ -1387,13 +1387,13 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                                 // New interface. Create new TLV.
                                 //
                                 new_tx_tlvs                    = (struct transmitterLinkMetricTLV **)PLATFORM_REALLOC(new_tx_tlvs, sizeof(struct transmitterLinkMetricTLV*)*(new_total_tlvs_tx + 1));
-                                new_tx_tlvs[new_total_tlvs_tx] = (struct transmitterLinkMetricTLV  *)PLATFORM_MALLOC(sizeof(struct transmitterLinkMetricTLV));
+                                new_tx_tlvs[new_total_tlvs_tx] = (struct transmitterLinkMetricTLV  *)memalloc(sizeof(struct transmitterLinkMetricTLV));
 
                                                 new_tx_tlvs[new_total_tlvs_tx]->tlv_type                    = tx_tlvs[i]->tlv_type;
                                 memcpy(new_tx_tlvs[new_total_tlvs_tx]->local_al_address,             tx_tlvs[i]->local_al_address,    6);
                                 memcpy(new_tx_tlvs[new_total_tlvs_tx]->neighbor_al_address,          tx_tlvs[i]->neighbor_al_address, 6);
                                                 new_tx_tlvs[new_total_tlvs_tx]->transmitter_link_metrics_nr = 1;
-                                                new_tx_tlvs[new_total_tlvs_tx]->transmitter_link_metrics    = (struct _transmitterLinkMetricEntries *)PLATFORM_MALLOC(sizeof(struct _transmitterLinkMetricEntries));
+                                                new_tx_tlvs[new_total_tlvs_tx]->transmitter_link_metrics    = (struct _transmitterLinkMetricEntries *)memalloc(sizeof(struct _transmitterLinkMetricEntries));
                                 memcpy(new_tx_tlvs[new_total_tlvs_tx]->transmitter_link_metrics,     &tx_tlvs[i]->transmitter_link_metrics[k], sizeof(struct _transmitterLinkMetricEntries));
 
                                 new_total_tlvs_tx++;
@@ -1426,14 +1426,14 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                         {
                             // ...as NEW TLVs, if this is the first time
                             //
-                            new_rx_tlvs    = (struct receiverLinkMetricTLV **)PLATFORM_MALLOC(sizeof(struct receiverLinkMetricTLV*));
-                            new_rx_tlvs[0] = (struct receiverLinkMetricTLV  *)PLATFORM_MALLOC(sizeof(struct receiverLinkMetricTLV));
+                            new_rx_tlvs    = (struct receiverLinkMetricTLV **)memalloc(sizeof(struct receiverLinkMetricTLV*));
+                            new_rx_tlvs[0] = (struct receiverLinkMetricTLV  *)memalloc(sizeof(struct receiverLinkMetricTLV));
 
                                             new_rx_tlvs[0]->tlv_type                    = rx_tlvs[i]->tlv_type;
                             memcpy(new_rx_tlvs[0]->local_al_address,             rx_tlvs[i]->local_al_address,    6);
                             memcpy(new_rx_tlvs[0]->neighbor_al_address,          rx_tlvs[i]->neighbor_al_address, 6);
                                             new_rx_tlvs[0]->receiver_link_metrics_nr    = 1;
-                                            new_rx_tlvs[0]->receiver_link_metrics       = (struct _receiverLinkMetricEntries *)PLATFORM_MALLOC(sizeof(struct _receiverLinkMetricEntries));
+                                            new_rx_tlvs[0]->receiver_link_metrics       = (struct _receiverLinkMetricEntries *)memalloc(sizeof(struct _receiverLinkMetricEntries));
                             memcpy(new_rx_tlvs[0]->receiver_link_metrics,        &rx_tlvs[i]->receiver_link_metrics[k], sizeof(struct _receiverLinkMetricEntries));
 
                             new_total_tlvs_rx = 1;
@@ -1461,13 +1461,13 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
                                 // New interface. Create new TLV.
                                 //
                                 new_rx_tlvs                    = (struct receiverLinkMetricTLV **)PLATFORM_REALLOC(new_rx_tlvs, sizeof(struct receiverLinkMetricTLV*)*(new_total_tlvs_rx + 1));
-                                new_rx_tlvs[new_total_tlvs_rx] = (struct receiverLinkMetricTLV  *)PLATFORM_MALLOC(sizeof(struct receiverLinkMetricTLV));
+                                new_rx_tlvs[new_total_tlvs_rx] = (struct receiverLinkMetricTLV  *)memalloc(sizeof(struct receiverLinkMetricTLV));
 
                                                 new_rx_tlvs[new_total_tlvs_rx]->tlv_type                    = rx_tlvs[i]->tlv_type;
                                 memcpy(new_rx_tlvs[new_total_tlvs_rx]->local_al_address,             rx_tlvs[i]->local_al_address,    6);
                                 memcpy(new_rx_tlvs[new_total_tlvs_rx]->neighbor_al_address,          rx_tlvs[i]->neighbor_al_address, 6);
                                                 new_rx_tlvs[new_total_tlvs_rx]->receiver_link_metrics_nr    = 1;
-                                                new_rx_tlvs[new_total_tlvs_rx]->receiver_link_metrics       = (struct _receiverLinkMetricEntries *)PLATFORM_MALLOC(sizeof(struct _receiverLinkMetricEntries));
+                                                new_rx_tlvs[new_total_tlvs_rx]->receiver_link_metrics       = (struct _receiverLinkMetricEntries *)memalloc(sizeof(struct _receiverLinkMetricEntries));
                                 memcpy(new_rx_tlvs[new_total_tlvs_rx]->receiver_link_metrics,        &rx_tlvs[i]->receiver_link_metrics[k], sizeof(struct _receiverLinkMetricEntries));
 
                                 new_total_tlvs_rx++;
@@ -1513,13 +1513,13 @@ static void _obtainLocalSupportedServicesTLV(struct supportedServiceTLV *support
     {
         /* Not a controller */
         supported_service_tlv->supported_service_nr = 1;
-        supported_service_tlv->supported_service = PLATFORM_MALLOC(1*sizeof(enum serviceType));
+        supported_service_tlv->supported_service = memalloc(1*sizeof(enum serviceType));
         supported_service_tlv->supported_service[0] = SERVICE_MULTI_AP_AGENT;
     }
     else
     {
         supported_service_tlv->supported_service_nr = 2;
-        supported_service_tlv->supported_service = PLATFORM_MALLOC(2*sizeof(enum serviceType));
+        supported_service_tlv->supported_service = memalloc(2*sizeof(enum serviceType));
         supported_service_tlv->supported_service[0] = SERVICE_MULTI_AP_CONTROLLER;
         supported_service_tlv->supported_service[1] = SERVICE_MULTI_AP_AGENT;
     }
@@ -1584,7 +1584,7 @@ static void _obtainLocalApOperationalBssTLV(struct apOperationalBssTLV *ap_opera
     else
     {
         uint8_t radio = 0;
-        ap_operational_bss_tlv->radio = PLATFORM_MALLOC(sizeof(*ap_operational_bss_tlv->radio) * radio_nr);
+        ap_operational_bss_tlv->radio = memalloc(sizeof(*ap_operational_bss_tlv->radio) * radio_nr);
 
         /* First count # radios */
         for (i=0; i<ifs_nr; i++)
@@ -1614,7 +1614,7 @@ static void _obtainLocalApOperationalBssTLV(struct apOperationalBssTLV *ap_opera
                             memcpy(ap_operational_bss_tlv->radio[radio].radio_uid, x->mac_address, 6);
                             ap_operational_bss_tlv->radio[radio].bss_nr = 1;
                             ap_operational_bss_tlv->radio[radio].bss =
-                                    PLATFORM_MALLOC(sizeof(*ap_operational_bss_tlv->radio[radio].bss) * 1);
+                                    memalloc(sizeof(*ap_operational_bss_tlv->radio[radio].bss) * 1);
                             memcpy(ap_operational_bss_tlv->radio[radio].bss[0].bssid,
                                             x->interface_type_data.ieee80211.bssid, 6);
                             ap_operational_bss_tlv->radio[radio].bss[0].ssid.length =
@@ -1682,7 +1682,7 @@ void _obtainLocalGenericPhyTLV(struct genericPhyDeviceInformationTypeTLV *generi
 
             if (0 == generic_phy->local_interfaces_nr)
             {
-                generic_phy->local_interfaces = (struct _genericPhyDeviceEntries *)PLATFORM_MALLOC(sizeof(struct _genericPhyDeviceEntries));
+                generic_phy->local_interfaces = (struct _genericPhyDeviceEntries *)memalloc(sizeof(struct _genericPhyDeviceEntries));
             }
             else
             {
@@ -1710,7 +1710,7 @@ void _obtainLocalGenericPhyTLV(struct genericPhyDeviceInformationTypeTLV *generi
             memcpy(generic_phy->local_interfaces[generic_phy->local_interfaces_nr].variant_name,                                     x->interface_type_data.other.variant_name, strlen(x->interface_type_data.other.variant_name)+1);
                             generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url_len             = strlen(x->interface_type_data.other.generic_phy_description_xml_url)+1;
 
-                            generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url                 = PLATFORM_MALLOC(generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url_len);
+                            generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url                 = memalloc(generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url_len);
             memcpy(generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url,                  x->interface_type_data.other.generic_phy_description_xml_url, generic_phy->local_interfaces[generic_phy->local_interfaces_nr].generic_phy_description_xml_url_len);
 
             generic_phy->local_interfaces_nr++;
@@ -1877,7 +1877,7 @@ void _obtainLocalIpsTLVs(struct ipv4TypeTLV *ipv4, struct ipv6TypeTLV *ipv6)
         {
             if (0 == ipv4->ipv4_interfaces_nr)
             {
-                ipv4->ipv4_interfaces = (struct _ipv4InterfaceEntries *)PLATFORM_MALLOC(sizeof(struct _ipv4InterfaceEntries));
+                ipv4->ipv4_interfaces = (struct _ipv4InterfaceEntries *)memalloc(sizeof(struct _ipv4InterfaceEntries));
             }
             else
             {
@@ -1886,7 +1886,7 @@ void _obtainLocalIpsTLVs(struct ipv4TypeTLV *ipv4, struct ipv6TypeTLV *ipv6)
 
             memcpy(ipv4->ipv4_interfaces[ipv4->ipv4_interfaces_nr].mac_address,   y->mac_address, 6);
                             ipv4->ipv4_interfaces[ipv4->ipv4_interfaces_nr].ipv4_nr      = y->ipv4_nr;
-                            ipv4->ipv4_interfaces[ipv4->ipv4_interfaces_nr].ipv4         = (struct _ipv4Entries *)PLATFORM_MALLOC(sizeof(struct _ipv4Entries) * y->ipv4_nr);
+                            ipv4->ipv4_interfaces[ipv4->ipv4_interfaces_nr].ipv4         = (struct _ipv4Entries *)memalloc(sizeof(struct _ipv4Entries) * y->ipv4_nr);
             for (j=0; j<y->ipv4_nr; j++)
             {
                 switch (y->ipv4[j].type)
@@ -1928,7 +1928,7 @@ void _obtainLocalIpsTLVs(struct ipv4TypeTLV *ipv4, struct ipv6TypeTLV *ipv6)
         {
             if (0 == ipv6->ipv6_interfaces_nr)
             {
-                ipv6->ipv6_interfaces = (struct _ipv6InterfaceEntries *)PLATFORM_MALLOC(sizeof(struct _ipv6InterfaceEntries));
+                ipv6->ipv6_interfaces = (struct _ipv6InterfaceEntries *)memalloc(sizeof(struct _ipv6InterfaceEntries));
             }
             else
             {
@@ -1937,7 +1937,7 @@ void _obtainLocalIpsTLVs(struct ipv4TypeTLV *ipv4, struct ipv6TypeTLV *ipv6)
 
             memcpy(ipv6->ipv6_interfaces[ipv6->ipv6_interfaces_nr].mac_address,   y->mac_address, 6);
                             ipv6->ipv6_interfaces[ipv6->ipv6_interfaces_nr].ipv6_nr      = y->ipv6_nr;
-                            ipv6->ipv6_interfaces[ipv6->ipv6_interfaces_nr].ipv6         = (struct _ipv6Entries *)PLATFORM_MALLOC(sizeof(struct _ipv6Entries) * y->ipv6_nr);
+                            ipv6->ipv6_interfaces[ipv6->ipv6_interfaces_nr].ipv6         = (struct _ipv6Entries *)memalloc(sizeof(struct _ipv6Entries) * y->ipv6_nr);
             for (j=0; j<y->ipv6_nr; j++)
             {
                 switch (y->ipv6[j].type)
@@ -2036,7 +2036,7 @@ uint16_t  memory_buffer_i   = 0;
 
 void _memoryBufferWriterInit()
 {
-    memory_buffer     = (char *)PLATFORM_MALLOC(MEMORY_BUFFER_SIZE);
+    memory_buffer     = (char *)memalloc(MEMORY_BUFFER_SIZE);
     memory_buffer_i   = 0;
 }
 void _memoryBufferWriter(const char *fmt, ...)
@@ -2123,20 +2123,20 @@ void _updateLocalDeviceData()
     // declaring variables in the stack) because they are going to be "saved"
     // in the database when calling "DMupdate*()"
     //
-    info            = (struct deviceInformationTypeTLV*)          PLATFORM_MALLOC(sizeof(struct deviceInformationTypeTLV));
-    bridges         = (struct deviceBridgingCapabilityTLV**)      PLATFORM_MALLOC(sizeof(struct deviceBridgingCapabilityTLV*));
-    bridges[0]      = (struct deviceBridgingCapabilityTLV*)       PLATFORM_MALLOC(sizeof(struct deviceBridgingCapabilityTLV));
-    power_off       = (struct powerOffInterfaceTLV**)             PLATFORM_MALLOC(sizeof(struct powerOffInterfaceTLV*));
-    power_off[0]    = (struct powerOffInterfaceTLV*)              PLATFORM_MALLOC(sizeof(struct powerOffInterfaceTLV));
-    l2_neighbors    = (struct l2NeighborDeviceTLV**)              PLATFORM_MALLOC(sizeof(struct l2NeighborDeviceTLV*));
-    l2_neighbors[0] = (struct l2NeighborDeviceTLV*)               PLATFORM_MALLOC(sizeof(struct l2NeighborDeviceTLV));
-    supported_service_tlv = (struct supportedServiceTLV*)         PLATFORM_MALLOC(sizeof(struct supportedServiceTLV));
-    generic_phy     = (struct genericPhyDeviceInformationTypeTLV*)PLATFORM_MALLOC(sizeof(struct genericPhyDeviceInformationTypeTLV));
-    profile         = (struct x1905ProfileVersionTLV*)            PLATFORM_MALLOC(sizeof(struct x1905ProfileVersionTLV));
-    identification  = (struct deviceIdentificationTypeTLV*)       PLATFORM_MALLOC(sizeof(struct deviceIdentificationTypeTLV));
-    control_url     = (struct controlUrlTypeTLV*)                 PLATFORM_MALLOC(sizeof(struct controlUrlTypeTLV));
-    ipv4            = (struct ipv4TypeTLV*)                       PLATFORM_MALLOC(sizeof(struct ipv4TypeTLV));
-    ipv6            = (struct ipv6TypeTLV*)                       PLATFORM_MALLOC(sizeof(struct ipv6TypeTLV));
+    info            = (struct deviceInformationTypeTLV*)          memalloc(sizeof(struct deviceInformationTypeTLV));
+    bridges         = (struct deviceBridgingCapabilityTLV**)      memalloc(sizeof(struct deviceBridgingCapabilityTLV*));
+    bridges[0]      = (struct deviceBridgingCapabilityTLV*)       memalloc(sizeof(struct deviceBridgingCapabilityTLV));
+    power_off       = (struct powerOffInterfaceTLV**)             memalloc(sizeof(struct powerOffInterfaceTLV*));
+    power_off[0]    = (struct powerOffInterfaceTLV*)              memalloc(sizeof(struct powerOffInterfaceTLV));
+    l2_neighbors    = (struct l2NeighborDeviceTLV**)              memalloc(sizeof(struct l2NeighborDeviceTLV*));
+    l2_neighbors[0] = (struct l2NeighborDeviceTLV*)               memalloc(sizeof(struct l2NeighborDeviceTLV));
+    supported_service_tlv = (struct supportedServiceTLV*)         memalloc(sizeof(struct supportedServiceTLV));
+    generic_phy     = (struct genericPhyDeviceInformationTypeTLV*)memalloc(sizeof(struct genericPhyDeviceInformationTypeTLV));
+    profile         = (struct x1905ProfileVersionTLV*)            memalloc(sizeof(struct x1905ProfileVersionTLV));
+    identification  = (struct deviceIdentificationTypeTLV*)       memalloc(sizeof(struct deviceIdentificationTypeTLV));
+    control_url     = (struct controlUrlTypeTLV*)                 memalloc(sizeof(struct controlUrlTypeTLV));
+    ipv4            = (struct ipv4TypeTLV*)                       memalloc(sizeof(struct ipv4TypeTLV));
+    ipv6            = (struct ipv6TypeTLV*)                       memalloc(sizeof(struct ipv6TypeTLV));
 
     _obtainLocalDeviceInfoTLV           (info);
     _obtainLocalBridgingCapabilitiesTLV (bridges[0]);
@@ -2350,7 +2350,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
     discovery_message.message_type    = CMDU_TYPE_TOPOLOGY_DISCOVERY;
     discovery_message.message_id      = mid;
     discovery_message.relay_indicator = 0;
-    discovery_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*3);
+    discovery_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*3);
     discovery_message.list_of_TLVs[0] = (uint8_t *)&al_mac_addr_tlv;
     discovery_message.list_of_TLVs[1] = (uint8_t *)&mac_addr_tlv;
     discovery_message.list_of_TLVs[2] = NULL;
@@ -2389,7 +2389,7 @@ uint8_t send1905TopologyQueryPacket(char *interface_name, uint16_t mid, uint8_t 
     query_message.message_type    = CMDU_TYPE_TOPOLOGY_QUERY;
     query_message.message_id      = mid;
     query_message.relay_indicator = 0;
-    query_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *));
+    query_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *));
     query_message.list_of_TLVs[0] = NULL;
 
     // Send the packet
@@ -2506,7 +2506,7 @@ uint8_t send1905TopologyResponsePacket(char *interface_name, uint16_t mid, uint8
     response_message.message_type    = CMDU_TYPE_TOPOLOGY_RESPONSE;
     response_message.message_id      = mid;
     response_message.relay_indicator = 0;
-    response_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*(total_tlvs+1));
+    response_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*(total_tlvs+1));
     response_message.list_of_TLVs[0] = (uint8_t *)&device_info;
 
     i = 1;
@@ -2597,7 +2597,7 @@ uint8_t send1905TopologyNotificationPacket(char *interface_name, uint16_t mid)
     discovery_message.message_type    = CMDU_TYPE_TOPOLOGY_NOTIFICATION;
     discovery_message.message_id      = mid;
     discovery_message.relay_indicator = 0;
-    discovery_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*3);
+    discovery_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*3);
     discovery_message.list_of_TLVs[0] = (uint8_t *)&al_mac_addr_tlv;
     discovery_message.list_of_TLVs[1] = NULL;
 
@@ -2654,7 +2654,7 @@ uint8_t send1905MetricsQueryPacket(char *interface_name, uint16_t mid, uint8_t *
     query_message.message_type    = CMDU_TYPE_LINK_METRIC_QUERY;
     query_message.message_id      = mid;
     query_message.relay_indicator = 0;
-    query_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*2);
+    query_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*2);
     query_message.list_of_TLVs[0] = (uint8_t *)&metric_query_tlv;
     query_message.list_of_TLVs[1] = NULL;
 
@@ -2723,11 +2723,11 @@ uint8_t send1905MetricsResponsePacket(char *interface_name, uint16_t mid, uint8_
 
     if (NULL == tx_tlvs || NULL == rx_tlvs)
     {
-        response_message.list_of_TLVs = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*(total_tlvs+1));
+        response_message.list_of_TLVs = (uint8_t **)memalloc(sizeof(uint8_t *)*(total_tlvs+1));
     }
     else
     {
-        response_message.list_of_TLVs = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*((2*total_tlvs) + 1));
+        response_message.list_of_TLVs = (uint8_t **)memalloc(sizeof(uint8_t *)*((2*total_tlvs) + 1));
     }
 
     j = 0;
@@ -2812,7 +2812,7 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
 
     if (media_types_nr > 0)
     {
-        pb_event_tlv.media_types = (struct _mediaTypeEntries *)PLATFORM_MALLOC(sizeof(struct _mediaTypeEntries) * media_types_nr);
+        pb_event_tlv.media_types = (struct _mediaTypeEntries *)memalloc(sizeof(struct _mediaTypeEntries) * media_types_nr);
     }
     else
     {
@@ -2996,7 +2996,7 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
     }
     else
     {
-        pbg_event_tlv.local_interfaces = (struct _genericPhyCommonData *)PLATFORM_MALLOC(sizeof(struct _genericPhyCommonData) * generic_media_types_nr);
+        pbg_event_tlv.local_interfaces = (struct _genericPhyCommonData *)memalloc(sizeof(struct _genericPhyCommonData) * generic_media_types_nr);
 
         j=0;
         for (i=0; i<nr; i++)
@@ -3056,13 +3056,13 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
 
     if (generic_media_types_nr != 0)
     {
-        notification_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*4);
+        notification_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*4);
         notification_message.list_of_TLVs[2] = (uint8_t *)&pbg_event_tlv;
         notification_message.list_of_TLVs[3] = NULL;
     }
     else
     {
-        notification_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*3);
+        notification_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*3);
         notification_message.list_of_TLVs[2] = NULL;
     }
 
@@ -3158,7 +3158,7 @@ uint8_t send1905PushButtonJoinNotificationPacket(char *interface_name, uint16_t 
     notification_message.message_type    = CMDU_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION;
     notification_message.message_id      = mid;
     notification_message.relay_indicator = 1;
-    notification_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*3);
+    notification_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*3);
     notification_message.list_of_TLVs[0] = (uint8_t *)&al_mac_addr_tlv;
     notification_message.list_of_TLVs[1] = (uint8_t *)&pb_join_tlv;
     notification_message.list_of_TLVs[2] = NULL;
@@ -3234,7 +3234,7 @@ uint8_t send1905APAutoconfigurationSearchPacket(char *interface_name, uint16_t m
     search_message.message_type    = CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH;
     search_message.message_id      = mid;
     search_message.relay_indicator = 1;
-    search_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*6);
+    search_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*6);
     search_message.list_of_TLVs[0] = (uint8_t *)&al_mac_addr_tlv;
     search_message.list_of_TLVs[1] = (uint8_t *)&searched_role_tlv;
     search_message.list_of_TLVs[2] = (uint8_t *)&ac_freq_band_tlv;
@@ -3296,7 +3296,7 @@ uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t
     response_message.message_type    = CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE;
     response_message.message_id      = mid;
     response_message.relay_indicator = 0;
-    response_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*4);
+    response_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*4);
     response_message.list_of_TLVs[0] = (uint8_t *)&supported_role_tlv;
     response_message.list_of_TLVs[1] = (uint8_t *)&supported_freq_band_tlv;
     if (include_easymesh)
@@ -3343,7 +3343,7 @@ uint8_t send1905APAutoconfigurationWSCPacket(char *interface_name, uint16_t mid,
     //
     wsc_tlv.tlv_type       = TLV_TYPE_WSC;
     wsc_tlv.wsc_frame_size = wsc_frame_size;
-    wsc_tlv.wsc_frame      = (uint8_t *)PLATFORM_MALLOC(wsc_frame_size);
+    wsc_tlv.wsc_frame      = (uint8_t *)memalloc(wsc_frame_size);
     memcpy(wsc_tlv.wsc_frame, wsc_frame, wsc_frame_size);
 
     // Build the CMDU
@@ -3352,7 +3352,7 @@ uint8_t send1905APAutoconfigurationWSCPacket(char *interface_name, uint16_t mid,
     data_message.message_type    = CMDU_TYPE_AP_AUTOCONFIGURATION_WSC;
     data_message.message_id      = mid;
     data_message.relay_indicator = 0;
-    data_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*2);
+    data_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*2);
     data_message.list_of_TLVs[0] = (uint8_t *)&wsc_tlv;
     data_message.list_of_TLVs[1] = NULL;
 
@@ -3391,7 +3391,7 @@ uint8_t send1905GenericPhyQueryPacket(char *interface_name, uint16_t mid, uint8_
     query_message.message_type    = CMDU_TYPE_GENERIC_PHY_QUERY;
     query_message.message_id      = mid;
     query_message.relay_indicator = 0;
-    query_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *));
+    query_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *));
     query_message.list_of_TLVs[0] = NULL;
 
     // Send packet
@@ -3436,7 +3436,7 @@ uint8_t send1905GenericPhyResponsePacket(char *interface_name, uint16_t mid, uin
     response_message.message_type    = CMDU_TYPE_GENERIC_PHY_RESPONSE;
     response_message.message_id      = mid;
     response_message.relay_indicator = 0;
-    response_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*2);
+    response_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*2);
     response_message.list_of_TLVs[0] = (uint8_t *)&generic_phy;
     response_message.list_of_TLVs[1] = NULL;
 
@@ -3478,7 +3478,7 @@ uint8_t send1905HighLayerQueryPacket(char *interface_name, uint16_t mid, uint8_t
     query_message.message_type    = CMDU_TYPE_HIGHER_LAYER_QUERY;
     query_message.message_id      = mid;
     query_message.relay_indicator = 0;
-    query_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *));
+    query_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *));
     query_message.list_of_TLVs[0] = NULL;
 
     // Send the packet
@@ -3556,7 +3556,7 @@ uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint
     response_message.message_type    = CMDU_TYPE_HIGHER_LAYER_RESPONSE;
     response_message.message_id      = mid;
     response_message.relay_indicator = 0;
-    response_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *)*(total_tlvs+1));
+    response_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *)*(total_tlvs+1));
     response_message.list_of_TLVs[0] = (uint8_t *)&al_mac_addr_tlv;
     response_message.list_of_TLVs[1] = (uint8_t *)&profile_tlv;
     response_message.list_of_TLVs[2] = (uint8_t *)&identification_tlv;
@@ -3643,7 +3643,7 @@ uint8_t send1905InterfacePowerChangeRequestPacket(char *interface_name, uint16_t
     //
     power_change.tlv_type                   = TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION;
     power_change.power_change_interfaces_nr = nr;
-    power_change.power_change_interfaces    = (struct _powerChangeInformationEntries *)PLATFORM_MALLOC(sizeof(struct _powerChangeInformationEntries)*nr);
+    power_change.power_change_interfaces    = (struct _powerChangeInformationEntries *)memalloc(sizeof(struct _powerChangeInformationEntries)*nr);
 
     for (i=0; i<nr; i++)
     {
@@ -3657,7 +3657,7 @@ uint8_t send1905InterfacePowerChangeRequestPacket(char *interface_name, uint16_t
     request_message.message_type    = CMDU_TYPE_INTERFACE_POWER_CHANGE_REQUEST;
     request_message.message_id      = mid;
     request_message.relay_indicator = 0;
-    request_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *) * 2);
+    request_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *) * 2);
     request_message.list_of_TLVs[0] = (uint8_t *)&power_change;
     request_message.list_of_TLVs[1] = NULL;
 
@@ -3715,7 +3715,7 @@ uint8_t send1905InterfacePowerChangeResponsePacket(char *interface_name, uint16_
     //
     power_change.tlv_type                   = TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION;
     power_change.power_change_interfaces_nr = nr;
-    power_change.power_change_interfaces    = (struct _powerChangeStatusEntries *)PLATFORM_MALLOC(sizeof(struct _powerChangeStatusEntries)*nr);
+    power_change.power_change_interfaces    = (struct _powerChangeStatusEntries *)memalloc(sizeof(struct _powerChangeStatusEntries)*nr);
 
     for (i=0; i<nr; i++)
     {
@@ -3729,7 +3729,7 @@ uint8_t send1905InterfacePowerChangeResponsePacket(char *interface_name, uint16_
     response_message.message_type    = CMDU_TYPE_INTERFACE_POWER_CHANGE_RESPONSE;
     response_message.message_id      = mid;
     response_message.relay_indicator = 0;
-    response_message.list_of_TLVs    = (uint8_t **)PLATFORM_MALLOC(sizeof(uint8_t *) * 2);
+    response_message.list_of_TLVs    = (uint8_t **)memalloc(sizeof(uint8_t *) * 2);
     response_message.list_of_TLVs[0] = (uint8_t *)&power_change;
     response_message.list_of_TLVs[1] = NULL;
 
@@ -3846,7 +3846,7 @@ uint8_t send1905InterfaceListResponseALME(uint8_t alme_client_id)
 
     // Fill the requested ALME response
     //
-    out = (struct getIntfListResponseALME *)PLATFORM_MALLOC(sizeof(struct getIntfListResponseALME));
+    out = (struct getIntfListResponseALME *)memalloc(sizeof(struct getIntfListResponseALME));
     out->alme_type = ALME_TYPE_GET_INTF_LIST_RESPONSE;
 
     ifs_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&ifs_nr);
@@ -3860,7 +3860,7 @@ uint8_t send1905InterfaceListResponseALME(uint8_t alme_client_id)
         uint8_t i;
 
         out->interface_descriptors_nr = ifs_nr;
-        out->interface_descriptors    = (struct _intfDescriptorEntries *)PLATFORM_MALLOC(sizeof(struct _intfDescriptorEntries) * ifs_nr);
+        out->interface_descriptors    = (struct _intfDescriptorEntries *)memalloc(sizeof(struct _intfDescriptorEntries) * ifs_nr);
 
         for (i=0; i<out->interface_descriptors_nr; i++)
         {
@@ -3904,7 +3904,7 @@ uint8_t send1905InterfaceListResponseALME(uint8_t alme_client_id)
                     uint8_t j;
 
                     out->interface_descriptors[i].vendor_specific_info_nr  = x->vendor_specific_elements_nr;
-                    out->interface_descriptors[i].vendor_specific_info     = (struct _vendorSpecificInfoEntries *)PLATFORM_MALLOC(sizeof(struct _vendorSpecificInfoEntries) * x->vendor_specific_elements_nr);
+                    out->interface_descriptors[i].vendor_specific_info     = (struct _vendorSpecificInfoEntries *)memalloc(sizeof(struct _vendorSpecificInfoEntries) * x->vendor_specific_elements_nr);
 
                     for (j=0; j<out->interface_descriptors[i].vendor_specific_info_nr; j++)
                     {
@@ -3914,7 +3914,7 @@ uint8_t send1905InterfaceListResponseALME(uint8_t alme_client_id)
                         out->interface_descriptors[i].vendor_specific_info[j].oui[1]       = x->vendor_specific_elements[j].oui[1];
                         out->interface_descriptors[i].vendor_specific_info[j].oui[2]       = x->vendor_specific_elements[j].oui[2];
 
-                        out->interface_descriptors[i].vendor_specific_info[j].vendor_si    = (uint8_t *)PLATFORM_MALLOC(x->vendor_specific_elements[j].vendor_data_len);
+                        out->interface_descriptors[i].vendor_specific_info[j].vendor_si    = (uint8_t *)memalloc(x->vendor_specific_elements[j].vendor_data_len);
                         memcpy(out->interface_descriptors[i].vendor_specific_info[j].vendor_si, x->vendor_specific_elements[j].vendor_data, x->vendor_specific_elements[j].vendor_data_len);
                     }
                 }
@@ -3985,7 +3985,7 @@ uint8_t send1905MetricsResponseALME(uint8_t alme_client_id, uint8_t *mac_address
     //
     res = _reStructureMetricsTLVs(&tx_tlvs, &rx_tlvs, &total_tlvs);
 
-    out = (struct getMetricResponseALME *)PLATFORM_MALLOC(sizeof(struct getMetricResponseALME));
+    out = (struct getMetricResponseALME *)memalloc(sizeof(struct getMetricResponseALME));
     out->alme_type  = ALME_TYPE_GET_METRIC_RESPONSE;
 
     if (0 == total_tlvs || 0 == res)
@@ -4001,7 +4001,7 @@ uint8_t send1905MetricsResponseALME(uint8_t alme_client_id, uint8_t *mac_address
 
         if (total_tlvs > 0)
         {
-            out->metrics = (struct _metricDescriptorsEntries *)PLATFORM_MALLOC(sizeof(struct _metricDescriptorsEntries)*total_tlvs);
+            out->metrics = (struct _metricDescriptorsEntries *)memalloc(sizeof(struct _metricDescriptorsEntries)*total_tlvs);
         }
         else
         {
@@ -4059,7 +4059,7 @@ uint8_t send1905CustomCommandResponseALME(uint8_t alme_client_id, uint8_t comman
 
     // Fill the requested ALME response
     //
-    out = (struct customCommandResponseALME *)PLATFORM_MALLOC(sizeof(struct customCommandResponseALME));
+    out = (struct customCommandResponseALME *)memalloc(sizeof(struct customCommandResponseALME));
     out->alme_type = ALME_TYPE_CUSTOM_COMMAND_RESPONSE;
 
     switch (command)

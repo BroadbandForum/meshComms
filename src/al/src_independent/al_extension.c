@@ -223,7 +223,7 @@ uint8_t obtainExtendedLocalInfo(struct vendorSpecificTLV ***extensions, uint8_t 
                 //
                 if (NULL == total_tlvs)
                 {
-                    total_tlvs = (struct vendorSpecificTLV **)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV*) * (total_tlvs_nr + tlvs_nr) );
+                    total_tlvs = (struct vendorSpecificTLV **)memalloc(sizeof(struct vendorSpecificTLV*) * (total_tlvs_nr + tlvs_nr) );
                 }
                 else
                 {
@@ -366,7 +366,7 @@ struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure
         return NULL;
     }
 
-    vendor_specific                = (struct vendorSpecificTLV *)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV));
+    vendor_specific                = (struct vendorSpecificTLV *)memalloc(sizeof(struct vendorSpecificTLV));
     memcpy(vendor_specific->vendorOUI, oui, 3);
     vendor_specific->tlv_type      = TLV_TYPE_VENDOR_SPECIFIC;
     vendor_specific->m_nr          = stream_len;
@@ -413,14 +413,14 @@ struct vendorSpecificTLV *vendorSpecificTLVDuplicate(struct vendorSpecificTLV *t
 
   // Clone the Vendor Specific TLV
   //
-  vs_tlv = (struct vendorSpecificTLV *)PLATFORM_MALLOC(sizeof(struct vendorSpecificTLV));
+  vs_tlv = (struct vendorSpecificTLV *)memalloc(sizeof(struct vendorSpecificTLV));
   vs_tlv->tlv_type = tlv->tlv_type;
   vs_tlv->vendorOUI[0] = tlv->vendorOUI[0];
   vs_tlv->vendorOUI[1] = tlv->vendorOUI[1];
   vs_tlv->vendorOUI[2] = tlv->vendorOUI[2];
   vs_tlv->m_nr = tlv->m_nr;
 
-  vs_tlv->m = (uint8_t *)PLATFORM_MALLOC(vs_tlv->m_nr);
+  vs_tlv->m = (uint8_t *)memalloc(vs_tlv->m_nr);
   memcpy(vs_tlv->m, tlv->m, vs_tlv->m_nr);
 
   return vs_tlv;
@@ -470,7 +470,7 @@ uint8_t register1905CmduExtension(char *name,
 
     if (0 == t->entries_nr)
     {
-        t->entries = (struct _cmduExtension *)PLATFORM_MALLOC(sizeof(struct _cmduExtension) * 1);
+        t->entries = (struct _cmduExtension *)memalloc(sizeof(struct _cmduExtension) * 1);
     }
     else
     {
@@ -516,7 +516,7 @@ uint8_t register1905AlmeDumpExtension(char *name,
 
     if (0 == t->entries_nr)
     {
-        t->entries = (struct _dmExtension *)PLATFORM_MALLOC(sizeof(struct _dmExtension) * 1);
+        t->entries = (struct _dmExtension *)memalloc(sizeof(struct _dmExtension) * 1);
     }
     else
     {

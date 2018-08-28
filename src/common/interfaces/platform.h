@@ -67,18 +67,11 @@
 // Typical libc stuff
 ////////////////////////////////////////////////////////////////////////////////
 
-// Allocate a chunk of 'n' bytes and return a pointer to it.
-//
-// If no memory can be allocated, this function must *not* return (instead of
-// returning a NULL pointer), and the program must be exited immediately.
-//
-void *PLATFORM_MALLOC(size_t size);
-
-// Free a memory area previously obtained with "PLATFORM_MALLOC()"
+// Free a memory area previously obtained with "memalloc()"
 //
 void PLATFORM_FREE(void *ptr);
 
-// Redimendion a memory area previously obtained  with "PLATFORM_MALLOC()"
+// Redimendion a memory area previously obtained  with "memalloc()"
 //
 // If no memory can be allocated, this function must *not* return (instead of
 // returning a NULL pointer), and the program must be exited immediately.

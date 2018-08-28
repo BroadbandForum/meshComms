@@ -75,21 +75,6 @@ pthread_mutex_t printf_mutex = PTHREAD_MUTEX_INITIALIZER;
 // Platform API: libc stuff
 ////////////////////////////////////////////////////////////////////////////////
 
-void *PLATFORM_MALLOC(size_t size)
-{
-    void *p;
-
-    p = malloc(size);
-
-    if (NULL == p)
-    {
-        printf("ERROR: Out of memory!\n");
-        exit(1);
-    }
-
-    return p;
-}
-
 
 void PLATFORM_FREE(void *ptr)
 {

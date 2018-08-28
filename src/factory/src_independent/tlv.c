@@ -59,8 +59,8 @@ struct tlv_list *tlv_parse(tlv_defs_t defs, const uint8_t *buffer, size_t length
             struct tlv_unknown *tlv;
             PLATFORM_PRINTF_DEBUG_WARNING("Unknown TLV type %u of length %u\n",
                                           (unsigned)tlv_type, (unsigned)tlv_length);
-            tlv = PLATFORM_MALLOC(sizeof(struct tlv_unknown));
-            tlv->value = PLATFORM_MALLOC(tlv_length);
+            tlv = memalloc(sizeof(struct tlv_unknown));
+            tlv->value = memalloc(tlv_length);
             tlv->length = tlv_length;
             memcpy(tlv->value, buffer, tlv_length);
             tlv_new = &tlv->tlv;
@@ -70,7 +70,7 @@ struct tlv_list *tlv_parse(tlv_defs_t defs, const uint8_t *buffer, size_t length
             /* Default parse function only works for 0-length TLVs */
             if (tlv_length == 0)
             {
-                tlv_new = PLATFORM_MALLOC(sizeof(struct tlv));
+                tlv_new = memalloc(sizeof(struct tlv));
             }
             else
             {

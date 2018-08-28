@@ -228,7 +228,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(uint8_t *packet_buffer, uint16_t len)
                 mids_in_flight[i].last_fragment = cmdu_header.fragment_id;
             }
 
-            mids_in_flight[i].streams[cmdu_header.fragment_id] = (uint8_t *)PLATFORM_MALLOC((sizeof(uint8_t) * len));
+            mids_in_flight[i].streams[cmdu_header.fragment_id] = (uint8_t *)memalloc((sizeof(uint8_t) * len));
             memcpy(mids_in_flight[i].streams[cmdu_header.fragment_id], p, len);
 
             mids_in_flight[i].age = current_age++;
@@ -308,7 +308,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(uint8_t *packet_buffer, uint16_t len)
         mids_in_flight[i].streams[MAX_FRAGMENTS_PER_MID] = NULL;
 
         mids_in_flight[i].fragments[cmdu_header.fragment_id]  = 1;
-        mids_in_flight[i].streams[cmdu_header.fragment_id]    = (uint8_t *)PLATFORM_MALLOC((sizeof(uint8_t) * len));
+        mids_in_flight[i].streams[cmdu_header.fragment_id]    = (uint8_t *)memalloc((sizeof(uint8_t) * len));
         memcpy(mids_in_flight[i].streams[cmdu_header.fragment_id], p, len);
 
         if (1 == cmdu_header.last_fragment_indicator)
@@ -1101,7 +1101,7 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
     // Prepare the message queue
     //
     PLATFORM_PRINTF_DEBUG_DETAIL("Allocating memory to hold a queue message...\n");
-    queue_message = (uint8_t *)PLATFORM_MALLOC(MAX_NETWORK_SEGMENT_SIZE+3);
+    queue_message = (uint8_t *)memalloc(MAX_NETWORK_SEGMENT_SIZE+3);
 
     PLATFORM_PRINTF_DEBUG_DETAIL("Entering read-process loop...\n");
     while(1)
@@ -1517,7 +1517,7 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
                 // those who don't by setting the corresponding byte in array
                 // "no_push_button" to '1'
                 //
-                no_push_button = (uint8_t *)PLATFORM_MALLOC(sizeof(uint8_t) * ifs_nr);
+                no_push_button = (uint8_t *)memalloc(sizeof(uint8_t) * ifs_nr);
 
                 for (i=0; i<ifs_nr; i++)
                 {

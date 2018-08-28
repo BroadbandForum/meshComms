@@ -40,7 +40,7 @@ struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(uint8_t *packet_stream)
         return NULL;
     }
 
-    ret = (struct PAYLOAD *)PLATFORM_MALLOC(sizeof(struct PAYLOAD));
+    ret = (struct PAYLOAD *)memalloc(sizeof(struct PAYLOAD));
     for (i=0; i<MAX_LLDP_TLVS; i++)
     {
         ret->list_of_TLVs[i] = NULL;
@@ -214,7 +214,7 @@ uint8_t *forge_lldp_PAYLOAD_from_structure(struct PAYLOAD *memory_structure, uin
 
     // Prepare the output buffer
     //
-    buffer = (uint8_t *)PLATFORM_MALLOC(MAX_NETWORK_SEGMENT_SIZE);
+    buffer = (uint8_t *)memalloc(MAX_NETWORK_SEGMENT_SIZE);
 
     // Next, from each of the just filled structures, obtain its packet
     // representation (ie. bit stream layout) and fill 'buffer' with them in

@@ -254,7 +254,7 @@ static struct tlv *TLV_TEMPLATE_FUNCTION_NAME(parse)(const struct tlv_def *def _
                                                      const uint8_t *buffer __attribute__((unused)),
                                                      size_t length __attribute__((unused)))
 {
-    TLV_TEMPLATE_STRUCT_NAME *self = PLATFORM_MALLOC(sizeof(TLV_TEMPLATE_STRUCT_NAME));
+    TLV_TEMPLATE_STRUCT_NAME *self = memalloc(sizeof(TLV_TEMPLATE_STRUCT_NAME));
 
     memset(self, 0, sizeof(*self));
 
