@@ -170,18 +170,6 @@ struct _genericPhyCommonData
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// End of message TLV associated structures ("Section 6.4.1")
-////////////////////////////////////////////////////////////////////////////////
-struct endOfMessageTLV
-{
-    uint8_t   tlv_type;             // Must always be set to
-                                  // TLV_TYPE_END_OF_MESSAGE
-
-    // This structure does not contain anything at all
-};
-
-
-////////////////////////////////////////////////////////////////////////////////
 // Vendor specific TLV associated structures ("Section 6.4.2")
 ////////////////////////////////////////////////////////////////////////////////
 struct vendorSpecificTLV
@@ -1025,27 +1013,7 @@ struct associatedClientsTLV
 // filled with the appropiate values extracted from the parsed stream.
 //
 // The actual type of the returned pointer structure depends on the value of
-// the first byte pointed by "packet_stream" (ie. the "Type" field of the TLV):
-//
-//   TLV_TYPE_END_OF_MESSAGE                  -->  struct endOfMessageTLV *
-//   TLV_TYPE_VENDOR_SPECIFIC                 -->  struct vendorSpecificTLV *
-//   TLV_TYPE_AL_MAC_ADDRESS_TYPE             -->  struct alMacAddressTypeTLV *
-//   TLV_TYPE_MAC_ADDRESS_TYPE                -->  struct macAddressTypeTLV *
-//   TLV_TYPE_DEVICE_INFORMATION_TYPE         -->  struct deviceInformationTypeTLV *
-//   TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES    -->  struct deviceBridgingCapabilityTLV *
-//   TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST   -->  struct non1905NeighborDeviceListTLV *
-//   TLV_TYPE_NEIGHBOR_DEVICE_LIST            -->  struct neighborDeviceListTLV *
-//   TLV_TYPE_LINK_METRIC_QUERY               -->  struct linkMetricQueryTLV *
-//   TLV_TYPE_TRANSMITTER_LINK_METRIC         -->  struct transmitterLinkMetricTLV *
-//   TLV_TYPE_RECEIVER_LINK_METRIC            -->  struct receiverLinkMetricTLV *
-//   TLV_TYPE_LINK_METRIC_RESULT_CODE         -->  struct linkMetricResultCodeTLV *
-//   TLV_TYPE_SEARCHED_ROLE                   -->  struct searchedRoleTLV *
-//   TLV_TYPE_AUTOCONFIG_FREQ_BAND            -->  struct autoconfigFreqBandTLV *
-//   TLV_TYPE_SUPPORTED_ROLE                  -->  struct supportedRoleTLV *
-//   TLV_TYPE_SUPPORTED_FREQ_BAND             -->  struct supportedFreqBandTLV *
-//   TLV_TYPE_WSC                             -->  struct wscTLV *
-//   TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION  -->  struct pushButtonEventNotificationTLV *
-//   TLV_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION   -->  struct pushButtonJoinNotificationTLV *
+// the first byte pointed by "packet_stream" (ie. the "Type" field of the TLV).
 //
 // If an error was encountered while parsing the stream, a NULL pointer is
 // returned instead.
