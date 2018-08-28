@@ -907,7 +907,7 @@ uint8_t **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, ui
             p = memory_structure->list_of_TLVs[tlv_stop];
 
             tlv_stream = forge_1905_TLV_from_structure(p, &tlv_stream_size);
-            PLATFORM_FREE(tlv_stream);
+            free(tlv_stream);
 
             if (current_X_size + tlv_stream_size < max_tlvs_block_size)
             {
@@ -1001,7 +1001,7 @@ uint8_t **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, ui
             tlv_stream = forge_1905_TLV_from_structure(memory_structure->list_of_TLVs[i], &tlv_stream_size);
 
             memcpy(s, tlv_stream, tlv_stream_size);
-            PLATFORM_FREE(tlv_stream);
+            free(tlv_stream);
 
             s += tlv_stream_size;
         }
@@ -1030,7 +1030,7 @@ uint8_t **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, ui
     if (0 != error)
     {
         free_1905_CMDU_packets(ret);
-        PLATFORM_FREE(*lens);
+        free(*lens);
         return NULL;
     }
 
@@ -1095,10 +1095,10 @@ void free_1905_CMDU_structure(struct CMDU *memory_structure)
             free_1905_TLV_structure(memory_structure->list_of_TLVs[i]);
             i++;
         }
-        PLATFORM_FREE(memory_structure->list_of_TLVs);
+        free(memory_structure->list_of_TLVs);
     }
 
-    PLATFORM_FREE(memory_structure);
+    free(memory_structure);
 
     return;
 }
@@ -1116,10 +1116,10 @@ void free_1905_CMDU_packets(uint8_t **packet_streams)
     i = 0;
     while (packet_streams[i])
     {
-        PLATFORM_FREE(packet_streams[i]);
+        free(packet_streams[i]);
         i++;
     }
-    PLATFORM_FREE(packet_streams);
+    free(packet_streams);
 
     return;
 }

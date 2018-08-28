@@ -567,7 +567,7 @@ uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void 
         aux8  = WPS_VERSION;                                              _I1B(&aux8,          &p);
     }
 
-    PLATFORM_FREE_1905_INTERFACE_INFO(x);
+    free_1905_INTERFACE_INFO(x);
 
     *m1      = last_m1      = buffer;
     *m1_size = last_m1_size = p-buffer;
@@ -785,7 +785,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, uint8_t *m2, uin
         len[0]  = shared_secret_len;
 
         PLATFORM_SHA256(1, addr, len, dhkey);
-        PLATFORM_FREE(shared_secret);
+        free(shared_secret);
 
         // Next, concatenate three things (the enrolle nonce contained in M1,
         // the enrolle MAC address, and the nonce we just generated before, and
@@ -968,9 +968,9 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, uint8_t *m2, uin
     //
     PLATFORM_CONFIGURE_80211_AP(DMmacToInterfaceName(m1_mac), ssid, bssid, auth_type, encryption_type, network_key);
 
-    PLATFORM_FREE(m1);      last_m1 = NULL;
-    PLATFORM_FREE(k->key);  k->key  = NULL;  last_key->key = NULL;
-    PLATFORM_FREE(k);       k       = NULL;  last_key      = NULL;
+    free(m1);      last_m1 = NULL;
+    free(k->key);  k->key  = NULL;  last_key->key = NULL;
+    free(k);       k       = NULL;  last_key      = NULL;
 
     return 1;
 }
@@ -1181,7 +1181,7 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         len[0]  = shared_secret_len;
 
         PLATFORM_SHA256(1, addr, len, dhkey);
-        PLATFORM_FREE(shared_secret);
+        free(shared_secret);
 
         // Next, concatenate three things (the enrollee nonce contained in M1,
         // the enrolle MAC address -also contained in M1-, and the nonce we just
@@ -1550,7 +1550,7 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
                                                                           _InB( hash,          &p,  8);
     }
 
-    PLATFORM_FREE_1905_INTERFACE_INFO(x);
+    free_1905_INTERFACE_INFO(x);
 
     *m2      = buffer;
     *m2_size = p-buffer;
@@ -1565,7 +1565,7 @@ uint8_t wscFreeM2(uint8_t *m, uint16_t m_size)
         return 1;
     }
 
-    PLATFORM_FREE(m);
+    free(m);
     return 1;
 }
 

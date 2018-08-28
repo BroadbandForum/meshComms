@@ -36,7 +36,7 @@ uint8_t PLATFORM_GET_RANDOM_BYTES(uint8_t *p, uint16_t len);
 // the output arguments "priv", "priv_len", "pub" and "pub_len".
 //
 // Both "priv" and "pub" must be deallocated by the caller when they are no
-// longer needed (using "PLATFORM_FREE()")
+// longer needed (using "free()")
 //
 // The keys are obtained using the DH group specified in RFC3523 "section 2"
 // (ie. the "1536-bit MODP Group" where "g = 2" and "p = 2^1536 - 2^1472 - 1 +
@@ -52,7 +52,7 @@ uint8_t PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, uint16_t *priv_len, uint8_
 // key ("local_priv", which is "local_priv_len" bytes long).
 //
 // "shared_secret" must be deallocated by the caller once it is no longer needed
-// (using "PLATFORM_FREE()")
+// (using "free()")
 //
 // Return "0" if there was a problem, "1" otherwise
 //

@@ -214,15 +214,15 @@ void tlv_free(tlv_defs_t defs, struct tlv_list *tlvs)
         const struct tlv_def *tlv_def = tlv_find_tlv_def(defs, tlv);
         if (tlv_def->free == NULL)
         {
-            PLATFORM_FREE(tlv);
+            free(tlv);
         }
         else
         {
             tlv_def->free(tlv);
         }
     }
-    PLATFORM_FREE(tlvs->tlvs);
-    PLATFORM_FREE(tlvs);
+    free(tlvs->tlvs);
+    free(tlvs);
 }
 
 bool tlv_compare(tlv_defs_t defs, const struct tlv_list *tlvs1, const struct tlv_list *tlvs2)

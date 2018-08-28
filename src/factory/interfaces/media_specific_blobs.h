@@ -123,8 +123,8 @@ struct genericInterfaceType
 uint8_t *forge_media_specific_blob(struct genericInterfaceType *m, uint16_t *len);
 
 // 'forge_media_specific_blob()' returns a regular buffer which can be freed
-// using this macro defined to be PLATFORM_FREE
+// using this macro defined to be free
 //
-#define  free_media_specific_blob  PLATFORM_FREE
+#define  free_media_specific_blob  free
 
 #endif

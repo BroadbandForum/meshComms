@@ -288,7 +288,7 @@ err_out:
     if (def->free != NULL)
         def->free((struct tlv *)self);
     else
-        PLATFORM_FREE(self);
+        free(self);
     return NULL;
 }
 
@@ -386,7 +386,7 @@ static void TLV_TEMPLATE_FUNCTION_NAME(free)(struct tlv *tlv)
     return TLV_TEMPLATE_FUNCTION_NAME(free_body)(self);
 #endif
 
-    PLATFORM_FREE(self);
+    free(self);
 }
 
 static bool TLV_TEMPLATE_FUNCTION_NAME(compare)(const struct tlv *tlv1, const struct tlv *tlv2)

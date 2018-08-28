@@ -50,8 +50,8 @@ static struct tlv_list *alloc_dummy_tlv_list(uint8_t *tlv)
 static uint8_t *free_dummy_tlv_list(struct tlv_list *tlvs)
 {
     struct tlv *ret = tlvs->tlvs[0];
-    PLATFORM_FREE(tlvs->tlvs);
-    PLATFORM_FREE(tlvs);
+    free(tlvs->tlvs);
+    free(tlvs);
     return (uint8_t *)ret;
 }
 
@@ -147,7 +147,7 @@ static void tlv_print_field2_supportedService(const struct supportedServiceTLV *
 
 static void tlv_free_body_supportedService(const struct supportedServiceTLV *self)
 {
-    PLATFORM_FREE(self->supported_service);
+    free(self->supported_service);
 }
 
 static bool tlv_compare_field2_supportedService(const struct supportedServiceTLV *self1,
@@ -358,7 +358,7 @@ static bool tlv_forge_field2_vendorSpecific(const struct vendorSpecificTLV *self
 
 static void tlv_free_body_vendorSpecific(const struct vendorSpecificTLV *self)
 {
-    PLATFORM_FREE(self->m);
+    free(self->m);
 }
 
 static void tlv_print_field2_vendorSpecific(const struct vendorSpecificTLV *self,
@@ -539,9 +539,9 @@ static void tlv_free_body_apOperationalBss(const struct apOperationalBssTLV *sel
     uint8_t i;
     for (i = 0; i < self->radio_nr; i++)
     {
-        PLATFORM_FREE(self->radio[i].bss);
+        free(self->radio[i].bss);
     }
-    PLATFORM_FREE(self->radio);
+    free(self->radio);
 }
 
 static bool tlv_compare_field2_apOperationalBss(const struct apOperationalBssTLV *self1,
@@ -660,8 +660,8 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                     {
                         // Malformed packet
                         //
-                        PLATFORM_FREE(ret->local_interfaces);
-                        PLATFORM_FREE(ret);
+                        free(ret->local_interfaces);
+                        free(ret);
                         return NULL;
                     }
 
@@ -682,8 +682,8 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                     {
                         // Malformed packet
                         //
-                        PLATFORM_FREE(ret->local_interfaces);
-                        PLATFORM_FREE(ret);
+                        free(ret->local_interfaces);
+                        free(ret);
                         return NULL;
                     }
                     _EnB(&p, ret->local_interfaces[i].media_specific_data.ieee1901.network_identifier, 7);
@@ -694,8 +694,8 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                     {
                         // Malformed packet
                         //
-                        PLATFORM_FREE(ret->local_interfaces);
-                        PLATFORM_FREE(ret);
+                        free(ret->local_interfaces);
+                        free(ret);
                         return NULL;
                     }
                 }
@@ -705,8 +705,8 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret->local_interfaces);
-                PLATFORM_FREE(ret);
+                free(ret->local_interfaces);
+                free(ret);
                 return NULL;
             }
 
@@ -745,7 +745,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 ret->bridging_tuples_nr = 0;
                 return (uint8_t *)ret;
 #else
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
 #endif
             }
@@ -778,10 +778,10 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 //
                 for (i=0; i < ret->bridging_tuples_nr; i++)
                 {
-                    PLATFORM_FREE(ret->bridging_tuples[i].bridging_tuple_macs);
+                    free(ret->bridging_tuples[i].bridging_tuple_macs);
                 }
-                PLATFORM_FREE(ret->bridging_tuples);
-                PLATFORM_FREE(ret);
+                free(ret->bridging_tuples);
+                free(ret);
                 return NULL;
             }
 
@@ -810,7 +810,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
             ret->tlv_type = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST;
@@ -852,7 +852,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
             ret->tlv_type = TLV_TYPE_NEIGHBOR_DEVICE_LIST;
@@ -906,14 +906,14 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
             if (0 != (len-12)%29)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -944,8 +944,8 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret->transmitter_link_metrics);
-                PLATFORM_FREE(ret);
+                free(ret->transmitter_link_metrics);
+                free(ret);
                 return NULL;
             }
 
@@ -975,14 +975,14 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
             if (0 != (len-12)%23)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -1010,8 +1010,8 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret->receiver_link_metrics);
-                PLATFORM_FREE(ret);
+                free(ret->receiver_link_metrics);
+                free(ret);
                 return NULL;
             }
 
@@ -1039,7 +1039,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -1071,7 +1071,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -1103,7 +1103,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -1135,7 +1135,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -1167,7 +1167,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -1238,7 +1238,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 ret->media_types_nr = 0;
                 return (uint8_t *)ret;
 #else
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
 #endif
             }
@@ -1269,8 +1269,8 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                     {
                         // Malformed packet
                         //
-                        PLATFORM_FREE(ret->media_types);
-                        PLATFORM_FREE(ret);
+                        free(ret->media_types);
+                        free(ret);
                         return NULL;
                     }
 
@@ -1291,8 +1291,8 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                     {
                         // Malformed packet
                         //
-                        PLATFORM_FREE(ret->media_types);
-                        PLATFORM_FREE(ret);
+                        free(ret->media_types);
+                        free(ret);
                         return NULL;
                     }
                     _EnB(&p, ret->media_types[i].media_specific_data.ieee1901.network_identifier, 7);
@@ -1303,8 +1303,8 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                     {
                         // Malformed packet
                         //
-                        PLATFORM_FREE(ret->media_types);
-                        PLATFORM_FREE(ret);
+                        free(ret->media_types);
+                        free(ret);
                         return NULL;
                     }
                 }
@@ -1314,8 +1314,8 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret->media_types);
-                PLATFORM_FREE(ret);
+                free(ret->media_types);
+                free(ret);
                 return NULL;
             }
 
@@ -1343,7 +1343,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -1413,16 +1413,16 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 {
                     if (ret->local_interfaces[i].generic_phy_description_xml_url_len > 0)
                     {
-                        PLATFORM_FREE(ret->local_interfaces[i].generic_phy_description_xml_url);
+                        free(ret->local_interfaces[i].generic_phy_description_xml_url);
                     }
 
                     if (ret->local_interfaces[i].generic_phy_common_data.media_specific_bytes_nr > 0)
                     {
-                        PLATFORM_FREE(ret->local_interfaces[i].generic_phy_common_data.media_specific_bytes);
+                        free(ret->local_interfaces[i].generic_phy_common_data.media_specific_bytes);
                     }
                 }
-                PLATFORM_FREE(ret->local_interfaces);
-                PLATFORM_FREE(ret);
+                free(ret->local_interfaces);
+                free(ret);
                 return NULL;
             }
 
@@ -1450,7 +1450,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -1522,7 +1522,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 ret->ipv4_interfaces_nr = 0;
                 return (uint8_t *)ret;
 #else
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
 #endif
             }
@@ -1560,11 +1560,11 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 {
                     if (ret->ipv4_interfaces[i].ipv4_nr > 0)
                     {
-                        PLATFORM_FREE(ret->ipv4_interfaces[i].ipv4);
+                        free(ret->ipv4_interfaces[i].ipv4);
                     }
                 }
-                PLATFORM_FREE(ret->ipv4_interfaces);
-                PLATFORM_FREE(ret);
+                free(ret->ipv4_interfaces);
+                free(ret);
                 return NULL;
             }
 
@@ -1604,7 +1604,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 ret->ipv6_interfaces_nr = 0;
                 return (uint8_t *)ret;
 #else
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
 #endif
             }
@@ -1643,11 +1643,11 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 {
                     if (ret->ipv6_interfaces[i].ipv6_nr > 0)
                     {
-                        PLATFORM_FREE(ret->ipv6_interfaces[i].ipv6);
+                        free(ret->ipv6_interfaces[i].ipv6);
                     }
                 }
-                PLATFORM_FREE(ret->ipv6_interfaces);
-                PLATFORM_FREE(ret);
+                free(ret->ipv6_interfaces);
+                free(ret);
                 return NULL;
             }
 
@@ -1687,7 +1687,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 ret->local_interfaces_nr = 0;
                 return (uint8_t *)ret;
 #else
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
 #endif
             }
@@ -1720,11 +1720,11 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 {
                     if (ret->local_interfaces[i].media_specific_bytes_nr > 0)
                     {
-                        PLATFORM_FREE(ret->local_interfaces[i].media_specific_bytes);
+                        free(ret->local_interfaces[i].media_specific_bytes);
                     }
                 }
-                PLATFORM_FREE(ret->local_interfaces);
-                PLATFORM_FREE(ret);
+                free(ret->local_interfaces);
+                free(ret);
                 return NULL;
             }
 
@@ -1752,7 +1752,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -1794,7 +1794,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 ret->power_off_interfaces_nr = 0;
                 return (uint8_t *)ret;
 #else
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
 #endif
             }
@@ -1829,11 +1829,11 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 {
                     if (ret->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes_nr > 0)
                     {
-                        PLATFORM_FREE(ret->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes);
+                        free(ret->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes);
                     }
                 }
-                PLATFORM_FREE(ret->power_off_interfaces);
-                PLATFORM_FREE(ret);
+                free(ret->power_off_interfaces);
+                free(ret);
                 return NULL;
             }
 
@@ -1873,7 +1873,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 ret->power_change_interfaces_nr = 0;
                 return (uint8_t *)ret;
 #else
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
 #endif
             }
@@ -1895,8 +1895,8 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret->power_change_interfaces);
-                PLATFORM_FREE(ret);
+                free(ret->power_change_interfaces);
+                free(ret);
                 return NULL;
             }
 
@@ -1936,7 +1936,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 ret->power_change_interfaces_nr = 0;
                 return (uint8_t *)ret;
 #else
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
 #endif
             }
@@ -1960,9 +1960,9 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 //
                 if (ret->power_change_interfaces_nr > 0)
                 {
-                    PLATFORM_FREE(ret->power_change_interfaces);
+                    free(ret->power_change_interfaces);
                 }
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -2002,7 +2002,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 ret->local_interfaces_nr = 0;
                 return (uint8_t *)ret;
 #else
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
 #endif
             }
@@ -2049,12 +2049,12 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 {
                     for (j=0; j < ret->local_interfaces[i].l2_neighbors_nr; j++)
                     {
-                        PLATFORM_FREE(ret->local_interfaces[i].l2_neighbors[j].behind_mac_addresses);
+                        free(ret->local_interfaces[i].l2_neighbors[j].behind_mac_addresses);
                     }
-                    PLATFORM_FREE(ret->local_interfaces[i].l2_neighbors);
+                    free(ret->local_interfaces[i].l2_neighbors);
                 }
-                PLATFORM_FREE(ret->local_interfaces);
-                PLATFORM_FREE(ret);
+                free(ret->local_interfaces);
+                free(ret);
                 return NULL;
             }
 
@@ -2156,7 +2156,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
                     {
                         // Malformed structure
                         //
-                        PLATFORM_FREE(ret);
+                        free(ret);
                         return NULL;
                     }
 
@@ -2177,7 +2177,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
                     {
                         // Malformed structure
                         //
-                        PLATFORM_FREE(ret);
+                        free(ret);
                         return NULL;
                     }
                     _InB(m->local_interfaces[i].media_specific_data.ieee1901.network_identifier, &p, 7);
@@ -2188,7 +2188,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
                     {
                         // Malformed structure
                         //
-                        PLATFORM_FREE(ret);
+                        free(ret);
                         return NULL;
                     }
                 }
@@ -2414,7 +2414,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
             {
                 // Malformed structure
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -2447,7 +2447,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
             {
                 // Malformed structure
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -2484,7 +2484,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
             {
                 // Malformed structure
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -2517,7 +2517,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
             {
                 // Malformed structure
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -2554,7 +2554,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
             {
                 // Malformed structure
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -2639,7 +2639,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
                     {
                         // Malformed structure
                         //
-                        PLATFORM_FREE(ret);
+                        free(ret);
                         return NULL;
                     }
 
@@ -2660,7 +2660,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
                     {
                         // Malformed structure
                         //
-                        PLATFORM_FREE(ret);
+                        free(ret);
                         return NULL;
                     }
                     _InB(m->media_types[i].media_specific_data.ieee1901.network_identifier, &p, 7);
@@ -2671,7 +2671,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
                     {
                         // Malformed structure
                         //
-                        PLATFORM_FREE(ret);
+                        free(ret);
                         return NULL;
                     }
                 }
@@ -2980,7 +2980,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
             {
                 // Malformed structure
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -3205,9 +3205,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
             if (m->local_interfaces_nr > 0 && NULL != m->local_interfaces)
             {
-                PLATFORM_FREE(m->local_interfaces);
+                free(m->local_interfaces);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3223,14 +3223,14 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
             {
                 if (m->bridging_tuples[i].bridging_tuple_macs_nr > 0 && NULL != m->bridging_tuples[i].bridging_tuple_macs)
                 {
-                    PLATFORM_FREE(m->bridging_tuples[i].bridging_tuple_macs);
+                    free(m->bridging_tuples[i].bridging_tuple_macs);
                 }
             }
             if (m->bridging_tuples_nr > 0 && NULL != m->bridging_tuples)
             {
-                PLATFORM_FREE(m->bridging_tuples);
+                free(m->bridging_tuples);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3243,9 +3243,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
             if (m->non_1905_neighbors_nr > 0 && NULL != m->non_1905_neighbors)
             {
-                PLATFORM_FREE(m->non_1905_neighbors);
+                free(m->non_1905_neighbors);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3258,9 +3258,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
             if (m->neighbors_nr > 0 && NULL != m->neighbors)
             {
-                PLATFORM_FREE(m->neighbors);
+                free(m->neighbors);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3274,9 +3274,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
             if (m->transmitter_link_metrics_nr > 0 && NULL != m->transmitter_link_metrics)
             {
-                PLATFORM_FREE(m->transmitter_link_metrics);
+                free(m->transmitter_link_metrics);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3289,9 +3289,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
             if (m->receiver_link_metrics_nr > 0 && NULL != m->receiver_link_metrics)
             {
-                PLATFORM_FREE(m->receiver_link_metrics);
+                free(m->receiver_link_metrics);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3304,9 +3304,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
             if (m->wsc_frame_size >0 && NULL != m->wsc_frame)
             {
-                PLATFORM_FREE(m->wsc_frame);
+                free(m->wsc_frame);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3319,9 +3319,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
             if (m->media_types_nr > 0 && NULL != m->media_types)
             {
-                PLATFORM_FREE(m->media_types);
+                free(m->media_types);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3337,19 +3337,19 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
             {
                 if (m->local_interfaces[i].generic_phy_description_xml_url_len > 0 && NULL != m->local_interfaces[i].generic_phy_description_xml_url)
                 {
-                    PLATFORM_FREE(m->local_interfaces[i].generic_phy_description_xml_url);
+                    free(m->local_interfaces[i].generic_phy_description_xml_url);
                 }
 
                 if (m->local_interfaces[i].generic_phy_common_data.media_specific_bytes_nr > 0 && NULL != m->local_interfaces[i].generic_phy_common_data.media_specific_bytes)
                 {
-                    PLATFORM_FREE(m->local_interfaces[i].generic_phy_common_data.media_specific_bytes);
+                    free(m->local_interfaces[i].generic_phy_common_data.media_specific_bytes);
                 }
             }
             if (m->local_interfaces_nr > 0 && NULL != m->local_interfaces)
             {
-                PLATFORM_FREE(m->local_interfaces);
+                free(m->local_interfaces);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3362,9 +3362,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
             if (NULL != m->url)
             {
-                PLATFORM_FREE(m->url);
+                free(m->url);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3380,14 +3380,14 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
             {
                 if (m->ipv4_interfaces[i].ipv4_nr > 0 && NULL != m->ipv4_interfaces[i].ipv4)
                 {
-                    PLATFORM_FREE(m->ipv4_interfaces[i].ipv4);
+                    free(m->ipv4_interfaces[i].ipv4);
                 }
             }
             if (m->ipv4_interfaces_nr > 0 && NULL != m->ipv4_interfaces)
             {
-                PLATFORM_FREE(m->ipv4_interfaces);
+                free(m->ipv4_interfaces);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3403,14 +3403,14 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
             {
                 if (m->ipv6_interfaces[i].ipv6_nr > 0 && NULL != m->ipv6_interfaces[i].ipv6)
                 {
-                    PLATFORM_FREE(m->ipv6_interfaces[i].ipv6);
+                    free(m->ipv6_interfaces[i].ipv6);
                 }
             }
             if (m->ipv6_interfaces_nr > 0 && NULL != m->ipv6_interfaces)
             {
-                PLATFORM_FREE(m->ipv6_interfaces);
+                free(m->ipv6_interfaces);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3423,9 +3423,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
             if (m->local_interfaces_nr > 0 && NULL != m->local_interfaces)
             {
-                PLATFORM_FREE(m->local_interfaces);
+                free(m->local_interfaces);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3441,14 +3441,14 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
             {
                 if (m->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes_nr > 0 && NULL != m->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes)
                 {
-                    PLATFORM_FREE(m->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes);
+                    free(m->power_off_interfaces[i].generic_phy_common_data.media_specific_bytes);
                 }
             }
             if (m->power_off_interfaces_nr > 0 && NULL != m->power_off_interfaces)
             {
-                PLATFORM_FREE(m->power_off_interfaces);
+                free(m->power_off_interfaces);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3461,9 +3461,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
             if (m->power_change_interfaces_nr > 0 && NULL != m->power_change_interfaces)
             {
-                PLATFORM_FREE(m->power_change_interfaces);
+                free(m->power_change_interfaces);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3476,9 +3476,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
             if (m->power_change_interfaces_nr > 0 && NULL != m->power_change_interfaces)
             {
-                PLATFORM_FREE(m->power_change_interfaces);
+                free(m->power_change_interfaces);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -3498,17 +3498,17 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
                     {
                         if (m->local_interfaces[i].l2_neighbors[j].behind_mac_addresses_nr > 0 && NULL != m->local_interfaces[i].l2_neighbors[j].behind_mac_addresses)
                         {
-                            PLATFORM_FREE(m->local_interfaces[i].l2_neighbors[j].behind_mac_addresses);
+                            free(m->local_interfaces[i].l2_neighbors[j].behind_mac_addresses);
                         }
                     }
-                    PLATFORM_FREE(m->local_interfaces[i].l2_neighbors);
+                    free(m->local_interfaces[i].l2_neighbors);
                 }
             }
             if (m->local_interfaces_nr > 0 && NULL != m->local_interfaces)
             {
-                PLATFORM_FREE(m->local_interfaces);
+                free(m->local_interfaces);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }

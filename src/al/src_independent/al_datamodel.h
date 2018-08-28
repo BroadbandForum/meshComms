@@ -79,7 +79,7 @@ uint8_t *DMinterfaceNameToMac(char *interface_name);
 // received.
 //
 // The returned pointer, once it is no longer needed, must be freed by the
-// caller with "PLATFORM_FREE()"
+// caller with "free()"
 //
 uint8_t (*DMgetListOfInterfaceNeighbors(char *local_interface_name, uint8_t *al_mac_addresses_nr))[6];
 
@@ -92,7 +92,7 @@ uint8_t (*DMgetListOfInterfaceNeighbors(char *local_interface_name, uint8_t *al_
 // elements.
 //
 // The returned pointer, once it is no longer needed, must be freed by the
-// caller with "PLATFORM_FREE()"
+// caller with "free()"
 //
 uint8_t (*DMgetListOfNeighbors(uint8_t *al_mac_addresses_nr))[6];
 
@@ -218,7 +218,7 @@ uint8_t DMisInterfaceBridged(char *local_interface_name);
 // found.
 //
 // The returned pointer becomes the caller's responsability and must be freed
-// with "PLATFORM_FREE()" once it is no longer needed.
+// with "free()" once it is no longer needed.
 //
 uint8_t *DMmacToAlMac(uint8_t *mac_addresses);
 

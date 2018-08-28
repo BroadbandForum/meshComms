@@ -674,12 +674,12 @@ void DMfreeListOfLinksWithNeighbor(uint8_t (*p)[6], char **interfaces, uint8_t l
 
     if (NULL != interfaces)
     {
-        PLATFORM_FREE(interfaces);
+        free(interfaces);
     }
 
     if (NULL != p)
     {
-        PLATFORM_FREE(p);
+        free(p);
     }
 
     return;
@@ -942,7 +942,7 @@ uint8_t *DMmacToAlMac(uint8_t *mac_address)
     {
       // No matching MAC address was found
       //
-      PLATFORM_FREE(al_mac);
+      free(al_mac);
       return NULL;
     }
 }
@@ -1068,7 +1068,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
             }
             if (data_model.network_devices[i].bridges_nr > 0 && NULL != data_model.network_devices[i].bridges)
             {
-                PLATFORM_FREE(data_model.network_devices[i].bridges);
+                free(data_model.network_devices[i].bridges);
             }
             data_model.network_devices[i].bridges_nr = bridges_nr;
             data_model.network_devices[i].bridges    = bridges;
@@ -1082,7 +1082,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
             }
             if (data_model.network_devices[i].non1905_neighbors_nr > 0 && NULL != data_model.network_devices[i].non1905_neighbors)
             {
-                PLATFORM_FREE(data_model.network_devices[i].non1905_neighbors);
+                free(data_model.network_devices[i].non1905_neighbors);
             }
             data_model.network_devices[i].non1905_neighbors_nr = non1905_neighbors_nr;
             data_model.network_devices[i].non1905_neighbors    = non1905_neighbors;
@@ -1096,7 +1096,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
             }
             if (data_model.network_devices[i].x1905_neighbors_nr > 0 && NULL != data_model.network_devices[i].x1905_neighbors)
             {
-                PLATFORM_FREE(data_model.network_devices[i].x1905_neighbors);
+                free(data_model.network_devices[i].x1905_neighbors);
             }
             data_model.network_devices[i].x1905_neighbors_nr = x1905_neighbors_nr;
             data_model.network_devices[i].x1905_neighbors    = x1905_neighbors;
@@ -1110,7 +1110,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
             }
             if (data_model.network_devices[i].power_off_nr > 0 && NULL != data_model.network_devices[i].power_off)
             {
-                PLATFORM_FREE(data_model.network_devices[i].power_off);
+                free(data_model.network_devices[i].power_off);
             }
             data_model.network_devices[i].power_off_nr = power_off_nr;
             data_model.network_devices[i].power_off    = power_off;
@@ -1124,7 +1124,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
             }
             if (data_model.network_devices[i].l2_neighbors_nr > 0 && NULL != data_model.network_devices[i].l2_neighbors)
             {
-                PLATFORM_FREE(data_model.network_devices[i].l2_neighbors);
+                free(data_model.network_devices[i].l2_neighbors);
             }
             data_model.network_devices[i].l2_neighbors_nr = l2_neighbors_nr;
             data_model.network_devices[i].l2_neighbors    = l2_neighbors;
@@ -1553,7 +1553,7 @@ uint8_t DMrunGarbageCollector(void)
             }
             if (0 != x->bridges_nr && NULL != x->bridges)
             {
-                PLATFORM_FREE(x->bridges);
+                free(x->bridges);
                 x->bridges_nr = 0;
                 x->bridges    = NULL;
             }
@@ -1564,7 +1564,7 @@ uint8_t DMrunGarbageCollector(void)
             }
             if (0 != x->non1905_neighbors_nr && NULL != x->non1905_neighbors)
             {
-                PLATFORM_FREE(x->non1905_neighbors);
+                free(x->non1905_neighbors);
                 x->non1905_neighbors_nr = 0;
                 x->non1905_neighbors    = NULL;
             }
@@ -1575,7 +1575,7 @@ uint8_t DMrunGarbageCollector(void)
             }
             if (0 != x->x1905_neighbors_nr && NULL != x->x1905_neighbors)
             {
-                PLATFORM_FREE(x->x1905_neighbors);
+                free(x->x1905_neighbors);
                 x->x1905_neighbors_nr = 0;
                 x->x1905_neighbors    = NULL;
             }
@@ -1586,7 +1586,7 @@ uint8_t DMrunGarbageCollector(void)
             }
             if (0 != x->power_off_nr && NULL != x->power_off)
             {
-                PLATFORM_FREE(x->power_off);
+                free(x->power_off);
                 x->power_off_nr = 0;
                 x->power_off    = NULL;
             }
@@ -1597,7 +1597,7 @@ uint8_t DMrunGarbageCollector(void)
             }
             if (0 != x->l2_neighbors_nr && NULL != x->l2_neighbors)
             {
-                PLATFORM_FREE(x->l2_neighbors);
+                free(x->l2_neighbors);
                 x->l2_neighbors_nr = 0;
                 x->l2_neighbors    = NULL;
             }
@@ -1645,7 +1645,7 @@ uint8_t DMrunGarbageCollector(void)
             }
             if (0 != x->metrics_with_neighbors_nr && NULL != x->metrics_with_neighbors)
             {
-                PLATFORM_FREE(x->metrics_with_neighbors);
+                free(x->metrics_with_neighbors);
                 x->metrics_with_neighbors = NULL;
             }
 
@@ -1703,7 +1703,7 @@ uint8_t DMrunGarbageCollector(void)
                 {
                     if (0 == data_model.network_devices[j].metrics_with_neighbors_nr)
                     {
-                        PLATFORM_FREE(data_model.network_devices[j].metrics_with_neighbors);
+                        free(data_model.network_devices[j].metrics_with_neighbors);
                     }
                     else
                     {
@@ -1719,7 +1719,7 @@ uint8_t DMrunGarbageCollector(void)
 
         if (NULL != p)
         {
-            PLATFORM_FREE(p);
+            free(p);
         }
     }
 
@@ -1729,7 +1729,7 @@ uint8_t DMrunGarbageCollector(void)
     {
         if (0 == data_model.network_devices_nr)
         {
-            PLATFORM_FREE(data_model.network_devices);
+            free(data_model.network_devices);
         }
         else
         {
@@ -1766,7 +1766,7 @@ void DMremoveALNeighborFromInterface(uint8_t *al_mac_address, char *interface_na
             {
                 if (data_model.local_interfaces[i].neighbors[j].remote_interfaces_nr > 0 && NULL != data_model.local_interfaces[i].neighbors[j].remote_interfaces)
                 {
-                    PLATFORM_FREE(data_model.local_interfaces[i].neighbors[j].remote_interfaces);
+                    free(data_model.local_interfaces[i].neighbors[j].remote_interfaces);
 
                     data_model.local_interfaces[i].neighbors[j].remote_interfaces    = NULL;
                     data_model.local_interfaces[i].neighbors[j].remote_interfaces_nr = 0;
@@ -1793,7 +1793,7 @@ void DMremoveALNeighborFromInterface(uint8_t *al_mac_address, char *interface_na
         {
             if (0 == data_model.local_interfaces[i].neighbors_nr)
             {
-                PLATFORM_FREE(data_model.local_interfaces[i].neighbors);
+                free(data_model.local_interfaces[i].neighbors);
             }
             else
             {

@@ -1061,9 +1061,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure);
 
 
 // 'forge_1905_TLV_from_structure()' returns a regular buffer which can be freed
-// using this macro defined to be PLATFORM_FREE
+// using this macro defined to be free
 //
-#define  free_1905_TLV_packet  PLATFORM_FREE
+#define  free_1905_TLV_packet  free
 
 
 // This function returns '0' if the two given pointers represent TLV structures

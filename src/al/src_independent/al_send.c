@@ -105,7 +105,7 @@ void _obtainLocalDeviceInfoTLV(struct deviceInformationTypeTLV *device_info)
             // be included in the "power off" TLV, later, on this same
             // CMDU)
             //
-            PLATFORM_FREE_1905_INTERFACE_INFO(x);
+            free_1905_INTERFACE_INFO(x);
             continue;
         }
 
@@ -170,10 +170,10 @@ void _obtainLocalDeviceInfoTLV(struct deviceInformationTypeTLV *device_info)
         }
         device_info->local_interfaces_nr++;
 
-        PLATFORM_FREE_1905_INTERFACE_INFO(x);
+        free_1905_INTERFACE_INFO(x);
     }
 
-    PLATFORM_FREE_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
+    free_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
 }
 
 // Free the contents of the provided "deviceInformationTypeTLV" structure (ie.
@@ -183,7 +183,7 @@ void _obtainLocalDeviceInfoTLV(struct deviceInformationTypeTLV *device_info)
 //
 void _freeLocalDeviceInfoTLV(struct deviceInformationTypeTLV *device_info)
 {
-    PLATFORM_FREE(device_info->local_interfaces);
+    free(device_info->local_interfaces);
 }
 
 // Given a pointer to a preallocated "deviceBridgingCapabilityTLV" structure,
@@ -235,7 +235,7 @@ void _obtainLocalBridgingCapabilitiesTLV(struct deviceBridgingCapabilityTLV *bri
                 }
             }
         }
-        PLATFORM_FREE_LIST_OF_BRIDGES(br, br_nr);
+        free_LIST_OF_BRIDGES(br, br_nr);
     }
 }
 
@@ -254,10 +254,10 @@ void _freeLocalBridgingCapabilitiesTLV(struct deviceBridgingCapabilityTLV *bridg
         {
             if ( bridge_info->bridging_tuples[i].bridging_tuple_macs_nr > 0)
             {
-                PLATFORM_FREE(bridge_info->bridging_tuples[i].bridging_tuple_macs);
+                free(bridge_info->bridging_tuples[i].bridging_tuple_macs);
             }
         }
-        PLATFORM_FREE(bridge_info->bridging_tuples);
+        free(bridge_info->bridging_tuples);
     }
 }
 
@@ -456,10 +456,10 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                         yes->neighbors_nr++;
                     }
 
-                    PLATFORM_FREE(al_mac);
+                    free(al_mac);
                 }
             }
-            PLATFORM_FREE_1905_INTERFACE_INFO(x);
+            free_1905_INTERFACE_INFO(x);
 
             // Update the datamodel so that those neighbours whose MAC addresses
             // have not been reported are removed.
@@ -475,7 +475,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
             }
             if (al_mac_addresses_nr > 0 && NULL != al_mac_address_has_been_reported)
             {
-                PLATFORM_FREE(al_mac_address_has_been_reported);
+                free(al_mac_address_has_been_reported);
             }
         }
         else
@@ -528,7 +528,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
                 }
             }
         }
-        PLATFORM_FREE(al_mac_addresses);
+        free(al_mac_addresses);
 
         // At this point we have, for this particular interface, all the
         // non 1905 neighbors in "no" and all 1905 neighbors in "yes".
@@ -553,7 +553,7 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
         }
         else
         {
-            PLATFORM_FREE(no);
+            free(no);
         }
 
         if (yes->neighbors_nr > 0)
@@ -574,11 +574,11 @@ void _obtainLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_ne
         }
         else
         {
-            PLATFORM_FREE(yes);
+            free(yes);
         }
     }
 
-    PLATFORM_FREE_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
+    free_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
 }
 
 
@@ -597,11 +597,11 @@ void _freeLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_neig
         {
             if ((*non_1905_neighbors)[i]->non_1905_neighbors_nr > 0)
             {
-                PLATFORM_FREE((*non_1905_neighbors)[i]->non_1905_neighbors);
+                free((*non_1905_neighbors)[i]->non_1905_neighbors);
             }
-            PLATFORM_FREE((*non_1905_neighbors)[i]);
+            free((*non_1905_neighbors)[i]);
         }
-        PLATFORM_FREE(*non_1905_neighbors);
+        free(*non_1905_neighbors);
     }
     if (*neighbors_nr > 0)
     {
@@ -609,11 +609,11 @@ void _freeLocalNeighborsTLV(struct non1905NeighborDeviceListTLV ***non_1905_neig
         {
             if ((*neighbors)[i]->neighbors_nr > 0)
             {
-                PLATFORM_FREE((*neighbors)[i]->neighbors);
+                free((*neighbors)[i]->neighbors);
             }
-            PLATFORM_FREE((*neighbors)[i]);
+            free((*neighbors)[i]);
         }
-        PLATFORM_FREE(*neighbors);
+        free(*neighbors);
     }
 }
 
@@ -650,7 +650,7 @@ void _obtainLocalPowerOffInterfacesTLV(struct powerOffInterfaceTLV *power_off)
         {
             // Ignore interfaces that are not in "POWER OFF" mode
             //
-            PLATFORM_FREE_1905_INTERFACE_INFO(x);
+            free_1905_INTERFACE_INFO(x);
             continue;
         }
 
@@ -783,10 +783,10 @@ void _obtainLocalPowerOffInterfacesTLV(struct powerOffInterfaceTLV *power_off)
         }
         power_off->power_off_interfaces_nr++;
 
-        PLATFORM_FREE_1905_INTERFACE_INFO(x);
+        free_1905_INTERFACE_INFO(x);
     }
 
-    PLATFORM_FREE_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
+    free_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
 }
 
 // Free the contents of the provided "powerOffInterfaceTLV" structure (ie.
@@ -813,7 +813,7 @@ void _freeLocalPowerOffInterfacesTLV(struct powerOffInterfaceTLV *power_off)
                 }
             }
         }
-        PLATFORM_FREE(power_off->power_off_interfaces);
+        free(power_off->power_off_interfaces);
     }
 }
 
@@ -850,7 +850,7 @@ void _obtainLocalL2NeighborsTLV(struct l2NeighborDeviceTLV *l2_neighbors)
             // Ignore interfaces that do not have (or cannot report) L2
             // neighbors
             //
-            PLATFORM_FREE_1905_INTERFACE_INFO(x);
+            free_1905_INTERFACE_INFO(x);
             continue;
         }
 
@@ -882,10 +882,10 @@ void _obtainLocalL2NeighborsTLV(struct l2NeighborDeviceTLV *l2_neighbors)
 
         l2_neighbors->local_interfaces_nr++;
 
-        PLATFORM_FREE_1905_INTERFACE_INFO(x);
+        free_1905_INTERFACE_INFO(x);
     }
 
-    PLATFORM_FREE_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
+    free_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
 }
 
 // Free the contents of the provided "l2NeighborDeviceTLV" structure (ie.  only
@@ -912,13 +912,13 @@ void _freeLocalL2NeighborsTLV(struct l2NeighborDeviceTLV *l2_neighbors)
                          NULL != l2_neighbors->local_interfaces[i].l2_neighbors[j].behind_mac_addresses
                        )
                     {
-                        PLATFORM_FREE(l2_neighbors->local_interfaces[i].l2_neighbors[j].behind_mac_addresses);
+                        free(l2_neighbors->local_interfaces[i].l2_neighbors[j].behind_mac_addresses);
                     }
                 }
-                PLATFORM_FREE(l2_neighbors->local_interfaces[i].l2_neighbors);
+                free(l2_neighbors->local_interfaces[i].l2_neighbors);
             }
         }
-        PLATFORM_FREE(l2_neighbors->local_interfaces);
+        free(l2_neighbors->local_interfaces);
     }
 }
 
@@ -1167,11 +1167,11 @@ void _obtainLocalMetricsTLVs(uint8_t destination, uint8_t *specific_neighbor, ui
 
                 if (NULL != f)
                 {
-                    PLATFORM_FREE_1905_INTERFACE_INFO(f);
+                    free_1905_INTERFACE_INFO(f);
                 }
                 if (NULL != l)
                 {
-                    PLATFORM_FREE_LINK_METRICS(l);
+                    free_LINK_METRICS(l);
                 }
             }
 
@@ -1181,7 +1181,7 @@ void _obtainLocalMetricsTLVs(uint8_t destination, uint8_t *specific_neighbor, ui
         DMfreeListOfLinksWithNeighbor(remote_macs, local_interfaces, links_nr);
     }
 
-    PLATFORM_FREE(al_mac_addresses);
+    free(al_mac_addresses);
 
     if (
          LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR == destination &&
@@ -1217,11 +1217,11 @@ void _freeLocalMetricsTLVs(struct transmitterLinkMetricTLV ***tx_tlvs, struct re
         {
             if ((*tx_tlvs)[i]->transmitter_link_metrics_nr > 0 && NULL != (*tx_tlvs)[i]->transmitter_link_metrics)
             {
-                PLATFORM_FREE((*tx_tlvs)[i]->transmitter_link_metrics);
+                free((*tx_tlvs)[i]->transmitter_link_metrics);
             }
-            PLATFORM_FREE((*tx_tlvs)[i]);
+            free((*tx_tlvs)[i]);
         }
-        PLATFORM_FREE(*tx_tlvs);
+        free(*tx_tlvs);
     }
     if (NULL != rx_tlvs && NULL != *rx_tlvs)
     {
@@ -1229,11 +1229,11 @@ void _freeLocalMetricsTLVs(struct transmitterLinkMetricTLV ***tx_tlvs, struct re
         {
             if ((*rx_tlvs)[i]->receiver_link_metrics_nr > 0 && NULL != (*rx_tlvs)[i]->receiver_link_metrics)
             {
-                PLATFORM_FREE((*rx_tlvs)[i]->receiver_link_metrics);
+                free((*rx_tlvs)[i]->receiver_link_metrics);
             }
-            PLATFORM_FREE((*rx_tlvs)[i]);
+            free((*rx_tlvs)[i]);
         }
-        PLATFORM_FREE(*rx_tlvs);
+        free(*rx_tlvs);
     }
 }
 
@@ -1479,7 +1479,7 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
         }
     }
 
-    PLATFORM_FREE_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
+    free_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
 
     // Free the old structures
     //
@@ -1715,10 +1715,10 @@ void _obtainLocalGenericPhyTLV(struct genericPhyDeviceInformationTypeTLV *generi
 
             generic_phy->local_interfaces_nr++;
         }
-        PLATFORM_FREE_1905_INTERFACE_INFO(x);
+        free_1905_INTERFACE_INFO(x);
     }
 
-    PLATFORM_FREE_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
+    free_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
 }
 
 // Free the contents of the provided "genericPhyDeviceInformationTypeTLV"
@@ -1747,10 +1747,10 @@ void _freeLocalGenericPhyTLV(struct genericPhyDeviceInformationTypeTLV *generic_
                  NULL != generic_phy->local_interfaces[i].generic_phy_description_xml_url
                )
             {
-                PLATFORM_FREE(generic_phy->local_interfaces[i].generic_phy_description_xml_url);
+                free(generic_phy->local_interfaces[i].generic_phy_description_xml_url);
             }
         }
-        PLATFORM_FREE(generic_phy->local_interfaces);
+        free(generic_phy->local_interfaces);
     }
 }
 
@@ -1840,7 +1840,7 @@ void _freeLocalControlUrlTLV(__attribute__((unused)) struct controlUrlTypeTLV *c
 {
     if (NULL != control_url->url)
     {
-        PLATFORM_FREE(control_url->url);
+        free(control_url->url);
     }
 }
 
@@ -1975,10 +1975,10 @@ void _obtainLocalIpsTLVs(struct ipv4TypeTLV *ipv4, struct ipv6TypeTLV *ipv6)
             ipv6->ipv6_interfaces_nr++;
         }
 
-        PLATFORM_FREE_1905_INTERFACE_INFO(y);
+        free_1905_INTERFACE_INFO(y);
     }
 
-    PLATFORM_FREE_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
+    free_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
 }
 
 // Free the contents of the provided "ipv4TypeTLV" and "ipv6TypeTLV" structures
@@ -1996,10 +1996,10 @@ void _freeLocalIpsTLVs(struct ipv4TypeTLV *ipv4, struct ipv6TypeTLV *ipv6)
         {
             if (0 != ipv4->ipv4_interfaces[i].ipv4_nr && NULL != ipv4->ipv4_interfaces[i].ipv4)
             {
-                PLATFORM_FREE(ipv4->ipv4_interfaces[i].ipv4);
+                free(ipv4->ipv4_interfaces[i].ipv4);
             }
         }
-        PLATFORM_FREE(ipv4->ipv4_interfaces);
+        free(ipv4->ipv4_interfaces);
     }
     if (0 != ipv6->ipv6_interfaces_nr && NULL != ipv6->ipv6_interfaces)
     {
@@ -2007,10 +2007,10 @@ void _freeLocalIpsTLVs(struct ipv4TypeTLV *ipv4, struct ipv6TypeTLV *ipv6)
         {
             if (0 != ipv6->ipv6_interfaces[i].ipv6_nr && NULL != ipv6->ipv6_interfaces[i].ipv6)
             {
-                PLATFORM_FREE(ipv6->ipv6_interfaces[i].ipv6);
+                free(ipv6->ipv6_interfaces[i].ipv6);
             }
         }
-        PLATFORM_FREE(ipv6->ipv6_interfaces);
+        free(ipv6->ipv6_interfaces);
     }
 }
 
@@ -2065,7 +2065,7 @@ void _memoryBufferWriterEnd()
 {
     if (NULL != memory_buffer)
     {
-        PLATFORM_FREE(memory_buffer);
+        free(memory_buffer);
 
         memory_buffer_i   = 0;
     }
@@ -2256,7 +2256,7 @@ uint8_t send1905RawPacket(char *interface_name, uint16_t mid, uint8_t *dst_mac_a
         PLATFORM_PRINTF_DEBUG_WARNING("forge_1905_CMDU_from_structure() returned 0 streams!\n");
 
         free_1905_CMDU_packets(streams);
-        PLATFORM_FREE(streams_lens);
+        free(streams_lens);
         return 0;
     }
 
@@ -2278,7 +2278,7 @@ uint8_t send1905RawPacket(char *interface_name, uint16_t mid, uint8_t *dst_mac_a
     }
 
     free_1905_CMDU_packets(streams);
-    PLATFORM_FREE(streams_lens);
+    free(streams_lens);
 
     return 1;
 }
@@ -2360,7 +2360,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
     if (0 == send1905RawPacket(interface_name, mid, mcast_address, &discovery_message))
     {
         PLATFORM_PRINTF_DEBUG_ERROR("Could not send the 1905 packet\n");
-        PLATFORM_FREE(discovery_message.list_of_TLVs);
+        free(discovery_message.list_of_TLVs);
         return 0;
     }
 
@@ -2368,7 +2368,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
     //
     _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
 
-    PLATFORM_FREE(discovery_message.list_of_TLVs);
+    free(discovery_message.list_of_TLVs);
     return 1;
 }
 
@@ -2406,7 +2406,7 @@ uint8_t send1905TopologyQueryPacket(char *interface_name, uint16_t mid, uint8_t 
 
     // Free memory
     //
-    PLATFORM_FREE(query_message.list_of_TLVs);
+    free(query_message.list_of_TLVs);
 
     return ret;
 }
@@ -2568,7 +2568,7 @@ uint8_t send1905TopologyResponsePacket(char *interface_name, uint16_t mid, uint8
     /** @todo free supported services */
     /** @todo free ap_operational_bss_tlv */
 
-    PLATFORM_FREE(response_message.list_of_TLVs);
+    free(response_message.list_of_TLVs);
 
     return ret;
 }
@@ -2606,7 +2606,7 @@ uint8_t send1905TopologyNotificationPacket(char *interface_name, uint16_t mid)
     if (0 == send1905RawPacket(interface_name, mid, mcast_address, &discovery_message))
     {
         PLATFORM_PRINTF_DEBUG_ERROR("Could not send the 1905 packet\n");
-        PLATFORM_FREE(discovery_message.list_of_TLVs);
+        free(discovery_message.list_of_TLVs);
         ret = 0;
     }
     else
@@ -2618,7 +2618,7 @@ uint8_t send1905TopologyNotificationPacket(char *interface_name, uint16_t mid)
     //
     _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
 
-    PLATFORM_FREE(discovery_message.list_of_TLVs);
+    free(discovery_message.list_of_TLVs);
 
     return ret;
 }
@@ -2670,7 +2670,7 @@ uint8_t send1905MetricsQueryPacket(char *interface_name, uint16_t mid, uint8_t *
 
     // Free all allocated (and no longer needed) memory
     //
-    PLATFORM_FREE(query_message.list_of_TLVs);
+    free(query_message.list_of_TLVs);
 
     return ret;
 }
@@ -2764,7 +2764,7 @@ uint8_t send1905MetricsResponsePacket(char *interface_name, uint16_t mid, uint8_
     //
     _freeLocalMetricsTLVs(&tx_tlvs, &rx_tlvs, &total_tlvs);
 
-    PLATFORM_FREE(response_message.list_of_TLVs);
+    free(response_message.list_of_TLVs);
 
     return ret;
 }
@@ -2980,7 +2980,7 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
 
             if (NULL != x)
             {
-                PLATFORM_FREE_1905_INTERFACE_INFO(x);
+                free_1905_INTERFACE_INFO(x);
             }
         }
     }
@@ -3042,7 +3042,7 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
 
                     j++;
                 }
-                PLATFORM_FREE_1905_INTERFACE_INFO(x);
+                free_1905_INTERFACE_INFO(x);
             }
         }
     }
@@ -3087,7 +3087,7 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
 
     if (media_types_nr > 0)
     {
-        PLATFORM_FREE(pb_event_tlv.media_types);
+        free(pb_event_tlv.media_types);
     }
     if (generic_media_types_nr > 0)
     {
@@ -3098,10 +3098,10 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
                 free_media_specific_blob(pbg_event_tlv.local_interfaces[i].media_specific_bytes);
             }
         }
-        PLATFORM_FREE(pbg_event_tlv.local_interfaces);
+        free(pbg_event_tlv.local_interfaces);
     }
 
-    PLATFORM_FREE(notification_message.list_of_TLVs);
+    free(notification_message.list_of_TLVs);
 
     return ret;
 }
@@ -3179,7 +3179,7 @@ uint8_t send1905PushButtonJoinNotificationPacket(char *interface_name, uint16_t 
     //
     _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
 
-    PLATFORM_FREE(notification_message.list_of_TLVs);
+    free(notification_message.list_of_TLVs);
 
     return ret;
 }
@@ -3257,7 +3257,7 @@ uint8_t send1905APAutoconfigurationSearchPacket(char *interface_name, uint16_t m
     _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
     /** @todo free supported services */
 
-    PLATFORM_FREE(search_message.list_of_TLVs);
+    free(search_message.list_of_TLVs);
 
     return ret;
 }
@@ -3322,7 +3322,7 @@ uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t
     // Free memory
     //
     /** @todo free supported services */
-    PLATFORM_FREE(response_message.list_of_TLVs);
+    free(response_message.list_of_TLVs);
 
     return ret;
 }
@@ -3368,8 +3368,8 @@ uint8_t send1905APAutoconfigurationWSCPacket(char *interface_name, uint16_t mid,
 
     // Free memory
     //
-    PLATFORM_FREE(wsc_tlv.wsc_frame);
-    PLATFORM_FREE(data_message.list_of_TLVs);
+    free(wsc_tlv.wsc_frame);
+    free(data_message.list_of_TLVs);
 
     return ret;
 }
@@ -3408,7 +3408,7 @@ uint8_t send1905GenericPhyQueryPacket(char *interface_name, uint16_t mid, uint8_
 
     // Free memory
     //
-    PLATFORM_FREE(query_message.list_of_TLVs);
+    free(query_message.list_of_TLVs);
 
     return ret;
 }
@@ -3456,7 +3456,7 @@ uint8_t send1905GenericPhyResponsePacket(char *interface_name, uint16_t mid, uin
     //
     _freeLocalGenericPhyTLV(&generic_phy);
 
-    PLATFORM_FREE(response_message.list_of_TLVs);
+    free(response_message.list_of_TLVs);
 
     return ret;
 }
@@ -3495,7 +3495,7 @@ uint8_t send1905HighLayerQueryPacket(char *interface_name, uint16_t mid, uint8_t
 
     // Free memory
     //
-    PLATFORM_FREE(query_message.list_of_TLVs);
+    free(query_message.list_of_TLVs);
 
     return ret;
 }
@@ -3586,7 +3586,7 @@ uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint
     if (0 == send1905RawPacket(interface_name, mid, destination_al_mac_address, &response_message))
     {
         PLATFORM_PRINTF_DEBUG_ERROR("Could not send packet\n");
-        PLATFORM_FREE(response_message.list_of_TLVs);
+        free(response_message.list_of_TLVs);
         return 0;
     }
 
@@ -3598,7 +3598,7 @@ uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint
     _freeLocalControlUrlTLV           (&control_tlv);
     _freeLocalIpsTLVs                 (&ipv4_tlv, &ipv6_tlv);
 
-    PLATFORM_FREE(response_message.list_of_TLVs);
+    free(response_message.list_of_TLVs);
 
     return 1;
 }
@@ -3675,9 +3675,9 @@ uint8_t send1905InterfacePowerChangeRequestPacket(char *interface_name, uint16_t
 
     // Free no longer needed memory
     //
-    PLATFORM_FREE(power_change.power_change_interfaces);
+    free(power_change.power_change_interfaces);
 
-    PLATFORM_FREE(request_message.list_of_TLVs);
+    free(request_message.list_of_TLVs);
 
     return ret;
 }
@@ -3747,9 +3747,9 @@ uint8_t send1905InterfacePowerChangeResponsePacket(char *interface_name, uint16_
 
     // Free no longer needed memory
     //
-    PLATFORM_FREE(power_change.power_change_interfaces);
+    free(power_change.power_change_interfaces);
 
-    PLATFORM_FREE(response_message.list_of_TLVs);
+    free(response_message.list_of_TLVs);
 
     return ret;
 }
@@ -3922,12 +3922,12 @@ uint8_t send1905InterfaceListResponseALME(uint8_t alme_client_id)
 
             if (NULL != x)
             {
-                PLATFORM_FREE_1905_INTERFACE_INFO(x);
+                free_1905_INTERFACE_INFO(x);
             }
         }
     }
 
-    PLATFORM_FREE_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
+    free_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
 
     // Send the packet
     //
@@ -4040,7 +4040,7 @@ uint8_t send1905MetricsResponseALME(uint8_t alme_client_id, uint8_t *mac_address
         out->metrics[i].tx_metric = NULL;
         out->metrics[i].rx_metric = NULL;
     }
-    PLATFORM_FREE(out->metrics);
+    free(out->metrics);
     out->metrics = NULL;
     free_1905_ALME_structure((uint8_t *)out);
 

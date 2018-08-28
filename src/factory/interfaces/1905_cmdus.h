@@ -248,7 +248,7 @@ struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams);
 //   - The 'memory_structure' CMDU structure (you were already responsible for),
 //     that you can free with 'free_1905_CMDU_structure()'
 //
-//   - The 'lens' array, which you can later free with "PLATFORM_FREE()"
+//   - The 'lens' array, which you can later free with "free()"
 //
 //   - The returned streams and the array where they are contained. Both can
 //     be freed with 'free_1905_CMDU_packets()'
@@ -277,7 +277,7 @@ bool parse_1905_CMDU_header_from_packet(uint8_t *packet_buffer, size_t len, stru
 
 
 // This function receives a pointer to a CMDU structure and then traverses it
-// and all nested structures, calling "PLATFORM_FREE()" on each one of them
+// and all nested structures, calling "free()" on each one of them
 //
 //
 void free_1905_CMDU_structure(struct CMDU *memory_structure);

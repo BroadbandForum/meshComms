@@ -76,12 +76,6 @@ pthread_mutex_t printf_mutex = PTHREAD_MUTEX_INITIALIZER;
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void PLATFORM_FREE(void *ptr)
-{
-    return free(ptr);
-}
-
-
 void PLATFORM_PRINTF(const char *format, ...)
 {
     va_list arglist;

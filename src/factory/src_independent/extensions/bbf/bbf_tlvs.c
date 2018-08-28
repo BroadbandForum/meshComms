@@ -65,7 +65,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                // Malformed packet
                //
-               PLATFORM_FREE(ret);
+               free(ret);
                return NULL;
             }
 
@@ -78,7 +78,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                // Reserved (invalid) value received
                //
-               PLATFORM_FREE(ret);
+               free(ret);
                return NULL;
             }
             else if (0 == destination)
@@ -96,7 +96,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                // This code cannot be reached
                //
-               PLATFORM_FREE(ret);
+               free(ret);
                return NULL;
             }
 
@@ -106,7 +106,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                // Reserved (invalid) value received
                //
-               PLATFORM_FREE(ret);
+               free(ret);
                return NULL;
             }
             else if (0 == link_metrics_type)
@@ -125,7 +125,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                // This code cannot be reached
                //
-               PLATFORM_FREE(ret);
+               free(ret);
                return NULL;
             }
 
@@ -155,14 +155,14 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
             if (0 != (len-12)%29)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -177,7 +177,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -203,8 +203,8 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret->transmitter_link_metrics);
-                PLATFORM_FREE(ret);
+                free(ret->transmitter_link_metrics);
+                free(ret);
                 return NULL;
             }
 
@@ -235,14 +235,14 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
             if (0 != (len-12)%23)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -257,7 +257,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -280,8 +280,8 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret->receiver_link_metrics);
-                PLATFORM_FREE(ret);
+                free(ret->receiver_link_metrics);
+                free(ret);
                 return NULL;
             }
 
@@ -309,7 +309,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
             {
                 // Malformed packet
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -487,7 +487,7 @@ uint8_t *forge_bbf_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
             {
                 // Malformed structure
                 //
-                PLATFORM_FREE(ret);
+                free(ret);
                 return NULL;
             }
 
@@ -526,7 +526,7 @@ void free_bbf_TLV_structure(uint8_t *memory_structure)
         case BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY:
         case BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE:
         {
-            PLATFORM_FREE(memory_structure);
+            free(memory_structure);
 
             return;
         }
@@ -539,9 +539,9 @@ void free_bbf_TLV_structure(uint8_t *memory_structure)
 
             if (m->transmitter_link_metrics_nr > 0 && NULL != m->transmitter_link_metrics)
             {
-                PLATFORM_FREE(m->transmitter_link_metrics);
+                free(m->transmitter_link_metrics);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -554,9 +554,9 @@ void free_bbf_TLV_structure(uint8_t *memory_structure)
 
             if (m->receiver_link_metrics_nr > 0 && NULL != m->receiver_link_metrics)
             {
-                PLATFORM_FREE(m->receiver_link_metrics);
+                free(m->receiver_link_metrics);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }

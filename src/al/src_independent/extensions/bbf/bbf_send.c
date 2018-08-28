@@ -173,17 +173,17 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
                 {
                     // 1905 neighbor
 
-                    PLATFORM_FREE(al_mac);
+                    free(al_mac);
                 }
             }
-            PLATFORM_FREE_1905_INTERFACE_INFO(x);
+            free_1905_INTERFACE_INFO(x);
 
             if (al_mac_addresses_nr > 0 && NULL != al_mac_address_has_been_reported)
             {
-                PLATFORM_FREE(al_mac_address_has_been_reported);
+                free(al_mac_address_has_been_reported);
             }
         }
-        PLATFORM_FREE(al_mac_addresses);
+        free(al_mac_addresses);
 
         // At this point we have, for this particular interface, all the non
         // 1905 neighbors in "no" and all 1905 neighbors in "yes".
@@ -209,11 +209,11 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
         }
         else
         {
-            PLATFORM_FREE(no);
+            free(no);
         }
     }
 
-    PLATFORM_FREE_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
+    free_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_names_nr);
 }
 
 // Auxiliary function to reorganize data obtained from
@@ -400,12 +400,12 @@ static void _freeLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV **
             {
                 if ((*non_1905_neighbors)[i]->non_1905_neighbors_nr > 0)
                 {
-                    PLATFORM_FREE((*non_1905_neighbors)[i]->non_1905_neighbors);
+                    free((*non_1905_neighbors)[i]->non_1905_neighbors);
                 }
-                PLATFORM_FREE((*non_1905_neighbors)[i]);
+                free((*non_1905_neighbors)[i]);
             }
         }
-        PLATFORM_FREE(*non_1905_neighbors);
+        free(*non_1905_neighbors);
     }
 }
 
@@ -640,11 +640,11 @@ static void _obtainLocalNon1905MetricsTLV(uint8_t destination, uint8_t *specific
 
                 if (NULL != f)
                 {
-                    PLATFORM_FREE_1905_INTERFACE_INFO(f);
+                    free_1905_INTERFACE_INFO(f);
                 }
                 if (NULL != l)
                 {
-                    PLATFORM_FREE_LINK_METRICS(l);
+                    free_LINK_METRICS(l);
                 }
             }
 
@@ -654,7 +654,7 @@ static void _obtainLocalNon1905MetricsTLV(uint8_t destination, uint8_t *specific
         DMfreeListOfLinksWithNeighbor(remote_macs, local_interfaces, links_nr);
     }
 
-    PLATFORM_FREE(mac_addresses);
+    free(mac_addresses);
 
     _freeLocalNon1905NeighborsTLV(&non1905_neighbors, &non1905_neighbors_nr);
 
@@ -699,11 +699,11 @@ static void _freeLocalNon1905MetricsTLVs(struct transmitterLinkMetricTLV ***tx_t
         {
             if ((*tx_tlvs)[i]->transmitter_link_metrics_nr > 0 && NULL != (*tx_tlvs)[i]->transmitter_link_metrics)
             {
-                PLATFORM_FREE((*tx_tlvs)[i]->transmitter_link_metrics);
+                free((*tx_tlvs)[i]->transmitter_link_metrics);
             }
-            PLATFORM_FREE((*tx_tlvs)[i]);
+            free((*tx_tlvs)[i]);
         }
-        PLATFORM_FREE(*tx_tlvs);
+        free(*tx_tlvs);
     }
     if (NULL != rx_tlvs && NULL != *rx_tlvs)
     {
@@ -711,11 +711,11 @@ static void _freeLocalNon1905MetricsTLVs(struct transmitterLinkMetricTLV ***tx_t
         {
             if ((*rx_tlvs)[i]->receiver_link_metrics_nr > 0 && NULL != (*rx_tlvs)[i]->receiver_link_metrics)
             {
-                PLATFORM_FREE((*rx_tlvs)[i]->receiver_link_metrics);
+                free((*rx_tlvs)[i]->receiver_link_metrics);
             }
-            PLATFORM_FREE((*rx_tlvs)[i]);
+            free((*rx_tlvs)[i]);
         }
-        PLATFORM_FREE(*rx_tlvs);
+        free(*rx_tlvs);
     }
 }
 
@@ -899,7 +899,7 @@ void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV **extensions, uint8_t nr,
         {
             if (0 == ((*dm_extensions_nr) + nr))
             {
-                PLATFORM_FREE((*dm_extensions));
+                free((*dm_extensions));
             }
             else if (0 == original_nr)
             {
@@ -1096,9 +1096,9 @@ void CBKDumpBBFExtendedInfo(uint8_t **memory_structure,
 
     // Free resources
     //
-    PLATFORM_FREE(tx_metrics);
-    PLATFORM_FREE(rx_metrics);
-    PLATFORM_FREE(mac_metrics);
+    free(tx_metrics);
+    free(rx_metrics);
+    free(mac_metrics);
 }
 
 

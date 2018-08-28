@@ -99,7 +99,7 @@ uint8_t *forge_lldp_PAYLOAD_from_structure(struct PAYLOAD *memory_structure, uin
 
 
 // This function receives a pointer to a PAYLOAD structure and then traverses it
-// and all nested structures, calling "PLATFORM_FREE()" on each one of them
+// and all nested structures, calling "free()" on each one of them
 //
 //
 void free_lldp_PAYLOAD_structure(struct PAYLOAD *memory_structure);
@@ -108,7 +108,7 @@ void free_lldp_PAYLOAD_structure(struct PAYLOAD *memory_structure);
 // This function receives a pointer to a  streams returned by
 // "forge_lldp_PAYLOAD_from_structure()"
 //
-#define  free_lldp_PAYLOAD_packet  PLATFORM_FREE
+#define  free_lldp_PAYLOAD_packet  free
 
 
 // This function returns '0' if the two given pointers represent PAYLOAD

@@ -721,8 +721,8 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
                         {
                             free_1905_TLV_structure((uint8_t *)tx);
                         }
-                        PLATFORM_FREE(ret->metrics);
-                        PLATFORM_FREE(ret);
+                        free(ret->metrics);
+                        free(ret);
                         return NULL;
                     }
 
@@ -746,8 +746,8 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
                         {
                             free_1905_TLV_structure((uint8_t *)rx);
                         }
-                        PLATFORM_FREE(ret->metrics);
-                        PLATFORM_FREE(ret);
+                        free(ret->metrics);
+                        free(ret);
                         return NULL;
                     }
 
@@ -1260,7 +1260,7 @@ uint8_t *forge_1905_ALME_from_structure(uint8_t *memory_structure, uint16_t *len
                     // Malformed packet
                     //
                     *len = 0;
-                    PLATFORM_FREE(ret);
+                    free(ret);
                     return NULL;
                 }
 
@@ -1270,7 +1270,7 @@ uint8_t *forge_1905_ALME_from_structure(uint8_t *memory_structure, uint16_t *len
                     // Forging error
                     //
                     *len = 0;
-                    PLATFORM_FREE(ret);
+                    free(ret);
                     return NULL;
                 }
                 _InB( metric_stream,  &p, metric_stream_len);
@@ -1282,7 +1282,7 @@ uint8_t *forge_1905_ALME_from_structure(uint8_t *memory_structure, uint16_t *len
                     // Forging error
                     //
                     *len = 0;
-                    PLATFORM_FREE(ret);
+                    free(ret);
                     return NULL;
                 }
                 _InB( metric_stream,  &p, metric_stream_len);
@@ -1374,7 +1374,7 @@ void free_1905_ALME_structure(uint8_t *memory_structure)
         case ALME_TYPE_GET_METRIC_REQUEST:
         case ALME_TYPE_CUSTOM_COMMAND_REQUEST:
         {
-            PLATFORM_FREE(memory_structure);
+            free(memory_structure);
 
             return;
         }
@@ -1396,15 +1396,15 @@ void free_1905_ALME_structure(uint8_t *memory_structure)
                         {
                             if (NULL != m->interface_descriptors[i].vendor_specific_info[j].vendor_si)
                             {
-                                PLATFORM_FREE(m->interface_descriptors[i].vendor_specific_info[j].vendor_si);
+                                free(m->interface_descriptors[i].vendor_specific_info[j].vendor_si);
                             }
                         }
-                        PLATFORM_FREE(m->interface_descriptors[i].vendor_specific_info);
+                        free(m->interface_descriptors[i].vendor_specific_info);
                     }
                 }
-                PLATFORM_FREE(m->interface_descriptors);
+                free(m->interface_descriptors);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -1417,9 +1417,9 @@ void free_1905_ALME_structure(uint8_t *memory_structure)
 
             if (m->addresses_nr >0 && NULL != m->addresses)
             {
-                PLATFORM_FREE(m->addresses);
+                free(m->addresses);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -1437,12 +1437,12 @@ void free_1905_ALME_structure(uint8_t *memory_structure)
                 {
                     if (m->rules[i].addresses)
                     {
-                        PLATFORM_FREE(m->rules[i].addresses);
+                        free(m->rules[i].addresses);
                     }
                 }
-                PLATFORM_FREE(m->rules);
+                free(m->rules);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -1455,9 +1455,9 @@ void free_1905_ALME_structure(uint8_t *memory_structure)
 
             if (m->addresses_nr > 0 && NULL != m->addresses)
             {
-                PLATFORM_FREE(m->addresses);
+                free(m->addresses);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }
@@ -1476,9 +1476,9 @@ void free_1905_ALME_structure(uint8_t *memory_structure)
                     free_1905_TLV_structure((uint8_t *)m->metrics[i].tx_metric);
                     free_1905_TLV_structure((uint8_t *)m->metrics[i].rx_metric);
                 }
-                PLATFORM_FREE(m->metrics);
+                free(m->metrics);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
 
             return;
@@ -1492,9 +1492,9 @@ void free_1905_ALME_structure(uint8_t *memory_structure)
 
             if (m->bytes_nr > 0 && NULL != m->bytes)
             {
-                PLATFORM_FREE(m->bytes);
+                free(m->bytes);
             }
-            PLATFORM_FREE(m);
+            free(m);
 
             return;
         }

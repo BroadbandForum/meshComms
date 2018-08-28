@@ -317,7 +317,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
             if (NULL != p)
             {
-                PLATFORM_FREE(p);
+                free(p);
             }
 
             break;
@@ -527,7 +527,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             //   3. Setting "C->list_of_TLVs" to NULL will cause
             //      "free_1905_CMDU_structure()" to ignore this list.
             //
-            PLATFORM_FREE(c->list_of_TLVs);
+            free(c->list_of_TLVs);
             c->list_of_TLVs = NULL;
 
             // Next, update the database. This will take care of duplicate
@@ -773,7 +773,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
             if (NULL != p)
             {
-                PLATFORM_FREE(p);
+                free(p);
             }
 
             break;
@@ -833,7 +833,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // comment in "case CMDU_TYPE_TOPOLOGY_RESPONSE:" to understand the
             // following two lines).
             //
-            PLATFORM_FREE(c->list_of_TLVs);
+            free(c->list_of_TLVs);
             c->list_of_TLVs = NULL;
 
             // Show all network devices (ie. print them through the logging
@@ -1006,7 +1006,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                         PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration response' message\n");
                     }
 
-                    PLATFORM_FREE_1905_INTERFACE_INFO(x);
+                    free_1905_INTERFACE_INFO(x);
                     break;
                 }
                 else
@@ -1014,10 +1014,10 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     PLATFORM_PRINTF_DEBUG_WARNING("Interface %s is not AP, or not registrar, or does not use the same freq band (interface type = %d, freq_band = %d,  role = %d)\n", ifs_names[i], x->interface_type, freq_band, x->interface_type_data.ieee80211.role );
                 }
 
-                PLATFORM_FREE_1905_INTERFACE_INFO(x);
+                free_1905_INTERFACE_INFO(x);
             }
 
-            PLATFORM_FREE_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
+            free_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
 
             break;
         }
@@ -1193,17 +1193,17 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
                     if (NULL != p)
                     {
-                        PLATFORM_FREE(p);
+                        free(p);
                     }
 
-                    PLATFORM_FREE_1905_INTERFACE_INFO(x);
+                    free_1905_INTERFACE_INFO(x);
                     break;
                 }
 
-                PLATFORM_FREE_1905_INTERFACE_INFO(x);
+                free_1905_INTERFACE_INFO(x);
             }
 
-            PLATFORM_FREE_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
+            free_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
 
             break;
         }
@@ -1329,7 +1329,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
                 if (NULL != p)
                 {
-                    PLATFORM_FREE(p);
+                    free(p);
                 }
 
                 wscFreeM2(m2, m2_size);
@@ -1474,7 +1474,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 {
                     PLATFORM_PRINTF_DEBUG_DETAIL("%s is not compatible. Skipping...\n",ifs_names[i]);
 
-                    PLATFORM_FREE_1905_INTERFACE_INFO(x);
+                    free_1905_INTERFACE_INFO(x);
                     continue;
                 }
 
@@ -1496,19 +1496,19 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                      {
                          PLATFORM_PRINTF_DEBUG_DETAIL("This wifi interface is not the registrar. Skipping...\n",ifs_names[i]);
 
-                         PLATFORM_FREE_1905_INTERFACE_INFO(x);
+                         free_1905_INTERFACE_INFO(x);
                          continue;
                      }
                      else if (0 == wifi_data_is_present)
                      {
                          PLATFORM_PRINTF_DEBUG_DETAIL("This wifi interface is the registrar, but the 'push button event notification' message did not contain wifi data. Skipping...\n",ifs_names[i]);
 
-                         PLATFORM_FREE_1905_INTERFACE_INFO(x);
+                         free_1905_INTERFACE_INFO(x);
                          continue;
                      }
                 }
 
-                PLATFORM_FREE_1905_INTERFACE_INFO(x);
+                free_1905_INTERFACE_INFO(x);
 
                 PLATFORM_PRINTF_DEBUG_INFO("Starting push button configuration process on interface %s\n", ifs_names[i]);
                 if (0 == PLATFORM_START_PUSH_BUTTON_CONFIGURATION(ifs_names[i], queue_id, al_mac_address, c->message_id))
@@ -1517,7 +1517,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 }
             }
 
-            PLATFORM_FREE_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
+            free_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
 
             break;
         }
@@ -1571,7 +1571,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
             if (NULL != p)
             {
-                PLATFORM_FREE(p);
+                free(p);
             }
 
             break;
@@ -1654,7 +1654,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // comment in "case CMDU_TYPE_TOPOLOGY_RESPONSE:" to understand the
             // following two lines).
             //
-            PLATFORM_FREE(c->list_of_TLVs);
+            free(c->list_of_TLVs);
             c->list_of_TLVs = NULL;
 
             // Show all network devices (ie. print them through the logging
@@ -1703,7 +1703,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
             if (NULL != p)
             {
-                PLATFORM_FREE(p);
+                free(p);
             }
 
             break;
@@ -1821,7 +1821,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // comment in "case CMDU_TYPE_TOPOLOGY_RESPONSE:" to understand the
             // following two lines).
             //
-            PLATFORM_FREE(c->list_of_TLVs);
+            free(c->list_of_TLVs);
             c->list_of_TLVs = NULL;
 
             // Show all network devices (ie. print them through the logging

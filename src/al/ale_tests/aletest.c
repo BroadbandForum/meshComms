@@ -205,6 +205,6 @@ int send_cmdu(int s, mac_address dst_addr, mac_address src_addr, const struct CM
     }
 
     free_1905_CMDU_packets(streams);
-    PLATFORM_FREE(streams_lens);
+    free(streams_lens);
     return ret;
 }

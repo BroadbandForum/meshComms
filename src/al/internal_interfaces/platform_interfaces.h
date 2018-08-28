@@ -301,7 +301,7 @@ struct interfaceInfo
 // The returned list must not be modified by the caller.
 //
 // When the returned list is no longer needed, it can be freed by calling
-// "PLATFORM_FREE_LIST_OF_1905_INTERFACES()"
+// "free_LIST_OF_1905_INTERFACES()"
 //
 // [PLATFORM PORTING NOTE]
 //   Typically you want to return as many entries as physical interfaces there
@@ -317,7 +317,7 @@ char **PLATFORM_GET_LIST_OF_1905_INTERFACES(uint8_t *nr);
 //
 // 'nr' is the same one returned by "PLATFORM_GET_LIST_OF_1905_INTERFACES()"
 //
-void PLATFORM_FREE_LIST_OF_1905_INTERFACES(char **x, uint8_t nr);
+void free_LIST_OF_1905_INTERFACES(char **x, uint8_t nr);
 
 // Return a "struct interfaceInfo" structure containing all kinds of information
 // associated to the provided 'interface_name'
@@ -331,14 +331,14 @@ void PLATFORM_FREE_LIST_OF_1905_INTERFACES(char **x, uint8_t nr);
 // field of this structure should contain.
 //
 // Once the caller is done with the returned structure, hw must call
-// "PLATFORM_FREE_1905_STRUCTURE()" to dispose it
+// "free_1905_STRUCTURE()" to dispose it
 //
 struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name);
 
 // Free the memory used by a "struct interfaceInfo" structure previously
 // obtained by calling "PLATFORM_GET_1905_INTERFACE_INFO()"
 //
-void PLATFORM_FREE_1905_INTERFACE_INFO(struct interfaceInfo *i);
+void free_1905_INTERFACE_INFO(struct interfaceInfo *i);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -415,7 +415,7 @@ struct linkMetrics
 // field of this structure should contain.
 //
 // Once the caller is done with the returned structure, hw must call
-// "PLATFORM_FREE_LINK_METRICS()" to dispose it
+// "free_LINK_METRICS()" to dispose it
 //
 // [PLATFORM PORTING NOTE]
 //   You will notice how each 'struct linkMetrics' is associated to a LINK and
@@ -437,7 +437,7 @@ struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, uint8_
 // Free the memory used by a "struct linkMetrics" structure previously
 // obtained by calling "PLATFORM_GET_LINK_METRICS()"
 //
-void PLATFORM_FREE_LINK_METRICS(struct linkMetrics *l);
+void free_LINK_METRICS(struct linkMetrics *l);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Bridges info
@@ -465,7 +465,7 @@ struct bridge
 // The length of the list is returned in the 'nr' output argument.
 //
 // When the returned list is no longer needed, it can be freed by calling
-// "PLATFORM_FREE_LIST_OF_BRIDGES()"
+// "free_LIST_OF_BRIDGES()"
 //
 struct bridge *PLATFORM_GET_LIST_OF_BRIDGES(uint8_t *nr);
 
@@ -474,7 +474,7 @@ struct bridge *PLATFORM_GET_LIST_OF_BRIDGES(uint8_t *nr);
 //
 // 'nr' is the same one returned by "PLATFORM_GET_LIST_OF_BRIDGES()"
 //
-void PLATFORM_FREE_LIST_OF_BRIDGES(struct bridge *x, uint8_t nr);
+void free_LIST_OF_BRIDGES(struct bridge *x, uint8_t nr);
 
 
 ////////////////////////////////////////////////////////////////////////////////

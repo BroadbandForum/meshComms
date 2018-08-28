@@ -67,10 +67,6 @@
 // Typical libc stuff
 ////////////////////////////////////////////////////////////////////////////////
 
-// Free a memory area previously obtained with "memalloc()"
-//
-void PLATFORM_FREE(void *ptr);
-
 // Output the provided format string (see 'man 3 printf' on any Linux box)
 //
 void PLATFORM_PRINTF(const char *format, ...);

@@ -334,7 +334,7 @@ static void *_pushButtonConfigurationThread(void *p)
     interface_type = x->interface_type;
     memcpy(local_interface_mac_address, x->mac_address, 6);
 
-    PLATFORM_FREE_1905_INTERFACE_INFO(x);
+    free_1905_INTERFACE_INFO(x);
 
     new_mac[0]         = 0x00;
     new_mac[1]         = 0x00;
@@ -433,11 +433,11 @@ static void *_pushButtonConfigurationThread(void *p)
             new_mac[4]         = x->push_button_new_mac_address[4];
             new_mac[5]         = x->push_button_new_mac_address[5];
 
-            PLATFORM_FREE_1905_INTERFACE_INFO(x);
+            free_1905_INTERFACE_INFO(x);
             break;
         }
 
-        PLATFORM_FREE_1905_INTERFACE_INFO(x);
+        free_1905_INTERFACE_INFO(x);
 
         PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] *Push button configuration thread* Push button ongoing on interface %s...\n", aux->interface_name);
         sleep(5);  // 3 seconds
@@ -707,7 +707,7 @@ char **PLATFORM_GET_LIST_OF_1905_INTERFACES(uint8_t *nr)
     return interfaces_list;
 }
 
-void PLATFORM_FREE_LIST_OF_1905_INTERFACES(__attribute__((unused)) char **x, __attribute__((unused)) uint8_t nr)
+void free_LIST_OF_1905_INTERFACES(__attribute__((unused)) char **x, __attribute__((unused)) uint8_t nr)
 {
     // The list must never be freed, so that future calls to
     // "PLATFORM_GET_1905_INTERFACE_INFO()" can make use of it
@@ -1019,7 +1019,7 @@ struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
     return m;
 }
 
-void PLATFORM_FREE_1905_INTERFACE_INFO(struct interfaceInfo *x)
+void free_1905_INTERFACE_INFO(struct interfaceInfo *x)
 {
     uint8_t i;
 
@@ -1107,7 +1107,7 @@ struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, uint8_
         return NULL;
     }
     memcpy(ret->local_interface_address, x->mac_address, 6);
-    PLATFORM_FREE_1905_INTERFACE_INFO(x);
+    free_1905_INTERFACE_INFO(x);
 
     // Copy the remote interface MAC address
     //
@@ -1305,7 +1305,7 @@ struct linkMetrics *PLATFORM_GET_LINK_METRICS(char *local_interface_name, uint8_
     return ret;
 }
 
-void PLATFORM_FREE_LINK_METRICS(struct linkMetrics *l)
+void free_LINK_METRICS(struct linkMetrics *l)
 {
     // This is a simple structure which does not require any special treatment.
     //
@@ -1326,7 +1326,7 @@ struct bridge *PLATFORM_GET_LIST_OF_BRIDGES(uint8_t *nr)
     return NULL;
 }
 
-void PLATFORM_FREE_LIST_OF_BRIDGES(struct bridge *x, uint8_t nr)
+void free_LIST_OF_BRIDGES(struct bridge *x, uint8_t nr)
 {
     // TODO
     //
@@ -1491,10 +1491,10 @@ uint8_t PLATFORM_START_PUSH_BUTTON_CONFIGURATION(char *interface_name, uint8_t q
     }
     if (0 != x->push_button_on_going)
     {
-        PLATFORM_FREE_1905_INTERFACE_INFO(x);
+        free_1905_INTERFACE_INFO(x);
         return 1;
     }
-    PLATFORM_FREE_1905_INTERFACE_INFO(x);
+    free_1905_INTERFACE_INFO(x);
 
     p = (struct _pushButtonThreadData *)malloc(sizeof(struct _pushButtonThreadData));
     if (NULL == p)
