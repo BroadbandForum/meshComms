@@ -50,6 +50,26 @@ static inline void *memalloc(size_t size)
     return p;
 }
 
+/** @brief Redimension a memory area previously obtained with memalloc().
+ *
+ * If no memory can be allocated, this function exits immediately.
+ */
+static inline void *memrealloc(void *ptr, size_t size)
+{
+    void *p;
+
+    p = realloc(ptr, size);
+
+    if (NULL == p)
+    {
+        fprintf(stderr, "ERROR: Out of memory!\n");
+        exit(1);
+    }
+
+    return p;
+}
+
+
 typedef void (*visitor_callback) (void (*write_function)(const char *fmt, ...), const char *prefix, uint8_t size, const char *name, const char *fmt, const void *p);
 
 // This is an auxiliary function which is used when calling the "visit_*()"

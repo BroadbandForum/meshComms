@@ -71,13 +71,6 @@
 //
 void PLATFORM_FREE(void *ptr);
 
-// Redimendion a memory area previously obtained  with "memalloc()"
-//
-// If no memory can be allocated, this function must *not* return (instead of
-// returning a NULL pointer), and the program must be exited immediately.
-//
-void *PLATFORM_REALLOC(void *ptr, size_t size);
-
 // Output the provided format string (see 'man 3 printf' on any Linux box)
 //
 void PLATFORM_PRINTF(const char *format, ...);

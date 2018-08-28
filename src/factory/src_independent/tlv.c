@@ -263,7 +263,7 @@ bool tlv_add(tlv_defs_t defs, struct tlv_list *tlvs, struct tlv *tlv)
 {
     /** @todo keep ordered, check for duplicates, handle aggregation */
     tlvs->tlv_nr++;
-    tlvs->tlvs = PLATFORM_REALLOC(tlvs->tlvs, tlvs->tlv_nr * sizeof(struct tlv*));
+    tlvs->tlvs = memrealloc(tlvs->tlvs, tlvs->tlv_nr * sizeof(struct tlv*));
     tlvs->tlvs[tlvs->tlv_nr - 1] = tlv;
     return true;
 }

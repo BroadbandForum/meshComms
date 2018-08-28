@@ -156,7 +156,7 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
                         }
                         else
                         {
-                            no->non_1905_neighbors = (struct _non1905neighborEntries *)PLATFORM_REALLOC(no->non_1905_neighbors, sizeof(struct _non1905neighborEntries)*(no->non_1905_neighbors_nr+1));
+                            no->non_1905_neighbors = (struct _non1905neighborEntries *)memrealloc(no->non_1905_neighbors, sizeof(struct _non1905neighborEntries)*(no->non_1905_neighbors_nr+1));
                         }
 
                         no->non_1905_neighbors[no->non_1905_neighbors_nr].mac_address[0] = x->neighbor_mac_addresses[j][0];
@@ -201,7 +201,7 @@ static void _obtainLocalNon1905NeighborsTLV(struct non1905NeighborDeviceListTLV 
             }
             else
             {
-                *non_1905_neighbors = (struct non1905NeighborDeviceListTLV **)PLATFORM_REALLOC(*non_1905_neighbors, sizeof(struct non1905NeighborDeviceListTLV *)*(*non_1905_neighbors_nr+1));
+                *non_1905_neighbors = (struct non1905NeighborDeviceListTLV **)memrealloc(*non_1905_neighbors, sizeof(struct non1905NeighborDeviceListTLV *)*(*non_1905_neighbors_nr+1));
             }
 
             (*non_1905_neighbors)[*non_1905_neighbors_nr] = no;
@@ -285,7 +285,7 @@ static uint8_t (*_getListOfNon1905Neighbors(struct non1905NeighborDeviceListTLV 
             }
             else
             {
-                ret = (uint8_t (*)[6])PLATFORM_REALLOC(ret, sizeof(uint8_t[6])*(total + 1));
+                ret = (uint8_t (*)[6])memrealloc(ret, sizeof(uint8_t[6])*(total + 1));
             }
             memcpy(&ret[total], non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6);
 
@@ -361,8 +361,8 @@ uint8_t (*_getListOfLinksWithNon1905Neighbor(struct non1905NeighborDeviceListTLV
                 }
                 else
                 {
-                    ret   = (uint8_t (*)[6])PLATFORM_REALLOC(ret, sizeof(uint8_t[6])*(total + 1));
-                    intfs = (char **)PLATFORM_REALLOC(intfs, sizeof(char *)*(total + 1));
+                    ret   = (uint8_t (*)[6])memrealloc(ret, sizeof(uint8_t[6])*(total + 1));
+                    intfs = (char **)memrealloc(intfs, sizeof(char *)*(total + 1));
                 }
                 memcpy(&ret[total], non1905_neighbors[i]->non_1905_neighbors[j].mac_address, 6);
                 intfs[total] = DMmacToInterfaceName(non1905_neighbors[i]->local_mac_address);
@@ -907,7 +907,7 @@ void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV **extensions, uint8_t nr,
             }
             else
             {
-                (*dm_extensions) = (struct vendorSpecificTLV **)PLATFORM_REALLOC((*dm_extensions), sizeof(struct vendorSpecificTLV *) * ((*dm_extensions_nr) + nr));
+                (*dm_extensions) = (struct vendorSpecificTLV **)memrealloc((*dm_extensions), sizeof(struct vendorSpecificTLV *) * ((*dm_extensions_nr) + nr));
             }
         }
 
@@ -1041,9 +1041,9 @@ void CBKDumpBBFExtendedInfo(uint8_t **memory_structure,
                 }
                 else
                 {
-                    tx_metrics  = (struct vendorSpecificTLV **)PLATFORM_REALLOC(tx_metrics, sizeof(struct vendorSpecificTLV *) * (metrics_nr+1));
-                    rx_metrics  = (struct vendorSpecificTLV **)PLATFORM_REALLOC(rx_metrics, sizeof(struct vendorSpecificTLV *) * (metrics_nr+1));
-                    mac_metrics =                (uint8_t (*)[6])PLATFORM_REALLOC(mac_metrics, sizeof(uint8_t[6]) * (metrics_nr+1));
+                    tx_metrics  = (struct vendorSpecificTLV **)memrealloc(tx_metrics, sizeof(struct vendorSpecificTLV *) * (metrics_nr+1));
+                    rx_metrics  = (struct vendorSpecificTLV **)memrealloc(rx_metrics, sizeof(struct vendorSpecificTLV *) * (metrics_nr+1));
+                    mac_metrics =                (uint8_t (*)[6])memrealloc(mac_metrics, sizeof(uint8_t[6]) * (metrics_nr+1));
                 }
 
                 // Keep metrics owner track

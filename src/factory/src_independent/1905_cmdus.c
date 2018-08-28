@@ -705,7 +705,7 @@ struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams)
             // with more space first)
             //
             tlvs_nr++;
-            ret->list_of_TLVs = (uint8_t **)PLATFORM_REALLOC(ret->list_of_TLVs, sizeof(uint8_t *) * (tlvs_nr+1));
+            ret->list_of_TLVs = (uint8_t **)memrealloc(ret->list_of_TLVs, sizeof(uint8_t *) * (tlvs_nr+1));
             ret->list_of_TLVs[tlvs_nr-1] = parsed;
             ret->list_of_TLVs[tlvs_nr]   = NULL;
         }
@@ -949,11 +949,11 @@ uint8_t **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, ui
         //
         fragments_nr++;
 
-        ret = (uint8_t **)PLATFORM_REALLOC(ret, sizeof(uint8_t *) * (fragments_nr + 1));
+        ret = (uint8_t **)memrealloc(ret, sizeof(uint8_t *) * (fragments_nr + 1));
         ret[fragments_nr-1] = (uint8_t *)memalloc(MAX_NETWORK_SEGMENT_SIZE);
         ret[fragments_nr]   = NULL;
 
-        *lens = (uint16_t *)PLATFORM_REALLOC(*lens, sizeof(uint16_t *) * (fragments_nr + 1));
+        *lens = (uint16_t *)memrealloc(*lens, sizeof(uint16_t *) * (fragments_nr + 1));
         (*lens)[fragments_nr-1] = 0; // To be updated a few lines later
         (*lens)[fragments_nr]   = 0;
 

@@ -168,7 +168,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
                               }
                               else
                               {
-                                  extensions = (struct vendorSpecificTLV **)PLATFORM_REALLOC(extensions, sizeof(struct vendorSpecificTLV *) * (extensions_nr + 1));
+                                  extensions = (struct vendorSpecificTLV **)memrealloc(extensions, sizeof(struct vendorSpecificTLV *) * (extensions_nr + 1));
                               }
 
                               // Store a clone of the TLV included in the CMDU,

@@ -227,7 +227,7 @@ uint8_t obtainExtendedLocalInfo(struct vendorSpecificTLV ***extensions, uint8_t 
                 }
                 else
                 {
-                    total_tlvs = (struct vendorSpecificTLV **)PLATFORM_REALLOC(total_tlvs, sizeof(struct vendorSpecificTLV*) * (total_tlvs_nr + tlvs_nr) );
+                    total_tlvs = (struct vendorSpecificTLV **)memrealloc(total_tlvs, sizeof(struct vendorSpecificTLV*) * (total_tlvs_nr + tlvs_nr) );
                 }
 
                 for (j=0; j<tlvs_nr; j++)
@@ -395,7 +395,7 @@ uint8_t vendorSpecificTLVInsertInCDMU(struct CMDU *memory_structure, struct vend
 
     // Insert TLV
     //
-    memory_structure->list_of_TLVs             = (uint8_t **)PLATFORM_REALLOC(memory_structure->list_of_TLVs, sizeof(uint8_t *) * (tlv_stop+2));
+    memory_structure->list_of_TLVs             = (uint8_t **)memrealloc(memory_structure->list_of_TLVs, sizeof(uint8_t *) * (tlv_stop+2));
     memory_structure->list_of_TLVs[tlv_stop++] = (uint8_t *)vendor_specific;
     memory_structure->list_of_TLVs[tlv_stop]   = NULL;
 
@@ -474,7 +474,7 @@ uint8_t register1905CmduExtension(char *name,
     }
     else
     {
-        t->entries = (struct _cmduExtension *)PLATFORM_REALLOC(t->entries, sizeof(struct _cmduExtension) * (t->entries_nr + 1));
+        t->entries = (struct _cmduExtension *)memrealloc(t->entries, sizeof(struct _cmduExtension) * (t->entries_nr + 1));
     }
 
     memcpy(t->entries[t->entries_nr].name, name, MAX_EXTENSION_NAME_LEN-1);
@@ -520,7 +520,7 @@ uint8_t register1905AlmeDumpExtension(char *name,
     }
     else
     {
-        t->entries = (struct _dmExtension *)PLATFORM_REALLOC(t->entries, sizeof(struct _dmExtension) * (t->entries_nr + 1));
+        t->entries = (struct _dmExtension *)memrealloc(t->entries, sizeof(struct _dmExtension) * (t->entries_nr + 1));
     }
 
     memcpy(t->entries[t->entries_nr].name, name, MAX_EXTENSION_NAME_LEN-1);

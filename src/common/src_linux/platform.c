@@ -82,21 +82,6 @@ void PLATFORM_FREE(void *ptr)
 }
 
 
-void *PLATFORM_REALLOC(void *ptr, size_t size)
-{
-    void *p;
-
-    p = realloc(ptr, size);
-
-    if (NULL == p)
-    {
-        printf("ERROR: Out of memory!\n");
-        exit(1);
-    }
-
-    return p;
-}
-
 void PLATFORM_PRINTF(const char *format, ...)
 {
     va_list arglist;

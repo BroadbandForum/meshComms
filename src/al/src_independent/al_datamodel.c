@@ -276,7 +276,7 @@ uint8_t _insertNeighbor(char *local_interface_name, uint8_t *al_mac_address)
     }
     else
     {
-        x->neighbors = (struct _neighbor *)PLATFORM_REALLOC(x->neighbors, sizeof (struct _neighbor) * (x->neighbors_nr + 1));
+        x->neighbors = (struct _neighbor *)memrealloc(x->neighbors, sizeof (struct _neighbor) * (x->neighbors_nr + 1));
     }
 
     memcpy(x->neighbors[x->neighbors_nr].al_mac_address,        al_mac_address, 6);
@@ -320,7 +320,7 @@ uint8_t _insertNeighborInterface(char *local_interface_name, uint8_t *neighbor_a
     }
     else
     {
-        x->remote_interfaces = (struct _remoteInterface *)PLATFORM_REALLOC(x->remote_interfaces, sizeof (struct _remoteInterface) * (x->remote_interfaces_nr + 1));
+        x->remote_interfaces = (struct _remoteInterface *)memrealloc(x->remote_interfaces, sizeof (struct _remoteInterface) * (x->remote_interfaces_nr + 1));
     }
 
     memcpy(x->remote_interfaces[x->remote_interfaces_nr].mac_address,                 mac_address, 6);
@@ -462,7 +462,7 @@ uint8_t DMinsertInterface(char *name, uint8_t *mac_address)
     }
     else
     {
-        data_model.local_interfaces = (struct _localInterface *)PLATFORM_REALLOC(data_model.local_interfaces, sizeof (struct _localInterface) * (data_model.local_interfaces_nr + 1));
+        data_model.local_interfaces = (struct _localInterface *)memrealloc(data_model.local_interfaces, sizeof (struct _localInterface) * (data_model.local_interfaces_nr + 1));
     }
 
                     data_model.local_interfaces[data_model.local_interfaces_nr].name         = strdup(name);
@@ -599,7 +599,7 @@ uint8_t (*DMgetListOfNeighbors(uint8_t *al_mac_addresses_nr))[6]
             }
             else
             {
-                ret = (uint8_t (*)[6])PLATFORM_REALLOC(ret, sizeof(uint8_t[6])*(total + 1));
+                ret = (uint8_t (*)[6])memrealloc(ret, sizeof(uint8_t[6])*(total + 1));
             }
             memcpy(&ret[total], data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
 
@@ -648,8 +648,8 @@ uint8_t (*DMgetListOfLinksWithNeighbor(uint8_t *neighbor_al_mac_address, char **
                 }
                 else
                 {
-                    ret   = (uint8_t (*)[6])PLATFORM_REALLOC(ret, sizeof(uint8_t[6])*(total + 1));
-                    intfs = (char **)PLATFORM_REALLOC(intfs, sizeof(char *)*(total + 1));
+                    ret   = (uint8_t (*)[6])memrealloc(ret, sizeof(uint8_t[6])*(total + 1));
+                    intfs = (char **)memrealloc(intfs, sizeof(char *)*(total + 1));
                 }
                 memcpy(&ret[total], data_model.local_interfaces[i].neighbors[j].remote_interfaces[k].mac_address, 6);
                 intfs[total] = data_model.local_interfaces[i].name;
@@ -1011,7 +1011,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
             }
             else
             {
-                data_model.network_devices = (struct _networkDevice *)PLATFORM_REALLOC(data_model.network_devices, sizeof(struct _networkDevice)*(data_model.network_devices_nr+1));
+                data_model.network_devices = (struct _networkDevice *)memrealloc(data_model.network_devices, sizeof(struct _networkDevice)*(data_model.network_devices_nr+1));
             }
 
             data_model.network_devices[data_model.network_devices_nr].update_timestamp          = PLATFORM_GET_TIMESTAMP();
@@ -1313,7 +1313,7 @@ uint8_t DMupdateNetworkDeviceMetrics(uint8_t *metrics)
         }
         else
         {
-            data_model.network_devices[i].metrics_with_neighbors = (struct _metricsWithNeighbor *)PLATFORM_REALLOC(data_model.network_devices[i].metrics_with_neighbors, sizeof(struct _metricsWithNeighbor)*(data_model.network_devices[i].metrics_with_neighbors_nr+1));
+            data_model.network_devices[i].metrics_with_neighbors = (struct _metricsWithNeighbor *)memrealloc(data_model.network_devices[i].metrics_with_neighbors, sizeof(struct _metricsWithNeighbor)*(data_model.network_devices[i].metrics_with_neighbors_nr+1));
         }
 
         memcpy(data_model.network_devices[i].metrics_with_neighbors[data_model.network_devices[i].metrics_with_neighbors_nr].neighbor_al_mac_address, TO_al_mac_address, 6);
@@ -1707,7 +1707,7 @@ uint8_t DMrunGarbageCollector(void)
                     }
                     else
                     {
-                        data_model.network_devices[j].metrics_with_neighbors = (struct _metricsWithNeighbor *)PLATFORM_REALLOC(data_model.network_devices[j].metrics_with_neighbors, sizeof(struct _metricsWithNeighbor)*(data_model.network_devices[j].metrics_with_neighbors_nr));
+                        data_model.network_devices[j].metrics_with_neighbors = (struct _metricsWithNeighbor *)memrealloc(data_model.network_devices[j].metrics_with_neighbors, sizeof(struct _metricsWithNeighbor)*(data_model.network_devices[j].metrics_with_neighbors_nr));
                     }
                 }
             }
@@ -1733,7 +1733,7 @@ uint8_t DMrunGarbageCollector(void)
         }
         else
         {
-            data_model.network_devices = (struct _networkDevice *)PLATFORM_REALLOC(data_model.network_devices, sizeof(struct _networkDevice)*(data_model.network_devices_nr));
+            data_model.network_devices = (struct _networkDevice *)memrealloc(data_model.network_devices, sizeof(struct _networkDevice)*(data_model.network_devices_nr));
         }
     }
 
@@ -1797,7 +1797,7 @@ void DMremoveALNeighborFromInterface(uint8_t *al_mac_address, char *interface_na
             }
             else
             {
-                data_model.local_interfaces[i].neighbors = (struct _neighbor *)PLATFORM_REALLOC(data_model.local_interfaces[i].neighbors, sizeof(struct _neighbor)*(data_model.local_interfaces[i].neighbors_nr));
+                data_model.local_interfaces[i].neighbors = (struct _neighbor *)memrealloc(data_model.local_interfaces[i].neighbors, sizeof(struct _neighbor)*(data_model.local_interfaces[i].neighbors_nr));
             }
         }
     }
