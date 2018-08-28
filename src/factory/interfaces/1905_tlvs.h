@@ -71,6 +71,7 @@
 #define TLV_TYPE_SUPPORTED_SERVICE                   (0x80)
 #define TLV_TYPE_SEARCHED_SERVICE                    (0x81)
 #define TLV_TYPE_AP_OPERATIONAL_BSS                  (0x83)
+#define TLV_TYPE_ASSOCIATED_CLIENTS                  (0x84)
 
 /** @} */
 
@@ -983,6 +984,32 @@ struct apOperationalBssTLV
     struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_AP_OPERATIONAL_BSS. */
     uint8_t      radio_nr; /**< @brief Number of ::radios. */
     struct _apOperationalBssRadio *radio; /**< @brief Definition of radios. */
+};
+
+/** @} */
+
+/** @brief EasyMesh Associated Clients TLV.
+ *
+ *  @{
+ */
+struct _associatedClientInfo {
+    mac_address addr; /**< @brief The MAC address of the associated 802.11 client. */
+#define ASSOCIATED_CLIENT_MAX_AGE 65535 /**< Saturation value of _associatedClientInfo::age. */
+    uint16_t    age;  /**< @brief Time since the 802.11 client’s last association to this Multi-AP device, in seconds. */
+};
+
+struct _associatedClientsBssInfo {
+    mac_address bssid; /**< @brief The BSSID of the BSS operated by the Multi-AP Agent in which the clients are
+                        * associated. */
+    uint8_t     client_nr; /**< @brief Number of ::client. */
+    struct _associatedClientInfo *client; /**< @brief Definition of clients on this BSS. */
+};
+
+struct associatedClientsTLV
+{
+    struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_ASSOCIATED_CLIENTS. */
+    uint8_t     bss_nr; /**< @brief Number of ::bss. */
+    struct _associatedClientsBssInfo *bss; /**< @brief Definition of BSSes on this device. */
 };
 
 /** @} */

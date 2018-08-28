@@ -1595,3 +1595,53 @@ uint8_t x1905_tlv_stream_052[] =
 };
 
 uint16_t x1905_tlv_stream_len_052 = ARRAY_SIZE(x1905_tlv_stream_052);
+
+
+struct associatedClientsTLV x1905_tlv_structure_053 =
+{
+    .tlv.type                    = TLV_TYPE_ASSOCIATED_CLIENTS,
+    .bss_nr                      = 2,
+    .bss                         = (struct _associatedClientsBssInfo[]){
+        {
+            .bssid = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25},
+            .client_nr = 0,
+        },
+        {
+            .bssid = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
+            .client_nr = 3,
+            .client = (struct _associatedClientInfo[]){
+                {
+                    .addr = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
+                    .age = 0x0,
+                },
+                {
+                    .addr = {0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5},
+                    .age = 0x1234,
+                },
+                {
+                    .addr = {0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5},
+                    .age = ASSOCIATED_CLIENT_MAX_AGE,
+                },
+            },
+        },
+    },
+};
+
+uint8_t x1905_tlv_stream_053[] =
+{
+    0x84,
+    0x00, 39,
+    2,
+    0x20, 0x21, 0x22, 0x23, 0x24, 0x25,
+    0,
+    0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
+    3,
+    0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
+    0x00, 0x00,
+    0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5,
+    0x12, 0x34,
+    0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5,
+    0xff, 0xff,
+};
+
+uint16_t x1905_tlv_stream_len_053 = ARRAY_SIZE(x1905_tlv_stream_053);

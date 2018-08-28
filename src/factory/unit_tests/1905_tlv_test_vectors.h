@@ -198,5 +198,9 @@ extern struct apOperationalBssTLV                      x1905_tlv_structure_052;
 extern uint8_t                                           x1905_tlv_stream_052[];
 extern uint16_t                                          x1905_tlv_stream_len_052;
 
+extern struct associatedClientsTLV                     x1905_tlv_structure_053;
+extern uint8_t                                           x1905_tlv_stream_053[];
+extern uint16_t                                          x1905_tlv_stream_len_053;
+
 #endif
 

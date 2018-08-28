@@ -192,6 +192,9 @@ int main(void)
     #define x1905TLVPARSE043 "x1905TLVPARSE043 - Parse AP Operational BSS TLV (x1905_tlv_stream_052)"
     result += _check(x1905TLVPARSE043, x1905_tlv_stream_052, (uint8_t *)&x1905_tlv_structure_052);
 
+    #define x1905TLVPARSE044 "x1905TLVPARSE044 - Parse Associated Clients TLV (x1905_tlv_stream_053)"
+    result += _check(x1905TLVPARSE044, x1905_tlv_stream_053, (uint8_t *)&x1905_tlv_structure_053);
+
 
     // Return the number of test cases that failed
     //

@@ -92,6 +92,7 @@ static const struct cmdu_info cmdu_info[] =
             {TLV_TYPE_SUPPORTED_SERVICE, count_required_zero_or_one},
             /* Multi-AP requires exactly 1. However a non-Multi-AP device will not send it, so accept 0 as well. */
             {TLV_TYPE_AP_OPERATIONAL_BSS, count_required_zero_or_one},
+            {TLV_TYPE_ASSOCIATED_CLIENTS, count_required_zero_or_one},
             {0, count_required_sentinel},
         },
     },
