@@ -1,0 +1,77 @@
+#!/bin/sh
+# Broadband Forum IEEE 1905.1/1a stack
+# 
+# Copyright (c) 2017, Broadband Forum
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+##############################################################################
+#
+# Description: This script is in charge of modifying the default behavior of
+#              the WPS hardware button in a Linksys 1900 AC device, running
+#              OpenWRT.
+#
+#              This script must be copied in the /etc/rc.button directory.
+#
+#              The WPS button will be reconfigured to execute two actions:
+#
+#                1) If the button is pressed less than 1 second, it will
+#                   toggle the WIFI 'radio 1' to ON or OFF, depending of its
+#                   previous state.
+#                   This is useful to switch ON or OFF the WIFI without
+#                   entering in the Web configuration page.
+#
+#                2) If the button is pressed more than 3 seconds, it will
+#                   start the 1905 Push Button procedure.
+#                   Depending on the configuration, this procedure will secure
+#                   all device interfaces, and clone the WIFI configuration 
+#                   from another device.
+#                   For more information about the Push Button procedure,
+#                   please read the README file provided with the 1905 stack
+#                   implementation.
+#
+###############################################################################
+
+[ "${ACTION}" = "released" ] || exit 0
+
+. /lib/functions.sh
+
+logger "$BUTTON pressed for $SEEN seconds..."
+
+if [ "$SEEN" -lt 1 ]
+then
+  device="radio1"
+  case $(uci get wireless.$device.txpower) in
+   10)
+        #wifi down $device
+        #uci set wireless.$device.disabled=1
+        uci set wireless.$device.txpower=0
+        wifi
+        logger "Wifi $device disabled"
+    ;;
+    0)
+       # uci set wireless.$device.disabled=0
+       # wifi up $device
+        uci set wireless.$device.txpower=10 
+        wifi 
+        logger "Wifi $device enabled"
+    ;;
+  esac
+elif [ "$SEEN" -gt 3 ]
+then
+    touch /tmp/virtual_push_button
+    logger "Starting 1905 PUSH BUTTON procedure"
+fi
+
+return 0
+
