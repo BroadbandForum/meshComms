@@ -68,8 +68,8 @@ struct CMDU x1905_cmdu_structure_001 =
     .message_id      = 7,
     .relay_indicator = 0,
     .list_of_TLVs    =
-        (uint8_t* []){
-            (uint8_t *)(struct linkMetricQueryTLV[]){
+        (struct tlv* []){
+            (struct tlv *)(struct linkMetricQueryTLV[]){
                 {
                     .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
                     .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
@@ -117,8 +117,8 @@ struct CMDU x1905_cmdu_structure_002 =
     .message_id      = 2348,
     .relay_indicator = 0,
     .list_of_TLVs    =
-        (uint8_t* []){
-            (uint8_t *)(struct linkMetricQueryTLV[]){
+        (struct tlv* []){
+            (struct tlv *)(struct linkMetricQueryTLV[]){
                 {
                     .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
                     .destination       = LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR,
@@ -166,8 +166,8 @@ struct CMDU x1905_cmdu_structure_003 =
     .message_id      = 2348,
     .relay_indicator = 1,
     .list_of_TLVs    =
-        (uint8_t* []){
-            (uint8_t *)(struct linkMetricQueryTLV[]){
+        (struct tlv* []){
+            (struct tlv *)(struct linkMetricQueryTLV[]){
                 {
                     .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
                     .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
@@ -217,8 +217,8 @@ struct CMDU x1905_cmdu_structure_004 =
     .message_id      = 2348,
     .relay_indicator = 0,
     .list_of_TLVs    =
-        (uint8_t* []){
-            (uint8_t *)(struct linkMetricQueryTLV[]){
+        (struct tlv* []){
+            (struct tlv *)(struct linkMetricQueryTLV[]){
                 {
                     .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
                     .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
@@ -266,7 +266,7 @@ struct CMDU x1905_cmdu_structure_005 =
     .message_id      = 9,
     .relay_indicator = 0,
     .list_of_TLVs    =
-        (uint8_t* []){
+        (struct tlv* []){
             NULL
         },
 };

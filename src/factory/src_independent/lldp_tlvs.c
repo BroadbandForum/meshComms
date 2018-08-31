@@ -28,7 +28,7 @@
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
+struct tlv *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
 {
     if (NULL == packet_stream)
     {
@@ -81,7 +81,7 @@ uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
 
             ret->tlv.type = TLV_TYPE_END_OF_LLDPPDU;
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_CHASSIS_ID:
@@ -124,7 +124,7 @@ uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
 
             _EnB(&p, ret->chassis_id, 6);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_PORT_ID:
@@ -167,7 +167,7 @@ uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
 
             _EnB(&p, ret->port_id, 6);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_TIME_TO_LIVE:
@@ -193,7 +193,7 @@ uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
 
             _E2B(&p, &ret->ttl);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         default:
@@ -210,7 +210,7 @@ uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
 }
 
 
-uint8_t *forge_lldp_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
+uint8_t *forge_lldp_TLV_from_structure(struct tlv *memory_structure, uint16_t *len)
 {
     if (NULL == memory_structure)
     {
@@ -220,7 +220,7 @@ uint8_t *forge_lldp_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
     //
-    switch (*memory_structure)
+    switch (memory_structure->type)
     {
         case TLV_TYPE_END_OF_LLDPPDU:
         {
@@ -370,9 +370,9 @@ uint8_t *forge_lldp_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 }
 
 
-void free_lldp_TLV_structure(uint8_t *memory_structure)
+void free_lldp_TLV_structure(struct tlv *tlv)
 {
-    if (NULL == memory_structure)
+    if (NULL == tlv)
     {
         return;
     }
@@ -380,14 +380,14 @@ void free_lldp_TLV_structure(uint8_t *memory_structure)
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
     //
-    switch (*memory_structure)
+    switch (tlv->type)
     {
         case TLV_TYPE_END_OF_LLDPPDU:
         case TLV_TYPE_CHASSIS_ID:
         case TLV_TYPE_PORT_ID:
         case TLV_TYPE_TIME_TO_LIVE:
         {
-            free(memory_structure);
+            free(tlv);
 
             return;
         }
@@ -406,7 +406,7 @@ void free_lldp_TLV_structure(uint8_t *memory_structure)
 }
 
 
-uint8_t compare_lldp_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory_structure_2)
+uint8_t compare_lldp_TLV_structures(struct tlv *memory_structure_1, struct tlv *memory_structure_2)
 {
     if (NULL == memory_structure_1 || NULL == memory_structure_2)
     {
@@ -416,11 +416,11 @@ uint8_t compare_lldp_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
     //
-    if (*memory_structure_1 != *memory_structure_2)
+    if (memory_structure_1->type != memory_structure_2->type)
     {
         return 1;
     }
-    switch (*memory_structure_1)
+    switch (memory_structure_1->type)
     {
         case TLV_TYPE_END_OF_LLDPPDU:
         {
@@ -502,7 +502,7 @@ uint8_t compare_lldp_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
 }
 
 
-void visit_lldp_TLV_structure(uint8_t *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
+void visit_lldp_TLV_structure(struct tlv *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     if (NULL == memory_structure)
     {
@@ -512,7 +512,7 @@ void visit_lldp_TLV_structure(uint8_t *memory_structure, visitor_callback callba
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
     //
-    switch (*memory_structure)
+    switch (memory_structure->type)
     {
         case TLV_TYPE_END_OF_LLDPPDU:
         {

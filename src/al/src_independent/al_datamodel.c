@@ -1055,7 +1055,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
         {
             if (NULL != data_model.network_devices[i].info)
             {
-                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].info);
+                free_1905_TLV_structure(&data_model.network_devices[i].info->tlv);
             }
             data_model.network_devices[i].info = info;
         }
@@ -1064,7 +1064,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
         {
             for (j=0; j<data_model.network_devices[i].bridges_nr; j++)
             {
-                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].bridges[j]);
+                free_1905_TLV_structure(&data_model.network_devices[i].bridges[j]->tlv);
             }
             if (data_model.network_devices[i].bridges_nr > 0 && NULL != data_model.network_devices[i].bridges)
             {
@@ -1078,7 +1078,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
         {
             for (j=0; j<data_model.network_devices[i].non1905_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].non1905_neighbors[j]);
+                free_1905_TLV_structure(&data_model.network_devices[i].non1905_neighbors[j]->tlv);
             }
             if (data_model.network_devices[i].non1905_neighbors_nr > 0 && NULL != data_model.network_devices[i].non1905_neighbors)
             {
@@ -1092,7 +1092,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
         {
             for (j=0; j<data_model.network_devices[i].x1905_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].x1905_neighbors[j]);
+                free_1905_TLV_structure(&data_model.network_devices[i].x1905_neighbors[j]->tlv);
             }
             if (data_model.network_devices[i].x1905_neighbors_nr > 0 && NULL != data_model.network_devices[i].x1905_neighbors)
             {
@@ -1106,7 +1106,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
         {
             for (j=0; j<data_model.network_devices[i].power_off_nr; j++)
             {
-                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].power_off[j]);
+                free_1905_TLV_structure(&data_model.network_devices[i].power_off[j]->tlv);
             }
             if (data_model.network_devices[i].power_off_nr > 0 && NULL != data_model.network_devices[i].power_off)
             {
@@ -1120,7 +1120,7 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
         {
             for (j=0; j<data_model.network_devices[i].l2_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].l2_neighbors[j]);
+                free_1905_TLV_structure(&data_model.network_devices[i].l2_neighbors[j]->tlv);
             }
             if (data_model.network_devices[i].l2_neighbors_nr > 0 && NULL != data_model.network_devices[i].l2_neighbors)
             {
@@ -1132,43 +1132,43 @@ uint8_t DMupdateNetworkDeviceInfo(uint8_t *al_mac_address,
 
         if (1 == ss_update)
         {
-            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].supported_service);
+            free_1905_TLV_structure(&data_model.network_devices[i].supported_service->tlv);
             data_model.network_devices[i].supported_service = supported_service;
         }
 
         if (1 == ge_update)
         {
-            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].generic_phy);
+            free_1905_TLV_structure(&data_model.network_devices[i].generic_phy->tlv);
             data_model.network_devices[i].generic_phy = generic_phy;
         }
 
         if (1 == pr_update)
         {
-            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].profile);
+            free_1905_TLV_structure(&data_model.network_devices[i].profile->tlv);
             data_model.network_devices[i].profile = profile;
         }
 
         if (1 == id_update)
         {
-            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].identification);
+            free_1905_TLV_structure(&data_model.network_devices[i].identification->tlv);
             data_model.network_devices[i].identification = identification;
         }
 
         if (1 == co_update)
         {
-            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].control_url);
+            free_1905_TLV_structure(&data_model.network_devices[i].control_url->tlv);
             data_model.network_devices[i].control_url = control_url;
         }
 
         if (1 == v4_update)
         {
-            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].ipv4);
+            free_1905_TLV_structure(&data_model.network_devices[i].ipv4->tlv);
             data_model.network_devices[i].ipv4 = ipv4;
         }
 
         if (1 == v6_update)
         {
-            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].ipv6);
+            free_1905_TLV_structure(&data_model.network_devices[i].ipv6->tlv);
             data_model.network_devices[i].ipv6 = ipv6;
         }
 
@@ -1344,14 +1344,14 @@ uint8_t DMupdateNetworkDeviceMetrics(uint8_t *metrics)
         //
         if (TLV_TYPE_TRANSMITTER_LINK_METRIC == *metrics)
         {
-            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics);
+            free_1905_TLV_structure(&data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics->tlv);
 
             data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics_timestamp = PLATFORM_GET_TIMESTAMP();
             data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics           = (struct transmitterLinkMetricTLV*)metrics;
         }
         else
         {
-            free_1905_TLV_structure((uint8_t *)data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics);
+            free_1905_TLV_structure(&data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics->tlv);
 
             data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics_timestamp = PLATFORM_GET_TIMESTAMP();
             data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics           = (struct receiverLinkMetricTLV*)metrics;
@@ -1384,7 +1384,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->general_info->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((uint8_t* )data_model.network_devices[i].info, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure(&data_model.network_devices[i].info->tlv, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->bridging_capabilities_nr: %d", i, data_model.network_devices[i].bridges_nr);
         new_prefix[MAX_PREFIX-1] = 0x0;
@@ -1393,7 +1393,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         {
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->bridging_capabilities[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
-            visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].bridges[j], print_callback, write_function, new_prefix);
+            visit_1905_TLV_structure(&data_model.network_devices[i].bridges[j]->tlv, print_callback, write_function, new_prefix);
         }
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->non_1905_neighbors_nr: %d", i, data_model.network_devices[i].non1905_neighbors_nr);
@@ -1403,7 +1403,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         {
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->non_1905_neighbors[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
-            visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].non1905_neighbors[j], print_callback, write_function, new_prefix);
+            visit_1905_TLV_structure(&data_model.network_devices[i].non1905_neighbors[j]->tlv, print_callback, write_function, new_prefix);
         }
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->x1905_neighbors_nr: %d", i, data_model.network_devices[i].x1905_neighbors_nr);
@@ -1413,7 +1413,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         {
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->x1905_neighbors[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
-            visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].x1905_neighbors[j], print_callback, write_function, new_prefix);
+            visit_1905_TLV_structure(&data_model.network_devices[i].x1905_neighbors[j]->tlv, print_callback, write_function, new_prefix);
         }
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->power_off_interfaces_nr: %d", i, data_model.network_devices[i].power_off_nr);
@@ -1423,7 +1423,7 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         {
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->power_off_interfaces[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
-            visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].power_off[j], print_callback, write_function, new_prefix);
+            visit_1905_TLV_structure(&data_model.network_devices[i].power_off[j]->tlv, print_callback, write_function, new_prefix);
         }
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->l2_neighbors_nr: %d", i, data_model.network_devices[i].l2_neighbors_nr);
@@ -1433,32 +1433,32 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
         {
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->l2_neighbors[%d]->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
-            visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].l2_neighbors[j], print_callback, write_function, new_prefix);
+            visit_1905_TLV_structure(&data_model.network_devices[i].l2_neighbors[j]->tlv, print_callback, write_function, new_prefix);
         }
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->generic_phys->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((uint8_t* )data_model.network_devices[i].generic_phy, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure(&data_model.network_devices[i].generic_phy->tlv, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->profile->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((uint8_t* )data_model.network_devices[i].profile, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure(&data_model.network_devices[i].profile->tlv, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->identification->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((uint8_t* )data_model.network_devices[i].identification, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure(&data_model.network_devices[i].identification->tlv, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->control_url->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].control_url, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure(&data_model.network_devices[i].control_url->tlv, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->ipv4->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].ipv4, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure(&data_model.network_devices[i].ipv4->tlv, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->ipv6->", i);
         new_prefix[MAX_PREFIX-1] = 0x0;
-        visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].ipv6, print_callback, write_function, new_prefix);
+        visit_1905_TLV_structure(&data_model.network_devices[i].ipv6->tlv, print_callback, write_function, new_prefix);
 
         snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->metrics_nr: %d", i, data_model.network_devices[i].metrics_with_neighbors_nr);
         new_prefix[MAX_PREFIX-1] = 0x0;
@@ -1470,14 +1470,14 @@ void DMdumpNetworkDevices(void (*write_function)(const char *fmt, ...))
             if (NULL != data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics)
             {
                 write_function("%slast_updated: %d\n", new_prefix, data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics_timestamp);
-                visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics, print_callback, write_function, new_prefix);
+                visit_1905_TLV_structure(&data_model.network_devices[i].metrics_with_neighbors[j].tx_metrics->tlv, print_callback, write_function, new_prefix);
             }
             snprintf(new_prefix, MAX_PREFIX-1, "  device[%d]->metrics[%d]->rx->", i, j);
             new_prefix[MAX_PREFIX-1] = 0x0;
             if (NULL != data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics)
             {
                 write_function("%slast updated: %d\n", new_prefix, data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics_timestamp);
-                visit_1905_TLV_structure((uint8_t *)data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics, print_callback, write_function, new_prefix);
+                visit_1905_TLV_structure(&data_model.network_devices[i].metrics_with_neighbors[j].rx_metrics->tlv, print_callback, write_function, new_prefix);
             }
         }
 
@@ -1539,7 +1539,7 @@ uint8_t DMrunGarbageCollector(void)
                 memcpy(al_mac_address, x->info->al_mac_address, 6);
 
                 PLATFORM_PRINTF_DEBUG_DETAIL("Removing old device entry (%02x:%02x:%02x:%02x:%02x:%02x)\n", x->info->al_mac_address[0], x->info->al_mac_address[1], x->info->al_mac_address[2], x->info->al_mac_address[3], x->info->al_mac_address[4], x->info->al_mac_address[5]);
-                free_1905_TLV_structure((uint8_t*)x->info);
+                free_1905_TLV_structure(&x->info->tlv);
                 x->info = NULL;
             }
             else
@@ -1549,7 +1549,7 @@ uint8_t DMrunGarbageCollector(void)
 
             for (j=0; j<x->bridges_nr; j++)
             {
-                free_1905_TLV_structure((uint8_t*)x->bridges[j]);
+                free_1905_TLV_structure(&x->bridges[j]->tlv);
             }
             if (0 != x->bridges_nr && NULL != x->bridges)
             {
@@ -1560,7 +1560,7 @@ uint8_t DMrunGarbageCollector(void)
 
             for (j=0; j<x->non1905_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((uint8_t*)x->non1905_neighbors[j]);
+                free_1905_TLV_structure(&x->non1905_neighbors[j]->tlv);
             }
             if (0 != x->non1905_neighbors_nr && NULL != x->non1905_neighbors)
             {
@@ -1571,7 +1571,7 @@ uint8_t DMrunGarbageCollector(void)
 
             for (j=0; j<x->x1905_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((uint8_t*)x->x1905_neighbors[j]);
+                free_1905_TLV_structure(&x->x1905_neighbors[j]->tlv);
             }
             if (0 != x->x1905_neighbors_nr && NULL != x->x1905_neighbors)
             {
@@ -1582,7 +1582,7 @@ uint8_t DMrunGarbageCollector(void)
 
             for (j=0; j<x->power_off_nr; j++)
             {
-                free_1905_TLV_structure((uint8_t*)x->power_off[j]);
+                free_1905_TLV_structure(&x->power_off[j]->tlv);
             }
             if (0 != x->power_off_nr && NULL != x->power_off)
             {
@@ -1593,7 +1593,7 @@ uint8_t DMrunGarbageCollector(void)
 
             for (j=0; j<x->l2_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((uint8_t*)x->l2_neighbors[j]);
+                free_1905_TLV_structure(&x->l2_neighbors[j]->tlv);
             }
             if (0 != x->l2_neighbors_nr && NULL != x->l2_neighbors)
             {
@@ -1604,44 +1604,44 @@ uint8_t DMrunGarbageCollector(void)
 
             if (NULL != x->generic_phy)
             {
-                free_1905_TLV_structure((uint8_t*)x->generic_phy);
+                free_1905_TLV_structure(&x->generic_phy->tlv);
                 x->generic_phy = NULL;
             }
 
             if (NULL != x->profile)
             {
-                free_1905_TLV_structure((uint8_t*)x->profile);
+                free_1905_TLV_structure(&x->profile->tlv);
                 x->profile = NULL;
             }
 
             if (NULL != x->identification)
             {
-                free_1905_TLV_structure((uint8_t*)x->identification);
+                free_1905_TLV_structure(&x->identification->tlv);
                 x->identification = NULL;
             }
 
             if (NULL != x->control_url)
             {
-                free_1905_TLV_structure((uint8_t*)x->control_url);
+                free_1905_TLV_structure(&x->control_url->tlv);
                 x->control_url = NULL;
             }
 
             if (NULL != x->ipv4)
             {
-                free_1905_TLV_structure((uint8_t*)x->ipv4);
+                free_1905_TLV_structure(&x->ipv4->tlv);
                 x->ipv4 = NULL;
             }
 
             if (NULL != x->ipv6)
             {
-                free_1905_TLV_structure((uint8_t*)x->ipv6);
+                free_1905_TLV_structure(&x->ipv6->tlv);
                 x->ipv6 = NULL;
             }
 
             for (j=0; j<x->metrics_with_neighbors_nr; j++)
             {
-                free_1905_TLV_structure((uint8_t*)x->metrics_with_neighbors[j].tx_metrics);
-                free_1905_TLV_structure((uint8_t*)x->metrics_with_neighbors[j].rx_metrics);
+                free_1905_TLV_structure(&x->metrics_with_neighbors[j].tx_metrics->tlv);
+                free_1905_TLV_structure(&x->metrics_with_neighbors[j].rx_metrics->tlv);
             }
             if (0 != x->metrics_with_neighbors_nr && NULL != x->metrics_with_neighbors)
             {
@@ -1679,8 +1679,8 @@ uint8_t DMrunGarbageCollector(void)
                 {
                     if (0 == memcmp(al_mac_address, data_model.network_devices[j].metrics_with_neighbors[k].neighbor_al_mac_address, 6))
                     {
-                        free_1905_TLV_structure((uint8_t*)data_model.network_devices[j].metrics_with_neighbors[k].tx_metrics);
-                        free_1905_TLV_structure((uint8_t*)data_model.network_devices[j].metrics_with_neighbors[k].rx_metrics);
+                        free_1905_TLV_structure(&data_model.network_devices[j].metrics_with_neighbors[k].tx_metrics->tlv);
+                        free_1905_TLV_structure(&data_model.network_devices[j].metrics_with_neighbors[k].rx_metrics->tlv);
 
                         // Place last element here (we don't care about
                         // preserving order)

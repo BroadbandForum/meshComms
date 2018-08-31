@@ -97,7 +97,7 @@ struct CMDU *expect_cmdu(int s, unsigned timeout_ms, const char *testname, uint1
                 PLATFORM_PRINTF_DEBUG_ERROR("Receive failed while expecting %s\n", testname);
                 return NULL;
             }
-            if (!parse_1905_CMDU_header_from_packet((uint8_t*)buf, (size_t) received, &cmdu_header))
+            if (!parse_1905_CMDU_header_from_packet(buf, (size_t) received, &cmdu_header))
             {
                 PLATFORM_PRINTF_DEBUG_ERROR("Failed to parse CMDU header while expecting %s\n", testname);
                 PLATFORM_PRINTF_DEBUG_DETAIL("  Received:\n");
@@ -121,7 +121,7 @@ struct CMDU *expect_cmdu(int s, unsigned timeout_ms, const char *testname, uint1
             }
             else
             {
-                uint8_t *packets[] = {(uint8_t *)buf + (6+6+2), NULL};
+                uint8_t *packets[] = {buf + (6+6+2), NULL};
                 struct CMDU *cmdu = parse_1905_CMDU_from_packets(packets);
                 if (NULL == cmdu)
                 {

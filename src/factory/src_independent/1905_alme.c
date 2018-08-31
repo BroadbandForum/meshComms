@@ -719,7 +719,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
                         //
                         if (NULL != tx)
                         {
-                            free_1905_TLV_structure((uint8_t *)tx);
+                            free_1905_TLV_structure(&tx->tlv);
                         }
                         free(ret->metrics);
                         free(ret);
@@ -744,7 +744,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
                         //
                         if (NULL != rx)
                         {
-                            free_1905_TLV_structure((uint8_t *)rx);
+                            free_1905_TLV_structure(&rx->tlv);
                         }
                         free(ret->metrics);
                         free(ret);
@@ -1199,7 +1199,7 @@ uint8_t *forge_1905_ALME_from_structure(uint8_t *memory_structure, uint16_t *len
                 *len += 6; // local_intf_address
                 *len += 1; // bridge_flag
 
-                metric_stream = forge_1905_TLV_from_structure((uint8_t *)m->metrics[i].tx_metric, &metric_stream_len);
+                metric_stream = forge_1905_TLV_from_structure(&m->metrics[i].tx_metric->tlv, &metric_stream_len);
                 if (NULL == metric_stream || 0 == metric_stream_len)
                 {
                     // Forging error
@@ -1211,7 +1211,7 @@ uint8_t *forge_1905_ALME_from_structure(uint8_t *memory_structure, uint16_t *len
                 *len += metric_stream_len;
                 free_1905_TLV_packet(metric_stream);
 
-                metric_stream = forge_1905_TLV_from_structure((uint8_t *)m->metrics[i].rx_metric, &metric_stream_len);
+                metric_stream = forge_1905_TLV_from_structure(&m->metrics[i].rx_metric->tlv, &metric_stream_len);
                 if (NULL == metric_stream || 0 == metric_stream_len)
                 {
                     // Forging error
@@ -1264,7 +1264,7 @@ uint8_t *forge_1905_ALME_from_structure(uint8_t *memory_structure, uint16_t *len
                     return NULL;
                 }
 
-                metric_stream = forge_1905_TLV_from_structure((uint8_t *)tx, &metric_stream_len);
+                metric_stream = forge_1905_TLV_from_structure(&tx->tlv, &metric_stream_len);
                 if (NULL == metric_stream || 0 == metric_stream_len)
                 {
                     // Forging error
@@ -1276,7 +1276,7 @@ uint8_t *forge_1905_ALME_from_structure(uint8_t *memory_structure, uint16_t *len
                 _InB( metric_stream,  &p, metric_stream_len);
                 free_1905_TLV_packet(metric_stream);
 
-                metric_stream = forge_1905_TLV_from_structure((uint8_t *)rx, &metric_stream_len);
+                metric_stream = forge_1905_TLV_from_structure(&rx->tlv, &metric_stream_len);
                 if (NULL == metric_stream || 0 == metric_stream_len)
                 {
                     // Forging error
@@ -1473,8 +1473,8 @@ void free_1905_ALME_structure(uint8_t *memory_structure)
             {
                 for (i=0; i < m->metrics_nr; i++)
                 {
-                    free_1905_TLV_structure((uint8_t *)m->metrics[i].tx_metric);
-                    free_1905_TLV_structure((uint8_t *)m->metrics[i].rx_metric);
+                    free_1905_TLV_structure(&m->metrics[i].tx_metric->tlv);
+                    free_1905_TLV_structure(&m->metrics[i].rx_metric->tlv);
                 }
                 free(m->metrics);
             }
@@ -1920,8 +1920,8 @@ uint8_t compare_1905_ALME_structures(uint8_t *memory_structure_1, uint8_t *memor
                                            memcmp(p1->metrics[i].neighbor_dev_address,               p2->metrics[i].neighbor_dev_address, 6)      ||
                                            memcmp(p1->metrics[i].local_intf_address,                 p2->metrics[i].local_intf_address,   6)      ||
                                                            p1->metrics[i].bridge_flag            !=           p2->metrics[i].bridge_flag                   ||
-                     compare_1905_TLV_structures((uint8_t *)p1->metrics[i].tx_metric,                  (uint8_t *)p2->metrics[i].tx_metric)                    ||
-                     compare_1905_TLV_structures((uint8_t *)p1->metrics[i].rx_metric,                  (uint8_t *)p2->metrics[i].rx_metric)
+                     compare_1905_TLV_structures(&p1->metrics[i].tx_metric->tlv,                  &p2->metrics[i].tx_metric->tlv)                    ||
+                     compare_1905_TLV_structures(&p1->metrics[i].rx_metric->tlv,                  &p2->metrics[i].rx_metric->tlv)
 
                    )
                 {
@@ -2262,12 +2262,12 @@ void visit_1905_ALME_structure(uint8_t *memory_structure, visitor_callback callb
                 snprintf(new_prefix, MAX_PREFIX-1, "%smetrics[%d]->tx_metric->", prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
-                visit_1905_TLV_structure((uint8_t *)p->metrics[i].tx_metric, callback, write_function, new_prefix);
+                visit_1905_TLV_structure(&p->metrics[i].tx_metric->tlv, callback, write_function, new_prefix);
 
                 snprintf(new_prefix, MAX_PREFIX-1, "%smetrics[%d]->rx_metric->", prefix, i);
                 new_prefix[MAX_PREFIX-1] = 0x0;
 
-                visit_1905_TLV_structure((uint8_t *)p->metrics[i].rx_metric, callback, write_function, new_prefix);
+                visit_1905_TLV_structure(&p->metrics[i].rx_metric->tlv, callback, write_function, new_prefix);
             }
 
             return;

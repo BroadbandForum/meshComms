@@ -307,7 +307,7 @@ static uint8_t _check_CMDU_rules(const struct CMDU *p, uint8_t rules_type)
     i = 0;
     while (NULL != p->list_of_TLVs[i])
     {
-        counter[*(p->list_of_TLVs[i])]++;
+        counter[p->list_of_TLVs[i]->type]++;
         i++;
     }
 
@@ -441,7 +441,7 @@ static uint8_t _check_CMDU_rules(const struct CMDU *p, uint8_t rules_type)
         //       ...and not:
         //         list_of_TLVs --> [p1, p3, NULL]
         //
-        if (1 == tlvs_to_remove[*(p->list_of_TLVs[i])])
+        if (1 == tlvs_to_remove[p->list_of_TLVs[i]->type])
         {
             uint8_t j;
 
@@ -520,7 +520,7 @@ struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams)
     // re-allocate and fill.
     //
     ret = (struct CMDU *)memalloc(sizeof(struct CMDU) * 1);
-    ret->list_of_TLVs = (uint8_t **)memalloc(sizeof(uint8_t *) * 1);
+    ret->list_of_TLVs = (struct tlv **)memalloc(sizeof(struct tlv *) * 1);
     ret->list_of_TLVs[0] = NULL;
     tlvs_nr = 0;
 
@@ -542,7 +542,7 @@ struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams)
         uint8_t   relay_indicator;
         uint8_t   last_fragment_indicator;
 
-        uint8_t *parsed;
+        struct tlv *parsed;
 
         // We want to traverse fragments in order, thus lets search for the
         // fragment whose 'fragment_id' matches 'current_fragment' (which will
@@ -684,7 +684,7 @@ struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams)
                 break;
             }
 
-            if (TLV_TYPE_END_OF_MESSAGE == *parsed)
+            if (TLV_TYPE_END_OF_MESSAGE == parsed->type)
             {
                 // No more TLVs
                 //
@@ -706,7 +706,7 @@ struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams)
             // with more space first)
             //
             tlvs_nr++;
-            ret->list_of_TLVs = (uint8_t **)memrealloc(ret->list_of_TLVs, sizeof(uint8_t *) * (tlvs_nr+1));
+            ret->list_of_TLVs = (struct tlv **)memrealloc(ret->list_of_TLVs, sizeof(struct tlv *) * (tlvs_nr+1));
             ret->list_of_TLVs[tlvs_nr-1] = parsed;
             ret->list_of_TLVs[tlvs_nr]   = NULL;
         }
@@ -733,7 +733,7 @@ struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams)
 
         if (CMDU_TYPE_VENDOR_SPECIFIC == ret->message_type)
         {
-            if (NULL == ret->list_of_TLVs || NULL == ret->list_of_TLVs[0] || TLV_TYPE_VENDOR_SPECIFIC != *(ret->list_of_TLVs[0]))
+            if (NULL == ret->list_of_TLVs || NULL == ret->list_of_TLVs[0] || TLV_TYPE_VENDOR_SPECIFIC != ret->list_of_TLVs[0]->type)
             {
                 error = 7;
             }
@@ -758,7 +758,7 @@ struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams)
                         i = 0;
                         while (ret->list_of_TLVs[i])
                         {
-                            PLATFORM_PRINTF_DEBUG_WARNING("  - %s\n", convert_1905_TLV_type_to_string(*(ret->list_of_TLVs[i])));
+                            PLATFORM_PRINTF_DEBUG_WARNING("  - %s\n", convert_1905_TLV_type_to_string(ret->list_of_TLVs[i]->type));
                             i++;
                         }
                         PLATFORM_PRINTF_DEBUG_WARNING("  - <END>\n");
@@ -901,7 +901,7 @@ uint8_t **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, ui
         no_space       = 0;
         while(memory_structure->list_of_TLVs[tlv_stop])
         {
-            uint8_t  *p;
+            struct tlv  *p;
             uint8_t  *tlv_stream;
             uint16_t  tlv_stream_size;
 

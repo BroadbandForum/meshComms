@@ -34,7 +34,7 @@ extern uint8_t   bbf_query; // from bbf_send.c
 
 uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
 {
-    uint8_t     *p;
+    struct tlv *p;
     uint8_t      i;
 
     struct vendorSpecificTLV   *vs_tlv;
@@ -79,7 +79,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
                 // Protocol extensions are always embedded inside a Vendor
                 // Specific TLV. Ignore other TLVs
                 //
-                if (*p == TLV_TYPE_VENDOR_SPECIFIC)
+                if (p->type == TLV_TYPE_VENDOR_SPECIFIC)
                 {
                     vs_tlv = (struct vendorSpecificTLV *)p;
 
@@ -140,7 +140,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
               // Protocol extensions are always embedded inside a Vendor
               // Specific TLV. Ignore other TLVs
               //
-              if (*p == TLV_TYPE_VENDOR_SPECIFIC)
+              if (p->type == TLV_TYPE_VENDOR_SPECIFIC)
               {
                   vs_tlv = (struct vendorSpecificTLV *)p;
 
@@ -224,7 +224,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
               // Little trick: process standard metrics TLVs to get the CMDU's
               // sender AL MAC.
               //
-              else if (*p == TLV_TYPE_TRANSMITTER_LINK_METRIC)
+              else if (p->type == TLV_TYPE_TRANSMITTER_LINK_METRIC)
               {
                   struct transmitterLinkMetricTLV *metrics;
 
@@ -232,7 +232,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
 
                   memcpy(std_FROM_al_mac_address, metrics->local_al_address, 6);
               }
-              else if (*p == TLV_TYPE_RECEIVER_LINK_METRIC)
+              else if (p->type == TLV_TYPE_RECEIVER_LINK_METRIC)
               {
                   struct receiverLinkMetricTLV *metrics;
 

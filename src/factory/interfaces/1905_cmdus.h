@@ -89,10 +89,10 @@ struct CMDU
                                    // must be relayed by 1905 AL to its
                                    // neighbors.
 
-    uint8_t   **list_of_TLVs;        // NULL-terminated list of pointers to TLV
-                                   // structures.
-                                   // The "end of message" TLV is not included
-                                   // in this list.
+    struct tlv **list_of_TLVs;        // NULL-terminated list of pointers to TLV
+                                      // structures.
+                                      // The "end of message" TLV is not included
+                                      // in this list.
 };
 
 

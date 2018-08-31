@@ -162,7 +162,7 @@ struct timeToLiveTypeTLV
 // Otherwise, the returned structure is dynamically allocated, and once it is
 // no longer needed, the user must call the "free_lldp_TLV_structure()" function
 //
-uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream);
+struct tlv *parse_lldp_TLV_from_packet(uint8_t *packet_stream);
 
 
 // This is the opposite of "parse_lldp_TLV_from_packet()": it receives a
@@ -180,7 +180,7 @@ uint8_t *parse_lldp_TLV_from_packet(uint8_t *packet_stream);
 // Note that the input structure is *not* freed. You still need to later call
 // "free_lldp_TLV_structure()"
 //
-uint8_t *forge_lldp_TLV_from_structure(uint8_t *memory_structure, uint16_t *len);
+uint8_t *forge_lldp_TLV_from_structure(struct tlv *memory_structure, uint16_t *len);
 
 
 
@@ -194,7 +194,7 @@ uint8_t *forge_lldp_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 // "memory_structure" must point to a structure of one of the types returned by
 // "parse_lldp_TLV_from_packet()"
 //
-void free_lldp_TLV_structure(uint8_t *memory_structure);
+void free_lldp_TLV_structure(struct tlv *tlv);
 
 
 // 'forge_lldp_TLV_from_structure()' returns a regular buffer which can be freed
@@ -209,7 +209,7 @@ void free_lldp_TLV_structure(uint8_t *memory_structure);
 // "memory_structure_1" and "memory_structure_2" must point (each) to a
 // structure of one of the types returned by "parse_lldp_TLV_from_packet()"
 //
-uint8_t compare_lldp_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory_structure_2);
+uint8_t compare_lldp_TLV_structures(struct tlv *memory_structure_1, struct tlv *memory_structure_2);
 
 
 // The next function is used to call function "callback()" on each element of
@@ -238,7 +238,7 @@ uint8_t compare_lldp_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
 //     function prints before anything else to make it easy to follow the
 //     structure traversing order)
 //
-void visit_lldp_TLV_structure(uint8_t *memory_structure,  visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
+void visit_lldp_TLV_structure(struct tlv *memory_structure,  visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix);
 
 
 // Use this function for debug purposes. It turns a TLV_TYPE_* variable into its

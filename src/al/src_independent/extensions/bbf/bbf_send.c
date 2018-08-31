@@ -876,7 +876,7 @@ void CBKUpdateBBFExtendedInfo(struct vendorSpecificTLV **extensions, uint8_t nr,
                 (BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC    == (*dm_extensions)[i]->m[0]) ||
                 (BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE == (*dm_extensions)[i]->m[0]) )
             {
-                free_1905_TLV_structure((uint8_t *)(*dm_extensions)[i]);
+                free_1905_TLV_structure(&(*dm_extensions)[i]->tlv);
 
                 if (i == (*dm_extensions_nr))
                 {

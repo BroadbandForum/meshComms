@@ -136,7 +136,7 @@ uint8_t send1905CmduExtensions(struct CMDU *c)
 uint8_t free1905CmduExtensions(struct CMDU *c)
 {
     uint32_t                      i;
-    uint8_t                      *p;
+    struct tlv                   *p;
     struct vendorSpecificTLV   *vs_tlv;
 
     if ((NULL == c) || (NULL == c->list_of_TLVs))
@@ -150,7 +150,7 @@ uint8_t free1905CmduExtensions(struct CMDU *c)
         // Protocol extension is always embedded inside a Vendor Specific
         // TLV. Ignore other TLVs
         //
-        if (*p == TLV_TYPE_VENDOR_SPECIFIC)
+        if (p->type == TLV_TYPE_VENDOR_SPECIFIC)
         {
             vs_tlv = (struct vendorSpecificTLV *)p;
 
@@ -395,8 +395,8 @@ uint8_t vendorSpecificTLVInsertInCDMU(struct CMDU *memory_structure, struct vend
 
     // Insert TLV
     //
-    memory_structure->list_of_TLVs             = (uint8_t **)memrealloc(memory_structure->list_of_TLVs, sizeof(uint8_t *) * (tlv_stop+2));
-    memory_structure->list_of_TLVs[tlv_stop++] = (uint8_t *)vendor_specific;
+    memory_structure->list_of_TLVs             = (struct tlv **)memrealloc(memory_structure->list_of_TLVs, sizeof(struct tlv *) * (tlv_stop+2));
+    memory_structure->list_of_TLVs[tlv_stop++] = &vendor_specific->tlv;
     memory_structure->list_of_TLVs[tlv_stop]   = NULL;
 
     return 1;

@@ -38,7 +38,7 @@ struct tlv_list
     struct tlv **tlvs;
 };
 
-static struct tlv_list *alloc_dummy_tlv_list(uint8_t *tlv)
+static struct tlv_list *alloc_dummy_tlv_list(struct tlv *tlv)
 {
     struct tlv_list *tlvs = memalloc(sizeof(struct tlv_list));
     tlvs->tlvs = memalloc(sizeof(struct tlv *));
@@ -47,12 +47,12 @@ static struct tlv_list *alloc_dummy_tlv_list(uint8_t *tlv)
     return tlvs;
 }
 
-static uint8_t *free_dummy_tlv_list(struct tlv_list *tlvs)
+static struct tlv *free_dummy_tlv_list(struct tlv_list *tlvs)
 {
     struct tlv *ret = tlvs->tlvs[0];
     free(tlvs->tlvs);
     free(tlvs);
-    return (uint8_t *)ret;
+    return ret;
 }
 
 /** @} */
@@ -745,7 +745,7 @@ static tlv_defs_t tlv_1905_defs = {
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
+struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 {
     if (NULL == packet_stream)
     {
@@ -853,7 +853,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES:
@@ -886,7 +886,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 // will also accept this type of "malformed" packet.
                 //
                 ret->bridging_tuples_nr = 0;
-                return (uint8_t *)ret;
+                return &ret->tlv;
 #else
                 free(ret);
                 return NULL;
@@ -928,7 +928,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST:
@@ -969,7 +969,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 _EnB(&p,  ret->non_1905_neighbors[i].mac_address, 6);
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_NEIGHBOR_DEVICE_LIST:
@@ -1023,7 +1023,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 }
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_TRANSMITTER_LINK_METRIC:
@@ -1092,7 +1092,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_RECEIVER_LINK_METRIC:
@@ -1158,7 +1158,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_LINK_METRIC_RESULT_CODE:
@@ -1190,7 +1190,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             _E1B(&p, &ret->result_code);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_SEARCHED_ROLE:
@@ -1222,7 +1222,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             _E1B(&p, &ret->role);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_AUTOCONFIG_FREQ_BAND:
@@ -1254,7 +1254,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             _E1B(&p, &ret->freq_band);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_SUPPORTED_ROLE:
@@ -1286,7 +1286,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             _E1B(&p, &ret->role);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_SUPPORTED_FREQ_BAND:
@@ -1318,7 +1318,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             _E1B(&p, &ret->freq_band);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_WSC:
@@ -1345,7 +1345,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 _EnB(&p, ret->wsc_frame, len);
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION:
@@ -1379,7 +1379,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 // also accept this type of "malformed" packet.
                 //
                 ret->media_types_nr = 0;
-                return (uint8_t *)ret;
+                return &ret->tlv;
 #else
                 free(ret);
                 return NULL;
@@ -1462,7 +1462,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION:
@@ -1497,7 +1497,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             _EnB(&p,  ret->mac_address, 6);
             _EnB(&p,  ret->new_mac_address, 6);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_GENERIC_PHY_DEVICE_INFORMATION:
@@ -1569,7 +1569,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_DEVICE_IDENTIFICATION:
@@ -1603,7 +1603,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
             _EnB(&p,  ret->manufacturer_name,  64);
             _EnB(&p,  ret->manufacturer_model, 64);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_CONTROL_URL:
@@ -1629,7 +1629,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 _EnB(&p, ret->url, len);
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_IPV4:
@@ -1663,7 +1663,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 // accept this type of "malformed" packet.
                 //
                 ret->ipv4_interfaces_nr = 0;
-                return (uint8_t *)ret;
+                return &ret->tlv;
 #else
                 free(ret);
                 return NULL;
@@ -1711,7 +1711,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_IPV6:
@@ -1745,7 +1745,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 // accept this type of "malformed" packet.
                 //
                 ret->ipv6_interfaces_nr = 0;
-                return (uint8_t *)ret;
+                return &ret->tlv;
 #else
                 free(ret);
                 return NULL;
@@ -1794,7 +1794,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION:
@@ -1828,7 +1828,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 // also accept this type of "malformed" packet.
                 //
                 ret->local_interfaces_nr = 0;
-                return (uint8_t *)ret;
+                return &ret->tlv;
 #else
                 free(ret);
                 return NULL;
@@ -1871,7 +1871,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_1905_PROFILE_VERSION:
@@ -1903,7 +1903,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             _E1B(&p, &ret->profile);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_POWER_OFF_INTERFACE:
@@ -1935,7 +1935,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 // also accept this type of "malformed" packet.
                 //
                 ret->power_off_interfaces_nr = 0;
-                return (uint8_t *)ret;
+                return &ret->tlv;
 #else
                 free(ret);
                 return NULL;
@@ -1980,7 +1980,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION:
@@ -2014,7 +2014,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 // also accept this type of "malformed" packet.
                 //
                 ret->power_change_interfaces_nr = 0;
-                return (uint8_t *)ret;
+                return &ret->tlv;
 #else
                 free(ret);
                 return NULL;
@@ -2043,7 +2043,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS:
@@ -2077,7 +2077,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 // also accept this type of "malformed" packet.
                 //
                 ret->power_change_interfaces_nr = 0;
-                return (uint8_t *)ret;
+                return &ret->tlv;
 #else
                 free(ret);
                 return NULL;
@@ -2109,7 +2109,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case TLV_TYPE_L2_NEIGHBOR_DEVICE:
@@ -2143,7 +2143,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 // also accept this type of "malformed" packet.
                 //
                 ret->local_interfaces_nr = 0;
-                return (uint8_t *)ret;
+                return &ret->tlv;
 #else
                 free(ret);
                 return NULL;
@@ -2201,7 +2201,7 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         default:
@@ -2233,9 +2233,9 @@ uint8_t *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 }
 
 
-uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
+uint8_t *forge_1905_TLV_from_structure(struct tlv *tlv, uint16_t *len)
 {
-    if (NULL == memory_structure)
+    if (NULL == tlv)
     {
         return NULL;
     }
@@ -2243,7 +2243,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
     // The first byte of any of the valid structures is always the "tlv.type"
     // field.
     //
-    switch (*memory_structure)
+    switch (tlv->type)
     {
         case TLV_TYPE_DEVICE_INFORMATION_TYPE:
         {
@@ -2257,7 +2257,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i;
 
-            m = (struct deviceInformationTypeTLV *)memory_structure;
+            m = (struct deviceInformationTypeTLV *)tlv;
 
             tlv_length = 7;  // AL MAC (6 bytes) + number of ifaces (1 bytes)
             for (i=0; i<m->local_interfaces_nr; i++)
@@ -2352,7 +2352,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i, j;
 
-            m = (struct deviceBridgingCapabilityTLV *)memory_structure;
+            m = (struct deviceBridgingCapabilityTLV *)tlv;
 
             tlv_length = 1;  // number of bridging tuples (1 bytes)
             for (i=0; i<m->bridging_tuples_nr; i++)
@@ -2393,7 +2393,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i;
 
-            m = (struct non1905NeighborDeviceListTLV *)memory_structure;
+            m = (struct non1905NeighborDeviceListTLV *)tlv;
 
             tlv_length = 6 + 6*m->non_1905_neighbors_nr;
             *len = 1 + 2 + tlv_length;
@@ -2424,7 +2424,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i;
 
-            m = (struct neighborDeviceListTLV *)memory_structure;
+            m = (struct neighborDeviceListTLV *)tlv;
 
             tlv_length = 6 + 7*m->neighbors_nr;
             *len = 1 + 2 + tlv_length;
@@ -2468,7 +2468,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i;
 
-            m = (struct transmitterLinkMetricTLV *)memory_structure;
+            m = (struct transmitterLinkMetricTLV *)tlv;
 
             tlv_length = 12 + 29*m->transmitter_link_metrics_nr;
             *len = 1 + 2 + tlv_length;
@@ -2508,7 +2508,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i;
 
-            m = (struct receiverLinkMetricTLV *)memory_structure;
+            m = (struct receiverLinkMetricTLV *)tlv;
 
             tlv_length = 12 + 23*m->receiver_link_metrics_nr;
             *len = 1 + 2 + tlv_length;
@@ -2543,7 +2543,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint16_t tlv_length;
 
-            m = (struct linkMetricResultCodeTLV *)memory_structure;
+            m = (struct linkMetricResultCodeTLV *)tlv;
 
             tlv_length = 1;
             *len = 1 + 2 + tlv_length;
@@ -2576,7 +2576,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint16_t tlv_length;
 
-            m = (struct searchedRoleTLV *)memory_structure;
+            m = (struct searchedRoleTLV *)tlv;
 
             tlv_length = 1;
             *len = 1 + 2 + tlv_length;
@@ -2609,7 +2609,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint16_t tlv_length;
 
-            m = (struct autoconfigFreqBandTLV *)memory_structure;
+            m = (struct autoconfigFreqBandTLV *)tlv;
 
             tlv_length = 1;
             *len = 1 + 2 + tlv_length;
@@ -2646,7 +2646,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint16_t tlv_length;
 
-            m = (struct supportedRoleTLV *)memory_structure;
+            m = (struct supportedRoleTLV *)tlv;
 
             tlv_length = 1;
             *len = 1 + 2 + tlv_length;
@@ -2679,7 +2679,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint16_t tlv_length;
 
-            m = (struct supportedFreqBandTLV *)memory_structure;
+            m = (struct supportedFreqBandTLV *)tlv;
 
             tlv_length = 1;
             *len = 1 + 2 + tlv_length;
@@ -2716,7 +2716,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint16_t tlv_length;
 
-            m = (struct wscTLV *)memory_structure;
+            m = (struct wscTLV *)tlv;
 
             tlv_length = m->wsc_frame_size;
             *len = 1 + 2 + tlv_length;
@@ -2742,7 +2742,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i;
 
-            m = (struct pushButtonEventNotificationTLV *)memory_structure;
+            m = (struct pushButtonEventNotificationTLV *)tlv;
 
             tlv_length = 1;  // number of media types (1 byte)
             for (i=0; i<m->media_types_nr; i++)
@@ -2833,7 +2833,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint16_t tlv_length;
 
-            m = (struct pushButtonJoinNotificationTLV *)memory_structure;
+            m = (struct pushButtonJoinNotificationTLV *)tlv;
 
             tlv_length = 20;
             *len = 1 + 2 + tlv_length;
@@ -2862,7 +2862,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i;
 
-            m = (struct genericPhyDeviceInformationTypeTLV *)memory_structure;
+            m = (struct genericPhyDeviceInformationTypeTLV *)tlv;
 
             tlv_length  = 6;  // AL MAC address (6 bytes)
             tlv_length += 1;  // number of local interfaces (1 bytes)
@@ -2919,7 +2919,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint16_t tlv_length;
 
-            m = (struct deviceIdentificationTypeTLV *)memory_structure;
+            m = (struct deviceIdentificationTypeTLV *)tlv;
 
             tlv_length = 192;
             *len = 1 + 2 + tlv_length;
@@ -2945,7 +2945,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint16_t tlv_length;
 
-            m = (struct controlUrlTypeTLV *)memory_structure;
+            m = (struct controlUrlTypeTLV *)tlv;
 
             tlv_length = strlen(m->url)+1;
             *len = 1 + 2 + tlv_length;
@@ -2971,7 +2971,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i, j;
 
-            m = (struct ipv4TypeTLV *)memory_structure;
+            m = (struct ipv4TypeTLV *)tlv;
 
             tlv_length = 1;  // number of entries (1 bytes)
             for (i=0; i<m->ipv4_interfaces_nr; i++)
@@ -3016,7 +3016,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i, j;
 
-            m = (struct ipv6TypeTLV *)memory_structure;
+            m = (struct ipv6TypeTLV *)tlv;
 
             tlv_length = 1;  // number of entries (1 bytes)
             for (i=0; i<m->ipv6_interfaces_nr; i++)
@@ -3063,7 +3063,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i;
 
-            m = (struct pushButtonGenericPhyEventNotificationTLV *)memory_structure;
+            m = (struct pushButtonGenericPhyEventNotificationTLV *)tlv;
 
             tlv_length = 1;  // number of local interfaces (1 bytes)
             for (i=0; i<m->local_interfaces_nr; i++)
@@ -3106,7 +3106,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint16_t tlv_length;
 
-            m = (struct x1905ProfileVersionTLV *)memory_structure;
+            m = (struct x1905ProfileVersionTLV *)tlv;
 
             tlv_length = 1;
             *len = 1 + 2 + tlv_length;
@@ -3144,7 +3144,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i;
 
-            m = (struct powerOffInterfaceTLV *)memory_structure;
+            m = (struct powerOffInterfaceTLV *)tlv;
 
             tlv_length = 1;  // number of power off interfaces (1 bytes)
             for (i=0; i<m->power_off_interfaces_nr; i++)
@@ -3193,7 +3193,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i;
 
-            m = (struct interfacePowerChangeInformationTLV *)memory_structure;
+            m = (struct interfacePowerChangeInformationTLV *)tlv;
 
             tlv_length  = 1;  // number of interfaces (1 bytes)
             tlv_length += (6+1) * m->power_change_interfaces_nr;
@@ -3227,7 +3227,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i;
 
-            m = (struct interfacePowerChangeStatusTLV *)memory_structure;
+            m = (struct interfacePowerChangeStatusTLV *)tlv;
 
             tlv_length  = 1;  // number of interfaces (1 bytes)
             tlv_length += (6+1) * m->power_change_interfaces_nr;
@@ -3261,7 +3261,7 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 
             uint8_t i, j, k;
 
-            m = (struct l2NeighborDeviceTLV *)memory_structure;
+            m = (struct l2NeighborDeviceTLV *)tlv;
 
             tlv_length = 1;  // number of entries (1 bytes)
             for (i=0; i<m->local_interfaces_nr; i++)
@@ -3308,11 +3308,11 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
         {
             uint8_t *ret = NULL;
             size_t length;
-            struct tlv_list *dummy = alloc_dummy_tlv_list(memory_structure);
+            struct tlv_list *dummy = alloc_dummy_tlv_list(tlv);
             if (!tlv_forge(tlv_1905_defs, dummy, MAX_NETWORK_SEGMENT_SIZE, &ret, &length))
             {
                 PLATFORM_PRINTF_DEBUG_ERROR("Failed to forge TLV %s\n",
-                                            convert_1905_TLV_type_to_string(*memory_structure));
+                                            convert_1905_TLV_type_to_string(tlv->type));
                 ret = NULL;
             }
             free_dummy_tlv_list(dummy);
@@ -3328,9 +3328,9 @@ uint8_t *forge_1905_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 }
 
 
-void free_1905_TLV_structure(uint8_t *memory_structure)
+void free_1905_TLV_structure(struct tlv *tlv)
 {
-    if (NULL == memory_structure)
+    if (NULL == tlv)
     {
         return;
     }
@@ -3338,13 +3338,13 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
     //
-    switch (*memory_structure)
+    switch (tlv->type)
     {
         case TLV_TYPE_DEVICE_INFORMATION_TYPE:
         {
             struct deviceInformationTypeTLV *m;
 
-            m = (struct deviceInformationTypeTLV *)memory_structure;
+            m = (struct deviceInformationTypeTLV *)tlv;
 
             if (m->local_interfaces_nr > 0 && NULL != m->local_interfaces)
             {
@@ -3360,7 +3360,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
             struct deviceBridgingCapabilityTLV *m;
             uint8_t i;
 
-            m = (struct deviceBridgingCapabilityTLV *)memory_structure;
+            m = (struct deviceBridgingCapabilityTLV *)tlv;
 
             for (i=0; i < m->bridging_tuples_nr; i++)
             {
@@ -3382,7 +3382,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
         {
             struct non1905NeighborDeviceListTLV *m;
 
-            m = (struct non1905NeighborDeviceListTLV *)memory_structure;
+            m = (struct non1905NeighborDeviceListTLV *)tlv;
 
             if (m->non_1905_neighbors_nr > 0 && NULL != m->non_1905_neighbors)
             {
@@ -3397,7 +3397,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
         {
             struct neighborDeviceListTLV *m;
 
-            m = (struct neighborDeviceListTLV *)memory_structure;
+            m = (struct neighborDeviceListTLV *)tlv;
 
             if (m->neighbors_nr > 0 && NULL != m->neighbors)
             {
@@ -3413,7 +3413,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
         {
             struct transmitterLinkMetricTLV *m;
 
-            m = (struct transmitterLinkMetricTLV *)memory_structure;
+            m = (struct transmitterLinkMetricTLV *)tlv;
 
             if (m->transmitter_link_metrics_nr > 0 && NULL != m->transmitter_link_metrics)
             {
@@ -3428,7 +3428,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
         {
             struct receiverLinkMetricTLV *m;
 
-            m = (struct receiverLinkMetricTLV *)memory_structure;
+            m = (struct receiverLinkMetricTLV *)tlv;
 
             if (m->receiver_link_metrics_nr > 0 && NULL != m->receiver_link_metrics)
             {
@@ -3443,7 +3443,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
         {
             struct wscTLV *m;
 
-            m = (struct wscTLV *)memory_structure;
+            m = (struct wscTLV *)tlv;
 
             if (m->wsc_frame_size >0 && NULL != m->wsc_frame)
             {
@@ -3458,7 +3458,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
         {
             struct pushButtonEventNotificationTLV *m;
 
-            m = (struct pushButtonEventNotificationTLV *)memory_structure;
+            m = (struct pushButtonEventNotificationTLV *)tlv;
 
             if (m->media_types_nr > 0 && NULL != m->media_types)
             {
@@ -3474,7 +3474,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
             struct genericPhyDeviceInformationTypeTLV *m;
             uint8_t i;
 
-            m = (struct genericPhyDeviceInformationTypeTLV *)memory_structure;
+            m = (struct genericPhyDeviceInformationTypeTLV *)tlv;
 
             for (i=0; i < m->local_interfaces_nr; i++)
             {
@@ -3501,7 +3501,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
         {
             struct controlUrlTypeTLV *m;
 
-            m = (struct controlUrlTypeTLV *)memory_structure;
+            m = (struct controlUrlTypeTLV *)tlv;
 
             if (NULL != m->url)
             {
@@ -3517,7 +3517,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
             struct ipv4TypeTLV *m;
             uint8_t i;
 
-            m = (struct ipv4TypeTLV *)memory_structure;
+            m = (struct ipv4TypeTLV *)tlv;
 
             for (i=0; i < m->ipv4_interfaces_nr; i++)
             {
@@ -3540,7 +3540,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
             struct ipv6TypeTLV *m;
             uint8_t i;
 
-            m = (struct ipv6TypeTLV *)memory_structure;
+            m = (struct ipv6TypeTLV *)tlv;
 
             for (i=0; i < m->ipv6_interfaces_nr; i++)
             {
@@ -3562,7 +3562,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
         {
             struct pushButtonGenericPhyEventNotificationTLV *m;
 
-            m = (struct pushButtonGenericPhyEventNotificationTLV *)memory_structure;
+            m = (struct pushButtonGenericPhyEventNotificationTLV *)tlv;
 
             if (m->local_interfaces_nr > 0 && NULL != m->local_interfaces)
             {
@@ -3578,7 +3578,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
             struct powerOffInterfaceTLV *m;
             uint8_t i;
 
-            m = (struct powerOffInterfaceTLV *)memory_structure;
+            m = (struct powerOffInterfaceTLV *)tlv;
 
             for (i=0; i < m->power_off_interfaces_nr; i++)
             {
@@ -3600,7 +3600,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
         {
             struct interfacePowerChangeInformationTLV *m;
 
-            m = (struct interfacePowerChangeInformationTLV *)memory_structure;
+            m = (struct interfacePowerChangeInformationTLV *)tlv;
 
             if (m->power_change_interfaces_nr > 0 && NULL != m->power_change_interfaces)
             {
@@ -3615,7 +3615,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
         {
             struct interfacePowerChangeStatusTLV *m;
 
-            m = (struct interfacePowerChangeStatusTLV *)memory_structure;
+            m = (struct interfacePowerChangeStatusTLV *)tlv;
 
             if (m->power_change_interfaces_nr > 0 && NULL != m->power_change_interfaces)
             {
@@ -3631,7 +3631,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
             struct l2NeighborDeviceTLV *m;
             uint8_t i, j;
 
-            m = (struct l2NeighborDeviceTLV *)memory_structure;
+            m = (struct l2NeighborDeviceTLV *)tlv;
 
             for (i=0; i < m->local_interfaces_nr; i++)
             {
@@ -3659,7 +3659,7 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 
         default:
         {
-            tlv_free(tlv_1905_defs, alloc_dummy_tlv_list(memory_structure));
+            tlv_free(tlv_1905_defs, alloc_dummy_tlv_list(tlv));
             return;
         }
     }
@@ -3670,9 +3670,9 @@ void free_1905_TLV_structure(uint8_t *memory_structure)
 }
 
 
-uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory_structure_2)
+uint8_t compare_1905_TLV_structures(struct tlv *tlv_1, struct tlv *tlv_2)
 {
-    if (NULL == memory_structure_1 || NULL == memory_structure_2)
+    if (NULL == tlv_1 || NULL == tlv_2)
     {
         return 1;
     }
@@ -3680,19 +3680,19 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
     //
-    if (*memory_structure_1 != *memory_structure_2)
+    if (tlv_1->type != tlv_2->type)
     {
         return 1;
     }
-    switch (*memory_structure_1)
+    switch (tlv_1->type)
     {
         case TLV_TYPE_DEVICE_INFORMATION_TYPE:
         {
             struct deviceInformationTypeTLV *p1, *p2;
             uint8_t i;
 
-            p1 = (struct deviceInformationTypeTLV *)memory_structure_1;
-            p2 = (struct deviceInformationTypeTLV *)memory_structure_2;
+            p1 = (struct deviceInformationTypeTLV *)tlv_1;
+            p2 = (struct deviceInformationTypeTLV *)tlv_2;
 
             if (
                  memcmp(p1->al_mac_address,         p2->al_mac_address, 6) !=0  ||
@@ -3764,8 +3764,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct deviceBridgingCapabilityTLV *p1, *p2;
             uint8_t i, j;
 
-            p1 = (struct deviceBridgingCapabilityTLV *)memory_structure_1;
-            p2 = (struct deviceBridgingCapabilityTLV *)memory_structure_2;
+            p1 = (struct deviceBridgingCapabilityTLV *)tlv_1;
+            p2 = (struct deviceBridgingCapabilityTLV *)tlv_2;
 
             if (
                  p1->bridging_tuples_nr != p2->bridging_tuples_nr
@@ -3809,8 +3809,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct non1905NeighborDeviceListTLV *p1, *p2;
             uint8_t i;
 
-            p1 = (struct non1905NeighborDeviceListTLV *)memory_structure_1;
-            p2 = (struct non1905NeighborDeviceListTLV *)memory_structure_2;
+            p1 = (struct non1905NeighborDeviceListTLV *)tlv_1;
+            p2 = (struct non1905NeighborDeviceListTLV *)tlv_2;
 
             if (
                  memcmp(p1->local_mac_address,        p2->local_mac_address, 6) !=0  ||
@@ -3845,8 +3845,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct neighborDeviceListTLV *p1, *p2;
             uint8_t i;
 
-            p1 = (struct neighborDeviceListTLV *)memory_structure_1;
-            p2 = (struct neighborDeviceListTLV *)memory_structure_2;
+            p1 = (struct neighborDeviceListTLV *)tlv_1;
+            p2 = (struct neighborDeviceListTLV *)tlv_2;
 
             if (
                  memcmp(p1->local_mac_address,     p2->local_mac_address, 6) !=0  ||
@@ -3882,8 +3882,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct transmitterLinkMetricTLV *p1, *p2;
             uint8_t i;
 
-            p1 = (struct transmitterLinkMetricTLV *)memory_structure_1;
-            p2 = (struct transmitterLinkMetricTLV *)memory_structure_2;
+            p1 = (struct transmitterLinkMetricTLV *)tlv_1;
+            p2 = (struct transmitterLinkMetricTLV *)tlv_2;
 
             if (
                  memcmp(p1->local_al_address,              p2->local_al_address,    6) !=0  ||
@@ -3927,8 +3927,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct receiverLinkMetricTLV *p1, *p2;
             uint8_t i;
 
-            p1 = (struct receiverLinkMetricTLV *)memory_structure_1;
-            p2 = (struct receiverLinkMetricTLV *)memory_structure_2;
+            p1 = (struct receiverLinkMetricTLV *)tlv_1;
+            p2 = (struct receiverLinkMetricTLV *)tlv_2;
 
             if (
                  memcmp(p1->local_al_address,           p2->local_al_address,    6) !=0  ||
@@ -3968,8 +3968,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
         {
             struct linkMetricResultCodeTLV *p1, *p2;
 
-            p1 = (struct linkMetricResultCodeTLV *)memory_structure_1;
-            p2 = (struct linkMetricResultCodeTLV *)memory_structure_2;
+            p1 = (struct linkMetricResultCodeTLV *)tlv_1;
+            p2 = (struct linkMetricResultCodeTLV *)tlv_2;
 
             if (
                  p1->result_code != p2->result_code
@@ -3987,8 +3987,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
         {
             struct searchedRoleTLV *p1, *p2;
 
-            p1 = (struct searchedRoleTLV *)memory_structure_1;
-            p2 = (struct searchedRoleTLV *)memory_structure_2;
+            p1 = (struct searchedRoleTLV *)tlv_1;
+            p2 = (struct searchedRoleTLV *)tlv_2;
 
             if (
                  p1->role != p2->role
@@ -4006,8 +4006,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
         {
             struct autoconfigFreqBandTLV *p1, *p2;
 
-            p1 = (struct autoconfigFreqBandTLV *)memory_structure_1;
-            p2 = (struct autoconfigFreqBandTLV *)memory_structure_2;
+            p1 = (struct autoconfigFreqBandTLV *)tlv_1;
+            p2 = (struct autoconfigFreqBandTLV *)tlv_2;
 
             if (
                  p1->freq_band != p2->freq_band
@@ -4025,8 +4025,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
         {
             struct supportedRoleTLV *p1, *p2;
 
-            p1 = (struct supportedRoleTLV *)memory_structure_1;
-            p2 = (struct supportedRoleTLV *)memory_structure_2;
+            p1 = (struct supportedRoleTLV *)tlv_1;
+            p2 = (struct supportedRoleTLV *)tlv_2;
 
             if (
                  p1->role != p2->role
@@ -4044,8 +4044,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
         {
             struct supportedFreqBandTLV *p1, *p2;
 
-            p1 = (struct supportedFreqBandTLV *)memory_structure_1;
-            p2 = (struct supportedFreqBandTLV *)memory_structure_2;
+            p1 = (struct supportedFreqBandTLV *)tlv_1;
+            p2 = (struct supportedFreqBandTLV *)tlv_2;
 
             if (
                  p1->freq_band != p2->freq_band
@@ -4063,8 +4063,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
         {
             struct wscTLV *p1, *p2;
 
-            p1 = (struct wscTLV *)memory_structure_1;
-            p2 = (struct wscTLV *)memory_structure_2;
+            p1 = (struct wscTLV *)tlv_1;
+            p2 = (struct wscTLV *)tlv_2;
 
             if(
                                 p1->wsc_frame_size  !=  p2->wsc_frame_size                     ||
@@ -4082,8 +4082,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct pushButtonEventNotificationTLV *p1, *p2;
             uint8_t i;
 
-            p1 = (struct pushButtonEventNotificationTLV *)memory_structure_1;
-            p2 = (struct pushButtonEventNotificationTLV *)memory_structure_2;
+            p1 = (struct pushButtonEventNotificationTLV *)tlv_1;
+            p2 = (struct pushButtonEventNotificationTLV *)tlv_2;
 
             if (p1->media_types_nr !=  p2->media_types_nr)
             {
@@ -4150,8 +4150,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
         {
             struct pushButtonJoinNotificationTLV *p1, *p2;
 
-            p1 = (struct pushButtonJoinNotificationTLV *)memory_structure_1;
-            p2 = (struct pushButtonJoinNotificationTLV *)memory_structure_2;
+            p1 = (struct pushButtonJoinNotificationTLV *)tlv_1;
+            p2 = (struct pushButtonJoinNotificationTLV *)tlv_2;
 
             if (
                  memcmp(p1->al_mac_address,       p2->al_mac_address, 6) !=0  ||
@@ -4172,8 +4172,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
         {
             struct deviceIdentificationTypeTLV *p1, *p2;
 
-            p1 = (struct deviceIdentificationTypeTLV *)memory_structure_1;
-            p2 = (struct deviceIdentificationTypeTLV *)memory_structure_2;
+            p1 = (struct deviceIdentificationTypeTLV *)tlv_1;
+            p2 = (struct deviceIdentificationTypeTLV *)tlv_2;
 
             if (
                  memcmp(p1->friendly_name,       p2->friendly_name,      64) !=0  ||
@@ -4193,8 +4193,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
         {
             struct controlUrlTypeTLV *p1, *p2;
 
-            p1 = (struct controlUrlTypeTLV *)memory_structure_1;
-            p2 = (struct controlUrlTypeTLV *)memory_structure_2;
+            p1 = (struct controlUrlTypeTLV *)tlv_1;
+            p2 = (struct controlUrlTypeTLV *)tlv_2;
 
             if(
                 memcmp(p1->url, p2->url, strlen(p1->url)+1) !=0
@@ -4213,8 +4213,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct ipv4TypeTLV *p1, *p2;
             uint8_t i, j;
 
-            p1 = (struct ipv4TypeTLV *)memory_structure_1;
-            p2 = (struct ipv4TypeTLV *)memory_structure_2;
+            p1 = (struct ipv4TypeTLV *)tlv_1;
+            p2 = (struct ipv4TypeTLV *)tlv_2;
 
             if (
                  p1->ipv4_interfaces_nr != p2->ipv4_interfaces_nr
@@ -4261,8 +4261,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct ipv6TypeTLV *p1, *p2;
             uint8_t i, j;
 
-            p1 = (struct ipv6TypeTLV *)memory_structure_1;
-            p2 = (struct ipv6TypeTLV *)memory_structure_2;
+            p1 = (struct ipv6TypeTLV *)tlv_1;
+            p2 = (struct ipv6TypeTLV *)tlv_2;
 
             if (
                  p1->ipv6_interfaces_nr != p2->ipv6_interfaces_nr
@@ -4309,8 +4309,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct genericPhyDeviceInformationTypeTLV *p1, *p2;
             uint8_t i;
 
-            p1 = (struct genericPhyDeviceInformationTypeTLV *)memory_structure_1;
-            p2 = (struct genericPhyDeviceInformationTypeTLV *)memory_structure_2;
+            p1 = (struct genericPhyDeviceInformationTypeTLV *)tlv_1;
+            p2 = (struct genericPhyDeviceInformationTypeTLV *)tlv_2;
 
             if (
                  memcmp(p1->al_mac_address,        p2->al_mac_address,     6) !=0  ||
@@ -4352,8 +4352,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct pushButtonGenericPhyEventNotificationTLV *p1, *p2;
             uint8_t i;
 
-            p1 = (struct pushButtonGenericPhyEventNotificationTLV *)memory_structure_1;
-            p2 = (struct pushButtonGenericPhyEventNotificationTLV *)memory_structure_2;
+            p1 = (struct pushButtonGenericPhyEventNotificationTLV *)tlv_1;
+            p2 = (struct pushButtonGenericPhyEventNotificationTLV *)tlv_2;
 
             if (
                  p1->local_interfaces_nr != p2->local_interfaces_nr
@@ -4389,8 +4389,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
         {
             struct x1905ProfileVersionTLV *p1, *p2;
 
-            p1 = (struct x1905ProfileVersionTLV *)memory_structure_1;
-            p2 = (struct x1905ProfileVersionTLV *)memory_structure_2;
+            p1 = (struct x1905ProfileVersionTLV *)tlv_1;
+            p2 = (struct x1905ProfileVersionTLV *)tlv_2;
 
             if (
                  p1->profile != p2->profile
@@ -4409,8 +4409,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct powerOffInterfaceTLV *p1, *p2;
             uint8_t i;
 
-            p1 = (struct powerOffInterfaceTLV *)memory_structure_1;
-            p2 = (struct powerOffInterfaceTLV *)memory_structure_2;
+            p1 = (struct powerOffInterfaceTLV *)tlv_1;
+            p2 = (struct powerOffInterfaceTLV *)tlv_2;
 
             if (
                  p1->power_off_interfaces_nr != p2->power_off_interfaces_nr
@@ -4449,8 +4449,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct interfacePowerChangeInformationTLV *p1, *p2;
             uint8_t i;
 
-            p1 = (struct interfacePowerChangeInformationTLV *)memory_structure_1;
-            p2 = (struct interfacePowerChangeInformationTLV *)memory_structure_2;
+            p1 = (struct interfacePowerChangeInformationTLV *)tlv_1;
+            p2 = (struct interfacePowerChangeInformationTLV *)tlv_2;
 
             if (
                  p1->power_change_interfaces_nr != p2->power_change_interfaces_nr
@@ -4485,8 +4485,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct interfacePowerChangeStatusTLV *p1, *p2;
             uint8_t i;
 
-            p1 = (struct interfacePowerChangeStatusTLV *)memory_structure_1;
-            p2 = (struct interfacePowerChangeStatusTLV *)memory_structure_2;
+            p1 = (struct interfacePowerChangeStatusTLV *)tlv_1;
+            p2 = (struct interfacePowerChangeStatusTLV *)tlv_2;
 
             if (
                  p1->power_change_interfaces_nr != p2->power_change_interfaces_nr
@@ -4521,8 +4521,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
             struct l2NeighborDeviceTLV *p1, *p2;
             uint8_t i, j, k;
 
-            p1 = (struct l2NeighborDeviceTLV *)memory_structure_1;
-            p2 = (struct l2NeighborDeviceTLV *)memory_structure_2;
+            p1 = (struct l2NeighborDeviceTLV *)tlv_1;
+            p2 = (struct l2NeighborDeviceTLV *)tlv_2;
 
             if (
                  p1->local_interfaces_nr != p2->local_interfaces_nr
@@ -4590,8 +4590,8 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
         default:
         {
             uint8_t ret;
-            struct tlv_list *dummy1 = alloc_dummy_tlv_list(memory_structure_1);
-            struct tlv_list *dummy2 = alloc_dummy_tlv_list(memory_structure_2);
+            struct tlv_list *dummy1 = alloc_dummy_tlv_list(tlv_1);
+            struct tlv_list *dummy2 = alloc_dummy_tlv_list(tlv_2);
             if (tlv_compare(tlv_1905_defs, dummy1, dummy2))
             {
                 ret = 0;
@@ -4613,34 +4613,34 @@ uint8_t compare_1905_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory
 }
 
 
-void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
+void visit_1905_TLV_structure(struct tlv *tlv, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     // In order to make it easier for the callback() function to present
     // useful information, append the type of the TLV to the prefix
     //
     char tlv_prefix[MAX_PREFIX];
 
-    if (NULL == memory_structure)
+    if (NULL == tlv)
     {
         return;
     }
 
     snprintf(tlv_prefix, MAX_PREFIX-1, "%sTLV(%s)->",
                       prefix,
-                      convert_1905_TLV_type_to_string(*memory_structure));
+                      convert_1905_TLV_type_to_string(tlv->type));
     tlv_prefix[MAX_PREFIX-1] = 0x0;
 
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
     //
-    switch (*memory_structure)
+    switch (tlv->type)
     {
         case TLV_TYPE_DEVICE_INFORMATION_TYPE:
         {
             struct deviceInformationTypeTLV *p;
             uint8_t i;
 
-            p = (struct deviceInformationTypeTLV *)memory_structure;
+            p = (struct deviceInformationTypeTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->al_mac_address),      "al_mac_address",       "0x%02x",   p->al_mac_address);
             callback(write_function, tlv_prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr",  "%d",       &p->local_interfaces_nr);
@@ -4690,7 +4690,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct deviceBridgingCapabilityTLV *p;
             uint8_t i, j;
 
-            p = (struct deviceBridgingCapabilityTLV *)memory_structure;
+            p = (struct deviceBridgingCapabilityTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->bridging_tuples_nr), "bridging_tuples_nr", "%d",  &p->bridging_tuples_nr);
             for (i=0; i < p->bridging_tuples_nr; i++)
@@ -4719,7 +4719,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct non1905NeighborDeviceListTLV *p;
             uint8_t i;
 
-            p = (struct non1905NeighborDeviceListTLV *)memory_structure;
+            p = (struct non1905NeighborDeviceListTLV *)tlv;
 
             if (p->non_1905_neighbors_nr > 0 && NULL == p->non_1905_neighbors)
             {
@@ -4747,7 +4747,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct neighborDeviceListTLV *p;
             uint8_t i;
 
-            p = (struct neighborDeviceListTLV *)memory_structure;
+            p = (struct neighborDeviceListTLV *)tlv;
 
             if (p->neighbors_nr > 0 && NULL == p->neighbors)
             {
@@ -4776,7 +4776,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct transmitterLinkMetricTLV *p;
             uint8_t i;
 
-            p = (struct transmitterLinkMetricTLV *)memory_structure;
+            p = (struct transmitterLinkMetricTLV *)tlv;
 
             if (NULL == p->transmitter_link_metrics)
             {
@@ -4813,7 +4813,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct receiverLinkMetricTLV *p;
             uint8_t i;
 
-            p = (struct receiverLinkMetricTLV *)memory_structure;
+            p = (struct receiverLinkMetricTLV *)tlv;
 
             if (NULL == p->receiver_link_metrics)
             {
@@ -4846,7 +4846,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
         {
             struct linkMetricResultCodeTLV *p;
 
-            p = (struct linkMetricResultCodeTLV *)memory_structure;
+            p = (struct linkMetricResultCodeTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->result_code), "result_code",  "%d",  &p->result_code);
 
@@ -4857,7 +4857,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
         {
             struct searchedRoleTLV *p;
 
-            p = (struct searchedRoleTLV *)memory_structure;
+            p = (struct searchedRoleTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->role), "role",  "%d",  &p->role);
 
@@ -4868,7 +4868,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
         {
             struct autoconfigFreqBandTLV *p;
 
-            p = (struct autoconfigFreqBandTLV *)memory_structure;
+            p = (struct autoconfigFreqBandTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->freq_band), "freq_band",  "%d",  &p->freq_band);
 
@@ -4879,7 +4879,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
         {
             struct supportedRoleTLV *p;
 
-            p = (struct supportedRoleTLV *)memory_structure;
+            p = (struct supportedRoleTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->role), "role",  "%d",  &p->role);
 
@@ -4890,7 +4890,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
         {
             struct supportedFreqBandTLV *p;
 
-            p = (struct supportedFreqBandTLV *)memory_structure;
+            p = (struct supportedFreqBandTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->freq_band), "freq_band",  "%d",  &p->freq_band);
 
@@ -4901,7 +4901,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
         {
             struct wscTLV *p;
 
-            p = (struct wscTLV *)memory_structure;
+            p = (struct wscTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->wsc_frame_size), "wsc_frame_size",  "%d",      &p->wsc_frame_size);
             callback(write_function, tlv_prefix, p->wsc_frame_size,         "wsc_frame",       "0x%02x",   p->wsc_frame);
@@ -4914,7 +4914,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct pushButtonEventNotificationTLV *p;
             uint8_t i;
 
-            p = (struct pushButtonEventNotificationTLV *)memory_structure;
+            p = (struct pushButtonEventNotificationTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->media_types_nr), "media_types_nr",  "0x%02x",  &p->media_types_nr);
             for (i=0; i < p->media_types_nr; i++)
@@ -4961,7 +4961,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
         {
             struct pushButtonJoinNotificationTLV *p;
 
-            p = (struct pushButtonJoinNotificationTLV *)memory_structure;
+            p = (struct pushButtonJoinNotificationTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->al_mac_address),     "al_mac_address",      "0x%02x",   p->al_mac_address);
             callback(write_function, tlv_prefix, sizeof(p->message_identifier), "message_identifier",  "%d",      &p->message_identifier);
@@ -4975,7 +4975,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct genericPhyDeviceInformationTypeTLV *p;
             uint8_t i;
 
-            p = (struct genericPhyDeviceInformationTypeTLV *)memory_structure;
+            p = (struct genericPhyDeviceInformationTypeTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->al_mac_address),      "al_mac_address",      "0x%02x",  &p->al_mac_address);
             callback(write_function, tlv_prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr", "%d",      &p->local_interfaces_nr);
@@ -5003,7 +5003,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
         {
             struct deviceIdentificationTypeTLV *p;
 
-            p = (struct deviceIdentificationTypeTLV *)memory_structure;
+            p = (struct deviceIdentificationTypeTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->friendly_name),      "friendly_name",       "%s",   p->friendly_name);
             callback(write_function, tlv_prefix, sizeof(p->manufacturer_name),  "manufacturer_name",   "%s",   p->manufacturer_name);
@@ -5015,7 +5015,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
         {
             struct controlUrlTypeTLV *p;
 
-            p = (struct controlUrlTypeTLV *)memory_structure;
+            p = (struct controlUrlTypeTLV *)tlv;
 
             callback(write_function, tlv_prefix, strlen(p->url)+1, "url", "%s", p->url);
 
@@ -5027,7 +5027,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct ipv4TypeTLV *p;
             uint8_t i, j;
 
-            p = (struct ipv4TypeTLV *)memory_structure;
+            p = (struct ipv4TypeTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->ipv4_interfaces_nr), "ipv4_interfaces_nr", "%d",  &p->ipv4_interfaces_nr);
             for (i=0; i < p->ipv4_interfaces_nr; i++)
@@ -5059,7 +5059,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct ipv6TypeTLV *p;
             uint8_t i, j;
 
-            p = (struct ipv6TypeTLV *)memory_structure;
+            p = (struct ipv6TypeTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->ipv6_interfaces_nr), "ipv6_interfaces_nr", "%d",  &p->ipv6_interfaces_nr);
             for (i=0; i < p->ipv6_interfaces_nr; i++)
@@ -5091,7 +5091,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct pushButtonGenericPhyEventNotificationTLV *p;
             uint8_t i;
 
-            p = (struct pushButtonGenericPhyEventNotificationTLV *)memory_structure;
+            p = (struct pushButtonGenericPhyEventNotificationTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr", "%d",  &p->local_interfaces_nr);
             for (i=0; i < p->local_interfaces_nr; i++)
@@ -5114,7 +5114,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
         {
             struct x1905ProfileVersionTLV *p;
 
-            p = (struct x1905ProfileVersionTLV *)memory_structure;
+            p = (struct x1905ProfileVersionTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->profile), "profile",  "%d",  &p->profile);
 
@@ -5126,7 +5126,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct powerOffInterfaceTLV *p;
             uint8_t i;
 
-            p = (struct powerOffInterfaceTLV *)memory_structure;
+            p = (struct powerOffInterfaceTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->power_off_interfaces_nr), "power_off_interfaces_nr", "%d",  &p->power_off_interfaces_nr);
             for (i=0; i < p->power_off_interfaces_nr; i++)
@@ -5152,7 +5152,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct interfacePowerChangeInformationTLV *p;
             uint8_t i;
 
-            p = (struct interfacePowerChangeInformationTLV *)memory_structure;
+            p = (struct interfacePowerChangeInformationTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->power_change_interfaces_nr), "power_change_interfaces_nr", "%d",  &p->power_change_interfaces_nr);
             for (i=0; i < p->power_change_interfaces_nr; i++)
@@ -5174,7 +5174,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct interfacePowerChangeStatusTLV *p;
             uint8_t i;
 
-            p = (struct interfacePowerChangeStatusTLV *)memory_structure;
+            p = (struct interfacePowerChangeStatusTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->power_change_interfaces_nr), "power_change_interfaces_nr", "%d",  &p->power_change_interfaces_nr);
             for (i=0; i < p->power_change_interfaces_nr; i++)
@@ -5196,7 +5196,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
             struct l2NeighborDeviceTLV *p;
             uint8_t i, j, k;
 
-            p = (struct l2NeighborDeviceTLV *)memory_structure;
+            p = (struct l2NeighborDeviceTLV *)tlv;
 
             callback(write_function, tlv_prefix, sizeof(p->local_interfaces_nr), "local_interfaces_nr", "%d",  &p->local_interfaces_nr);
             for (i=0; i < p->local_interfaces_nr; i++)
@@ -5232,7 +5232,7 @@ void visit_1905_TLV_structure(uint8_t *memory_structure, visitor_callback callba
 
         default:
         {
-            struct tlv_list *dummy = alloc_dummy_tlv_list(memory_structure);
+            struct tlv_list *dummy = alloc_dummy_tlv_list(tlv);
             tlv_print(tlv_1905_defs, dummy, write_function, prefix);
             free_dummy_tlv_list(dummy);
 

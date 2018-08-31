@@ -51,7 +51,7 @@ struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(uint8_t *packet_stream)
 
     while (1)
     {
-        uint8_t *tlv;
+        struct tlv *tlv;
 
         uint8_t byte1, byte2;
         uint16_t len;
@@ -74,7 +74,7 @@ struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(uint8_t *packet_stream)
         // We need to check if we have reach the "end of LLPDPDU" TLV (ie. the
         // last one)
         //
-        if (TLV_TYPE_END_OF_LLDPPDU == *tlv)
+        if (TLV_TYPE_END_OF_LLDPPDU == tlv->type)
         {
             free_lldp_TLV_structure(tlv);
             break;
@@ -116,15 +116,15 @@ struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(uint8_t *packet_stream)
 
         for (j=0; j<i; j++)
         {
-            if      (TLV_TYPE_CHASSIS_ID    == *(ret->list_of_TLVs[j]))
+            if      (TLV_TYPE_CHASSIS_ID    == ret->list_of_TLVs[j]->type)
             {
                 chassis_id++;
             }
-            else if (TLV_TYPE_PORT_ID       == *(ret->list_of_TLVs[j]))
+            else if (TLV_TYPE_PORT_ID       == ret->list_of_TLVs[j]->type)
             {
                 port_id++;
             }
-            else if (TLV_TYPE_TIME_TO_LIVE  == *(ret->list_of_TLVs[j]))
+            else if (TLV_TYPE_TIME_TO_LIVE  == ret->list_of_TLVs[j]->type)
             {
                 time_to_live++;
             }
@@ -181,17 +181,17 @@ uint8_t *forge_lldp_PAYLOAD_from_structure(struct PAYLOAD *memory_structure, uin
                 break;
             }
 
-            if      (TLV_TYPE_CHASSIS_ID    == *(memory_structure->list_of_TLVs[i]))
+            if      (TLV_TYPE_CHASSIS_ID    == memory_structure->list_of_TLVs[i]->type)
             {
                 chassis_id++;
                 x = (struct chassisIdTLV *)memory_structure->list_of_TLVs[i];
             }
-            else if (TLV_TYPE_PORT_ID       == *(memory_structure->list_of_TLVs[i]))
+            else if (TLV_TYPE_PORT_ID       == memory_structure->list_of_TLVs[i]->type)
             {
                 port_id++;
                 y = (struct portIdTLV *)memory_structure->list_of_TLVs[i];
             }
-            else if (TLV_TYPE_TIME_TO_LIVE  == *(memory_structure->list_of_TLVs[i]))
+            else if (TLV_TYPE_TIME_TO_LIVE  == memory_structure->list_of_TLVs[i]->type)
             {
                 time_to_live++;
                 z = (struct timeToLiveTypeTLV *)memory_structure->list_of_TLVs[i];
@@ -222,7 +222,7 @@ uint8_t *forge_lldp_PAYLOAD_from_structure(struct PAYLOAD *memory_structure, uin
     //
     total_len = 0;
 
-    stream = forge_lldp_TLV_from_structure((uint8_t *)x, &stream_len);
+    stream = forge_lldp_TLV_from_structure(&x->tlv, &stream_len);
     if (NULL == stream)
     {
         // Could not forge the packet. Error?
@@ -235,7 +235,7 @@ uint8_t *forge_lldp_PAYLOAD_from_structure(struct PAYLOAD *memory_structure, uin
     free(stream);
     total_len += stream_len;
 
-    stream = forge_lldp_TLV_from_structure((uint8_t *)y, &stream_len);
+    stream = forge_lldp_TLV_from_structure(&y->tlv, &stream_len);
     if (NULL == stream)
     {
         // Could not forge the packet. Error?
@@ -248,7 +248,7 @@ uint8_t *forge_lldp_PAYLOAD_from_structure(struct PAYLOAD *memory_structure, uin
     free(stream);
     total_len += stream_len;
 
-    stream = forge_lldp_TLV_from_structure((uint8_t *)z, &stream_len);
+    stream = forge_lldp_TLV_from_structure(&z->tlv, &stream_len);
     if (NULL == stream)
     {
         // Could not forge the packet. Error?
@@ -261,7 +261,7 @@ uint8_t *forge_lldp_PAYLOAD_from_structure(struct PAYLOAD *memory_structure, uin
     free(stream);
     total_len += stream_len;
 
-    stream = forge_lldp_TLV_from_structure((uint8_t *)&end_of_lldppdu_tlv, &stream_len);
+    stream = forge_lldp_TLV_from_structure(&end_of_lldppdu_tlv.tlv, &stream_len);
     if (NULL == stream)
     {
         // Could not forge the packet. Error?
@@ -354,7 +354,7 @@ void visit_lldp_PAYLOAD_structure(struct PAYLOAD *memory_structure, visitor_call
         //
         char new_prefix[MAX_PREFIX];
 
-        switch(*(memory_structure->list_of_TLVs[i]))
+        switch(memory_structure->list_of_TLVs[i]->type)
         {
             case TLV_TYPE_END_OF_LLDPPDU:
             {

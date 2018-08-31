@@ -62,7 +62,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // interface MACs are seen on each interface) and send a "topology
             // query" message asking for more details.
 
-            uint8_t *p;
+            struct tlv *p;
             uint8_t  i;
 
             uint8_t  dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -95,7 +95,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             i = 0;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
                     {
@@ -115,7 +115,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
                         break;
                     }
                 }
@@ -193,7 +193,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // The "sender" AL MAC address is contained in the unique TLV
             // embedded in the just received "topology notification" CMDU.
 
-            uint8_t *p;
+            struct tlv *p;
             uint8_t  i;
 
             uint8_t dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -217,7 +217,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             i = 0;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
                     {
@@ -229,7 +229,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
                         break;
                     }
                 }
@@ -328,7 +328,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // internal database (that keeps track of which 1905 devices are
             // present in the network)
 
-            uint8_t *p;
+            struct tlv *p;
             uint8_t  i;
 
             struct deviceInformationTypeTLV      *info = NULL;
@@ -367,7 +367,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             i                    = 0;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_DEVICE_INFORMATION_TYPE:
                     {
@@ -413,7 +413,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
                         break;
                     }
                 }
@@ -453,7 +453,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             i  = 0;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_DEVICE_INFORMATION_TYPE:
                     {
@@ -660,10 +660,11 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
         }
         case CMDU_TYPE_LINK_METRIC_QUERY:
         {
-            uint8_t *p;
+            struct tlv *p;
             uint8_t  i;
 
             uint8_t *dst_mac;
+            uint8_t *al_mac;
 
             struct linkMetricQueryTLV *t;
 
@@ -681,7 +682,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             t = NULL;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_LINK_METRIC_QUERY:
                     {
@@ -697,7 +698,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
                         break;
                     }
                 }
@@ -749,9 +750,9 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // The only thing we can do at this point is try to search our AL
             // neighbors data base for a matching MAC.
             //
-            p = DMmacToAlMac(src_addr);
+            al_mac = DMmacToAlMac(src_addr);
 
-            if (NULL == p)
+            if (NULL == al_mac)
             {
                 // The standard says we should always send to the AL MAC
                 // address, however, in these cases, instead of just dropping
@@ -763,7 +764,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             }
             else
             {
-                dst_mac = p;
+                dst_mac = al_mac;
             }
 
             if ( 0 == send1905MetricsResponsePacket(DMmacToInterfaceName(receiving_interface_addr), c->message_id, dst_mac, t->destination, t->specific_neighbor, t->link_metrics_type))
@@ -771,9 +772,9 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'metrics response' message\n");
             }
 
-            if (NULL != p)
+            if (NULL != al_mac)
             {
-                free(p);
+                free(al_mac);
             }
 
             break;
@@ -784,7 +785,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // internal database (that keeps track of which 1905 devices are
             // present in the network)
 
-            uint8_t *p;
+            struct tlv *p;
             uint8_t  i;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_LINK_METRIC_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
@@ -802,12 +803,12 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             i = 0;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_TRANSMITTER_LINK_METRIC:
                     case TLV_TYPE_RECEIVER_LINK_METRIC:
                     {
-                        DMupdateNetworkDeviceMetrics(p);
+                        DMupdateNetworkDeviceMetrics((uint8_t*)p);
                         break;
                     }
                     case TLV_TYPE_VENDOR_SPECIFIC:
@@ -820,7 +821,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
 
                         free_1905_TLV_structure(p);
                         break;
@@ -850,7 +851,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // response" message must be sent.
             // Otherwise, the message is ignored.
 
-            uint8_t *p;
+            struct tlv *p;
             uint8_t i;
 
             uint8_t dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -892,7 +893,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             i = 0;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
                     {
@@ -934,7 +935,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
                         break;
                     }
                 }
@@ -1028,7 +1029,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // the same freq band as the one contained in the message and send
             // a AP-autoconfig WSC-M1
 
-            uint8_t *p;
+            struct tlv *p;
             uint8_t i;
 
             char **ifs_names;
@@ -1059,7 +1060,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             i = 0;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_SUPPORTED_ROLE:
                     {
@@ -1081,7 +1082,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
                         break;
                     }
                 }
@@ -1209,7 +1210,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
         }
         case CMDU_TYPE_AP_AUTOCONFIGURATION_WSC:
         {
-            uint8_t *p;
+            struct tlv *p;
             uint8_t i;
 
             uint8_t  *wsc_frame;
@@ -1235,7 +1236,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             i = 0;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_WSC:
                     {
@@ -1248,7 +1249,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
                         break;
                     }
                 }
@@ -1362,7 +1363,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             //           the received message did not contain 802.11 media type
             //           information.
 
-            uint8_t *p;
+            struct tlv *p;
             uint8_t i;
 
             uint8_t dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -1391,7 +1392,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             i = 0;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
                     {
@@ -1429,7 +1430,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
                         break;
                     }
                 }
@@ -1584,7 +1585,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
             struct genericPhyDeviceInformationTypeTLV *t;
 
-            uint8_t *p;
+            struct tlv *p;
             uint8_t  i;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_GENERIC_PHY_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
@@ -1602,7 +1603,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             t = NULL;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_GENERIC_PHY_DEVICE_INFORMATION:
                     {
@@ -1619,7 +1620,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
 
                         free_1905_TLV_structure(p);
                         break;
@@ -1670,7 +1671,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // list of items inside a "high layer response" CMDU.
 
             uint8_t *dst_mac;
-            uint8_t *p;
+            uint8_t *al_mac;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_HIGHER_LAYER_QUERY (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -1679,9 +1680,9 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // The only thing we can do at this point is try to search our AL
             // neighbors data base for a matching MAC.
             //
-            p = DMmacToAlMac(src_addr);
+            al_mac = DMmacToAlMac(src_addr);
 
-            if (NULL == p)
+            if (NULL == al_mac)
             {
                 // The standard says we should always send to the AL MAC
                 // address, however, in these cases, instead of just dropping
@@ -1693,7 +1694,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             }
             else
             {
-                dst_mac = p;
+                dst_mac = al_mac;
             }
 
             if ( 0 == send1905HighLayerResponsePacket(DMmacToInterfaceName(receiving_interface_addr), c->message_id, dst_mac))
@@ -1701,9 +1702,9 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'high layer response' message\n");
             }
 
-            if (NULL != p)
+            if (NULL != al_mac)
             {
-                free(p);
+                free(al_mac);
             }
 
             break;
@@ -1723,7 +1724,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             uint8_t  al_mac_address[6];
             uint8_t  al_mac_address_is_present;
 
-            uint8_t *p;
+            struct tlv *p;
             uint8_t  i;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_HIGHER_LAYER_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
@@ -1743,7 +1744,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             al_mac_address_is_present = 0;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_AL_MAC_ADDRESS_TYPE:
                     {
@@ -1783,7 +1784,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
 
                         free_1905_TLV_structure(p);
                         break;
@@ -1839,7 +1840,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
             struct interfacePowerChangeInformationTLV *t;
 
-            uint8_t *p;
+            struct tlv *p;
             uint8_t  i;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_INTERFACE_POWER_CHANGE_REQUEST (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
@@ -1856,7 +1857,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             t = NULL;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION:
                     {
@@ -1865,7 +1866,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
 
                         break;
                     }
@@ -1944,7 +1945,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
             struct interfacePowerChangeStatusTLV *t;
 
-            uint8_t *p;
+            struct tlv *p;
             uint8_t  i;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_INTERFACE_POWER_CHANGE_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
@@ -1961,7 +1962,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             t = NULL;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
-                switch (*p)
+                switch (p->type)
                 {
                     case TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS:
                     {
@@ -1970,7 +1971,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     default:
                     {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", *p);
+                        PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
 
                         break;
                     }
@@ -2009,7 +2010,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
 uint8_t processLlpdPayload(struct PAYLOAD *payload, uint8_t *receiving_interface_addr)
 {
-    uint8_t *p;
+    struct tlv *p;
     uint8_t  i;
 
     uint8_t dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -2038,7 +2039,7 @@ uint8_t processLlpdPayload(struct PAYLOAD *payload, uint8_t *receiving_interface
     i = 0;
     while (NULL != (p = payload->list_of_TLVs[i]))
     {
-        switch (*p)
+        switch (p->type)
         {
             case TLV_TYPE_CHASSIS_ID:
             {

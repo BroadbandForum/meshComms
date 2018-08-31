@@ -28,7 +28,7 @@
 struct PAYLOAD
 {
     #define MAX_LLDP_TLVS 10
-    uint8_t   *list_of_TLVs[MAX_LLDP_TLVS+1];
+    struct tlv   *list_of_TLVs[MAX_LLDP_TLVS+1];
                                    // NULL-terminated list of pointers to TLV
                                    // structures.
                                    // The "end of lldppdu" TLV is not included

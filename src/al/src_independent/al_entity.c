@@ -468,12 +468,12 @@ uint8_t _checkDuplicates(uint8_t *src_mac_address, struct CMDU *c)
     if (1 == c->relay_indicator)
     {
         uint8_t i;
-        uint8_t *p;
+        struct tlv *p;
 
         i = 0;
         while (NULL != (p = c->list_of_TLVs[i]))
         {
-            if (TLV_TYPE_AL_MAC_ADDRESS_TYPE == *p)
+            if (TLV_TYPE_AL_MAC_ADDRESS_TYPE == p->type)
             {
                 struct alMacAddressTypeTLV *t = (struct alMacAddressTypeTLV *)p;
 
