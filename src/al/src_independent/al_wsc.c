@@ -200,7 +200,7 @@ void _wps_key_derivation_function(uint8_t *key, uint8_t *label_prefix, uint32_t 
     uint8_t i_buf[4];
     uint8_t key_bits[4];
 
-    uint8_t   *addr[4];
+    const uint8_t   *addr[4];
     uint32_t   len[4];
 
     uint32_t i, iter;
@@ -576,9 +576,9 @@ uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void 
     return 1;
 }
 
-uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, uint8_t *m2, uint16_t m2_size)
+uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m2, uint16_t m2_size)
 {
-    uint8_t         *p;
+    const uint8_t         *p;
     struct wscKey *k;
 
     // "Useful data" we want to extract from M2
@@ -598,26 +598,26 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, uint8_t *m2, uin
     // "Intermediary data" we also need to extract from M2 to obtain the keys
     // that will let us decrypt the "useful data" from M2
     //
-    uint8_t  *m2_nonce;                  uint8_t m2_nonce_present;
-    uint8_t  *m2_pubkey;                 uint8_t m2_pubkey_present;
+    const uint8_t  *m2_nonce;                  uint8_t m2_nonce_present;
+    const uint8_t  *m2_pubkey;                 uint8_t m2_pubkey_present;
     uint16_t  m2_pubkey_len;
-    uint8_t  *m2_encrypted_settings;     uint8_t m2_encrypted_settings_present;
+    const uint8_t  *m2_encrypted_settings;     uint8_t m2_encrypted_settings_present;
     uint16_t  m2_encrypted_settings_len;
-    uint8_t  *m2_authenticator;          uint8_t m2_authenticator_present;
+    const uint8_t  *m2_authenticator;          uint8_t m2_authenticator_present;
 
     // "Intermediary data" we also need to extract from M1 to obtain the keys
     // that will let us decrypt the "useful data" from M2
     //
-    uint8_t  *m1_nonce;                  uint8_t m1_nonce_present;
-    /*uint8_t  *m1_pubkey;*/               uint8_t m1_pubkey_present;
+    const uint8_t  *m1_nonce;                  uint8_t m1_nonce_present;
+    /*const uint8_t  *m1_pubkey;*/               uint8_t m1_pubkey_present;
     uint16_t  m1_pubkey_len;
 
     // "Intermediary data" contained in the "key" argument also needed to obtain
     // the keys that will let us decrypt the "useful data" from M2
     //
-    uint8_t  *m1_privkey;
+    const uint8_t  *m1_privkey;
     uint16_t  m1_privkey_len;
-    uint8_t  *m1_mac;
+    const uint8_t  *m1_mac;
 
     if (NULL == m1)
     {
@@ -760,7 +760,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, uint8_t *m2, uin
         uint8_t  *shared_secret;
         uint16_t  shared_secret_len;
 
-        uint8_t  *addr[3];
+        const uint8_t  *addr[3];
         uint32_t  len[3];
 
         uint8_t   dhkey[SHA256_MAC_LEN];
@@ -833,7 +833,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, uint8_t *m2, uin
         //
         uint8_t   hash[SHA256_MAC_LEN];
 
-        uint8_t  *addr[2];
+        const uint8_t  *addr[2];
         uint32_t  len[2];
 
         addr[0] = m1;
@@ -858,7 +858,8 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, uint8_t *m2, uin
 
         uint8_t m2_keywrap_present;
 
-        plain     = m2_encrypted_settings + AES_BLOCK_SIZE;
+        /* Decryption is done in-place in the receive buffer, so const cast is needed */
+        plain     = (uint8_t *)m2_encrypted_settings + AES_BLOCK_SIZE;
         plain_len = m2_encrypted_settings_len - AES_BLOCK_SIZE;
 
         PLATFORM_PRINTF_DEBUG_DETAIL("AP settings before decryption (%d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", plain_len, plain[0], plain[1], plain[2], plain[plain_len-3], plain[plain_len-2], plain[plain_len-1]);
@@ -922,10 +923,10 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, uint8_t *m2, uin
                 // is the end of the plain text blob whose HMAC we are going to
                 // compute to check the keywrap.
                 //
-                uint8_t *end_of_hmac;
+                const uint8_t *end_of_hmac;
                 uint8_t  hash[SHA256_MAC_LEN];
 
-                uint8_t  *addr[1];
+                const uint8_t  *addr[1];
                 uint32_t  len[1];
 
                 end_of_hmac = p - 4;
@@ -984,15 +985,16 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
 
     struct interfaceInfo  *x;
 
-    uint8_t *p;
+    const uint8_t *p1;
+    uint8_t *p2;
 
     uint8_t  aux8;
     uint16_t aux16;
     uint32_t aux32;
 
-    uint8_t  *m1_mac_address;      uint8_t m1_mac_address_present;
-    uint8_t  *m1_nonce;            uint8_t m1_nonce_present;
-    uint8_t  *m1_pubkey;           uint8_t m1_pubkey_present;
+    const uint8_t  *m1_mac_address;      uint8_t m1_mac_address_present;
+    const uint8_t  *m1_nonce;            uint8_t m1_nonce_present;
+    const uint8_t  *m1_pubkey;           uint8_t m1_pubkey_present;
     uint16_t  m1_pubkey_len;
 
     uint8_t  *local_privkey;
@@ -1027,14 +1029,14 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
     m1_mac_address_present = 0;
     m1_nonce_present       = 0;
     m1_pubkey_present      = 0;
-    p                      = m1;
-    while (p - m1 < m1_size)
+    p1                      = m1;
+    while (p1 - m1 < m1_size)
     {
         uint16_t attr_type;
         uint16_t attr_len;
 
-        _E2B(&p, &attr_type);
-        _E2B(&p, &attr_len);
+        _E2B(&p1, &attr_type);
+        _E2B(&p1, &attr_len);
 
         if (ATTR_MAC_ADDR == attr_type)
         {
@@ -1043,9 +1045,9 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
                 PLATFORM_PRINTF_DEBUG_WARNING("Incorrect length (%d) for ATTR_MAC_ADDR\n", attr_len);
                 return 0;
             }
-            m1_mac_address = p;
+            m1_mac_address = p1;
 
-            p += attr_len;
+            p1 += attr_len;
             m1_mac_address_present = 1;
         }
         else if (ATTR_ENROLLEE_NONCE == attr_type)
@@ -1055,22 +1057,22 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
                 PLATFORM_PRINTF_DEBUG_WARNING("Incorrect length (%d) for ATTR_ENROLLEE_NONCE\n", attr_len);
                 return 0;
             }
-            m1_nonce = p;
+            m1_nonce = p1;
 
-            p += attr_len;
+            p1 += attr_len;
             m1_nonce_present = 1;
         }
         else if (ATTR_PUBLIC_KEY == attr_type)
         {
             m1_pubkey_len = attr_len;
-            m1_pubkey = p;
+            m1_pubkey = p1;
 
-            p += attr_len;
+            p1 += attr_len;
             m1_pubkey_present = 1;
         }
         else
         {
-            p += attr_len;
+            p1 += attr_len;
         }
     }
     if (
@@ -1092,43 +1094,43 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
     }
 
     buffer = (uint8_t *)memalloc(sizeof(uint8_t)*1000);
-    p      = buffer;
+    p2      = buffer;
 
     // VERSION
     {
-        aux16 = ATTR_VERSION;                                             _I2B(&aux16,     &p);
-        aux16 = 1;                                                        _I2B(&aux16,     &p);
-        aux8  = 0x10;                                                     _I1B(&aux8,      &p);
+        aux16 = ATTR_VERSION;                                             _I2B(&aux16,     &p2);
+        aux16 = 1;                                                        _I2B(&aux16,     &p2);
+        aux8  = 0x10;                                                     _I1B(&aux8,      &p2);
     }
 
     // MESSAGE TYPE
     {
-        aux16 = ATTR_MSG_TYPE;                                            _I2B(&aux16,     &p);
-        aux16 = 1;                                                        _I2B(&aux16,     &p);
-        aux8  = WPS_M2;                                                   _I1B(&aux8,      &p);
+        aux16 = ATTR_MSG_TYPE;                                            _I2B(&aux16,     &p2);
+        aux16 = 1;                                                        _I2B(&aux16,     &p2);
+        aux8  = WPS_M2;                                                   _I1B(&aux8,      &p2);
     }
 
     // ENROLLEE NONCE
     {
-        aux16 = ATTR_ENROLLEE_NONCE;                                      _I2B(&aux16,     &p);
-        aux16 = 16;                                                       _I2B(&aux16,     &p);
-                                                                          _InB( m1_nonce,  &p, 16);
+        aux16 = ATTR_ENROLLEE_NONCE;                                      _I2B(&aux16,     &p2);
+        aux16 = 16;                                                       _I2B(&aux16,     &p2);
+                                                                          _InB( m1_nonce,  &p2, 16);
     }
 
     // REGISTRAR NONCE
     {
         PLATFORM_GET_RANDOM_BYTES(registrar_nonce, 16);
 
-        aux16 = ATTR_REGISTRAR_NONCE;                                     _I2B(&aux16,           &p);
-        aux16 = 16;                                                       _I2B(&aux16,           &p);
-                                                                          _InB( registrar_nonce, &p, 16);
+        aux16 = ATTR_REGISTRAR_NONCE;                                     _I2B(&aux16,           &p2);
+        aux16 = 16;                                                       _I2B(&aux16,           &p2);
+                                                                          _InB( registrar_nonce, &p2, 16);
     }
 
     // UUID
     {
-        aux16 = ATTR_UUID_R;                                              _I2B(&aux16,     &p);
-        aux16 = 16;                                                       _I2B(&aux16,     &p);
-                                                                          _InB( x->uuid,   &p, 16);
+        aux16 = ATTR_UUID_R;                                              _I2B(&aux16,     &p2);
+        aux16 = 16;                                                       _I2B(&aux16,     &p2);
+                                                                          _InB( x->uuid,   &p2, 16);
     }
 
     // PUBLIC KEY
@@ -1139,9 +1141,9 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         PLATFORM_GENERATE_DH_KEY_PAIR(&priv, &priv_len, &pub, &pub_len);
         // TODO: ZERO PAD the pub key (doesn't seem to be really needed though)
 
-        aux16 = ATTR_PUBLIC_KEY;                                          _I2B(&aux16,       &p);
-        aux16 = pub_len;                                                  _I2B(&aux16,       &p);
-                                                                          _InB( pub,         &p, pub_len);
+        aux16 = ATTR_PUBLIC_KEY;                                          _I2B(&aux16,       &p2);
+        aux16 = pub_len;                                                  _I2B(&aux16,       &p2);
+                                                                          _InB( pub,         &p2, pub_len);
 
         // We will use it later... save it.
         //
@@ -1156,7 +1158,7 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         uint8_t  *shared_secret;
         uint16_t  shared_secret_len;
 
-        uint8_t  *addr[3];
+        const uint8_t  *addr[3];
         uint32_t  len[3];
 
         uint8_t   dhkey[SHA256_MAC_LEN];
@@ -1245,9 +1247,9 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
             auth_types |= WPS_AUTH_WPA2PSK;
         }
 
-        aux16 = ATTR_AUTH_TYPE_FLAGS;                                     _I2B(&aux16,      &p);
-        aux16 = 2;                                                        _I2B(&aux16,      &p);
-                                                                          _I2B(&auth_types, &p);
+        aux16 = ATTR_AUTH_TYPE_FLAGS;                                     _I2B(&aux16,      &p2);
+        aux16 = 2;                                                        _I2B(&aux16,      &p2);
+                                                                          _I2B(&auth_types, &p2);
     }
 
     // ENCRYPTION TYPES
@@ -1266,9 +1268,9 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         {
             encryption_types |= WPS_ENCR_AES;
         }
-        aux16 = ATTR_ENCR_TYPE_FLAGS;                                     _I2B(&aux16,            &p);
-        aux16 = 2;                                                        _I2B(&aux16,            &p);
-                                                                          _I2B(&encryption_types, &p);
+        aux16 = ATTR_ENCR_TYPE_FLAGS;                                     _I2B(&aux16,            &p2);
+        aux16 = 2;                                                        _I2B(&aux16,            &p2);
+                                                                          _I2B(&encryption_types, &p2);
     }
 
     // CONNECTION TYPES
@@ -1278,9 +1280,9 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         // credentials cloned by other APs in order to end up with a network
         // which is "roaming-friendly" ("ESS": "extended service set")
 
-        aux16 = ATTR_CONN_TYPE_FLAGS;                                     _I2B(&aux16,     &p);
-        aux16 = 1;                                                        _I2B(&aux16,     &p);
-        aux8  = WPS_CONN_ESS;                                             _I1B(&aux8,      &p);
+        aux16 = ATTR_CONN_TYPE_FLAGS;                                     _I2B(&aux16,     &p2);
+        aux16 = 1;                                                        _I2B(&aux16,     &p2);
+        aux8  = WPS_CONN_ESS;                                             _I1B(&aux8,      &p2);
     }
 
     // CONFIGURATION METHODS
@@ -1288,37 +1290,37 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         // In the 1905 context, the configuration methods the AP is willing to
         // offer will always be these two
 
-        aux16 = ATTR_CONFIG_METHODS;                                      _I2B(&aux16,     &p);
-        aux16 = 2;                                                        _I2B(&aux16,     &p);
-        aux16 = WPS_CONFIG_PHY_PUSHBUTTON | WPS_CONFIG_VIRT_PUSHBUTTON;   _I2B(&aux16,     &p);
+        aux16 = ATTR_CONFIG_METHODS;                                      _I2B(&aux16,     &p2);
+        aux16 = 2;                                                        _I2B(&aux16,     &p2);
+        aux16 = WPS_CONFIG_PHY_PUSHBUTTON | WPS_CONFIG_VIRT_PUSHBUTTON;   _I2B(&aux16,     &p2);
     }
 
     // MANUFACTURER
     {
-        aux16 = ATTR_MANUFACTURER;                                        _I2B(&aux16,                &p);
-        aux16 = strlen(x->manufacturer_name);                    _I2B(&aux16,                &p);
-                                                                          _InB( x->manufacturer_name, &p, strlen(x->manufacturer_name));
+        aux16 = ATTR_MANUFACTURER;                                        _I2B(&aux16,                &p2);
+        aux16 = strlen(x->manufacturer_name);                    _I2B(&aux16,                &p2);
+                                                                          _InB( x->manufacturer_name, &p2, strlen(x->manufacturer_name));
     }
 
     // MODEL NAME
     {
-        aux16 = ATTR_MODEL_NAME;                                          _I2B(&aux16,         &p);
-        aux16 = strlen(x->model_name);                           _I2B(&aux16,         &p);
-                                                                          _InB( x->model_name, &p, strlen(x->model_name));
+        aux16 = ATTR_MODEL_NAME;                                          _I2B(&aux16,         &p2);
+        aux16 = strlen(x->model_name);                           _I2B(&aux16,         &p2);
+                                                                          _InB( x->model_name, &p2, strlen(x->model_name));
     }
 
     // MODEL NUMBER
     {
-        aux16 = ATTR_MODEL_NUMBER;                                        _I2B(&aux16,           &p);
-        aux16 = strlen(x->model_number);                         _I2B(&aux16,           &p);
-                                                                          _InB( x->model_number, &p, strlen(x->model_number));
+        aux16 = ATTR_MODEL_NUMBER;                                        _I2B(&aux16,           &p2);
+        aux16 = strlen(x->model_number);                         _I2B(&aux16,           &p2);
+                                                                          _InB( x->model_number, &p2, strlen(x->model_number));
     }
 
     // SERIAL NUMBER
     {
-        aux16 = ATTR_SERIAL_NUMBER;                                       _I2B(&aux16,            &p);
-        aux16 = strlen(x->serial_number);                        _I2B(&aux16,            &p);
-                                                                          _InB( x->serial_number, &p, strlen(x->serial_number));
+        aux16 = ATTR_SERIAL_NUMBER;                                       _I2B(&aux16,            &p2);
+        aux16 = strlen(x->serial_number);                        _I2B(&aux16,            &p2);
+                                                                          _InB( x->serial_number, &p2, strlen(x->serial_number));
     }
 
     // PRIMARY DEVICE TYPE
@@ -1329,18 +1331,18 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         uint8_t oui[4]      = {0x00, 0x50, 0xf2, 0x00}; // Fixed value from the
                                                       // WSC spec
 
-        aux16 = ATTR_PRIMARY_DEV_TYPE;                                    _I2B(&aux16,         &p);
-        aux16 = 8;                                                        _I2B(&aux16,         &p);
-        aux16 = WPS_DEV_NETWORK_INFRA;                                    _I2B(&aux16,         &p);
-                                                                          _InB( oui,           &p, 4);
-        aux16 = WPS_DEV_NETWORK_INFRA_ROUTER;                             _I2B(&aux16,         &p);
+        aux16 = ATTR_PRIMARY_DEV_TYPE;                                    _I2B(&aux16,         &p2);
+        aux16 = 8;                                                        _I2B(&aux16,         &p2);
+        aux16 = WPS_DEV_NETWORK_INFRA;                                    _I2B(&aux16,         &p2);
+                                                                          _InB( oui,           &p2, 4);
+        aux16 = WPS_DEV_NETWORK_INFRA_ROUTER;                             _I2B(&aux16,         &p2);
     }
 
     // DEVICE NAME
     {
-        aux16 = ATTR_DEV_NAME;                                            _I2B(&aux16,          &p);
-        aux16 = strlen(x->device_name);                          _I2B(&aux16,          &p);
-                                                                          _InB( x->device_name, &p, strlen(x->device_name));
+        aux16 = ATTR_DEV_NAME;                                            _I2B(&aux16,          &p2);
+        aux16 = strlen(x->device_name);                          _I2B(&aux16,          &p2);
+                                                                          _InB( x->device_name, &p2, strlen(x->device_name));
     }
 
     // RF BANDS
@@ -1372,30 +1374,30 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
             rf_bands = WPS_RF_60GHZ;
         }
 
-        aux16 = ATTR_RF_BANDS;                                            _I2B(&aux16,         &p);
-        aux16 = 1;                                                        _I2B(&aux16,         &p);
-                                                                          _I1B(&rf_bands,      &p);
+        aux16 = ATTR_RF_BANDS;                                            _I2B(&aux16,         &p2);
+        aux16 = 1;                                                        _I2B(&aux16,         &p2);
+                                                                          _I1B(&rf_bands,      &p2);
     }
 
     // ASSOCIATION STATE
     {
-        aux16 = ATTR_ASSOC_STATE;                                         _I2B(&aux16,         &p);
-        aux16 = 2;                                                        _I2B(&aux16,         &p);
-        aux16 = WPS_ASSOC_CONN_SUCCESS;                                   _I2B(&aux16,         &p);
+        aux16 = ATTR_ASSOC_STATE;                                         _I2B(&aux16,         &p2);
+        aux16 = 2;                                                        _I2B(&aux16,         &p2);
+        aux16 = WPS_ASSOC_CONN_SUCCESS;                                   _I2B(&aux16,         &p2);
     }
 
     // CONFIG ERROR
     {
-        aux16 = ATTR_CONFIG_ERROR;                                        _I2B(&aux16,         &p);
-        aux16 = 2;                                                        _I2B(&aux16,         &p);
-        aux16 = WPS_CFG_NO_ERROR;                                         _I2B(&aux16,         &p);
+        aux16 = ATTR_CONFIG_ERROR;                                        _I2B(&aux16,         &p2);
+        aux16 = 2;                                                        _I2B(&aux16,         &p2);
+        aux16 = WPS_CFG_NO_ERROR;                                         _I2B(&aux16,         &p2);
     }
 
     // DEVICE PASSWORD ID
     {
-        aux16 = ATTR_DEV_PASSWORD_ID;                                     _I2B(&aux16,         &p);
-        aux16 = 2;                                                        _I2B(&aux16,         &p);
-        aux16 = DEV_PW_PUSHBUTTON;                                        _I2B(&aux16,         &p);
+        aux16 = ATTR_DEV_PASSWORD_ID;                                     _I2B(&aux16,         &p2);
+        aux16 = 2;                                                        _I2B(&aux16,         &p2);
+        aux16 = DEV_PW_PUSHBUTTON;                                        _I2B(&aux16,         &p2);
     }
 
     // OS VERSION
@@ -1404,21 +1406,21 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
 
         uint32_t os_version = 0x00000001;
 
-        aux16 = ATTR_OS_VERSION;                                          _I2B(&aux16,         &p);
-        aux16 = 4;                                                        _I2B(&aux16,         &p);
-        aux32 = 0x80000000 | os_version;                                  _I4B(&aux32,         &p);
+        aux16 = ATTR_OS_VERSION;                                          _I2B(&aux16,         &p2);
+        aux16 = 4;                                                        _I2B(&aux16,         &p2);
+        aux32 = 0x80000000 | os_version;                                  _I4B(&aux32,         &p2);
     }
 
     // VENDOR EXTENSIONS
     {
-        aux16 = ATTR_VENDOR_EXTENSION;                                    _I2B(&aux16,         &p);
-        aux16 = 6;                                                        _I2B(&aux16,         &p);
-        aux8  = WPS_VENDOR_ID_WFA_1;                                      _I1B(&aux8,          &p);
-        aux8  = WPS_VENDOR_ID_WFA_2;                                      _I1B(&aux8,          &p);
-        aux8  = WPS_VENDOR_ID_WFA_3;                                      _I1B(&aux8,          &p);
-        aux8  = WFA_ELEM_VERSION2;                                        _I1B(&aux8,          &p);
-        aux8  = 1;                                                        _I1B(&aux8,          &p);
-        aux8  = WPS_VERSION;                                              _I1B(&aux8,          &p);
+        aux16 = ATTR_VENDOR_EXTENSION;                                    _I2B(&aux16,         &p2);
+        aux16 = 6;                                                        _I2B(&aux16,         &p2);
+        aux8  = WPS_VENDOR_ID_WFA_1;                                      _I1B(&aux8,          &p2);
+        aux8  = WPS_VENDOR_ID_WFA_2;                                      _I1B(&aux8,          &p2);
+        aux8  = WPS_VENDOR_ID_WFA_3;                                      _I1B(&aux8,          &p2);
+        aux8  = WFA_ELEM_VERSION2;                                        _I1B(&aux8,          &p2);
+        aux8  = 1;                                                        _I1B(&aux8,          &p2);
+        aux8  = WPS_VERSION;                                              _I1B(&aux8,          &p2);
     }
 
     // ENCRYPTED SETTINGS
@@ -1442,7 +1444,7 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         uint8_t  *r;
         uint8_t  pad_elements_nr;
 
-        uint8_t  *addr[1];
+        const uint8_t  *addr[1];
         uint32_t  len[1];
 
         char   *ssid;
@@ -1514,10 +1516,10 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         //// Add the attribute header ("type" and "lenght") to the M2 buffer,
         //// followed by the IV and the data to encrypt.
         ////
-        aux16 = ATTR_ENCR_SETTINGS;                                       _I2B(&aux16,         &p);
-        aux16 = AES_BLOCK_SIZE + (r-plain);                               _I2B(&aux16,         &p);
-        iv_start   = p; PLATFORM_GET_RANDOM_BYTES(p, AES_BLOCK_SIZE); p+=AES_BLOCK_SIZE;
-        data_start = p; _InB(plain, &p, r-plain);
+        aux16 = ATTR_ENCR_SETTINGS;                                       _I2B(&aux16,         &p2);
+        aux16 = AES_BLOCK_SIZE + (r-plain);                               _I2B(&aux16,         &p2);
+        iv_start   = p2; PLATFORM_GET_RANDOM_BYTES(p2, AES_BLOCK_SIZE); p2+=AES_BLOCK_SIZE;
+        data_start = p2; _InB(plain, &p2, r-plain);
         //// Encrypt the data IN-PLACE. Note that the "ATTR_ENCR_SETTINGS"
         //// attribute containes both the IV and the encrypted data.
         ////
@@ -1535,25 +1537,25 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         //
         uint8_t  hash[SHA256_MAC_LEN];
 
-        uint8_t  *addr[2];
+        const uint8_t  *addr[2];
         uint32_t  len[2];
 
         addr[0] = m1;
         addr[1] = buffer;
         len[0]  = m1_size;
-        len[1]  = p-buffer;
+        len[1]  = p2-buffer;
 
         PLATFORM_HMAC_SHA256(authkey, WPS_AUTHKEY_LEN, 2, addr, len, hash);
 
-        aux16 = ATTR_AUTHENTICATOR;                                       _I2B(&aux16,         &p);
-        aux16 = 8;                                                        _I2B(&aux16,         &p);
-                                                                          _InB( hash,          &p,  8);
+        aux16 = ATTR_AUTHENTICATOR;                                       _I2B(&aux16,         &p2);
+        aux16 = 8;                                                        _I2B(&aux16,         &p2);
+                                                                          _InB( hash,          &p2,  8);
     }
 
     free_1905_INTERFACE_INFO(x);
 
     *m2      = buffer;
-    *m2_size = p-buffer;
+    *m2_size = p2-buffer;
 
     return 1;
 }
@@ -1572,9 +1574,9 @@ uint8_t wscFreeM2(uint8_t *m, uint16_t m_size)
 //
 //////////////////////////////////////// Common functions //////////////////////
 //
-uint8_t wscGetType(uint8_t *m, uint16_t m_size)
+uint8_t wscGetType(const uint8_t *m, uint16_t m_size)
 {
-    uint8_t *p;
+    const uint8_t *p;
 
     p = m;
     while (p - m < m_size)

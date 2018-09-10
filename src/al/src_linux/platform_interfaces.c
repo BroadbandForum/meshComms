@@ -1550,7 +1550,8 @@ uint8_t PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, uint8_t power_mo
     return INTERFACE_POWER_RESULT_EXPECTED;
 }
 
-uint8_t PLATFORM_CONFIGURE_80211_AP(char *interface_name, uint8_t *ssid, uint8_t *bssid, uint16_t auth_type, uint16_t encryption_type, uint8_t *network_key)
+uint8_t PLATFORM_CONFIGURE_80211_AP(const char *interface_name, const uint8_t *ssid, const uint8_t *bssid,
+                                    uint16_t auth_type, uint16_t encryption_type, const uint8_t *network_key)
 {
     PLATFORM_PRINTF_DEBUG_INFO("Applying WSC configuration (%s): \n", interface_name);
     PLATFORM_PRINTF_DEBUG_INFO("  - SSID            : %s\n", ssid);

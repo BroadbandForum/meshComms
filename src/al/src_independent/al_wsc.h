@@ -105,7 +105,7 @@
 // otherwise (except for "wscGetType()", which returns the message type)
 
 uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void **key);
-uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, uint8_t *m2, uint16_t m2_size);
+uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m2, uint16_t m2_size);
 
 
 uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_size);
@@ -116,7 +116,7 @@ uint8_t wscFreeM2(uint8_t *m, uint16_t m_size);
 #define WSC_TYPE_M2      (0x01)
 #define WSC_TYPE_UNKNOWN (0xFF)
 
-uint8_t wscGetType(uint8_t *m, uint16_t m_size);
+uint8_t wscGetType(const uint8_t *m, uint16_t m_size);
 
 
 #endif

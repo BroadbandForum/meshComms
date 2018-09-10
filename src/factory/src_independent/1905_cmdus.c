@@ -529,7 +529,7 @@ struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams)
     error = 0;
     for (current_fragment = 0; current_fragment<fragments_nr; current_fragment++)
     {
-        uint8_t *p;
+        const uint8_t *p;
         uint8_t i;
 
         uint8_t   message_version;
@@ -663,7 +663,7 @@ struct CMDU *parse_1905_CMDU_from_packets(uint8_t **packet_streams)
                 // Error while parsing a TLV
                 // Dump TLV for visual inspection
 
-                uint8_t *p2 = p;
+                const uint8_t *p2 = p;
                 uint16_t len;
                 uint8_t  aux;
 
@@ -1039,7 +1039,7 @@ uint8_t **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, ui
 }
 
 
-bool parse_1905_CMDU_header_from_packet(uint8_t *packet_buffer, size_t len, struct CMDU_header *cmdu_header)
+bool parse_1905_CMDU_header_from_packet(const uint8_t *packet_buffer, size_t len, struct CMDU_header *cmdu_header)
 {
     uint16_t  ether_type;
     uint8_t   message_version;

@@ -62,7 +62,7 @@ struct PAYLOAD
 // instead, otherwise remember to free the received structure once you don't
 // need it anymore (using the "free_lldp_PAYLOAD_structure()" function)
 //
-struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(uint8_t *packet_stream);
+struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(const uint8_t *packet_stream);
 
 
 // This is the opposite of "parse_lldp_PAYLOAD_from_packet_from_packets()": it

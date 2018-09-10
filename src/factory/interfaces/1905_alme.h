@@ -552,7 +552,7 @@ struct customCommandResponseALME
 // Otherwise, the returned structure is dynamically allocated, and once it is
 // no longer needed, the user must call the "free_1905_ALME_structure()" function
 //
-uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream);
+uint8_t *parse_1905_ALME_from_packet(const uint8_t *packet_stream);
 
 
 // This is the opposite of "parse_1905_ALME_from_packet()": it receives a

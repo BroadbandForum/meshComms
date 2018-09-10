@@ -616,6 +616,6 @@ uint8_t PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, uint8_t power_mo
 // 'network_key' is a NULL terminated string representing the "network key" the
 // AP is going to use.
 //
-uint8_t PLATFORM_CONFIGURE_80211_AP(char *interface_name, uint8_t *ssid, uint8_t *bssid, uint16_t auth_mode, uint16_t encryption_mode, uint8_t *network_key);
+uint8_t PLATFORM_CONFIGURE_80211_AP(const char *interface_name, const uint8_t *ssid, const uint8_t *bssid, uint16_t auth_mode, uint16_t encryption_mode, const uint8_t *network_key);
 
 #endif

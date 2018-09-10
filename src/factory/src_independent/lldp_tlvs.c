@@ -28,14 +28,14 @@
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-struct tlv *parse_lldp_TLV_from_packet(uint8_t *packet_stream)
+struct tlv *parse_lldp_TLV_from_packet(const uint8_t *packet_stream)
 {
     if (NULL == packet_stream)
     {
         return NULL;
     }
 
-    uint8_t *p;
+    const uint8_t *p;
     uint8_t byte1, byte2;
     uint8_t type;
     uint16_t len;

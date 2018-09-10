@@ -29,7 +29,7 @@
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-struct tlv *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
+struct tlv *parse_bbf_TLV_from_packet(const uint8_t *packet_stream)
 {
     if (NULL == packet_stream)
     {
@@ -48,7 +48,7 @@ struct tlv *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
 
             struct linkMetricQueryTLV  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
             uint16_t len;
 
             uint8_t destination;
@@ -139,7 +139,7 @@ struct tlv *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
 
             struct transmitterLinkMetricTLV  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
             uint16_t len;
             uint8_t  i;
             uint8_t empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -219,7 +219,7 @@ struct tlv *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
 
             struct receiverLinkMetricTLV  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
             uint16_t len;
             uint8_t  i;
             uint8_t empty_address[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -295,7 +295,7 @@ struct tlv *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
 
             struct linkMetricResultCodeTLV  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
             uint16_t len;
 
             ret = (struct linkMetricResultCodeTLV *)memalloc(sizeof(struct linkMetricResultCodeTLV));

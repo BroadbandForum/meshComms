@@ -162,7 +162,7 @@ struct timeToLiveTypeTLV
 // Otherwise, the returned structure is dynamically allocated, and once it is
 // no longer needed, the user must call the "free_lldp_TLV_structure()" function
 //
-struct tlv *parse_lldp_TLV_from_packet(uint8_t *packet_stream);
+struct tlv *parse_lldp_TLV_from_packet(const uint8_t *packet_stream);
 
 
 // This is the opposite of "parse_lldp_TLV_from_packet()": it receives a

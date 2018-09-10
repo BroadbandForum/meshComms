@@ -991,7 +991,7 @@ struct associatedClientsTLV
 // Otherwise, the returned structure is dynamically allocated, and once it is
 // no longer needed, the user must call the "free_1905_TLV_structure()" function
 //
-struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream);
+struct tlv *parse_1905_TLV_from_packet(const uint8_t *packet_stream);
 
 
 // This is the opposite of "parse_1905_TLV_from_packet()": it receives a
@@ -1009,7 +1009,7 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream);
 // Note that the input structure is *not* freed. You still need to later call
 // "free_1905_TLV_structure()"
 //
-uint8_t *forge_1905_TLV_from_structure(struct tlv *memory_structure, uint16_t *len);
+uint8_t *forge_1905_TLV_from_structure(const struct tlv *memory_structure, uint16_t *len);
 
 
 

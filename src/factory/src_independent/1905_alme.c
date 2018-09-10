@@ -316,7 +316,7 @@
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
+uint8_t *parse_1905_ALME_from_packet(const uint8_t *packet_stream)
 {
     if (NULL == packet_stream)
     {
@@ -332,7 +332,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct getIntfListRequestALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -347,7 +347,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct getIntfListResponseALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
             uint8_t i, j;
 
             p = packet_stream;
@@ -400,7 +400,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct setIntfPwrStateRequestALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -417,7 +417,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct setIntfPwrStateConfirmALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -434,7 +434,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct getIntfPwrStateRequestALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -450,7 +450,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct getIntfPwrStateResponseALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -467,7 +467,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct setFwdRuleRequestALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
             uint8_t i;
 
             p = packet_stream;
@@ -504,7 +504,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct setFwdRuleConfirmALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -521,7 +521,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct getFwdRulesRequestALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -536,7 +536,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct getFwdRulesResponseALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
             uint8_t i, j;
 
             p = packet_stream;
@@ -585,7 +585,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct modifyFwdRuleRequestALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
             uint8_t i;
 
             p = packet_stream;
@@ -613,7 +613,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct modifyFwdRuleConfirmALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -630,7 +630,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct removeFwdRuleRequestALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -646,7 +646,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct removeFwdRuleConfirmALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -663,7 +663,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct getMetricRequestALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -679,7 +679,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct getMetricResponseALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
             uint8_t i;
 
             p = packet_stream;
@@ -769,7 +769,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct customCommandRequestALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 
@@ -785,7 +785,7 @@ uint8_t *parse_1905_ALME_from_packet(uint8_t *packet_stream)
         {
             struct customCommandResponseALME  *ret;
 
-            uint8_t *p;
+            const uint8_t *p;
 
             p = packet_stream;
 

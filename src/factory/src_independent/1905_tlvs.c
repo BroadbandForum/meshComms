@@ -38,7 +38,7 @@ struct tlv_list
     struct tlv **tlvs;
 };
 
-static struct tlv_list *alloc_dummy_tlv_list(struct tlv *tlv)
+static struct tlv_list *alloc_dummy_tlv_list(const struct tlv *tlv)
 {
     struct tlv_list *tlvs = memalloc(sizeof(struct tlv_list));
     tlvs->tlvs = memalloc(sizeof(struct tlv *));
@@ -745,8 +745,9 @@ static tlv_defs_t tlv_1905_defs = {
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
+struct tlv *parse_1905_TLV_from_packet(const uint8_t *packet_stream)
 {
+    const uint8_t *p;
     if (NULL == packet_stream)
     {
         return NULL;
@@ -764,7 +765,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct deviceInformationTypeTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i;
 
@@ -863,7 +863,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct deviceBridgingCapabilityTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i, j;
 
@@ -938,7 +937,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct non1905NeighborDeviceListTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i;
 
@@ -979,7 +977,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct neighborDeviceListTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i;
 
@@ -1033,7 +1030,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct transmitterLinkMetricTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i;
 
@@ -1102,7 +1098,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct receiverLinkMetricTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i;
 
@@ -1168,7 +1163,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct linkMetricResultCodeTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
 
             ret = (struct linkMetricResultCodeTLV *)memalloc(sizeof(struct linkMetricResultCodeTLV));
@@ -1200,7 +1194,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct searchedRoleTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
 
             ret = (struct searchedRoleTLV *)memalloc(sizeof(struct searchedRoleTLV));
@@ -1232,7 +1225,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct autoconfigFreqBandTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
 
             ret = (struct autoconfigFreqBandTLV *)memalloc(sizeof(struct autoconfigFreqBandTLV));
@@ -1264,7 +1256,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct supportedRoleTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
 
             ret = (struct supportedRoleTLV *)memalloc(sizeof(struct supportedRoleTLV));
@@ -1296,7 +1287,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct supportedFreqBandTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
 
             ret = (struct supportedFreqBandTLV *)memalloc(sizeof(struct supportedFreqBandTLV));
@@ -1328,7 +1318,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct wscTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
 
             ret = (struct wscTLV *)memalloc(sizeof(struct wscTLV));
@@ -1355,7 +1344,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct pushButtonEventNotificationTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t i;
 
@@ -1472,7 +1460,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct pushButtonJoinNotificationTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
 
             ret = (struct pushButtonJoinNotificationTLV *)memalloc(sizeof(struct pushButtonJoinNotificationTLV));
@@ -1507,7 +1494,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct genericPhyDeviceInformationTypeTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i;
 
@@ -1579,7 +1565,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct deviceIdentificationTypeTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
 
             ret = (struct deviceIdentificationTypeTLV *)memalloc(sizeof(struct deviceIdentificationTypeTLV));
@@ -1613,7 +1598,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct controlUrlTypeTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
 
             ret = (struct controlUrlTypeTLV *)memalloc(sizeof(struct controlUrlTypeTLV));
@@ -1639,7 +1623,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct ipv4TypeTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i, j;
 
@@ -1721,7 +1704,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct ipv6TypeTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i, j;
 
@@ -1804,7 +1786,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct pushButtonGenericPhyEventNotificationTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i;
 
@@ -1881,7 +1862,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct x1905ProfileVersionTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
 
             ret = (struct x1905ProfileVersionTLV *)memalloc(sizeof(struct x1905ProfileVersionTLV));
@@ -1913,7 +1893,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct powerOffInterfaceTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i;
 
@@ -1990,7 +1969,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct interfacePowerChangeInformationTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i;
 
@@ -2053,7 +2031,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct interfacePowerChangeStatusTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i;
 
@@ -2119,7 +2096,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
             struct l2NeighborDeviceTLV  *ret;
 
-            uint8_t *p;
             uint16_t len;
             uint8_t  i, j, k;
 
@@ -2206,7 +2182,6 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 
         default:
         {
-            uint8_t *p;
             uint16_t len;
             struct tlv_list *parsed;
             p = packet_stream + 1;
@@ -2233,7 +2208,7 @@ struct tlv *parse_1905_TLV_from_packet(uint8_t *packet_stream)
 }
 
 
-uint8_t *forge_1905_TLV_from_structure(struct tlv *tlv, uint16_t *len)
+uint8_t *forge_1905_TLV_from_structure(const struct tlv *tlv, uint16_t *len)
 {
     if (NULL == tlv)
     {

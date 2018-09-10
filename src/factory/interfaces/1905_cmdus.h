@@ -273,7 +273,7 @@ uint8_t **forge_1905_CMDU_from_structure(const struct CMDU *memory_structure, ui
  * @return @a true if a valid CMDU header was found (@a cmdu_header is filled with the header information), @a false
  *         if not (@a cmdu_header may be partially overwritten).
  */
-bool parse_1905_CMDU_header_from_packet(uint8_t *packet_buffer, size_t len, struct CMDU_header *cmdu_header);
+bool parse_1905_CMDU_header_from_packet(const uint8_t *packet_buffer, size_t len, struct CMDU_header *cmdu_header);
 
 
 // This function receives a pointer to a CMDU structure and then traverses it

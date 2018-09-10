@@ -70,8 +70,8 @@ uint8_t DMinsertInterface(char *name, uint8_t *mac_address);
 //
 // Returned values must not be freed.
 //
-char *DMmacToInterfaceName(uint8_t *mac_address);
-uint8_t *DMinterfaceNameToMac(char *interface_name);
+char *DMmacToInterfaceName(const uint8_t *mac_address);
+uint8_t *DMinterfaceNameToMac(const char *interface_name);
 
 
 // Returns a list of 6 bytes arrays with the AL MACs of all neighbors (on the

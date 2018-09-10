@@ -28,11 +28,11 @@
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(uint8_t *packet_stream)
+struct PAYLOAD *parse_lldp_PAYLOAD_from_packet(const uint8_t *packet_stream)
 {
     struct PAYLOAD *ret;
 
-    uint8_t *p;
+    const uint8_t *p;
     uint8_t i, j;
 
     if (NULL == packet_stream)

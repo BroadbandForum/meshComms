@@ -92,7 +92,7 @@
 //
 //   - 'len' is the length of this 'packet_buffer' in bytes
 //
-struct CMDU *_reAssembleFragmentedCMDUs(uint8_t *packet_buffer, uint16_t len)
+struct CMDU *_reAssembleFragmentedCMDUs(const uint8_t *packet_buffer, uint16_t len)
 {
     #define MAX_MIDS_IN_FLIGHT     5
     #define MAX_FRAGMENTS_PER_MID  3
@@ -146,7 +146,7 @@ struct CMDU *_reAssembleFragmentedCMDUs(uint8_t *packet_buffer, uint16_t len)
     static uint32_t current_age = 0;
 
     uint8_t  i, j;
-    uint8_t *p;
+    const uint8_t *p;
     struct CMDU_header cmdu_header;
 
     if (!parse_1905_CMDU_header_from_packet(packet_buffer, len, &cmdu_header))
@@ -1106,7 +1106,7 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
     PLATFORM_PRINTF_DEBUG_DETAIL("Entering read-process loop...\n");
     while(1)
     {
-        uint8_t  *p;
+        const uint8_t  *p;
         uint8_t   message_type;
         uint16_t  message_len;
 
@@ -1129,7 +1129,7 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
         {
             case PLATFORM_QUEUE_EVENT_NEW_1905_PACKET:
             {
-                uint8_t *q;
+                const uint8_t *q;
 
                 struct interfaceInfo *x;
 

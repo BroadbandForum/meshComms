@@ -65,7 +65,7 @@ static const uint8_t BBF_OUI[3] = {0x00, 0x25, 0x6d};
 // Otherwise, the returned structure is dynamically allocated, and once it is
 // no longer needed, the user must call the "free_bbf_TLV_structure()"
 //
-struct tlv *parse_bbf_TLV_from_packet(uint8_t *packet_stream);
+struct tlv *parse_bbf_TLV_from_packet(const uint8_t *packet_stream);
 
 
  // This is the opposite of "parse_bbf_TLV_from_packet()": it receives a

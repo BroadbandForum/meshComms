@@ -176,7 +176,9 @@ uint8_t PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, uint16_t *priv_len, uint8_
     return 1;
 }
 
-uint8_t PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shared_secret, uint16_t *shared_secret_len, uint8_t *remote_pub, uint16_t remote_pub_len, uint8_t *local_priv, uint8_t local_priv_len)
+uint8_t PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shared_secret, uint16_t *shared_secret_len,
+                                          const uint8_t *remote_pub, uint16_t remote_pub_len,
+                                          const uint8_t *local_priv, uint8_t local_priv_len)
 {
     BIGNUM *pub_key;
     BIGNUM *priv_key;
@@ -260,7 +262,7 @@ uint8_t PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shared_secret, uint16_t *sha
 }
 
 
-uint8_t PLATFORM_SHA256(uint8_t num_elem, uint8_t **addr, uint32_t *len, uint8_t *digest)
+uint8_t PLATFORM_SHA256(uint8_t num_elem, const uint8_t **addr, const uint32_t *len, uint8_t *digest)
 {
     uint8_t res;
     unsigned int  mac_len;
@@ -316,7 +318,7 @@ uint8_t PLATFORM_SHA256(uint8_t num_elem, uint8_t **addr, uint32_t *len, uint8_t
 }
 
 
-uint8_t PLATFORM_HMAC_SHA256(uint8_t *key, uint32_t keylen, uint8_t num_elem, uint8_t **addr, uint32_t *len, uint8_t *hmac)
+uint8_t PLATFORM_HMAC_SHA256(uint8_t *key, uint32_t keylen, uint8_t num_elem, const uint8_t **addr, const uint32_t *len, uint8_t *hmac)
 {
     HMAC_CTX *ctx;
     size_t    i;
@@ -389,7 +391,7 @@ uint8_t PLATFORM_AES_ENCRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, uint32_t 
     return 1;
 }
 
-uint8_t PLATFORM_AES_DECRYPT(uint8_t *key, uint8_t *iv, uint8_t *data, uint32_t data_len)
+uint8_t PLATFORM_AES_DECRYPT(const uint8_t *key, const uint8_t *iv, uint8_t *data, uint32_t data_len)
 {
     EVP_CIPHER_CTX *ctx;
 

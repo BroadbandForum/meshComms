@@ -130,7 +130,7 @@ struct _dataModel
 // represents the local interface with that address.
 // Returns NONE if such a local interface could not be found.
 //
-struct _localInterface *_macAddressToLocalInterfaceStruct(uint8_t *mac_address)
+struct _localInterface *_macAddressToLocalInterfaceStruct(const uint8_t *mac_address)
 {
     uint8_t i;
 
@@ -476,7 +476,7 @@ uint8_t DMinsertInterface(char *name, uint8_t *mac_address)
 }
 
 
-char *DMmacToInterfaceName(uint8_t *mac_address)
+char *DMmacToInterfaceName(const uint8_t *mac_address)
 {
     struct _localInterface *x;
 
@@ -494,7 +494,7 @@ char *DMmacToInterfaceName(uint8_t *mac_address)
     }
 }
 
-uint8_t *DMinterfaceNameToMac(char *interface_name)
+uint8_t *DMinterfaceNameToMac(const char *interface_name)
 {
     uint8_t i;
 
