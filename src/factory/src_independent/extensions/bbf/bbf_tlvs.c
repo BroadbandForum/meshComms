@@ -29,7 +29,7 @@
 // Actual API functions
 ////////////////////////////////////////////////////////////////////////////////
 
-uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
+struct tlv *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
 {
     if (NULL == packet_stream)
     {
@@ -129,7 +129,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
                return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC:
@@ -208,7 +208,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
 
@@ -285,7 +285,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
                 return NULL;
             }
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         case BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE:
@@ -317,7 +317,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
 
             _E1B(&p, &ret->result_code);
 
-            return (uint8_t *)ret;
+            return &ret->tlv;
         }
 
         default:
@@ -335,7 +335,7 @@ uint8_t *parse_bbf_TLV_from_packet(uint8_t *packet_stream)
 }
 
 
-uint8_t *forge_bbf_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
+uint8_t *forge_bbf_TLV_from_structure(struct tlv *memory_structure, uint16_t *len)
 {
     if (NULL == memory_structure)
     {
@@ -345,7 +345,7 @@ uint8_t *forge_bbf_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
     //
-    switch (*memory_structure)
+    switch (memory_structure->type)
     {
         case BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY:
         {
@@ -511,7 +511,7 @@ uint8_t *forge_bbf_TLV_from_structure(uint8_t *memory_structure, uint16_t *len)
 }
 
 
-void free_bbf_TLV_structure(uint8_t *memory_structure)
+void free_bbf_TLV_structure(struct tlv *memory_structure)
 {
     if (NULL == memory_structure)
     {
@@ -521,7 +521,7 @@ void free_bbf_TLV_structure(uint8_t *memory_structure)
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
     //
-    switch (*memory_structure)
+    switch (memory_structure->type)
     {
         case BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY:
         case BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE:
@@ -575,7 +575,7 @@ void free_bbf_TLV_structure(uint8_t *memory_structure)
 }
 
 
-uint8_t compare_bbf_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory_structure_2)
+uint8_t compare_bbf_TLV_structures(struct tlv *memory_structure_1, struct tlv *memory_structure_2)
 {
     if (NULL == memory_structure_1 || NULL == memory_structure_2)
     {
@@ -585,12 +585,12 @@ uint8_t compare_bbf_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory_
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
     //
-    if (*memory_structure_1 != *memory_structure_2)
+    if (memory_structure_1->type != memory_structure_2->type)
     {
         return 1;
     }
 
-    switch (*memory_structure_1)
+    switch (memory_structure_1->type)
     {
         case BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY:
         {
@@ -733,7 +733,7 @@ uint8_t compare_bbf_TLV_structures(uint8_t *memory_structure_1, uint8_t *memory_
 }
 
 
-void visit_bbf_TLV_structure(uint8_t *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
+void visit_bbf_TLV_structure(struct tlv *memory_structure, visitor_callback callback, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     // Buffer size to store a prefix string that will be used to show each
     // element of a structure on screen
@@ -748,7 +748,7 @@ void visit_bbf_TLV_structure(uint8_t *memory_structure, visitor_callback callbac
     // The first byte of any of the valid structures is always the "tlv_type"
     // field.
     //
-    switch (*memory_structure)
+    switch (memory_structure->type)
     {
         case BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY:
         {

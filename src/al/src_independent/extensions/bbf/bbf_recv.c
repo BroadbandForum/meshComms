@@ -71,7 +71,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
     {
         case CMDU_TYPE_LINK_METRIC_QUERY:
         {
-            uint8_t                      *tlv;
+            struct tlv *tlv;
 
             i = 0;
             while (NULL != (p = memory_structure->list_of_TLVs[i]))
@@ -95,7 +95,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
                         }
                         else
                         {
-                            if (*tlv == BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY)
+                            if (tlv->type == BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY)
                             {
                                 // BBF query TLV has been received.
                                 // CMDU response must contain BBF metric TLVs
@@ -128,7 +128,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
           struct receiverLinkMetricTLV    *receiver_tlv = NULL;
           struct vendorSpecificTLV       **extensions;
           uint8_t                            extensions_nr;
-          uint8_t                           *bbf_tlv;
+          struct tlv                        *bbf_tlv;
           uint8_t                            std_FROM_al_mac_address[6];
           uint8_t                            no_std_FROM_al_mac_address[6];
 
@@ -156,8 +156,8 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
                       }
                       else
                       {
-                          if ((*bbf_tlv == BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC) ||
-                              (*bbf_tlv == BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC) )
+                          if ((bbf_tlv->type == BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC) ||
+                              (bbf_tlv->type == BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC) )
                           {
                               // Prepare a list of TLV extensions to update the
                               // datamodel
@@ -180,7 +180,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
                               // Get the AL MAC of the neighbor who provides
                               // these metrics
                               //
-                              if (*bbf_tlv == BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC)
+                              if (bbf_tlv->type == BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC)
                               {
                                   transmitter_tlv = (struct transmitterLinkMetricTLV *)bbf_tlv;
                                   memcpy(no_std_FROM_al_mac_address, transmitter_tlv->local_al_address, 6);
@@ -191,7 +191,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
                                   memcpy(no_std_FROM_al_mac_address, receiver_tlv->local_al_address, 6);
                               }
                           }
-                          else if (*bbf_tlv == BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE)
+                          else if (bbf_tlv->type == BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE)
                           {
                               // Do nothing. No metrics to update
                               //
@@ -267,7 +267,7 @@ uint8_t CBKprocess1905BBFExtensions(struct CMDU *memory_structure)
               result_tlvs->tlv.type  = BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE;
               result_tlvs->result_code = LINK_METRIC_RESULT_CODE_TLV_INVALID_NEIGHBOR;
 
-              vendor_specific = vendorSpecificTLVEmbedExtension(result_tlvs, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
+              vendor_specific = vendorSpecificTLVEmbedExtension(&result_tlvs->tlv, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
 
               extensions = (struct vendorSpecificTLV **)memalloc(sizeof(struct vendorSpecificTLV *));
               extensions[extensions_nr++] = vendor_specific;

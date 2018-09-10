@@ -760,13 +760,13 @@ void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions,
 
         for (i=0; i<total_tlvs; i++)
         {
-            vendor_specific = vendorSpecificTLVEmbedExtension(tx_tlvs[i], forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
+            vendor_specific = vendorSpecificTLVEmbedExtension(&tx_tlvs[i]->tlv, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
             tlvs[total_extensions++] = vendor_specific;
         }
 
         for (i=0; i<total_tlvs; i++)
         {
-            vendor_specific = vendorSpecificTLVEmbedExtension(rx_tlvs[i], forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
+            vendor_specific = vendorSpecificTLVEmbedExtension(&rx_tlvs[i]->tlv, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
             tlvs[total_extensions++] = vendor_specific;
         }
     }
@@ -782,14 +782,14 @@ void CBKObtainBBFExtendedLocalInfo(struct vendorSpecificTLV ***extensions,
         result_tlvs->tlv.type  = BBF_TLV_TYPE_NON_1905_LINK_METRIC_RESULT_CODE;
         result_tlvs->result_code = LINK_METRIC_RESULT_CODE_TLV_INVALID_NEIGHBOR;
 
-        vendor_specific = vendorSpecificTLVEmbedExtension(result_tlvs, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
+        vendor_specific = vendorSpecificTLVEmbedExtension(&result_tlvs->tlv, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
 
         tlvs = (struct vendorSpecificTLV **)memalloc(sizeof(struct vendorSpecificTLV*));
         tlvs[total_extensions++] = vendor_specific;
 
         // Free no longer used resources
         //
-        free_bbf_TLV_structure((uint8_t *)result_tlvs);
+        free_bbf_TLV_structure(&result_tlvs->tlv);
     }
 
     // Free tx_tlvs and rx_tlvs (no longer used)
@@ -935,7 +935,7 @@ void CBKDumpBBFExtendedInfo(uint8_t **memory_structure,
     struct vendorSpecificTLV  **rx_metrics;
     uint8_t                     (*mac_metrics)[6];
     uint8_t                       metrics_nr;
-    uint8_t                      *real_output;
+    struct tlv                   *real_output;
     uint8_t                      *TO_interface_mac_address; // Neighbor interface
                                                           // mac adress
     uint8_t                       i;
@@ -992,7 +992,7 @@ void CBKDumpBBFExtendedInfo(uint8_t **memory_structure,
             // considering two different non-1905 nodes (one per each
             // interface)
             //
-            if (BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC == *real_output)
+            if (BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC == real_output->type)
             {
                 struct transmitterLinkMetricTLV *p;
 
@@ -1000,7 +1000,7 @@ void CBKDumpBBFExtendedInfo(uint8_t **memory_structure,
 
                 TO_interface_mac_address = p->transmitter_link_metrics[0].neighbor_interface_address;
             }
-            else if (BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC == *real_output)
+            else if (BBF_TLV_TYPE_NON_1905_RECEIVER_LINK_METRIC == real_output->type)
             {
                 struct receiverLinkMetricTLV *p;
 
@@ -1057,7 +1057,7 @@ void CBKDumpBBFExtendedInfo(uint8_t **memory_structure,
 
             // Update the entry.
             //
-            if (BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC == *real_output)
+            if (BBF_TLV_TYPE_NON_1905_TRANSMITTER_LINK_METRIC == real_output->type)
             {
                 tx_metrics[j] = extension_tlv;
             }
@@ -1141,7 +1141,7 @@ uint8_t CBKSend1905BBFExtensions(struct CMDU *memory_structure)
 
             // Embed the TLV inside a BBF Vendor Specific TLV
             //
-            vendor_specific = vendorSpecificTLVEmbedExtension(non_1905_metric_query_tlv, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
+            vendor_specific = vendorSpecificTLVEmbedExtension(&non_1905_metric_query_tlv->tlv, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
 
             // Insert the Vendor Specific TLV in CMDU
             //
@@ -1179,7 +1179,7 @@ uint8_t CBKSend1905BBFExtensions(struct CMDU *memory_structure)
                     {
                         // Embed the TLV inside a BBF Vendor Specific TLV
                         //
-                        vendor_specific = vendorSpecificTLVEmbedExtension(tx_tlvs[i], forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
+                        vendor_specific = vendorSpecificTLVEmbedExtension(&tx_tlvs[i]->tlv, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
 
                         // Insert the Vendor Specific TLV in CMDU
                         //
@@ -1192,7 +1192,7 @@ uint8_t CBKSend1905BBFExtensions(struct CMDU *memory_structure)
                     {
                         // Embed the TLV inside a BBF Vendor Specific TLV
                         //
-                        vendor_specific = vendorSpecificTLVEmbedExtension(rx_tlvs[i], forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
+                        vendor_specific = vendorSpecificTLVEmbedExtension(&rx_tlvs[i]->tlv, forge_bbf_TLV_from_structure, (uint8_t *)BBF_OUI);
 
                         // Insert the Vendor Specific TLV in CMDU
                         //

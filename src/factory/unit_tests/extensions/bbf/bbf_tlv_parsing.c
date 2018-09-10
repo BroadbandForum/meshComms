@@ -24,13 +24,14 @@
 #include "platform.h"
 #include "utils.h"
 
+#include "1905_tlvs.h"
 #include "bbf_tlvs.h"
 #include "bbf_tlv_test_vectors.h"
 
-uint8_t _check(const char *test_description, uint8_t mode, uint8_t *input, uint8_t *expected_output)
+uint8_t _check(const char *test_description, uint8_t mode, uint8_t *input, struct tlv *expected_output)
 {
     uint8_t  result;
-    uint8_t *real_output;
+    struct tlv *real_output;
     uint8_t  comparison;
 
     // Parse the packet
@@ -75,12 +76,12 @@ uint8_t _check(const char *test_description, uint8_t mode, uint8_t *input, uint8
     return result;
 }
 
-uint8_t _checkTrue(const char *test_description, uint8_t *input, uint8_t *expected_output)
+uint8_t _checkTrue(const char *test_description, uint8_t *input, struct tlv *expected_output)
 {
   return _check(test_description, CHECK_TRUE, input, expected_output);
 }
 
-uint8_t _checkFalse(const char *test_description, uint8_t *input, uint8_t *expected_output)
+uint8_t _checkFalse(const char *test_description, uint8_t *input, struct tlv *expected_output)
 {
   return _check(test_description, CHECK_FALSE, input, expected_output);
 }
@@ -91,25 +92,25 @@ int main(void)
     uint8_t result = 0;
 
     #define BBFTLVPARSE001 "BBFTLVPARSE001 - Parse non-1905 link metric query TLV (bbf_tlv_stream_001)"
-    result += _checkTrue(BBFTLVPARSE001, bbf_tlv_stream_001, (uint8_t *)&bbf_tlv_structure_001);
+    result += _checkTrue(BBFTLVPARSE001, bbf_tlv_stream_001, &bbf_tlv_structure_001.tlv);
 
     #define BBFTLVFORGE002 "BBFTLVPARSE002 - Parse non-1905 link metric query TLV (bbf_tlv_stream_003)"
-    result += _checkTrue(BBFTLVFORGE002, bbf_tlv_stream_003, (uint8_t *)&bbf_tlv_structure_003);
+    result += _checkTrue(BBFTLVFORGE002, bbf_tlv_stream_003, &bbf_tlv_structure_003.tlv);
 
     #define BBFTLVFORGE003 "BBFTLVPARSE003 - Parse non-1905 transmitter link metric TLV (bbf_tlv_stream_005)"
-    result += _checkTrue(BBFTLVFORGE003, bbf_tlv_stream_005, (uint8_t *)&bbf_tlv_structure_005);
+    result += _checkTrue(BBFTLVFORGE003, bbf_tlv_stream_005, &bbf_tlv_structure_005.tlv);
 
     #define BBFTLVFORGE004 "BBFTLVPARSE004 - Parse non-1905 receiver link metric TLV (bbf_tlv_stream_007)"
-    result += _checkTrue(BBFTLVFORGE004, bbf_tlv_stream_007, (uint8_t *)&bbf_tlv_structure_007);
+    result += _checkTrue(BBFTLVFORGE004, bbf_tlv_stream_007, &bbf_tlv_structure_007.tlv);
 
     #define BBFTLVFORGE005 "BBFTLVPARSE005 - Parse non-1905 link metric query TLV (bbf_tlv_stream_008)"
-    result += _checkFalse(BBFTLVFORGE005, bbf_tlv_stream_002b, (uint8_t *)&bbf_tlv_structure_002);
+    result += _checkFalse(BBFTLVFORGE005, bbf_tlv_stream_002b, &bbf_tlv_structure_002.tlv);
 
     #define BBFTLVFORGE006 "BBFTLVPARSE006 - Parse non-1905 transmitter link metric TLV (bbf_tlv_stream_009)"
-    result += _checkFalse(BBFTLVFORGE006, bbf_tlv_stream_004b, (uint8_t *)&bbf_tlv_structure_004);
+    result += _checkFalse(BBFTLVFORGE006, bbf_tlv_stream_004b, &bbf_tlv_structure_004.tlv);
 
     #define BBFTLVFORGE007 "BBFTLVPARSE007 - Parse non-1905 receiver link metric TLV (bbf_tlv_stream_010)"
-    result += _checkFalse(BBFTLVFORGE007, bbf_tlv_stream_006b, (uint8_t *)&bbf_tlv_structure_006);
+    result += _checkFalse(BBFTLVFORGE007, bbf_tlv_stream_006b, &bbf_tlv_structure_006.tlv);
 
     // Return the number of test cases that failed
     //

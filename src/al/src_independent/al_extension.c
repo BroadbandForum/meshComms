@@ -346,7 +346,7 @@ uint8_t dumpExtendedInfo(uint8_t **memory_structure,
 //
 // - VendorSpecificTLVDuplicate():        Clone a Vendor Specific TLV
 //
-struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure, uint8_t *forge(uint8_t *memory_structure, uint16_t *len), uint8_t oui[3])
+struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(struct tlv *memory_structure, uint8_t *forge(struct tlv *memory_structure, uint16_t *len), uint8_t oui[3])
 {
     struct vendorSpecificTLV   *vendor_specific;
     uint8_t                      *stream;
@@ -357,7 +357,7 @@ struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure
         return NULL;
     }
 
-    stream = forge((uint8_t *)memory_structure, &stream_len);
+    stream = forge(memory_structure, &stream_len);
     if (NULL == stream)
     {
         // Could not forge the packet. Error?

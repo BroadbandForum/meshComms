@@ -182,7 +182,7 @@ void freeExtendedLocalInfo(struct vendorSpecificTLV ***extensions, uint8_t *nr);
 // Return a pointer to the new allocated Vendor Specific TLV or NULL in case of
 // error
 //
-struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(void *memory_structure, uint8_t *forge(uint8_t *memory_structure, uint16_t *len), uint8_t oui[3]);
+struct vendorSpecificTLV *vendorSpecificTLVEmbedExtension(struct tlv *memory_structure, uint8_t *forge(struct tlv *memory_structure, uint16_t *len), uint8_t oui[3]);
 
 // This function inserts a Vendor Specific TLV in the CMDU's TLV list
 //

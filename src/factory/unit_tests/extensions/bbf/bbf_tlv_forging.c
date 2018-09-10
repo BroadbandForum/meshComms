@@ -23,19 +23,20 @@
 //
 
 #include "platform.h"
+#include "1905_tlvs.h"
 #include "bbf_tlvs.h"
 #include "bbf_tlv_test_vectors.h"
 
 #include <string.h> // memcmp(), memcpy(), ...
 
-uint8_t _check(const char *test_description, uint8_t mode, uint8_t *input, uint8_t *expected_output, uint16_t expected_output_len)
+uint8_t _check(const char *test_description, uint8_t mode, struct tlv *input, uint8_t *expected_output, uint16_t expected_output_len)
 {
     uint8_t  result;
     uint8_t *real_output;
     uint16_t real_output_len;
 
     // Build the packet
-    real_output = forge_bbf_TLV_from_structure((uint8_t *)input, &real_output_len);
+    real_output = forge_bbf_TLV_from_structure(input, &real_output_len);
 
     if (NULL == real_output)
     {
@@ -95,12 +96,12 @@ uint8_t _check(const char *test_description, uint8_t mode, uint8_t *input, uint8
     return result;
 }
 
-uint8_t _checkTrue(const char *test_description, uint8_t *input, uint8_t *expected_output, uint16_t expected_output_len)
+uint8_t _checkTrue(const char *test_description, struct tlv *input, uint8_t *expected_output, uint16_t expected_output_len)
 {
   return _check(test_description, CHECK_TRUE, input, expected_output, expected_output_len);
 }
 
-uint8_t _checkFalse(const char *test_description, uint8_t *input, uint8_t *expected_output, uint16_t expected_output_len)
+uint8_t _checkFalse(const char *test_description, struct tlv *input, uint8_t *expected_output, uint16_t expected_output_len)
 {
   return _check(test_description, CHECK_FALSE, input, expected_output, expected_output_len);
 }
@@ -111,25 +112,25 @@ int main(void)
     uint8_t result = 0;
 
     #define BBFTLVFORGE001 "BBFTLVFORGE001 - Forge non-1905 link metric query TLV (bbf_tlv_structure_001)"
-    result += _checkTrue(BBFTLVFORGE001, (uint8_t *)&bbf_tlv_structure_001, bbf_tlv_stream_001, bbf_tlv_stream_len_001);
+    result += _checkTrue(BBFTLVFORGE001, &bbf_tlv_structure_001.tlv, bbf_tlv_stream_001, bbf_tlv_stream_len_001);
 
     #define BBFTLVFORGE002 "BBFTLVFORGE002 - Forge non-1905 link metric query TLV (bbf_tlv_structure_002)"
-    result += _checkTrue(BBFTLVFORGE002, (uint8_t *)&bbf_tlv_structure_002, bbf_tlv_stream_002, bbf_tlv_stream_len_002);
+    result += _checkTrue(BBFTLVFORGE002, &bbf_tlv_structure_002.tlv, bbf_tlv_stream_002, bbf_tlv_stream_len_002);
 
     #define BBFTLVFORGE003 "BBFTLVFORGE003 - Forge non-1905 link metric query TLV (bbf_tlv_structure_003)"
-    result += _checkTrue(BBFTLVFORGE003, (uint8_t *)&bbf_tlv_structure_003, bbf_tlv_stream_003, bbf_tlv_stream_len_003);
+    result += _checkTrue(BBFTLVFORGE003, &bbf_tlv_structure_003.tlv, bbf_tlv_stream_003, bbf_tlv_stream_len_003);
 
     #define BBFTLVFORGE004 "BBFTLVFORGE004 - Forge non-1905 transmitter link metric TLV (bbf_tlv_structure_004)"
-    result += _checkTrue(BBFTLVFORGE004, (uint8_t *)&bbf_tlv_structure_004, bbf_tlv_stream_004, bbf_tlv_stream_len_004);
+    result += _checkTrue(BBFTLVFORGE004, &bbf_tlv_structure_004.tlv, bbf_tlv_stream_004, bbf_tlv_stream_len_004);
 
     #define BBFTLVFORGE005 "BBFTLVFORGE005 - Forge non-1905 transmitter link metric TLV (bbf_tlv_structure_005)"
-    result += _checkTrue(BBFTLVFORGE005, (uint8_t *)&bbf_tlv_structure_005, bbf_tlv_stream_005, bbf_tlv_stream_len_005);
+    result += _checkTrue(BBFTLVFORGE005, &bbf_tlv_structure_005.tlv, bbf_tlv_stream_005, bbf_tlv_stream_len_005);
 
     #define BBFTLVFORGE006 "BBFTLVFORGE006 - Forge non-1905 receiver link metric TLV (bbf_tlv_structure_006)"
-    result += _checkTrue(BBFTLVFORGE006, (uint8_t *)&bbf_tlv_structure_006, bbf_tlv_stream_006, bbf_tlv_stream_len_006);
+    result += _checkTrue(BBFTLVFORGE006, &bbf_tlv_structure_006.tlv, bbf_tlv_stream_006, bbf_tlv_stream_len_006);
 
     #define BBFTLVFORGE007 "BBFTLVFORGE007 - Forge non-1905 receiver link metric TLV (bbf_tlv_structure_007)"
-    result += _checkTrue(BBFTLVFORGE007, (uint8_t *)&bbf_tlv_structure_007, bbf_tlv_stream_007, bbf_tlv_stream_len_007);
+    result += _checkTrue(BBFTLVFORGE007, &bbf_tlv_structure_007.tlv, bbf_tlv_stream_007, bbf_tlv_stream_len_007);
 
     // Return the number of test cases that failed
     //
