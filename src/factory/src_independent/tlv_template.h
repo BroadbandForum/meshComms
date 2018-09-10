@@ -176,7 +176,6 @@
 #include <platform.h>
 #include <packet_tools.h>
 #include <utils.h>
-#include <string.h> // memset()
 
 #define TLV_TEMPLATE_STR_INNER(s) #s
 #define TLV_TEMPLATE_STR(s) TLV_TEMPLATE_STR_INNER(s)
@@ -254,9 +253,7 @@ static struct tlv *TLV_TEMPLATE_FUNCTION_NAME(parse)(const struct tlv_def *def _
                                                      const uint8_t *buffer __attribute__((unused)),
                                                      size_t length __attribute__((unused)))
 {
-    TLV_TEMPLATE_STRUCT_NAME *self = memalloc(sizeof(TLV_TEMPLATE_STRUCT_NAME));
-
-    memset(self, 0, sizeof(*self));
+    TLV_TEMPLATE_STRUCT_NAME *self = HLIST_ALLOC(TLV_TEMPLATE_STRUCT_NAME, tlv.h, NULL);
 
 #ifdef TLV_PARSE_BODY
     TLV_PARSE_BODY(self);
@@ -378,6 +375,7 @@ static void TLV_TEMPLATE_FUNCTION_NAME(print)(const struct tlv *tlv, void (*writ
 #endif // TLV_PRINT_BODY
 }
 
+#ifndef TLV_NEW
 static void TLV_TEMPLATE_FUNCTION_NAME(free)(struct tlv *tlv)
 {
     TLV_TEMPLATE_STRUCT_NAME *self = (TLV_TEMPLATE_STRUCT_NAME *)tlv;
@@ -410,6 +408,9 @@ static bool TLV_TEMPLATE_FUNCTION_NAME(compare)(const struct tlv *tlv1, const st
 
     return true;
 }
+#else
+#undef TLV_NEW
+#endif
 
 #undef TLV_NAME
 #undef TLV_FIELD1_NAME

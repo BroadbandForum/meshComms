@@ -586,9 +586,8 @@ static bool tlv_compare_field2_apOperationalBss(const struct apOperationalBssTLV
 #define TLV_PARSE         0b10
 #define TLV_FORGE         0b10
 #define TLV_PRINT         0b11
-#define TLV_COMPARE       0b10
+#define TLV_NEW
 #define TLV_LENGTH_BODY
-#define TLV_FREE_BODY
 
 static bool tlv_parse_field2_associatedClients(const struct tlv_def *def __attribute__((unused)),
                                               struct associatedClientsTLV *self,
@@ -596,21 +595,31 @@ static bool tlv_parse_field2_associatedClients(const struct tlv_def *def __attri
                                               size_t *length)
 {
     uint8_t i, j;
-    self->bss = memalloc(self->bss_nr * sizeof(*self->bss));
+    /* associatedClientsTLVAddBssInfo() updates self->bss_nr, so store it here. */
+    uint8_t bss_nr = self->bss_nr;
+    self->bss_nr = 0;
 
-    for (i = 0; i < self->bss_nr; i++)
+    for (i = 0; i < bss_nr; i++)
     {
-        if (!_EmBL(buf, self->bss[i].bssid, length))
+        mac_address bssid;
+        uint8_t client_nr;
+        struct _associatedClientsBssInfo *bssInfo;
+
+        if (!_EmBL(buf, bssid, length))
             return false;
-        if (!_E1BL(buf, &self->bss[i].client_nr, length))
+        if (!_E1BL(buf, &client_nr, length))
             return false;
-        self->bss[i].client = memalloc(self->bss[i].client_nr * sizeof(*self->bss[i].client));
-        for (j = 0; j < self->bss[i].client_nr; j++)
+        bssInfo = associatedClientsTLVAddBssInfo(self, bssid);
+        for (j = 0; j < client_nr; j++)
         {
-            if (!_EmBL(buf, self->bss[i].client[j].addr, length))
+            mac_address addr;
+            uint16_t age;
+
+            if (!_EmBL(buf, addr, length))
                 return false;
-            if (!_E2BL(buf, &self->bss[i].client[j].age, length))
+            if (!_E2BL(buf, &age, length))
                 return false;
+            associatedClientsTLVAddClientInfo(bssInfo, addr, age);
         }
     }
     return true;
@@ -619,11 +628,12 @@ static bool tlv_parse_field2_associatedClients(const struct tlv_def *def __attri
 static uint16_t tlv_length_body_associatedClients(const struct associatedClientsTLV *self)
 {
     uint16_t length = 1 /* bss_nr */;
-    uint8_t i;
-    for (i = 0; i < self->bss_nr; i++)
+    struct _associatedClientsBssInfo *bssInfo;
+
+    hlist_for_each(bssInfo, self->tlv.h.children[0], struct _associatedClientsBssInfo, h)
     {
         length += 6 + 1; /* bssid, client_nr */
-        length += self->bss[i].client_nr * (6 + 2); /* addr, age */
+        length += bssInfo->client_nr * (6 + 2); /* addr, age */
     }
     return length;
 }
@@ -632,18 +642,22 @@ static bool tlv_forge_field2_associatedClients(const struct associatedClientsTLV
                                               uint8_t **buf,
                                               size_t *length)
 {
-    uint8_t i, j;
-    for (i = 0; i < self->bss_nr; i++)
+    struct _associatedClientsBssInfo *bssInfo;
+
+    hlist_for_each(bssInfo, self->tlv.h.children[0], struct _associatedClientsBssInfo, h)
     {
-        if (!_ImBL(self->bss[i].bssid, buf, length))
+        struct _associatedClientInfo *clientInfo;
+
+        if (!_ImBL(bssInfo->bssid, buf, length))
             return false;
-        if (!_I1BL(&self->bss[i].client_nr, buf, length))
+        if (!_I1BL(&bssInfo->client_nr, buf, length))
             return false;
-        for (j = 0; j < self->bss[i].client_nr; j++)
+
+        hlist_for_each(clientInfo, bssInfo->h.children[0], struct _associatedClientInfo, h)
         {
-            if (!_ImBL(self->bss[i].client[j].addr, buf, length))
+            if (!_ImBL(clientInfo->addr, buf, length))
                 return false;
-            if (!_I2BL(&self->bss[i].client[j].age, buf, length))
+            if (!_I2BL(&clientInfo->age, buf, length))
                 return false;
         }
     }
@@ -661,58 +675,51 @@ static void tlv_print_field2_associatedClients(const struct associatedClientsTLV
                                               void (*write_function)(const char *fmt, ...),
                                               const char *prefix)
 {
-    uint8_t i, j;
-    for (i = 0; i < self->bss_nr; i++)
+    struct _associatedClientsBssInfo *bssInfo;
+    unsigned i = 0;
+
+    hlist_for_each(bssInfo, self->tlv.h.children[0], struct _associatedClientsBssInfo, h)
     {
         char bss_prefix[MAX_PREFIX];
-        snprintf(bss_prefix, sizeof(bss_prefix), "%sbss[%d]->", prefix, i);
+        struct _associatedClientInfo *clientInfo;
+        unsigned j = 0;
+
+        snprintf(bss_prefix, sizeof(bss_prefix), "%sbss[%u]->", prefix, i);
         bss_prefix[sizeof(bss_prefix)-1] = '\0';
-        print_callback(write_function, bss_prefix, 6, "bss_uid", "0x%02x", self->bss[i].bssid);
-        for (j = 0; j < self->bss[i].client_nr; j++)
+        print_callback(write_function, bss_prefix, 6, "bss_uid", "0x%02x", bssInfo->bssid);
+
+        hlist_for_each(clientInfo, bssInfo->h.children[0], struct _associatedClientInfo, h)
         {
             char client_prefix[MAX_PREFIX];
-            snprintf(client_prefix, sizeof(client_prefix), "%sclient[%d]->", bss_prefix, j);
+            snprintf(client_prefix, sizeof(client_prefix), "%sclient[%u]->", bss_prefix, j);
             client_prefix[sizeof(client_prefix)-1] = '\0';
-            print_callback(write_function, client_prefix, 6, "addr", "0x%02x", self->bss[i].client[j].addr);
-            print_callback(write_function, client_prefix, 2, "age", "%5d", &self->bss[i].client[j].age);
+            print_callback(write_function, client_prefix, 6, "addr", "0x%02x", clientInfo->addr);
+            print_callback(write_function, client_prefix, 2, "age", "%5d", &clientInfo->age);
+            j++;
         }
+        i++;
     }
-}
-
-static void tlv_free_body_associatedClients(const struct associatedClientsTLV *self)
-{
-    uint8_t i;
-    for (i = 0; i < self->bss_nr; i++)
-    {
-        free(self->bss[i].client);
-    }
-    free(self->bss);
-}
-
-static bool tlv_compare_field2_associatedClients(const struct associatedClientsTLV *self1,
-                                                const struct associatedClientsTLV *self2)
-{
-    uint8_t i, j;
-    /* Already checked before that they have the same nr */
-    for (i = 0; i < self1->bss_nr; i++)
-    {
-        if (memcmp(self1->bss[i].bssid, self2->bss[i].bssid, 6) != 0)
-            return false;
-        if (self1->bss[i].client_nr != self2->bss[i].client_nr)
-            return false;
-        for (j = 0; j < self1->bss[i].client_nr; j++)
-        {
-            if (memcmp(self1->bss[i].client[j].addr, self2->bss[i].client[j].addr, 6) != 0)
-                return false;
-            if (self1->bss[i].client[j].age != self2->bss[i].client[j].age)
-                return false;
-        }
-    }
-    return true;
 }
 
 #include <tlv_template.h>
 
+struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associatedClientsTLV* a, mac_address bssid)
+{
+    struct _associatedClientsBssInfo *ret = HLIST_ALLOC(struct _associatedClientsBssInfo, h, &a->tlv.h.children[0]);
+    memcpy(ret->bssid, bssid, sizeof(mac_address));
+    a->bss_nr++;
+    return ret;
+}
+
+struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associatedClientsBssInfo* a,
+                                                                 mac_address addr, uint16_t age)
+{
+    struct _associatedClientInfo *ret = HLIST_ALLOC(struct _associatedClientInfo, h, &a->h.children[0]);
+    memcpy(ret->addr, addr, sizeof(mac_address));
+    ret->age = age;
+    a->client_nr++;
+    return ret;
+}
 /** @} */
 
 
@@ -738,8 +745,15 @@ static tlv_defs_t tlv_1905_defs = {
         .compare = tlv_compare_supportedService,
     },
     TLV_DEF_ENTRY(apOperationalBss,TLV_TYPE_AP_OPERATIONAL_BSS),
-    TLV_DEF_ENTRY(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS),
+    TLV_DEF_ENTRY_NEW(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS),
 };
+
+struct associatedClientsTLV* associatedClientsTLVAlloc(hlist_head *parent)
+{
+    struct associatedClientsTLV *ret = HLIST_ALLOC(struct associatedClientsTLV, tlv.h, parent);
+    ret->tlv.type = TLV_TYPE_ASSOCIATED_CLIENTS;
+    return ret;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Actual API functions

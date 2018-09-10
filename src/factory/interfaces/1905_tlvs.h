@@ -22,6 +22,8 @@
 #include "platform.h"
 #include <utils.h>
 #include <tlv.h>
+#include <hlist.h>
+#include <string.h> // memcpy()
 
 // In the comments below, every time a reference is made (ex: "See Section 6.4"
 // or "See Table 6-11") we are talking about the contents of the following
@@ -952,24 +954,29 @@ struct apOperationalBssTLV
  *  @{
  */
 struct _associatedClientInfo {
+    hlist_item h;
     mac_address addr; /**< @brief The MAC address of the associated 802.11 client. */
 #define ASSOCIATED_CLIENT_MAX_AGE 65535 /**< Saturation value of _associatedClientInfo::age. */
     uint16_t    age;  /**< @brief Time since the 802.11 client’s last association to this Multi-AP device, in seconds. */
 };
 
 struct _associatedClientsBssInfo {
+    hlist_item h;
     mac_address bssid; /**< @brief The BSSID of the BSS operated by the Multi-AP Agent in which the clients are
                         * associated. */
     uint8_t     client_nr; /**< @brief Number of ::client. */
-    struct _associatedClientInfo *client; /**< @brief Definition of clients on this BSS. */
 };
 
 struct associatedClientsTLV
 {
     struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_ASSOCIATED_CLIENTS. */
-    uint8_t     bss_nr; /**< @brief Number of ::bss. */
-    struct _associatedClientsBssInfo *bss; /**< @brief Definition of BSSes on this device. */
+    uint8_t      bss_nr; /**< @brief Number of ::bss. */
 };
+
+struct associatedClientsTLV* associatedClientsTLVAlloc(hlist_head *parent);
+struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associatedClientsTLV* a, mac_address bssid);
+struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associatedClientsBssInfo* a,
+                                                                 mac_address addr, uint16_t age);
 
 /** @} */
 

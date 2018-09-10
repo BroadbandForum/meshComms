@@ -244,6 +244,16 @@ struct tlv_def
         .compare = tlv_compare_##tlv_name,\
     }
 
+/* Temporary, while converting to hlist */
+#define TLV_DEF_ENTRY_NEW(tlv_name,tlv_type)    \
+    [(tlv_type)] = {               \
+        .type = (tlv_type),        \
+        .name = #tlv_name,                 \
+        .parse = tlv_parse_##tlv_name,   \
+        .length = tlv_length_##tlv_name, \
+        .forge = tlv_forge_##tlv_name,   \
+        .print = tlv_print_##tlv_name,   \
+    }
 
 /** @brief Definition of TLV metadata.
  *
@@ -324,6 +334,8 @@ void tlv_print(tlv_defs_t defs, const struct tlv_list *tlvs, void (*write_functi
  * @param tlvs The tlvs to delete.
  *
  * This function deletes each ::tlv and also the ::tlv_list.
+ *
+ * @todo replace by hlist_delete()
  */
 void tlv_free(tlv_defs_t defs, struct tlv_list *tlvs);
 
@@ -336,6 +348,8 @@ void tlv_free(tlv_defs_t defs, struct tlv_list *tlvs);
  * @return true if each TLV in @a tlvs1 is equal to the corresponding one in @a tlvs2, false if they differ.
  *
  * @todo Currently the lists are assumed to be ordered in the same way.
+ *
+ * @todo replace by hlist_compare()
  */
 bool tlv_compare(tlv_defs_t defs, const struct tlv_list *tlvs1, const struct tlv_list *tlvs2);
 

@@ -1596,56 +1596,6 @@ static uint8_t x1905_tlv_stream_052[] =
 
 static uint16_t x1905_tlv_stream_len_052 = ARRAY_SIZE(x1905_tlv_stream_052);
 
-
-static struct associatedClientsTLV x1905_tlv_structure_053 =
-{
-    .tlv.type                    = TLV_TYPE_ASSOCIATED_CLIENTS,
-    .bss_nr                      = 2,
-    .bss                         = (struct _associatedClientsBssInfo[]){
-        {
-            .bssid = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25},
-            .client_nr = 0,
-        },
-        {
-            .bssid = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
-            .client_nr = 3,
-            .client = (struct _associatedClientInfo[]){
-                {
-                    .addr = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
-                    .age = 0x0,
-                },
-                {
-                    .addr = {0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5},
-                    .age = 0x1234,
-                },
-                {
-                    .addr = {0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5},
-                    .age = ASSOCIATED_CLIENT_MAX_AGE,
-                },
-            },
-        },
-    },
-};
-
-static uint8_t x1905_tlv_stream_053[] =
-{
-    0x84,
-    0x00, 39,
-    2,
-    0x20, 0x21, 0x22, 0x23, 0x24, 0x25,
-    0,
-    0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
-    3,
-    0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
-    0x00, 0x00,
-    0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5,
-    0x12, 0x34,
-    0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5,
-    0xff, 0xff,
-};
-
-static uint16_t x1905_tlv_stream_len_053 = ARRAY_SIZE(x1905_tlv_stream_053);
-
 /* TEMPORARY until all TLVs have been converted to dynamic allocation */
 #define ADD_TEST_VECTOR(num, desc) \
     v = HLIST_ALLOC(struct x1905_test_vector, h, test_vectors); \
@@ -1655,6 +1605,17 @@ static uint16_t x1905_tlv_stream_len_053 = ARRAY_SIZE(x1905_tlv_stream_053);
     v->parse = true; \
     v->forge = true; \
     hlist_add_tail(&v->h.children[0], &x1905_tlv_structure_##num.tlv.h);
+
+#define INIT_TEST_VECTOR(desc, ...) \
+    do { \
+        static const uint8_t stream[] = { __VA_ARGS__ }; \
+        v = HLIST_ALLOC(struct x1905_test_vector, h, test_vectors); \
+        v->stream = stream; \
+        v->stream_len = sizeof(stream); \
+        v->description = desc; \
+        v->parse = true; \
+        v->forge = true; \
+    } while (0);
 
 void get_1905_test_vectors(hlist_head *test_vectors)
 {
@@ -1710,6 +1671,34 @@ void get_1905_test_vectors(hlist_head *test_vectors)
     ADD_TEST_VECTOR(050, "supported service TLV");
     ADD_TEST_VECTOR(051, "searched service TLV");
     ADD_TEST_VECTOR(052, "searched service TLV");
-    ADD_TEST_VECTOR(053, "searched service TLV");
+
+    INIT_TEST_VECTOR("associated clients TLV",
+        0x84,
+        0x00, 39,
+        2,
+        0x20, 0x21, 0x22, 0x23, 0x24, 0x25,
+        0,
+        0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
+        3,
+        0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
+        0x00, 0x00,
+        0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5,
+        0x12, 0x34,
+        0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5,
+        0xff, 0xff,
+    );
+    struct associatedClientsTLV *associatedClients = associatedClientsTLVAlloc(&v->h.children[0]);
+    struct _associatedClientsBssInfo *bssInfo;
+    mac_address bssid1 = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25};
+    mac_address bssid2 = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5};
+    mac_address client1 = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5};
+    mac_address client2 = {0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5};
+    mac_address client3 = {0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5};
+    bssInfo = associatedClientsTLVAddBssInfo(associatedClients, bssid1);
+    /* No clients */
+    bssInfo = associatedClientsTLVAddBssInfo(associatedClients, bssid2);
+    associatedClientsTLVAddClientInfo(bssInfo, client1, 0);
+    associatedClientsTLVAddClientInfo(bssInfo, client2, 0x1234);
+    associatedClientsTLVAddClientInfo(bssInfo, client3, ASSOCIATED_CLIENT_MAX_AGE);
 }
 

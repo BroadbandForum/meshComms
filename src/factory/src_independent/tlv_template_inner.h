@@ -106,7 +106,7 @@ static void TLV_TEMPLATE_FIELD_FUNCTION_NAME(print)(const TLV_TEMPLATE_STRUCT_NA
 }
 #endif
 
-#if !((TLV_COMPARE) & TLV_FIELD_MASK)
+#if !((TLV_COMPARE) & TLV_FIELD_MASK) && !defined(TLV_NEW)
 static bool TLV_TEMPLATE_FIELD_FUNCTION_NAME(compare)(const TLV_TEMPLATE_STRUCT_NAME *self1,
                                                       const TLV_TEMPLATE_STRUCT_NAME *self2)
 {

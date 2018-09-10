@@ -62,11 +62,10 @@ typedef struct hlist_head {
     struct f {
         hlist_item h_f;
         char data[2];
-        #define f_g h_f.children[0]
     };
 
     struct f *f1 = HLIST_ALLOC(struct f, h_f, NULL);
-    HLIST_ALLOC(struct g, h_g, &f1->f_g);
+    HLIST_ALLOC(struct g, h_g, &f1->h_f.children[0]);
  * @endcode
  *
  * It is advisable to wrap the allocation macros in a type-specific allocation function (which can also initialize the
