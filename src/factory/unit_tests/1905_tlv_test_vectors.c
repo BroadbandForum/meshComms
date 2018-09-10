@@ -59,7 +59,7 @@
 //// Test vector 001 (TLV <--> packet)
 ////////////////////////////////////////////////////////////////////////////////
 
-struct linkMetricQueryTLV x1905_tlv_structure_001 =
+static struct linkMetricQueryTLV x1905_tlv_structure_001 =
 {
     .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
     .destination       = LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR,
@@ -67,7 +67,7 @@ struct linkMetricQueryTLV x1905_tlv_structure_001 =
     .link_metrics_type = LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY,
 };
 
-uint8_t x1905_tlv_stream_001[] =
+static uint8_t x1905_tlv_stream_001[] =
 {
     0x08,
     0x00, 0x08,
@@ -76,14 +76,14 @@ uint8_t x1905_tlv_stream_001[] =
     0x01
 };
 
-uint16_t x1905_tlv_stream_len_001 = 11;
+static uint16_t x1905_tlv_stream_len_001 = 11;
 
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Test vector 002 (TLV --> packet)
 ////////////////////////////////////////////////////////////////////////////////
 
-struct linkMetricQueryTLV x1905_tlv_structure_002 =
+static struct linkMetricQueryTLV x1905_tlv_structure_002 =
 {
     .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
     .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
@@ -91,7 +91,7 @@ struct linkMetricQueryTLV x1905_tlv_structure_002 =
     .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
 };
 
-uint8_t x1905_tlv_stream_002[] =
+static uint8_t x1905_tlv_stream_002[] =
 {
     0x08,
     0x00, 0x08,
@@ -100,14 +100,14 @@ uint8_t x1905_tlv_stream_002[] =
     0x02
 };
 
-uint16_t x1905_tlv_stream_len_002 = 11;
+static uint16_t x1905_tlv_stream_len_002 = 11;
 
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Test vector 003 (TLV <-- packet)
 ////////////////////////////////////////////////////////////////////////////////
 
-struct linkMetricQueryTLV x1905_tlv_structure_003 =
+static struct linkMetricQueryTLV x1905_tlv_structure_003 =
 {
     .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
     .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
@@ -115,7 +115,7 @@ struct linkMetricQueryTLV x1905_tlv_structure_003 =
     .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
 };
 
-uint8_t x1905_tlv_stream_003[] =
+static uint8_t x1905_tlv_stream_003[] =
 {
     0x08,
     0x00, 0x08,
@@ -124,14 +124,14 @@ uint8_t x1905_tlv_stream_003[] =
     0x02
 };
 
-uint16_t x1905_tlv_stream_len_003 = 11;
+static uint16_t x1905_tlv_stream_len_003 = 11;
 
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Test vector 004 (TLV <--> packet)
 ////////////////////////////////////////////////////////////////////////////////
 
-struct transmitterLinkMetricTLV x1905_tlv_structure_004 =
+static struct transmitterLinkMetricTLV x1905_tlv_structure_004 =
 {
     .tlv.type                    = TLV_TYPE_TRANSMITTER_LINK_METRIC,
     .local_al_address            = {0x01, 0x02, 0x03, 0x01, 0x02, 0x03},
@@ -153,7 +153,7 @@ struct transmitterLinkMetricTLV x1905_tlv_structure_004 =
         },
 };
 
-uint8_t x1905_tlv_stream_004[] =
+static uint8_t x1905_tlv_stream_004[] =
 {
     0x09,
     0x00, 0x29,
@@ -170,7 +170,7 @@ uint8_t x1905_tlv_stream_004[] =
     0x02, 0x08
 };
 
-uint16_t x1905_tlv_stream_len_004 = 44;
+static uint16_t x1905_tlv_stream_len_004 = 44;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -179,7 +179,7 @@ uint16_t x1905_tlv_stream_len_004 = 44;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct transmitterLinkMetricTLV x1905_tlv_structure_005 =
+static struct transmitterLinkMetricTLV x1905_tlv_structure_005 =
 {
     .tlv.type                    = TLV_TYPE_TRANSMITTER_LINK_METRIC,
     .local_al_address            = {0x01, 0x01, 0x01, 0x01, 0x01, 0x01},
@@ -212,7 +212,7 @@ struct transmitterLinkMetricTLV x1905_tlv_structure_005 =
         },
 };
 
-uint8_t x1905_tlv_stream_005[] =
+static uint8_t x1905_tlv_stream_005[] =
 {
     0x09,
     0x00, 0x46,
@@ -238,7 +238,7 @@ uint8_t x1905_tlv_stream_005[] =
     0x03, 0xe8,
 };
 
-uint16_t x1905_tlv_stream_len_005 = 73;
+static uint16_t x1905_tlv_stream_len_005 = 73;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -247,7 +247,7 @@ uint16_t x1905_tlv_stream_len_005 = 73;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct receiverLinkMetricTLV x1905_tlv_structure_006 =
+static struct receiverLinkMetricTLV x1905_tlv_structure_006 =
 {
     .tlv.type                    = TLV_TYPE_RECEIVER_LINK_METRIC,
     .local_al_address            = {0x01, 0x02, 0xff, 0x01, 0x02, 0x03},
@@ -266,7 +266,7 @@ struct receiverLinkMetricTLV x1905_tlv_structure_006 =
         },
 };
 
-uint8_t x1905_tlv_stream_006[] =
+static uint8_t x1905_tlv_stream_006[] =
 {
     0x0a,
     0x00, 0x23,
@@ -280,7 +280,7 @@ uint8_t x1905_tlv_stream_006[] =
     0x02,
 };
 
-uint16_t x1905_tlv_stream_len_006 = 38;
+static uint16_t x1905_tlv_stream_len_006 = 38;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -289,7 +289,7 @@ uint16_t x1905_tlv_stream_len_006 = 38;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct receiverLinkMetricTLV x1905_tlv_structure_007 =
+static struct receiverLinkMetricTLV x1905_tlv_structure_007 =
 {
     .tlv.type                    = TLV_TYPE_RECEIVER_LINK_METRIC,
     .local_al_address            = {0x01, 0x02, 0xff, 0x01, 0x02, 0x03},
@@ -316,7 +316,7 @@ struct receiverLinkMetricTLV x1905_tlv_structure_007 =
         },
 };
 
-uint8_t x1905_tlv_stream_007[] =
+static uint8_t x1905_tlv_stream_007[] =
 {
     0x0a,
     0x00, 0x3a,
@@ -336,7 +336,7 @@ uint8_t x1905_tlv_stream_007[] =
     0x02,
 };
 
-uint16_t x1905_tlv_stream_len_007 = 61;
+static uint16_t x1905_tlv_stream_len_007 = 61;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -345,20 +345,20 @@ uint16_t x1905_tlv_stream_len_007 = 61;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct alMacAddressTypeTLV x1905_tlv_structure_008 =
+static struct alMacAddressTypeTLV x1905_tlv_structure_008 =
 {
     .tlv.type                    = TLV_TYPE_AL_MAC_ADDRESS_TYPE,
     .al_mac_address              = {0x01, 0x02, 0xf2, 0x01, 0x02, 0x00},
 };
 
-uint8_t x1905_tlv_stream_008[] =
+static uint8_t x1905_tlv_stream_008[] =
 {
     0x01,
     0x00, 0x06,
     0x01, 0x02, 0xf2, 0x01, 0x02, 0x00,
 };
 
-uint16_t x1905_tlv_stream_len_008 = 9;
+static uint16_t x1905_tlv_stream_len_008 = 9;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -367,20 +367,20 @@ uint16_t x1905_tlv_stream_len_008 = 9;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct macAddressTypeTLV x1905_tlv_structure_009 =
+static struct macAddressTypeTLV x1905_tlv_structure_009 =
 {
     .tlv.type                    = TLV_TYPE_MAC_ADDRESS_TYPE,
     .mac_address                 = {0xff, 0xf2, 0x04, 0xfa, 0x00, 0xab},
 };
 
-uint8_t x1905_tlv_stream_009[] =
+static uint8_t x1905_tlv_stream_009[] =
 {
     0x02,
     0x00, 0x06,
     0xff, 0xf2, 0x04, 0xfa, 0x00, 0xab,
 };
 
-uint16_t x1905_tlv_stream_len_009 = 9;
+static uint16_t x1905_tlv_stream_len_009 = 9;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -389,7 +389,7 @@ uint16_t x1905_tlv_stream_len_009 = 9;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct deviceInformationTypeTLV x1905_tlv_structure_010 =
+static struct deviceInformationTypeTLV x1905_tlv_structure_010 =
 {
     .tlv.type                    = TLV_TYPE_DEVICE_INFORMATION_TYPE,
     .al_mac_address              = {0x04, 0x02, 0xff, 0x01, 0x02, 0x03},
@@ -415,7 +415,7 @@ struct deviceInformationTypeTLV x1905_tlv_structure_010 =
         },
 };
 
-uint8_t x1905_tlv_stream_010[] =
+static uint8_t x1905_tlv_stream_010[] =
 {
     0x03,
     0x00, 0x2a,
@@ -435,7 +435,7 @@ uint8_t x1905_tlv_stream_010[] =
     0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0xff,
 };
 
-uint16_t x1905_tlv_stream_len_010 = 45;
+static uint16_t x1905_tlv_stream_len_010 = 45;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -444,7 +444,7 @@ uint16_t x1905_tlv_stream_len_010 = 45;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct deviceBridgingCapabilityTLV x1905_tlv_structure_011 =
+static struct deviceBridgingCapabilityTLV x1905_tlv_structure_011 =
 {
     .tlv.type                    = TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES,
     .bridging_tuples_nr          = 2,
@@ -480,7 +480,7 @@ struct deviceBridgingCapabilityTLV x1905_tlv_structure_011 =
         },
 };
 
-uint8_t x1905_tlv_stream_011[] =
+static uint8_t x1905_tlv_stream_011[] =
 {
     0x04,
     0x00, 0x21,
@@ -494,7 +494,7 @@ uint8_t x1905_tlv_stream_011[] =
     0x00, 0x00, 0x00, 0x00, 0x00, 0x13,
 };
 
-uint16_t x1905_tlv_stream_len_011 = 36;
+static uint16_t x1905_tlv_stream_len_011 = 36;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -503,7 +503,7 @@ uint16_t x1905_tlv_stream_len_011 = 36;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct deviceBridgingCapabilityTLV x1905_tlv_structure_012 =
+static struct deviceBridgingCapabilityTLV x1905_tlv_structure_012 =
 {
     .tlv.type                    = TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES,
     .bridging_tuples_nr          = 2,
@@ -528,7 +528,7 @@ struct deviceBridgingCapabilityTLV x1905_tlv_structure_012 =
         },
 };
 
-uint8_t x1905_tlv_stream_012[] =
+static uint8_t x1905_tlv_stream_012[] =
 {
     0x04,
     0x00, 0x0f,
@@ -539,7 +539,7 @@ uint8_t x1905_tlv_stream_012[] =
     0x00,
 };
 
-uint16_t x1905_tlv_stream_len_012 = 18;
+static uint16_t x1905_tlv_stream_len_012 = 18;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -548,21 +548,21 @@ uint16_t x1905_tlv_stream_len_012 = 18;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct deviceBridgingCapabilityTLV x1905_tlv_structure_013 =
+static struct deviceBridgingCapabilityTLV x1905_tlv_structure_013 =
 {
     .tlv.type                    = TLV_TYPE_DEVICE_BRIDGING_CAPABILITIES,
     .bridging_tuples_nr          = 0,
     .bridging_tuples             = NULL,
 };
 
-uint8_t x1905_tlv_stream_013[] =
+static uint8_t x1905_tlv_stream_013[] =
 {
     0x04,
     0x00, 0x01,
     0x00,
 };
 
-uint16_t x1905_tlv_stream_len_013 = 4;
+static uint16_t x1905_tlv_stream_len_013 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -571,7 +571,7 @@ uint16_t x1905_tlv_stream_len_013 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct non1905NeighborDeviceListTLV x1905_tlv_structure_014 =
+static struct non1905NeighborDeviceListTLV x1905_tlv_structure_014 =
 {
     .tlv.type                    = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST,
     .local_mac_address           = {0x33, 0x34, 0x35, 0x36, 0x37, 0x38},
@@ -584,7 +584,7 @@ struct non1905NeighborDeviceListTLV x1905_tlv_structure_014 =
         },
 };
 
-uint8_t x1905_tlv_stream_014[] =
+static uint8_t x1905_tlv_stream_014[] =
 {
     0x06,
     0x00, 0x0c,
@@ -592,7 +592,7 @@ uint8_t x1905_tlv_stream_014[] =
     0x43, 0x44, 0x45, 0x46, 0x47, 0x48,
 };
 
-uint16_t x1905_tlv_stream_len_014 = 15;
+static uint16_t x1905_tlv_stream_len_014 = 15;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -601,7 +601,7 @@ uint16_t x1905_tlv_stream_len_014 = 15;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct non1905NeighborDeviceListTLV x1905_tlv_structure_015 =
+static struct non1905NeighborDeviceListTLV x1905_tlv_structure_015 =
 {
     .tlv.type                    = TLV_TYPE_NON_1905_NEIGHBOR_DEVICE_LIST,
     .local_mac_address           = {0x33, 0x34, 0x35, 0x36, 0x37, 0x38},
@@ -617,7 +617,7 @@ struct non1905NeighborDeviceListTLV x1905_tlv_structure_015 =
         },
 };
 
-uint8_t x1905_tlv_stream_015[] =
+static uint8_t x1905_tlv_stream_015[] =
 {
     0x06,
     0x00, 0x12,
@@ -626,7 +626,7 @@ uint8_t x1905_tlv_stream_015[] =
     0x53, 0x54, 0x55, 0x56, 0x57, 0x58,
 };
 
-uint16_t x1905_tlv_stream_len_015 = 21;
+static uint16_t x1905_tlv_stream_len_015 = 21;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -635,7 +635,7 @@ uint16_t x1905_tlv_stream_len_015 = 21;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct neighborDeviceListTLV x1905_tlv_structure_016 =
+static struct neighborDeviceListTLV x1905_tlv_structure_016 =
 {
     .tlv.type                    = TLV_TYPE_NEIGHBOR_DEVICE_LIST,
     .local_mac_address           = {0x33, 0x34, 0x35, 0x36, 0x37, 0x38},
@@ -649,7 +649,7 @@ struct neighborDeviceListTLV x1905_tlv_structure_016 =
         },
 };
 
-uint8_t x1905_tlv_stream_016[] =
+static uint8_t x1905_tlv_stream_016[] =
 {
     0x07,
     0x00, 0x0d,
@@ -658,7 +658,7 @@ uint8_t x1905_tlv_stream_016[] =
     0x00,
 };
 
-uint16_t x1905_tlv_stream_len_016 = 16;
+static uint16_t x1905_tlv_stream_len_016 = 16;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -667,7 +667,7 @@ uint16_t x1905_tlv_stream_len_016 = 16;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct neighborDeviceListTLV x1905_tlv_structure_017 =
+static struct neighborDeviceListTLV x1905_tlv_structure_017 =
 {
     .tlv.type                    = TLV_TYPE_NEIGHBOR_DEVICE_LIST,
     .local_mac_address           = {0x33, 0x34, 0x35, 0x36, 0x37, 0x38},
@@ -685,7 +685,7 @@ struct neighborDeviceListTLV x1905_tlv_structure_017 =
         },
 };
 
-uint8_t x1905_tlv_stream_017[] =
+static uint8_t x1905_tlv_stream_017[] =
 {
     0x07,
     0x00, 0x14,
@@ -696,7 +696,7 @@ uint8_t x1905_tlv_stream_017[] =
     0x00,
 };
 
-uint16_t x1905_tlv_stream_len_017 = 23;
+static uint16_t x1905_tlv_stream_len_017 = 23;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -705,20 +705,20 @@ uint16_t x1905_tlv_stream_len_017 = 23;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct linkMetricResultCodeTLV x1905_tlv_structure_018 =
+static struct linkMetricResultCodeTLV x1905_tlv_structure_018 =
 {
     .tlv.type                    = TLV_TYPE_LINK_METRIC_RESULT_CODE,
     .result_code                 = LINK_METRIC_RESULT_CODE_TLV_INVALID_NEIGHBOR,
 };
 
-uint8_t x1905_tlv_stream_018[] =
+static uint8_t x1905_tlv_stream_018[] =
 {
     0x0c,
     0x00, 0x01,
     0x00,
 };
 
-uint16_t x1905_tlv_stream_len_018 = 4;
+static uint16_t x1905_tlv_stream_len_018 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -727,20 +727,20 @@ uint16_t x1905_tlv_stream_len_018 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct linkMetricResultCodeTLV x1905_tlv_structure_019 =
+static struct linkMetricResultCodeTLV x1905_tlv_structure_019 =
 {
     .tlv.type                    = TLV_TYPE_LINK_METRIC_RESULT_CODE,
     .result_code                 = 5,
 };
 
-uint8_t x1905_tlv_stream_019[] =
+static uint8_t x1905_tlv_stream_019[] =
 {
     0x0c,
     0x00, 0x01,
     0x05,
 };
 
-uint16_t x1905_tlv_stream_len_019 = 4;
+static uint16_t x1905_tlv_stream_len_019 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -749,20 +749,20 @@ uint16_t x1905_tlv_stream_len_019 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct searchedRoleTLV x1905_tlv_structure_020 =
+static struct searchedRoleTLV x1905_tlv_structure_020 =
 {
     .tlv.type                    = TLV_TYPE_SEARCHED_ROLE,
     .role                        = IEEE80211_ROLE_REGISTRAR,
 };
 
-uint8_t x1905_tlv_stream_020[] =
+static uint8_t x1905_tlv_stream_020[] =
 {
     0x0d,
     0x00, 0x01,
     0x00,
 };
 
-uint16_t x1905_tlv_stream_len_020 = 4;
+static uint16_t x1905_tlv_stream_len_020 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -771,20 +771,20 @@ uint16_t x1905_tlv_stream_len_020 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct searchedRoleTLV x1905_tlv_structure_021 =
+static struct searchedRoleTLV x1905_tlv_structure_021 =
 {
     .tlv.type                    = TLV_TYPE_SEARCHED_ROLE,
     .role                        = 0xff,
 };
 
-uint8_t x1905_tlv_stream_021[] =
+static uint8_t x1905_tlv_stream_021[] =
 {
     0x0d,
     0x00, 0x01,
     0xff,
 };
 
-uint16_t x1905_tlv_stream_len_021 = 4;
+static uint16_t x1905_tlv_stream_len_021 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -793,20 +793,20 @@ uint16_t x1905_tlv_stream_len_021 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct autoconfigFreqBandTLV x1905_tlv_structure_022 =
+static struct autoconfigFreqBandTLV x1905_tlv_structure_022 =
 {
     .tlv.type                    = TLV_TYPE_AUTOCONFIG_FREQ_BAND,
     .freq_band                   = IEEE80211_FREQUENCY_BAND_2_4_GHZ,
 };
 
-uint8_t x1905_tlv_stream_022[] =
+static uint8_t x1905_tlv_stream_022[] =
 {
     0x0e,
     0x00, 0x01,
     0x00,
 };
 
-uint16_t x1905_tlv_stream_len_022 = 4;
+static uint16_t x1905_tlv_stream_len_022 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -815,20 +815,20 @@ uint16_t x1905_tlv_stream_len_022 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct autoconfigFreqBandTLV x1905_tlv_structure_023 =
+static struct autoconfigFreqBandTLV x1905_tlv_structure_023 =
 {
     .tlv.type                    = TLV_TYPE_AUTOCONFIG_FREQ_BAND,
     .freq_band                   = 0x1a,
 };
 
-uint8_t x1905_tlv_stream_023[] =
+static uint8_t x1905_tlv_stream_023[] =
 {
     0x0e,
     0x00, 0x01,
     0x1a,
 };
 
-uint16_t x1905_tlv_stream_len_023 = 4;
+static uint16_t x1905_tlv_stream_len_023 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -837,20 +837,20 @@ uint16_t x1905_tlv_stream_len_023 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct supportedRoleTLV x1905_tlv_structure_024 =
+static struct supportedRoleTLV x1905_tlv_structure_024 =
 {
     .tlv.type                    = TLV_TYPE_SUPPORTED_ROLE,
     .role                        = IEEE80211_ROLE_REGISTRAR,
 };
 
-uint8_t x1905_tlv_stream_024[] =
+static uint8_t x1905_tlv_stream_024[] =
 {
     0x0f,
     0x00, 0x01,
     0x00,
 };
 
-uint16_t x1905_tlv_stream_len_024 = 4;
+static uint16_t x1905_tlv_stream_len_024 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -859,20 +859,20 @@ uint16_t x1905_tlv_stream_len_024 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct supportedRoleTLV x1905_tlv_structure_025 =
+static struct supportedRoleTLV x1905_tlv_structure_025 =
 {
     .tlv.type                    = TLV_TYPE_SUPPORTED_ROLE,
     .role                        = 0x02,
 };
 
-uint8_t x1905_tlv_stream_025[] =
+static uint8_t x1905_tlv_stream_025[] =
 {
     0x0f,
     0x00, 0x01,
     0x02,
 };
 
-uint16_t x1905_tlv_stream_len_025 = 4;
+static uint16_t x1905_tlv_stream_len_025 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -881,20 +881,20 @@ uint16_t x1905_tlv_stream_len_025 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct supportedFreqBandTLV x1905_tlv_structure_026 =
+static struct supportedFreqBandTLV x1905_tlv_structure_026 =
 {
     .tlv.type                    = TLV_TYPE_SUPPORTED_FREQ_BAND,
     .freq_band                   = IEEE80211_FREQUENCY_BAND_5_GHZ,
 };
 
-uint8_t x1905_tlv_stream_026[] =
+static uint8_t x1905_tlv_stream_026[] =
 {
     0x10,
     0x00, 0x01,
     0x01,
 };
 
-uint16_t x1905_tlv_stream_len_026 = 4;
+static uint16_t x1905_tlv_stream_len_026 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -903,20 +903,20 @@ uint16_t x1905_tlv_stream_len_026 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct supportedFreqBandTLV x1905_tlv_structure_027 =
+static struct supportedFreqBandTLV x1905_tlv_structure_027 =
 {
     .tlv.type                    = TLV_TYPE_SUPPORTED_FREQ_BAND,
     .freq_band                   = 0x07,
 };
 
-uint8_t x1905_tlv_stream_027[] =
+static uint8_t x1905_tlv_stream_027[] =
 {
     0x10,
     0x00, 0x01,
     0x07,
 };
 
-uint16_t x1905_tlv_stream_len_027 = 4;
+static uint16_t x1905_tlv_stream_len_027 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -925,7 +925,7 @@ uint16_t x1905_tlv_stream_len_027 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct pushButtonEventNotificationTLV x1905_tlv_structure_028 =
+static struct pushButtonEventNotificationTLV x1905_tlv_structure_028 =
 {
     .tlv.type                    = TLV_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION,
     .media_types_nr              = 2,
@@ -948,7 +948,7 @@ struct pushButtonEventNotificationTLV x1905_tlv_structure_028 =
         },
 };
 
-uint8_t x1905_tlv_stream_028[] =
+static uint8_t x1905_tlv_stream_028[] =
 {
     0x12,
     0x00, 0x18,
@@ -965,7 +965,7 @@ uint8_t x1905_tlv_stream_028[] =
     0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0xff,
 };
 
-uint16_t x1905_tlv_stream_len_028 = 27;
+static uint16_t x1905_tlv_stream_len_028 = 27;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -974,7 +974,7 @@ uint16_t x1905_tlv_stream_len_028 = 27;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct powerOffInterfaceTLV x1905_tlv_structure_029 =
+static struct powerOffInterfaceTLV x1905_tlv_structure_029 =
 {
     .tlv.type                    = TLV_TYPE_POWER_OFF_INTERFACE,
     .power_off_interfaces_nr     = 2,
@@ -1005,7 +1005,7 @@ struct powerOffInterfaceTLV x1905_tlv_structure_029 =
         },
 };
 
-uint8_t x1905_tlv_stream_029[] =
+static uint8_t x1905_tlv_stream_029[] =
 {
     0x1b,
     0x00, 0x20,
@@ -1023,7 +1023,7 @@ uint8_t x1905_tlv_stream_029[] =
     0x01, 0x00, 0x02, 0xaf, 0xb5,
 };
 
-uint16_t x1905_tlv_stream_len_029 = 35;
+static uint16_t x1905_tlv_stream_len_029 = 35;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1032,21 +1032,21 @@ uint16_t x1905_tlv_stream_len_029 = 35;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct powerOffInterfaceTLV x1905_tlv_structure_030 =
+static struct powerOffInterfaceTLV x1905_tlv_structure_030 =
 {
     .tlv.type                    = TLV_TYPE_POWER_OFF_INTERFACE,
     .power_off_interfaces_nr     = 0,
     .power_off_interfaces        = NULL,
 };
 
-uint8_t x1905_tlv_stream_030[] =
+static uint8_t x1905_tlv_stream_030[] =
 {
     0x1b,
     0x00, 0x01,
     0x00,
 };
 
-uint16_t x1905_tlv_stream_len_030 = 4;
+static uint16_t x1905_tlv_stream_len_030 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1055,7 +1055,7 @@ uint16_t x1905_tlv_stream_len_030 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct genericPhyDeviceInformationTypeTLV x1905_tlv_structure_031 =
+static struct genericPhyDeviceInformationTypeTLV x1905_tlv_structure_031 =
 {
     .tlv.type                    = TLV_TYPE_GENERIC_PHY_DEVICE_INFORMATION,
     .al_mac_address              = {0x00, 0x10, 0x20, 0x30, 0x40, 0x50},
@@ -1078,7 +1078,7 @@ struct genericPhyDeviceInformationTypeTLV x1905_tlv_structure_031 =
         },
 };
 
-uint8_t x1905_tlv_stream_031[] =
+static uint8_t x1905_tlv_stream_031[] =
 {
     0x14,
     0x00, 0x82,
@@ -1094,7 +1094,7 @@ uint8_t x1905_tlv_stream_031[] =
     0x01, 0x00, 0x02, 0xaf, 0xb5,
 };
 
-uint16_t x1905_tlv_stream_len_031 = 133;
+static uint16_t x1905_tlv_stream_len_031 = 133;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1103,7 +1103,7 @@ uint16_t x1905_tlv_stream_len_031 = 133;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct pushButtonGenericPhyEventNotificationTLV x1905_tlv_structure_032 =
+static struct pushButtonGenericPhyEventNotificationTLV x1905_tlv_structure_032 =
 {
     .tlv.type                    = TLV_TYPE_GENERIC_PHY_EVENT_NOTIFICATION,
     .local_interfaces_nr         = 1,
@@ -1118,7 +1118,7 @@ struct pushButtonGenericPhyEventNotificationTLV x1905_tlv_structure_032 =
         },
 };
 
-uint8_t x1905_tlv_stream_032[] =
+static uint8_t x1905_tlv_stream_032[] =
 {
     0x19,
     0x00, 0x0b,
@@ -1129,7 +1129,7 @@ uint8_t x1905_tlv_stream_032[] =
     0x01, 0x00, 0x02, 0xaf, 0xb5,
 };
 
-uint16_t x1905_tlv_stream_len_032 = 14;
+static uint16_t x1905_tlv_stream_len_032 = 14;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1138,7 +1138,7 @@ uint16_t x1905_tlv_stream_len_032 = 14;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct deviceIdentificationTypeTLV x1905_tlv_structure_033 =
+static struct deviceIdentificationTypeTLV x1905_tlv_structure_033 =
 {
     .tlv.type                    = TLV_TYPE_DEVICE_IDENTIFICATION,
     .friendly_name               = "Tv in the kitchen\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",
@@ -1147,7 +1147,7 @@ struct deviceIdentificationTypeTLV x1905_tlv_structure_033 =
 
 };
 
-uint8_t x1905_tlv_stream_033[] =
+static uint8_t x1905_tlv_stream_033[] =
 {
     0x15,
     0x00, 0xc0,
@@ -1156,7 +1156,7 @@ uint8_t x1905_tlv_stream_033[] =
     0x4c, 0x45, 0x44, 0x20, 0x54, 0x56, 0x78, 0x32, 0x30, 0x30, 0x31, 0x78, 0x78, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-uint16_t x1905_tlv_stream_len_033 = 195;
+static uint16_t x1905_tlv_stream_len_033 = 195;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1165,21 +1165,21 @@ uint16_t x1905_tlv_stream_len_033 = 195;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct controlUrlTypeTLV x1905_tlv_structure_034 =
+static struct controlUrlTypeTLV x1905_tlv_structure_034 =
 {
     .tlv.type                    = TLV_TYPE_CONTROL_URL,
     .url                         = "http://192.168.0.120"
 
 };
 
-uint8_t x1905_tlv_stream_034[] =
+static uint8_t x1905_tlv_stream_034[] =
 {
     0x16,
     0x00, 0x15,
     0x68, 0x74, 0x74, 0x70, 0x3a, 0x2f, 0x2f, 0x31, 0x39, 0x32, 0x2e, 0x31, 0x36, 0x38, 0x2e, 0x30, 0x2e, 0x31, 0x32, 0x30, 0x00,
 };
 
-uint16_t x1905_tlv_stream_len_034 = 24;
+static uint16_t x1905_tlv_stream_len_034 = 24;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1188,7 +1188,7 @@ uint16_t x1905_tlv_stream_len_034 = 24;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct ipv4TypeTLV x1905_tlv_structure_035 =
+static struct ipv4TypeTLV x1905_tlv_structure_035 =
 {
     .tlv.type                    = TLV_TYPE_IPV4,
     .ipv4_interfaces_nr          = 2,
@@ -1226,7 +1226,7 @@ struct ipv4TypeTLV x1905_tlv_structure_035 =
         },
 };
 
-uint8_t x1905_tlv_stream_035[] =
+static uint8_t x1905_tlv_stream_035[] =
 {
     0x17,
     0x00, 0x2a,
@@ -1246,7 +1246,7 @@ uint8_t x1905_tlv_stream_035[] =
     0x00, 0x00, 0x00, 0x00,
 };
 
-uint16_t x1905_tlv_stream_len_035 = 45;
+static uint16_t x1905_tlv_stream_len_035 = 45;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1255,7 +1255,7 @@ uint16_t x1905_tlv_stream_len_035 = 45;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct ipv6TypeTLV x1905_tlv_structure_036 =
+static struct ipv6TypeTLV x1905_tlv_structure_036 =
 {
     .tlv.type                    = TLV_TYPE_IPV6,
     .ipv6_interfaces_nr          = 1,
@@ -1282,7 +1282,7 @@ struct ipv6TypeTLV x1905_tlv_structure_036 =
         },
 };
 
-uint8_t x1905_tlv_stream_036[] =
+static uint8_t x1905_tlv_stream_036[] =
 {
     0x18,
     0x00, 0x5a,
@@ -1298,7 +1298,7 @@ uint8_t x1905_tlv_stream_036[] =
     0x00, 0x21, 0xaf, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-uint16_t x1905_tlv_stream_len_036 = 93;
+static uint16_t x1905_tlv_stream_len_036 = 93;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1307,20 +1307,20 @@ uint16_t x1905_tlv_stream_len_036 = 93;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct x1905ProfileVersionTLV x1905_tlv_structure_037 =
+static struct x1905ProfileVersionTLV x1905_tlv_structure_037 =
 {
     .tlv.type                    = TLV_TYPE_1905_PROFILE_VERSION,
     .profile                     = PROFILE_1905_1A,
 };
 
-uint8_t x1905_tlv_stream_037[] =
+static uint8_t x1905_tlv_stream_037[] =
 {
     0x1a,
     0x00, 0x01,
     0x01,
 };
 
-uint16_t x1905_tlv_stream_len_037 = 4;
+static uint16_t x1905_tlv_stream_len_037 = 4;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1329,7 +1329,7 @@ uint16_t x1905_tlv_stream_len_037 = 4;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct interfacePowerChangeInformationTLV x1905_tlv_structure_038 =
+static struct interfacePowerChangeInformationTLV x1905_tlv_structure_038 =
 {
     .tlv.type                    = TLV_TYPE_INTERFACE_POWER_CHANGE_INFORMATION,
     .power_change_interfaces_nr  = 3,
@@ -1350,7 +1350,7 @@ struct interfacePowerChangeInformationTLV x1905_tlv_structure_038 =
         },
 };
 
-uint8_t x1905_tlv_stream_038[] =
+static uint8_t x1905_tlv_stream_038[] =
 {
     0x1c,
     0x00, 0x16,
@@ -1363,7 +1363,7 @@ uint8_t x1905_tlv_stream_038[] =
     0x02,
 };
 
-uint16_t x1905_tlv_stream_len_038 = 25;
+static uint16_t x1905_tlv_stream_len_038 = 25;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1372,7 +1372,7 @@ uint16_t x1905_tlv_stream_len_038 = 25;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct interfacePowerChangeStatusTLV x1905_tlv_structure_039 =
+static struct interfacePowerChangeStatusTLV x1905_tlv_structure_039 =
 {
     .tlv.type                    = TLV_TYPE_INTERFACE_POWER_CHANGE_STATUS,
     .power_change_interfaces_nr  = 3,
@@ -1393,7 +1393,7 @@ struct interfacePowerChangeStatusTLV x1905_tlv_structure_039 =
         },
 };
 
-uint8_t x1905_tlv_stream_039[] =
+static uint8_t x1905_tlv_stream_039[] =
 {
     0x1d,
     0x00, 0x16,
@@ -1406,7 +1406,7 @@ uint8_t x1905_tlv_stream_039[] =
     0x02,
 };
 
-uint16_t x1905_tlv_stream_len_039 = 25;
+static uint16_t x1905_tlv_stream_len_039 = 25;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1415,7 +1415,7 @@ uint16_t x1905_tlv_stream_len_039 = 25;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct l2NeighborDeviceTLV x1905_tlv_structure_040 =
+static struct l2NeighborDeviceTLV x1905_tlv_structure_040 =
 {
     .tlv.type                    = TLV_TYPE_L2_NEIGHBOR_DEVICE,
     .local_interfaces_nr         = 3,
@@ -1462,7 +1462,7 @@ struct l2NeighborDeviceTLV x1905_tlv_structure_040 =
         },
 };
 
-uint8_t x1905_tlv_stream_040[] =
+static uint8_t x1905_tlv_stream_040[] =
 {
     0x1e,
     0x00, 0x3d,
@@ -1484,7 +1484,7 @@ uint8_t x1905_tlv_stream_040[] =
 };
 
 
-uint16_t x1905_tlv_stream_len_040 = 64;
+static uint16_t x1905_tlv_stream_len_040 = 64;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////
@@ -1492,7 +1492,7 @@ uint16_t x1905_tlv_stream_len_040 = 64;
 ////
 ////////////////////////////////////////////////////////////////////////////////
 
-struct vendorSpecificTLV x1905_tlv_structure_041 =
+static struct vendorSpecificTLV x1905_tlv_structure_041 =
 {
     .tlv.type                    = TLV_TYPE_VENDOR_SPECIFIC,
     .vendorOUI                   = {0x00, 0x03, 0x7f},
@@ -1500,7 +1500,7 @@ struct vendorSpecificTLV x1905_tlv_structure_041 =
     .m                           = (uint8_t[]) {0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
 };
 
-uint8_t x1905_tlv_stream_041[] =
+static uint8_t x1905_tlv_stream_041[] =
 {
     0x0b,
     0x00, 0x18,
@@ -1508,16 +1508,16 @@ uint8_t x1905_tlv_stream_041[] =
     0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 };
 
-uint16_t x1905_tlv_stream_len_041 = 27;
+static uint16_t x1905_tlv_stream_len_041 = 27;
 
-struct supportedServiceTLV x1905_tlv_structure_050 =
+static struct supportedServiceTLV x1905_tlv_structure_050 =
 {
     .tlv.type                    = TLV_TYPE_SUPPORTED_SERVICE,
     .supported_service_nr        = 2,
     .supported_service           = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT, },
 };
 
-uint8_t x1905_tlv_stream_050[] =
+static uint8_t x1905_tlv_stream_050[] =
 {
     0x80,
     0x00, 0x03,
@@ -1525,16 +1525,16 @@ uint8_t x1905_tlv_stream_050[] =
     0x00, 0x01,
 };
 
-uint16_t x1905_tlv_stream_len_050 = ARRAY_SIZE(x1905_tlv_stream_050);
+static uint16_t x1905_tlv_stream_len_050 = ARRAY_SIZE(x1905_tlv_stream_050);
 
-struct supportedServiceTLV x1905_tlv_structure_051 =
+static struct supportedServiceTLV x1905_tlv_structure_051 =
 {
     .tlv.type                    = TLV_TYPE_SEARCHED_SERVICE,
     .supported_service_nr        = 1,
     .supported_service           = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, },
 };
 
-uint8_t x1905_tlv_stream_051[] =
+static uint8_t x1905_tlv_stream_051[] =
 {
     0x81,
     0x00, 0x02,
@@ -1542,9 +1542,9 @@ uint8_t x1905_tlv_stream_051[] =
     0x00,
 };
 
-uint16_t x1905_tlv_stream_len_051 = ARRAY_SIZE(x1905_tlv_stream_051);
+static uint16_t x1905_tlv_stream_len_051 = ARRAY_SIZE(x1905_tlv_stream_051);
 
-struct apOperationalBssTLV x1905_tlv_structure_052 =
+static struct apOperationalBssTLV x1905_tlv_structure_052 =
 {
     .tlv.type                    = TLV_TYPE_AP_OPERATIONAL_BSS,
     .radio_nr                    = 2,
@@ -1574,7 +1574,7 @@ struct apOperationalBssTLV x1905_tlv_structure_052 =
     },
 };
 
-uint8_t x1905_tlv_stream_052[] =
+static uint8_t x1905_tlv_stream_052[] =
 {
     0x83,
     0x00, 76,
@@ -1594,10 +1594,10 @@ uint8_t x1905_tlv_stream_052[] =
     'a', 'b', 'b', 'a', 0x00, 0xff, 0x80, '!',
 };
 
-uint16_t x1905_tlv_stream_len_052 = ARRAY_SIZE(x1905_tlv_stream_052);
+static uint16_t x1905_tlv_stream_len_052 = ARRAY_SIZE(x1905_tlv_stream_052);
 
 
-struct associatedClientsTLV x1905_tlv_structure_053 =
+static struct associatedClientsTLV x1905_tlv_structure_053 =
 {
     .tlv.type                    = TLV_TYPE_ASSOCIATED_CLIENTS,
     .bss_nr                      = 2,
@@ -1627,7 +1627,7 @@ struct associatedClientsTLV x1905_tlv_structure_053 =
     },
 };
 
-uint8_t x1905_tlv_stream_053[] =
+static uint8_t x1905_tlv_stream_053[] =
 {
     0x84,
     0x00, 39,
@@ -1644,4 +1644,72 @@ uint8_t x1905_tlv_stream_053[] =
     0xff, 0xff,
 };
 
-uint16_t x1905_tlv_stream_len_053 = ARRAY_SIZE(x1905_tlv_stream_053);
+static uint16_t x1905_tlv_stream_len_053 = ARRAY_SIZE(x1905_tlv_stream_053);
+
+/* TEMPORARY until all TLVs have been converted to dynamic allocation */
+#define ADD_TEST_VECTOR(num, desc) \
+    v = HLIST_ALLOC(struct x1905_test_vector, h, test_vectors); \
+    v->stream = x1905_tlv_stream_##num; \
+    v->stream_len = x1905_tlv_stream_len_##num; \
+    v->description = desc; \
+    v->parse = true; \
+    v->forge = true; \
+    hlist_add_tail(&v->h.children[0], &x1905_tlv_structure_##num.tlv.h);
+
+void get_1905_test_vectors(hlist_head *test_vectors)
+{
+    struct x1905_test_vector *v;
+    ADD_TEST_VECTOR(001, "link metric query TLV");
+    ADD_TEST_VECTOR(002, "link metric query TLV with specific neighbour filled in internally");
+    v->parse = false; /* TLV memory structure has specific neighbour filled in, to check it is not emitted. */
+    ADD_TEST_VECTOR(003, "link metric query TLV with specific neighbour filled in packet");
+    v->forge = false;
+    ADD_TEST_VECTOR(004, "transmitter link metric TLV");
+    ADD_TEST_VECTOR(005, "transmitter link metric TLV");
+    ADD_TEST_VECTOR(006, "receiver link metric TLV");
+    ADD_TEST_VECTOR(007, "receiver link metric TLV");
+    ADD_TEST_VECTOR(008, "AL MAC address type TLV");
+    ADD_TEST_VECTOR(009, "MAC address type TLV");
+    ADD_TEST_VECTOR(010, "device information type TLV");
+    ADD_TEST_VECTOR(011, "device bridging capability TLV");
+    ADD_TEST_VECTOR(012, "device bridging capability TLV");
+    ADD_TEST_VECTOR(013, "device bridging capability TLV");
+    ADD_TEST_VECTOR(014, "non 1905 neighbor device list TLV");
+    ADD_TEST_VECTOR(015, "non 1905 neighbor device list TLV");
+    ADD_TEST_VECTOR(016, "neighbor device list TLV");
+    ADD_TEST_VECTOR(017, "neighbor device list TLV");
+    ADD_TEST_VECTOR(018, "link metric result code TLV");
+    ADD_TEST_VECTOR(019, "link metric result code TLV");
+    v->forge = false; /* Unknown result code, can't be forged. */
+    ADD_TEST_VECTOR(020, "searched role TLV");
+    ADD_TEST_VECTOR(021, "searched role TLV");
+    v->forge = false; /* Unknown role, can't be forged. */
+    ADD_TEST_VECTOR(022, "autoconfig freq band TLV");
+    ADD_TEST_VECTOR(023, "autoconfig freq band TLV");
+    v->forge = false; /* Unknown freq band, can't be forged. */
+    ADD_TEST_VECTOR(024, "supported role TLV");
+    ADD_TEST_VECTOR(025, "supported role TLV");
+    v->forge = false; /* Unknown role, can't be forged. */
+    ADD_TEST_VECTOR(026, "supported freq band TLV");
+    ADD_TEST_VECTOR(027, "supported freq band TLV");
+    v->forge = false; /* Unknown freq band, can't be forged. */
+    ADD_TEST_VECTOR(028, "push button event notification TLV");
+    ADD_TEST_VECTOR(029, "power off interface TLV");
+    ADD_TEST_VECTOR(030, "power off interface TLV");
+    ADD_TEST_VECTOR(031, "generic PHY device information type TLV");
+    ADD_TEST_VECTOR(032, "push button generic PHY event notification TLV");
+    ADD_TEST_VECTOR(033, "device identification type TLV");
+    ADD_TEST_VECTOR(034, "control URL type TLV");
+    ADD_TEST_VECTOR(035, "IPv4 type TLV");
+    ADD_TEST_VECTOR(036, "IPv6 type TLV");
+    ADD_TEST_VECTOR(037, "1905 profile version TLV");
+    ADD_TEST_VECTOR(038, "interface power change information TLV");
+    ADD_TEST_VECTOR(039, "interface power change status TLV");
+    ADD_TEST_VECTOR(040, "L2 neighbor device TLV");
+    ADD_TEST_VECTOR(041, "vendor specific TLV");
+    ADD_TEST_VECTOR(050, "supported service TLV");
+    ADD_TEST_VECTOR(051, "searched service TLV");
+    ADD_TEST_VECTOR(052, "searched service TLV");
+    ADD_TEST_VECTOR(053, "searched service TLV");
+}
+
