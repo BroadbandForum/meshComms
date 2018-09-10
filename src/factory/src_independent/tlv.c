@@ -253,7 +253,8 @@ bool tlv_compare(tlv_defs_t defs, const struct tlv_list *tlvs1, const struct tlv
                 return false;
             }
         }
-        // else assume equal
+        else
+            return HLIST_COMPARE_ITEM(tlv1, tlv2, h) == 0;
     }
 
     return true;

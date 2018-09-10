@@ -73,7 +73,7 @@ $(TESTS) : ALETEST_% : $(OUTPUT_FOLDER)/ALETEST_%
 	./start_interfaces $(AL_EXE) $<
 
 
-$(EXE) : $(OUTPUT_FOLDER)/ALETEST_% : $(OUTPUT_FOLDER)/tmp/$(ALETEST_DIRECTORY)/%.o $(SHARED_OBJ) $(COMMON_LIB) $(FACTORY_LIB)
+$(EXE) : $(OUTPUT_FOLDER)/ALETEST_% : $(OUTPUT_FOLDER)/tmp/$(ALETEST_DIRECTORY)/%.o $(SHARED_OBJ) $(FACTORY_LIB) $(COMMON_LIB)
 	$(foreach directory, $(UNITS), $(MKDIR) $(OUTPUT_FOLDER)/ALETEST_$(shell dirname $(directory);))
 	$(CC) $(LDFLAGS) $^ -o $@
 

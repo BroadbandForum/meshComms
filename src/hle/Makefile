@@ -56,7 +56,7 @@ HDR           := $(shell find $(INTERNAL_INC) $(FACTORY_INC) -name *.h)
 all: $(EXE)
 
 
-$(EXE): $(OBJ) $(COMMON_LIB) $(FACTORY_LIB)
+$(EXE): $(OBJ) $(FACTORY_LIB) $(COMMON_LIB)
 	$(CC) $^ $(LDFLAGS) -o $@
 
 

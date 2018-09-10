@@ -21,6 +21,7 @@
  * as a full list.
  */
 
+#include <hlist.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h> // size_t
@@ -81,6 +82,7 @@ struct tlv_list;
  */
 struct tlv
 {
+    hlist_item  h;
     uint8_t type; /**< @private */
 };
 
