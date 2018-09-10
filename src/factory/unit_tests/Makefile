@@ -33,7 +33,8 @@
 #
 UNIT_TESTS_DIRECTORY := factory/unit_tests
 
-UNITS := 1905_tlv_forging
+UNITS := hlist_test
+UNITS += 1905_tlv_forging
 UNITS += 1905_tlv_parsing
 UNITS += 1905_cmdu_forging
 UNITS += 1905_cmdu_parsing

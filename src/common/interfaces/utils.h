@@ -30,6 +30,26 @@
  */
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof(*(a)))
 
+/** @brief Compile-time check that two objects are of compatible type.
+ *
+ * The first object is returned. Each argument is evaluated only once.
+ *
+ * Inspired on https://en.wikipedia.org/wiki/Offsetof#Usage
+ */
+#define check_compatible_types(object, other_object) \
+    ((long)"ERROR types are incompatible" ? (object) : (other_object))
+
+/** @brief Get the parent structure from a pointer.
+ *
+ * @param ptr Pointer to the sub-structure (member).
+ * @param type Type of the super-structure (container).
+ * @param member Name of the struct member of @a type that corresponds to @a ptr.
+ *
+ * Inspired on https://en.wikipedia.org/wiki/Offsetof#Usage
+ */
+#define container_of(ptr, type, member) \
+    ((type *)((char *)check_compatible_types(ptr, &((type*)ptr)->member) - offsetof(type, member)))
+
 
 /** @ brief Allocate a chunk of 'n' bytes and return a pointer to it.
  *
