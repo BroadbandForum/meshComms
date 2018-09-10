@@ -375,6 +375,7 @@ static void TLV_TEMPLATE_FUNCTION_NAME(print)(const struct tlv *tlv, void (*writ
 #ifdef TLV_FIELD3_NAME
     TLV_TEMPLATE_FUNCTION_NAME(print_field3)(self, write_function, prefix);
 #endif // TLV_FIELD3_NAME
+#endif // TLV_PRINT_BODY
 }
 
 static void TLV_TEMPLATE_FUNCTION_NAME(free)(struct tlv *tlv)
@@ -406,8 +407,6 @@ static bool TLV_TEMPLATE_FUNCTION_NAME(compare)(const struct tlv *tlv1, const st
     if (!TLV_TEMPLATE_FUNCTION_NAME(compare_field3)(self1, self2))
         return false;
 #endif // TLV_FIELD3_NAME
-
-#endif
 
     return true;
 }
