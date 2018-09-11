@@ -2,6 +2,7 @@
  *  Broadband Forum IEEE 1905.1/1a stack
  *
  *  Copyright (c) 2017, Broadband Forum
+ *  Copyright (c) 2018, prpl Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,7 +26,7 @@
 
 /** @brief Get the number of elements in an array.
  *
- * Note that this simpel macro may evaluate its argument 0, 1 or 2 times, and that it doesn't check at all if the
+ * Note that this simple macro may evaluate its argument 0, 1 or 2 times, and that it doesn't check at all if the
  * parameter is indeed an array. Calling it with a pointer parameter will lead to incorrect results.
  */
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof(*(a)))

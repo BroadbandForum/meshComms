@@ -1,7 +1,8 @@
 /*
- *  Broadband Forum IEEE 1905.1/1a stack
+ *  prplMesh Wi-Fi Multi-AP
  *
  *  Copyright (c) 2017, Broadband Forum
+ *  Copyright (c) 2018, prpl Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
