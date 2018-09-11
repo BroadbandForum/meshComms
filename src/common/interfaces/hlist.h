@@ -120,9 +120,6 @@ typedef struct hlist_description {
 
 #define HLIST_DESCRIBE_SENTINEL {NULL, 0, 0, 0, }
 
-#define hlist_head_item(head, type, hlist_member) \
-    container_of(container_of((head), hlist_item, l), type, hlist_member)
-
 /** @brief Initialise an empty hlist_head.
  *
  * Must be called for user-allocated hlist_head before doing any manipulation of the @a head.
@@ -174,10 +171,18 @@ static inline bool hlist_empty(hlist_head *list)
  * @param hlist_member the member of @a type that is of type hlist_item.
  */
 #define hlist_for_each(item, head, type, hlist_member) \
-    for ((item) = hlist_head_item((head).next, type, hlist_member); \
+    for ((item) = container_of((head).next, type, hlist_member.l); \
          &(item)->hlist_member.l != &(head); \
-         (item) = hlist_head_item((item)->hlist_member.l.next, type, hlist_member))
+         (item) = container_of((item)->hlist_member.l.next, type, hlist_member.l))
 
+/** @brief Iterate over a hlist (non-recursively)
+ *
+ * Like hlist_for_each, but @a item is of type hlist_item instead of its supertype.
+ */
+#define hlist_for_each_item(item, head) \
+    for ((item) = container_of((head).next, hlist_item, l);\
+         &(item)->l != &(head); \
+         (item) = container_of((item)->l.next, hlist_item, l))
 
 /** @brief Allocate a hlist_item structure.
  *
@@ -242,5 +247,12 @@ int hlist_compare_item(hlist_item *item1, hlist_item *item2);
 #define HLIST_COMPARE_ITEM(ptr1, ptr2, hlist_member) \
     hlist_compare_item(&check_compatible_types(ptr1, ptr2)->hlist_member, \
                        &ptr2->hlist_member)
+
+void hlist_print(const hlist_head *list, bool include_index,
+                 void (*write_function)(const char *fmt, ...), const char *prefix);
+void hlist_print_field(const hlist_item *item, const hlist_field_description *field_desc,
+                       void (*write_function)(const char *fmt, ...), const char *prefix);
+void hlist_print_item(const hlist_item *item, void (*write_function)(const char *fmt, ...), const char *prefix);
+
 
 #endif // HLIST_H

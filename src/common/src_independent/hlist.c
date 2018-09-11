@@ -88,6 +88,7 @@ int hlist_compare(hlist_head *h1, hlist_head *h2)
     }
     return ret;
 }
+
 int hlist_compare_item(hlist_item *item1, hlist_item *item2)
 {
     int ret;
@@ -103,4 +104,102 @@ int hlist_compare_item(hlist_item *item1, hlist_item *item2)
     }
     return ret;
 }
+
+void hlist_print(const hlist_head *list, bool include_index, void (*write_function)(const char *fmt, ...), const char *prefix)
+{
+    const hlist_item *item;
+    char new_prefix[100];
+    unsigned i = 0;
+
+    hlist_for_each_item(item, *list)
+    {
+        if (include_index)
+        {
+            snprintf(new_prefix, sizeof(new_prefix)-1, "%s%s[%u]", prefix, item->desc->name, i);
+        } else {
+            snprintf(new_prefix, sizeof(new_prefix)-1, "%s%s", prefix, item->desc->name);
+        }
+        hlist_print_item(item, write_function, new_prefix);
+        i++;
+    }
+}
+
+void hlist_print_item(const hlist_item *item, void (*write_function)(const char *fmt, ...), const char *prefix)
+{
+    size_t i;
+    char new_prefix[100];
+
+    /* Construct the new prefix. */
+    snprintf(new_prefix, sizeof(new_prefix)-1, "%s->", prefix);
+
+    /* First print the fields. */
+    for (i = 0; i < ARRAY_SIZE(item->desc->fields) && item->desc->fields[i].name != NULL; i++)
+    {
+        hlist_print_field(item, &item->desc->fields[i], write_function, new_prefix);
+    }
+    /* Next print the children. */
+    for (i = 0; i < ARRAY_SIZE(item->children) && item->desc->children[i] != NULL; i++)
+    {
+        hlist_print(&item->children[i], true, write_function, new_prefix);
+    }
+}
+
+void hlist_print_field(const hlist_item *item, const hlist_field_description *field_desc,
+                       void (*write_function)(const char *fmt, ...), const char *prefix)
+{
+    unsigned value;
+    char *pvalue = ((char*)item) + field_desc->offset;
+
+    switch (field_desc->format)
+    {
+        case hlist_format_hex:
+        case hlist_format_dec:
+        case hlist_format_unsigned:
+
+            switch (field_desc->size)
+            {
+                case 1:
+                    value = *(const uint8_t*)pvalue;
+                    break;
+                case 2:
+                    value = *(const uint16_t*)pvalue;
+                    break;
+                case 4:
+                    value = *(const uint32_t*)pvalue;
+                    break;
+                default:
+                    assert(field_desc->format == hlist_format_hex);
+                    /* @todo */
+                    return;
+            }
+            write_function("%s%s: ", prefix, field_desc->name);
+            switch (field_desc->format)
+            {
+                case hlist_format_hex:
+                    write_function("0x%02x", value);
+                    break;
+                case hlist_format_dec:
+                    write_function("%d", value);
+                    break;
+                case hlist_format_unsigned:
+                    write_function("%u", value);
+                    break;
+                default:
+                    assert(0);
+                    break;
+            }
+            write_function("\n");
+            break;
+
+        case hlist_format_mac:
+        case hlist_format_ipv4:
+        case hlist_format_ipv6:
+            break;
+
+        default:
+            assert(0);
+            break;
+    }
+}
+
 

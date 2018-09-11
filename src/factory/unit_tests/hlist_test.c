@@ -18,6 +18,8 @@
 
 #include <hlist.h>
 #include "platform.h"
+#include <stdarg.h>
+#include <string.h>
 
 struct htest1 {
     hlist_item h;
@@ -33,7 +35,7 @@ static const hlist_description htest2Desc = {
     .name = "htest2",
     .size = sizeof(struct htest2),
     .fields = {
-        { HLIST_DESCRIBE_FIELD(struct htest2, data, hlist_format_unsigned), },
+        { HLIST_DESCRIBE_FIELD(struct htest2, data, hlist_format_hex), },
         HLIST_DESCRIBE_SENTINEL,
     },
     .children = {NULL},
@@ -48,6 +50,48 @@ static const hlist_description htest1Desc = {
     },
     .children = {&htest2Desc, NULL},
 };
+
+static char printBuf[1000] = "";
+
+/** @brief Helper to test print functions. */
+static void htest_write_function(const char *fmt, ...)
+{
+    va_list arglist;
+    size_t printBufLen = strlen(printBuf);
+
+    va_start(arglist, fmt);
+    vsnprintf(printBuf + printBufLen, sizeof(printBuf) - printBufLen - 1, fmt, arglist);
+    va_end(arglist);
+}
+
+static int check_print_compare(const char *expected, const char *function)
+{
+    if (strncmp(printBuf, expected, sizeof(printBuf)) != 0)
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("%s returned unexpected output.\n", function);
+        PLATFORM_PRINTF_DEBUG_INFO("  Expected >>>\n%s<<<\n", expected);
+        PLATFORM_PRINTF_DEBUG_INFO("  Got >>>\n%s<<<\n", printBuf);
+        return 1;
+    }
+    else
+        return 0;
+}
+
+static int check_print(struct htest1 *ht1, const char *prefix, const char *expected)
+{
+    int ret = 0;
+    char new_prefix[100];
+    /* The list contains exactly one element of type htest1, so we can test both hlist_print and hlist_print_item. */
+    printBuf[0] = '\0';
+    hlist_print(ht1->h.l.prev, false, htest_write_function, prefix);
+    ret += check_print_compare(expected, "hlist_print");
+
+    snprintf(new_prefix, sizeof(new_prefix)-1, "%shtest1", prefix);
+    printBuf[0] = '\0';
+    hlist_print_item(&ht1->h, htest_write_function, new_prefix);
+    ret += check_print_compare(expected, "hlist_print_item");
+    return ret;
+}
 
 /** @brief Test hlist_compare and HLIST_COMPARE_ITEM on @a ht1 and @a ht1b. */
 static int check_compare(struct htest1 *ht1, struct htest1 *ht1b, int expected_result, const char *reason)
@@ -84,6 +128,8 @@ int main()
     ht1->data = 242;
     HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1->h.children[0])->data = 42;
     HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1->h.children[0])->data = 43;
+
+    ret += check_print(ht1, "%%", "%%htest1->data: 242\n%%htest1->htest2[0]->data: 0x2a\n%%htest1->htest2[1]->data: 0x2b\n");
 
     /* Construct the same contents again */
     hlist_head_init(&list2);
