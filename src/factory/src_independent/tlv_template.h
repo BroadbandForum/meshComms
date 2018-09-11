@@ -267,11 +267,18 @@ struct exampleTLV {
 #include "tlv_template_inner.h"
 #endif // TLV_FIELD3_NAME
 
+static const struct hlist_description TLV_TEMPLATE_FUNCTION_NAME(desc) = {
+    .name = TLV_TEMPLATE_STR(TLV_NAME),
+    .size = sizeof(TLV_TEMPLATE_STRUCT_NAME),
+    .fields = {HLIST_DESCRIBE_SENTINEL,},
+    .children = {NULL,},
+};
+
 static struct tlv *TLV_TEMPLATE_FUNCTION_NAME(parse)(const struct tlv_def *def __attribute__((unused)),
                                                      const uint8_t *buffer __attribute__((unused)),
                                                      size_t length __attribute__((unused)))
 {
-    TLV_TEMPLATE_STRUCT_NAME *self = HLIST_ALLOC(TLV_TEMPLATE_STRUCT_NAME, tlv.h, NULL);
+    TLV_TEMPLATE_STRUCT_NAME *self = HLIST_ALLOC(&TLV_TEMPLATE_FUNCTION_NAME(desc), TLV_TEMPLATE_STRUCT_NAME, tlv.h, NULL);
 
 #ifdef TLV_PARSE_BODY
     TLV_PARSE_BODY(self);

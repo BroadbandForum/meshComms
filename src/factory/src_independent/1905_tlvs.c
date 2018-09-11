@@ -704,23 +704,36 @@ static void tlv_print_field2_associatedClients(const struct associatedClientsTLV
 
 #include <tlv_template.h>
 
-struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associatedClientsTLV* a, mac_address bssid)
-{
-    struct _associatedClientsBssInfo *ret = HLIST_ALLOC(struct _associatedClientsBssInfo, h, &a->tlv.h.children[0]);
-    memcpy(ret->bssid, bssid, sizeof(mac_address));
-    a->bss_nr++;
-    return ret;
-}
+const hlist_description _associatedClientInfoDesc = {
+    .name = "client",
+    .size = sizeof(struct _associatedClientInfo),
+    .fields = {
+        {
+            HLIST_DESCRIBE_FIELD(struct _associatedClientInfo, addr, hlist_format_mac),
+        },
+        {
+            HLIST_DESCRIBE_FIELD(struct _associatedClientInfo, age, hlist_format_unsigned),
+        },
+        HLIST_DESCRIBE_SENTINEL,
+    },
+    .children = {NULL,},
+};
 
-struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associatedClientsBssInfo* a,
-                                                                 mac_address addr, uint16_t age)
-{
-    struct _associatedClientInfo *ret = HLIST_ALLOC(struct _associatedClientInfo, h, &a->h.children[0]);
-    memcpy(ret->addr, addr, sizeof(mac_address));
-    ret->age = age;
-    a->client_nr++;
-    return ret;
-}
+const hlist_description _associatedClientsBssInfoDesc = {
+    .name = "bss",
+    .size = sizeof(struct _associatedClientsBssInfo),
+    .fields = {
+        {
+            HLIST_DESCRIBE_FIELD(struct _associatedClientsBssInfo, bssid, hlist_format_mac),
+        },
+        HLIST_DESCRIBE_SENTINEL,
+    },
+    .children = {
+        &_associatedClientInfoDesc,
+        NULL
+    }
+};
+
 /** @} */
 
 
@@ -749,9 +762,27 @@ static tlv_defs_t tlv_1905_defs = {
     TLV_DEF_ENTRY_NEW(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS),
 };
 
+struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associatedClientsTLV* a, mac_address bssid)
+{
+    struct _associatedClientsBssInfo *ret = HLIST_ALLOC(&_associatedClientsBssInfoDesc, struct _associatedClientsBssInfo, h, &a->tlv.h.children[0]);
+    memcpy(ret->bssid, bssid, sizeof(mac_address));
+    a->bss_nr++;
+    return ret;
+}
+
+struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associatedClientsBssInfo* a,
+                                                                 mac_address addr, uint16_t age)
+{
+    struct _associatedClientInfo *ret = HLIST_ALLOC(&_associatedClientInfoDesc, struct _associatedClientInfo, h, &a->h.children[0]);
+    memcpy(ret->addr, addr, sizeof(mac_address));
+    ret->age = age;
+    a->client_nr++;
+    return ret;
+}
+
 struct associatedClientsTLV* associatedClientsTLVAlloc(hlist_head *parent)
 {
-    struct associatedClientsTLV *ret = HLIST_ALLOC(struct associatedClientsTLV, tlv.h, parent);
+    struct associatedClientsTLV *ret = HLIST_ALLOC(&tlv_desc_associatedClients, struct associatedClientsTLV, tlv.h, parent);
     ret->tlv.type = TLV_TYPE_ASSOCIATED_CLIENTS;
     return ret;
 }

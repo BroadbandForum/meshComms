@@ -20,12 +20,13 @@
 #include <utils.h> /* memalloc() */
 #include <string.h> /* memset() */
 
-struct hlist_item *hlist_alloc(size_t size, hlist_head *parent)
+struct hlist_item *hlist_alloc(const hlist_description *desc, hlist_head *parent)
 {
+    size_t size = desc->size;
     hlist_item *ret = memalloc(size);
     memset(ret, 0, size);
     hlist_head_init(&ret->l);
-    ret->size = size;
+    ret->desc = desc;
     hlist_head_init(&ret->children[0]);
     hlist_head_init(&ret->children[1]);
     if (parent)
@@ -92,9 +93,10 @@ int hlist_compare_item(hlist_item *item1, hlist_item *item2)
     int ret;
     unsigned i;
 
-    assert(item1->size == item2->size);
+    assert(item1->desc == item2->desc);
 
-    ret = memcmp((char*)item1 + sizeof(hlist_item), (char*)item2 + sizeof(hlist_item), item1->size - sizeof(hlist_item));
+    ret = memcmp((char*)item1 + sizeof(hlist_item), (char*)item2 + sizeof(hlist_item),
+                 item1->desc->size - sizeof(hlist_item));
     for (i = 0; ret == 0 && i < ARRAY_SIZE(item1->children); i++)
     {
         ret = hlist_compare(&item1->children[i], &item2->children[i]);

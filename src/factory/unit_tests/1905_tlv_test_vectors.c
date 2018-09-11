@@ -1597,9 +1597,16 @@ static uint8_t x1905_tlv_stream_052[] =
 
 static uint16_t x1905_tlv_stream_len_052 = ARRAY_SIZE(x1905_tlv_stream_052);
 
+static const hlist_description x1905_test_vector_descr = {
+    .name = "1905 TLV test vector",
+    .size = sizeof(struct x1905_test_vector),
+    .fields = {HLIST_DESCRIBE_SENTINEL},
+    .children = {NULL,},
+};
+
 /* TEMPORARY until all TLVs have been converted to dynamic allocation */
 #define ADD_TEST_VECTOR(num, desc) \
-    v = HLIST_ALLOC(struct x1905_test_vector, h, test_vectors); \
+    v = HLIST_ALLOC(&x1905_test_vector_descr, struct x1905_test_vector, h, test_vectors); \
     v->stream = x1905_tlv_stream_##num; \
     v->stream_len = x1905_tlv_stream_len_##num; \
     v->description = desc; \
@@ -1610,7 +1617,7 @@ static uint16_t x1905_tlv_stream_len_052 = ARRAY_SIZE(x1905_tlv_stream_052);
 #define INIT_TEST_VECTOR(desc, ...) \
     do { \
         static const uint8_t stream[] = { __VA_ARGS__ }; \
-        v = HLIST_ALLOC(struct x1905_test_vector, h, test_vectors); \
+        v = HLIST_ALLOC(&x1905_test_vector_descr, struct x1905_test_vector, h, test_vectors); \
         v->stream = stream; \
         v->stream_len = sizeof(stream); \
         v->description = desc; \

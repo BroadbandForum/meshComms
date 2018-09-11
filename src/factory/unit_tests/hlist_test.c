@@ -29,6 +29,26 @@ struct htest2 {
     char data;
 };
 
+static const hlist_description htest2Desc = {
+    .name = "htest2",
+    .size = sizeof(struct htest2),
+    .fields = {
+        { HLIST_DESCRIBE_FIELD(struct htest2, data, hlist_format_unsigned), },
+        HLIST_DESCRIBE_SENTINEL,
+    },
+    .children = {NULL},
+};
+
+static const hlist_description htest1Desc = {
+    .name = "htest1",
+    .size = sizeof(struct htest1),
+    .fields = {
+        { HLIST_DESCRIBE_FIELD(struct htest1, data, hlist_format_unsigned), },
+        HLIST_DESCRIBE_SENTINEL,
+    },
+    .children = {&htest2Desc, NULL},
+};
+
 /** @brief Test hlist_compare and HLIST_COMPARE_ITEM on @a ht1 and @a ht1b. */
 static int check_compare(struct htest1 *ht1, struct htest1 *ht1b, int expected_result, const char *reason)
 {
@@ -60,19 +80,19 @@ int main()
     struct htest2 *ht2;
 
     hlist_head_init(&list1);
-    ht1 = HLIST_ALLOC(struct htest1, h, &list1);
+    ht1 = HLIST_ALLOC(&htest1Desc, struct htest1, h, &list1);
     ht1->data = 242;
-    HLIST_ALLOC(struct htest2, h, &ht1->h.children[0])->data = 42;
-    HLIST_ALLOC(struct htest2, h, &ht1->h.children[0])->data = 43;
+    HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1->h.children[0])->data = 42;
+    HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1->h.children[0])->data = 43;
 
     /* Construct the same contents again */
     hlist_head_init(&list2);
-    ht1b = HLIST_ALLOC(struct htest1, h, &list2);
+    ht1b = HLIST_ALLOC(&htest1Desc, struct htest1, h, &list2);
     ht1b->data = 242;
-    HLIST_ALLOC(struct htest2, h, &ht1b->h.children[0])->data = 42;
+    HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1b->h.children[0])->data = 42;
     ret += check_compare(ht1, ht1b, 1, "ht1b with shorter child list");
 
-    ht2 = HLIST_ALLOC(struct htest2, h, &ht1b->h.children[0]);
+    ht2 = HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1b->h.children[0]);
     ht2->data = 42;
     ret += check_compare(ht1, ht1b, 1, "ht1b with smaller child data");
     ht2->data = 44;
@@ -86,7 +106,7 @@ int main()
     ret += check_compare(ht1, ht1b, -1, "ht1b with larger data");
     ht1b->data = 242;
 
-    HLIST_ALLOC(struct htest2, h, &ht1b->h.children[0])->data = 43;
+    HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1b->h.children[0])->data = 43;
     ret += check_compare(ht1, ht1b, -1, "ht1b with longer child list");
 
     hlist_delete(&list1);
