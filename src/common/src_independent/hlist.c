@@ -149,13 +149,16 @@ void hlist_print_field(const hlist_item *item, const hlist_field_description *fi
 {
     unsigned value;
     char *pvalue = ((char*)item) + field_desc->offset;
+    uint8_t *uvalue = (uint8_t *)pvalue;
+    size_t i;
+
+    write_function("%s%s: ", prefix, field_desc->name);
 
     switch (field_desc->format)
     {
         case hlist_format_hex:
         case hlist_format_dec:
         case hlist_format_unsigned:
-
             switch (field_desc->size)
             {
                 case 1:
@@ -169,10 +172,14 @@ void hlist_print_field(const hlist_item *item, const hlist_field_description *fi
                     break;
                 default:
                     assert(field_desc->format == hlist_format_hex);
-                    /* @todo */
+                    /* @todo Break off long lines */
+                    for (i = 0; i < field_desc->size; i++)
+                    {
+                        write_function("%02x ", uvalue[i]);
+                    }
+                    write_function("\n");
                     return;
             }
-            write_function("%s%s: ", prefix, field_desc->name);
             switch (field_desc->format)
             {
                 case hlist_format_hex:
@@ -188,18 +195,31 @@ void hlist_print_field(const hlist_item *item, const hlist_field_description *fi
                     assert(0);
                     break;
             }
-            write_function("\n");
             break;
 
         case hlist_format_mac:
+            assert(field_desc->size == 6);
+            write_function(MACSTR, MAC2STR(uvalue));
+            break;
+
         case hlist_format_ipv4:
+            assert(field_desc->size == 4);
+            write_function("%u.%u.%u.%u", uvalue[0], uvalue[1], uvalue[2], uvalue[3]);
+            break;
+
         case hlist_format_ipv6:
+            assert(field_desc->size == 16);
+            write_function("%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
+                           uvalue[0], uvalue[1], uvalue[2], uvalue[3], uvalue[4], uvalue[5], uvalue[6], uvalue[7],
+                           uvalue[8], uvalue[9], uvalue[10], uvalue[11], uvalue[12], uvalue[13], uvalue[14],
+                           uvalue[15]);
             break;
 
         default:
             assert(0);
             break;
     }
+    write_function("\n");
 }
 
 

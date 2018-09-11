@@ -29,6 +29,7 @@ struct htest1 {
 struct htest2 {
     hlist_item h;
     char data;
+    char data2[15]; /* The rest of data, used to test the various print formats. */
 };
 
 static const hlist_description htest2Desc = {
@@ -122,6 +123,9 @@ int main()
     hlist_head list2;
     struct htest1 *ht1, *ht1b;
     struct htest2 *ht2;
+    /* Copy of htest2Desc that we can vary for testing the print formats. */
+    hlist_description htest2DescPrint = htest2Desc;
+
 
     hlist_head_init(&list1);
     ht1 = HLIST_ALLOC(&htest1Desc, struct htest1, h, &list1);
@@ -129,14 +133,58 @@ int main()
     HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1->h.children[0])->data = 42;
     HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1->h.children[0])->data = 43;
 
-    ret += check_print(ht1, "%%", "%%htest1->data: 242\n%%htest1->htest2[0]->data: 0x2a\n%%htest1->htest2[1]->data: 0x2b\n");
+    ret += check_print(ht1, "%%",
+                       "%%htest1->data: 242\n%%htest1->htest2[0]->data: 0x2a\n%%htest1->htest2[1]->data: 0x2b\n");
 
     /* Construct the same contents again */
     hlist_head_init(&list2);
     ht1b = HLIST_ALLOC(&htest1Desc, struct htest1, h, &list2);
     ht1b->data = 242;
-    HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1b->h.children[0])->data = 42;
+    ht2 = HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1b->h.children[0]);
+    ht2->data = 42;
     ret += check_compare(ht1, ht1b, 1, "ht1b with shorter child list");
+
+    /* Test the various print formats. Do this while ht1b has only a single htest2 child. */
+    ht2->h.desc = &htest2DescPrint;
+    ret += check_print(ht1b, "", "htest1->data: 242\nhtest1->htest2[0]->data: 0x2a\n");
+    *(uint16_t*)&ht2->data = 0xa599;
+    htest2DescPrint.fields[0].size = 2;
+    ret += check_print(ht1b, "2: ", "2: htest1->data: 242\n2: htest1->htest2[0]->data: 0xa599\n");
+    *(uint32_t*)&ht2->data = 0xa5991234;
+    htest2DescPrint.fields[0].size = 4;
+    ret += check_print(ht1b, "3: ", "3: htest1->data: 242\n3: htest1->htest2[0]->data: 0xa5991234\n");
+    htest2DescPrint.fields[0].format = hlist_format_unsigned;
+    ret += check_print(ht1b, "4: ", "4: htest1->data: 242\n4: htest1->htest2[0]->data: 2778272308\n");
+    htest2DescPrint.fields[0].format = hlist_format_dec;
+    ret += check_print(ht1b, "5: ", "5: htest1->data: 242\n5: htest1->htest2[0]->data: -1516694988\n");
+    htest2DescPrint.fields[0].format = hlist_format_ipv4;
+    ht2->data = 101;
+    ht2->data2[0] = 202;
+    ht2->data2[1] = 33;
+    ht2->data2[2] = 44;
+    ret += check_print(ht1b, "6: ", "6: htest1->data: 242\n6: htest1->htest2[0]->data: 101.202.33.44\n");
+    htest2DescPrint.fields[0].format = hlist_format_mac;
+    htest2DescPrint.fields[0].size = 6;
+    ht2->data2[3] = 0x10;
+    ht2->data2[4] = 0x11;
+    ret += check_print(ht1b, "7: ", "7: htest1->data: 242\n7: htest1->htest2[0]->data: 65:ca:21:2c:10:11\n");
+    htest2DescPrint.fields[0].format = hlist_format_hex;
+    htest2DescPrint.fields[0].size = 9;
+    memset(&ht2->data2[5], 0x42, 9);
+    ht2->data2[14] = 0x11;
+    ret += check_print(ht1b, "8: ",
+                       "8: htest1->data: 242\n8: htest1->htest2[0]->data: 65 ca 21 2c 10 11 42 42 42 \n");
+    htest2DescPrint.fields[0].format = hlist_format_ipv6;
+    htest2DescPrint.fields[0].size = 16;
+    memset(&ht2->data2[5], 0x42, 9);
+    ht2->data2[14] = 0x11;
+    ret += check_print(ht1b, "9: ",
+                       "9: htest1->data: 242\n9: htest1->htest2[0]->data: 65ca:212c:1011:4242:4242:4242:4242:4211\n");
+
+    /* Restore the original. */
+    ht2->data = 42;
+    memset(ht2->data2, 0, sizeof(ht2->data2));
+    ht2->h.desc = &htest2Desc;
 
     ht2 = HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1b->h.children[0]);
     ht2->data = 42;
