@@ -248,7 +248,6 @@ struct tlv_def
             __VA_ARGS__,           \
         },                         \
         .type = (tlv_type),        \
-        .parse = tlv_parse_##tlv_name,   \
     }
 
 /** @brief Definition of TLV metadata.

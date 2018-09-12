@@ -550,55 +550,8 @@ static bool tlv_compare_field2_apOperationalBss(const struct apOperationalBssTLV
  *
  * @{
  */
-#define TLV_NAME          associatedClients
-#define TLV_FIELD1_NAME   bss_nr
-#define TLV_FIELD1_LENGTH 1
-#define TLV_FIELD2_NAME   bss
-#define TLV_PARSE         0b10
-#define TLV_FORGE         0b10
-#define TLV_PRINT         0b11
-#define TLV_NEW
-#define TLV_LENGTH_BODY
 
-static bool tlv_parse_field2_associatedClients(const struct tlv_def *def __attribute__((unused)),
-                                              struct associatedClientsTLV *self,
-                                              const uint8_t **buf,
-                                              size_t *length)
-{
-    uint8_t i, j;
-    /* associatedClientsTLVAddBssInfo() updates self->bss_nr, so store it here. */
-    uint8_t bss_nr = self->bss_nr;
-    self->bss_nr = 0;
-
-    for (i = 0; i < bss_nr; i++)
-    {
-        mac_address bssid;
-        uint8_t client_nr;
-        struct _associatedClientsBssInfo *bssInfo;
-
-        if (!_EmBL(buf, bssid, length))
-            return false;
-        if (!_E1BL(buf, &client_nr, length))
-            return false;
-        bssInfo = associatedClientsTLVAddBssInfo(self, bssid);
-        for (j = 0; j < client_nr; j++)
-        {
-            mac_address addr;
-            uint16_t age;
-
-            if (!_EmBL(buf, addr, length))
-                return false;
-            if (!_E2BL(buf, &age, length))
-                return false;
-            associatedClientsTLVAddClientInfo(bssInfo, addr, age);
-        }
-    }
-    return true;
-}
-
-#include <tlv_template.h>
-
-const hlist_description _associatedClientInfoDesc = {
+static const hlist_description _associatedClientInfoDesc = {
     .name = "client",
     .size = sizeof(struct _associatedClientInfo),
     .fields = {
@@ -613,7 +566,7 @@ const hlist_description _associatedClientInfoDesc = {
     .children = {NULL,},
 };
 
-const hlist_description _associatedClientsBssInfoDesc = {
+static const hlist_description _associatedClientsBssInfoDesc = {
     .name = "bss",
     .size = sizeof(struct _associatedClientsBssInfo),
     .fields = {
@@ -680,7 +633,6 @@ struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associa
 {
     struct _associatedClientsBssInfo *ret = HLIST_ALLOC(&_associatedClientsBssInfoDesc, struct _associatedClientsBssInfo, h, &a->tlv.h.children[0]);
     memcpy(ret->bssid, bssid, sizeof(mac_address));
-    a->bss_nr++;
     return ret;
 }
 
@@ -690,7 +642,6 @@ struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associa
     struct _associatedClientInfo *ret = HLIST_ALLOC(&_associatedClientInfoDesc, struct _associatedClientInfo, h, &a->h.children[0]);
     memcpy(ret->addr, addr, sizeof(mac_address));
     ret->age = age;
-    a->client_nr++;
     return ret;
 }
 

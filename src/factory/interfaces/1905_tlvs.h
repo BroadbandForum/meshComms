@@ -965,13 +965,11 @@ struct _associatedClientsBssInfo {
     hlist_item h;
     mac_address bssid; /**< @brief The BSSID of the BSS operated by the Multi-AP Agent in which the clients are
                         * associated. */
-    uint8_t     client_nr; /**< @brief Number of ::client. */
 };
 
 struct associatedClientsTLV
 {
     struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_ASSOCIATED_CLIENTS. */
-    uint8_t      bss_nr; /**< @brief Number of ::bss. */
 };
 
 struct associatedClientsTLV* associatedClientsTLVAlloc(hlist_head *parent);

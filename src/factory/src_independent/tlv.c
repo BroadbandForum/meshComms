@@ -37,17 +37,70 @@ const struct tlv_def *tlv_find_tlv_def(tlv_defs_t defs, const struct tlv *tlv)
     return tlv_find_def(defs, tlv->type);
 }
 
+
+static bool tlv_parse_field(hlist_item *item, const hlist_field_description *desc, size_t size, const uint8_t **buffer, size_t *length)
+{
+    char *pfield = (char*)item + desc->offset;
+    if (size == 0)
+    {
+        size = desc->size;
+    }
+    switch (size)
+    {
+        case 1:
+            return _E1BL(buffer, (uint8_t*)pfield, length);
+        case 2:
+            return _E2BL(buffer, (uint16_t*)pfield, length);
+        case 4:
+            return _E4BL(buffer, (uint32_t*)pfield, length);
+        default:
+            return _EnBL(buffer, (uint32_t*)pfield, size, length);
+    }
+}
+
+static hlist_item *tlv_parse_single(const hlist_description *desc, hlist_head *parent, const uint8_t **buffer, size_t *length)
+{
+    size_t i;
+
+    hlist_item *item = hlist_alloc(desc, parent);
+    for (i = 0; i < ARRAY_SIZE(item->desc->fields) && item->desc->fields[i].name != NULL; i++)
+    {
+        if (!tlv_parse_field(item, &item->desc->fields[i], 0, buffer, length))
+            goto err_out;
+    }
+    for (i = 0; i < ARRAY_SIZE(item->children) && item->desc->children[i] != NULL; i++)
+    {
+        uint8_t children_nr;
+        uint8_t j;
+
+        _E1BL(buffer, &children_nr, length);
+        for (j = 0; j < children_nr; j++)
+        {
+            const hlist_item *child = tlv_parse_single(item->desc->children[i], &item->children[i], buffer, length);
+            if (child == NULL)
+                goto err_out;
+        }
+    }
+    return item;
+
+err_out:
+    hlist_delete_item(item);
+    return NULL;
+}
+
 bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t length)
 {
     while (length >= 3)    // Minimal TLV: 1 byte type, 2 bytes length
     {
         uint8_t tlv_type;
-        uint16_t tlv_length;
+        uint16_t tlv_length_uint16;
+        size_t tlv_length;
         const struct tlv_def *tlv_def;
         struct tlv *tlv_new;
 
         _E1BL(&buffer, &tlv_type, &length);
-        _E2BL(&buffer, &tlv_length, &length);
+        _E2BL(&buffer, &tlv_length_uint16, &length);
+        tlv_length = tlv_length_uint16;
         if (tlv_length > length)
         {
             PLATFORM_PRINTF_DEBUG_ERROR("TLV(%u) of length %u but only %u bytes left in buffer\n",
@@ -63,27 +116,38 @@ bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t 
                                           (unsigned)tlv_type, (unsigned)tlv_length);
             tlv = memalloc(sizeof(struct tlv_unknown));
             tlv->value = memalloc(tlv_length);
-            tlv->length = tlv_length;
+            tlv->length = tlv_length_uint16;
             memcpy(tlv->value, buffer, tlv_length);
             tlv_new = &tlv->tlv;
         }
         else if (tlv_def->parse == NULL)
         {
-            /* Default parse function only works for 0-length TLVs */
+            /* Special case for 0-length TLVs */
             if (tlv_length == 0)
             {
                 tlv_new = memalloc(sizeof(struct tlv));
             }
             else
             {
-                PLATFORM_PRINTF_DEBUG_ERROR("Implementation error: no parse function for TLV %s length %u\n",
-                                            tlv_def->desc.name, (unsigned)tlv_length);
-                goto err_out;
+                /* @todo clean this up */
+                length -= tlv_length;
+                hlist_item *tlv_new_item = tlv_parse_single(&tlv_def->desc, NULL, &buffer, &tlv_length);
+                if (tlv_new_item == NULL)
+                    goto err_out;
+                if (tlv_length != 0)
+                {
+                    PLATFORM_PRINTF_DEBUG_ERROR("Remaining garbage (%u bytes) after parsing TLV %s\n",
+                                                (unsigned)tlv_length, tlv_def->desc.name);
+                    hlist_delete_item(tlv_new_item);
+                    goto err_out;
+                }
+                tlv_new = container_of(tlv_new_item, struct tlv, h);
             }
         }
         else
         {
             tlv_new = tlv_def->parse(tlv_def, buffer, tlv_length);
+            /* @todo check no remaining bytes in tlv_length */
         }
         if (tlv_new == NULL)
         {
@@ -108,7 +172,7 @@ err_out:
 }
 
 
-static bool tlv_forge_field(const hlist_item *item, const hlist_field_description *desc, uint16_t size, uint8_t **buffer, size_t *length)
+static bool tlv_forge_field(const hlist_item *item, const hlist_field_description *desc, size_t size, uint8_t **buffer, size_t *length)
 {
     const char *pfield = (const char*)item + desc->offset;
     if (size == 0)
