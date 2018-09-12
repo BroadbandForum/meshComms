@@ -28,36 +28,6 @@
 #include <stdio.h>  // snprintf
 
 
-
-/** This is a hack to get access to the internals of tlv_list, as a backward-compatibility measure until all of
- * 1905_tlvs supports the new tlv definition interface.
- * @{
- */
-struct tlv_list
-{
-    size_t tlv_nr;
-    struct tlv **tlvs;
-};
-
-static struct tlv_list *alloc_dummy_tlv_list(const struct tlv *tlv)
-{
-    struct tlv_list *tlvs = memalloc(sizeof(struct tlv_list));
-    tlvs->tlvs = memalloc(sizeof(struct tlv *));
-    tlvs->tlv_nr = 1;
-    tlvs->tlvs[0] = (struct tlv*)tlv;
-    return tlvs;
-}
-
-static struct tlv *free_dummy_tlv_list(struct tlv_list *tlvs)
-{
-    struct tlv *ret = tlvs->tlvs[0];
-    free(tlvs->tlvs);
-    free(tlvs);
-    return ret;
-}
-
-/** @} */
-
 // Buffer size to store a prefix string that will be used to show each
 // element of a structure on screen
 //
@@ -2213,11 +2183,12 @@ struct tlv *parse_1905_TLV_from_packet(const uint8_t *packet_stream)
         default:
         {
             uint16_t len;
-            struct tlv_list *parsed;
+            DECLARE_HLIST_HEAD(dummy);
+            bool parsed;
             p = packet_stream + 1;
             _E2B(&p, &len);
-            parsed = tlv_parse(tlv_1905_defs, packet_stream, len + 3);
-            if (parsed == NULL)
+            parsed = tlv_parse(tlv_1905_defs, &dummy, packet_stream, len + 3);
+            if (!parsed)
             {
                 // Ignore
                 //
@@ -2225,8 +2196,9 @@ struct tlv *parse_1905_TLV_from_packet(const uint8_t *packet_stream)
             }
             else
             {
-                /* Don't leak tlv_list */
-                return free_dummy_tlv_list(parsed);
+                struct tlv *tlv = container_of(dummy.next, struct tlv, h.l);
+                hlist_head_init(&tlv->h.l);
+                return tlv;
             }
         }
 
@@ -3313,15 +3285,16 @@ uint8_t *forge_1905_TLV_from_structure(const struct tlv *tlv, uint16_t *len)
         {
             uint8_t *ret = NULL;
             size_t length;
-            struct tlv_list *dummy = alloc_dummy_tlv_list(tlv);
-            if (!tlv_forge(tlv_1905_defs, dummy, MAX_NETWORK_SEGMENT_SIZE, &ret, &length))
+            DECLARE_HLIST_HEAD(dummy);
+            tlv_add(tlv_1905_defs, &dummy, (struct tlv*)tlv);
+            if (!tlv_forge(tlv_1905_defs, &dummy, MAX_NETWORK_SEGMENT_SIZE, &ret, &length))
             {
                 PLATFORM_PRINTF_DEBUG_ERROR("Failed to forge TLV %s\n",
                                             convert_1905_TLV_type_to_string(tlv->type));
                 ret = NULL;
             }
-            free_dummy_tlv_list(dummy);
             *len = length;
+            hlist_head_init((hlist_head*)&tlv->h.l);
             return ret;
         }
 
@@ -3664,7 +3637,11 @@ void free_1905_TLV_structure(struct tlv *tlv)
 
         default:
         {
-            tlv_free(tlv_1905_defs, alloc_dummy_tlv_list(tlv));
+            DECLARE_HLIST_HEAD(dummy);
+            hlist_head_init(&tlv->h.children[0]);
+            hlist_head_init(&tlv->h.children[1]);
+            tlv_add(tlv_1905_defs, &dummy, tlv);
+            tlv_free(tlv_1905_defs, &dummy);
             return;
         }
     }
@@ -4595,9 +4572,11 @@ uint8_t compare_1905_TLV_structures(struct tlv *tlv_1, struct tlv *tlv_2)
         default:
         {
             uint8_t ret;
-            struct tlv_list *dummy1 = alloc_dummy_tlv_list(tlv_1);
-            struct tlv_list *dummy2 = alloc_dummy_tlv_list(tlv_2);
-            if (tlv_compare(tlv_1905_defs, dummy1, dummy2))
+            DECLARE_HLIST_HEAD(dummy1);
+            tlv_add(tlv_1905_defs, &dummy1, tlv_1);
+            DECLARE_HLIST_HEAD(dummy2);
+            tlv_add(tlv_1905_defs, &dummy2, tlv_2);
+            if (tlv_compare(tlv_1905_defs, &dummy1, &dummy2))
             {
                 ret = 0;
             }
@@ -4605,8 +4584,8 @@ uint8_t compare_1905_TLV_structures(struct tlv *tlv_1, struct tlv *tlv_2)
             {
                 ret = 1;
             }
-            free_dummy_tlv_list(dummy1);
-            free_dummy_tlv_list(dummy2);
+            hlist_head_init(&tlv_1->h.l);
+            hlist_head_init(&tlv_2->h.l);
 
             return ret;
         }
@@ -5237,9 +5216,10 @@ void visit_1905_TLV_structure(struct tlv *tlv, visitor_callback callback, void (
 
         default:
         {
-            struct tlv_list *dummy = alloc_dummy_tlv_list(tlv);
-            tlv_print(tlv_1905_defs, dummy, write_function, prefix);
-            free_dummy_tlv_list(dummy);
+            DECLARE_HLIST_HEAD(dummy);
+            tlv_add(tlv_1905_defs, &dummy, tlv);
+            tlv_print(tlv_1905_defs, &dummy, write_function, prefix);
+            hlist_head_init(&tlv->h.l);
 
             return;
         }

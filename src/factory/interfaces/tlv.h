@@ -27,8 +27,7 @@
  * The concrete TLV types are handled through the tlv_def structure. A TLV implementation must define the full array
  * of TLV types tlv_defs_t. Undefined types can be left as 0.
  *
- * The TLV functions take lists of TLVs, represented in the abstract tlv_list type. TLVs are always allocated and freed
- * as a full list.
+ * The TLV functions take lists of TLVs, passed in as a hlist_head. TLVs are always allocated and freed as a full list.
  */
 
 #include <hlist.h>
@@ -55,12 +54,6 @@ struct ssid
 #define TLV_TYPE_NUM 0x100U
 
 struct tlv_def;
-
-/** @brief List of ::tlv%s.
- *
- * This is an abstract type. It is created by tlv_parse(), updated with tlv_add(), and deleted with tlv_free().
- */
-struct tlv_list;
 
 /** @brief Type-Length-Value object.
  *
@@ -283,20 +276,29 @@ const struct tlv_def *tlv_find_tlv_def(tlv_defs_t defs, const struct tlv *tlv);
  * @return true if successful, false if failed.
  *
  * This function may fail when a TLV of type @a tlv already exists in @a tlvs and they can't be aggregated.
+ *
+ * @todo aggregation is not implemented at the moment.
  */
-bool tlv_add(tlv_defs_t defs, struct tlv_list *tlvs, struct tlv *tlv);
+bool tlv_add(tlv_defs_t defs, hlist_head *tlvs, struct tlv *tlv);
 
 /** @brief Parse a list of TLVs.
  *
  * @param defs The TLV metadata.
  *
+ * @param tlvs The TLV list to append to.
+ *
  * @param buffer The buffer to parse (starting at the first TLV).
  *
  * @param length The length of @a buffer.
  *
- * @return NULL in case of error, or a list of TLVs.
+ * @return true if successful, false if failed.
+ *
+ * The new TLVs are appended to @a tlvs. If parsing fails at some point, this function returns @a false immediately.
+ * At that point, some TLVs may already have been appended to @a tlvs.
+ *
+ * The new TLVs have to be freed by calling tlv_free() on @a tlvs.
  */
-struct tlv_list *tlv_parse(tlv_defs_t defs, const uint8_t *buffer, size_t length);
+bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t length);
 
 /** @brief Forge a list of TLVs.
  *
@@ -316,9 +318,9 @@ struct tlv_list *tlv_parse(tlv_defs_t defs, const uint8_t *buffer, size_t length
  *
  * @todo Fragmentation is not implemented at the moment.
  *
- * @todo The allocated buffers should have some headroom, so they don't have to be copied again to from a full packet.
+ * @todo The allocated buffers should have some headroom, so they don't have to be copied again to form a full packet.
  */
-bool tlv_forge(tlv_defs_t defs, const struct tlv_list *tlvs, size_t max_length, uint8_t **buffer, size_t *length);
+bool tlv_forge(tlv_defs_t defs, const hlist_head *tlvs, size_t max_length, uint8_t **buffer, size_t *length);
 
 /** @brief Print a list of TLVs.
  *
@@ -330,7 +332,7 @@ bool tlv_forge(tlv_defs_t defs, const struct tlv_list *tlvs, size_t max_length, 
  *
  * @param prefix Prefix to be added to every line.
  */
-void tlv_print(tlv_defs_t defs, const struct tlv_list *tlvs, void (*write_function)(const char *fmt, ...), const char *prefix);
+void tlv_print(tlv_defs_t defs, const hlist_head *tlvs, void (*write_function)(const char *fmt, ...), const char *prefix);
 
 /** @brief Delete a list of TLVs.
  *
@@ -338,11 +340,11 @@ void tlv_print(tlv_defs_t defs, const struct tlv_list *tlvs, void (*write_functi
  *
  * @param tlvs The tlvs to delete.
  *
- * This function deletes each ::tlv and also the ::tlv_list.
+ * This function deletes each ::tlv but not @a tlvs itself.
  *
  * @todo replace by hlist_delete()
  */
-void tlv_free(tlv_defs_t defs, struct tlv_list *tlvs);
+void tlv_free(tlv_defs_t defs, hlist_head *tlvs);
 
 /** @brief Compare two TLV lists.
  *
@@ -356,6 +358,6 @@ void tlv_free(tlv_defs_t defs, struct tlv_list *tlvs);
  *
  * @todo replace by hlist_compare()
  */
-bool tlv_compare(tlv_defs_t defs, const struct tlv_list *tlvs1, const struct tlv_list *tlvs2);
+bool tlv_compare(tlv_defs_t defs, const hlist_head *tlvs1, const hlist_head *tlvs2);
 
 #endif // TLV_H

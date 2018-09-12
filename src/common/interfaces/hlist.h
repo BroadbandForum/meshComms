@@ -147,6 +147,9 @@ static inline void hlist_head_init(hlist_head *head)
     head->prev = head;
 }
 
+/** @brief Declaration of static or stack hlist_head variable. May be preceded by the @c static keyword. */
+#define DECLARE_HLIST_HEAD(name) hlist_head name = {&name, &name}
+
 /** @brief Add an element at the front of a list.
  *
  * @param list The list head.
@@ -175,7 +178,7 @@ static inline void hlist_add_tail(hlist_head *list, hlist_item *item)
 }
 
 /** @brief Check if the list is empty. */
-static inline bool hlist_empty(hlist_head *list)
+static inline bool hlist_empty(const hlist_head *list)
 {
     return list->next == list;
 }
