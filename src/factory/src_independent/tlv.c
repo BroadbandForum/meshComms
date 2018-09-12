@@ -107,6 +107,80 @@ err_out:
     return false;
 }
 
+
+static bool tlv_forge_field(const hlist_item *item, const hlist_field_description *desc, uint16_t size, uint8_t **buffer, size_t *length)
+{
+    const char *pfield = (const char*)item + desc->offset;
+    if (size == 0)
+    {
+        size = desc->size;
+    }
+    switch (size)
+    {
+        case 1:
+            return _I1BL((const uint8_t*)pfield, buffer, length);
+        case 2:
+            return _I2BL((const uint16_t*)pfield, buffer, length);
+        case 4:
+            return _I4BL((const uint32_t*)pfield, buffer, length);
+        default:
+            return _InBL((const uint32_t*)pfield, buffer, size, length);
+    }
+}
+
+static bool tlv_forge_single(const hlist_item *item, uint8_t **buffer, size_t *length)
+{
+    size_t i;
+    for (i = 0; i < ARRAY_SIZE(item->desc->fields) && item->desc->fields[i].name != NULL; i++)
+    {
+        if (!tlv_forge_field(item, &item->desc->fields[i], 0, buffer, length))
+            return false;
+    }
+    for (i = 0; i < ARRAY_SIZE(item->children) && item->desc->children[i] != NULL; i++)
+    {
+        const hlist_item *child;
+        size_t children_nr = hlist_count(&item->children[i]);
+        uint8_t children_nr_uint8;
+        if (children_nr > 255)
+        {
+            PLATFORM_PRINTF_DEBUG_WARNING("TLV with more than 255 children.\n");
+            return false;
+        }
+        children_nr_uint8 = children_nr;
+        _I1BL(&children_nr_uint8, buffer, length);
+        hlist_for_each_item(child, item->children[i])
+        {
+            if (!tlv_forge_single(child, buffer, length))
+                return false;
+        }
+    }
+    return true;
+}
+
+static uint16_t tlv_length_single(const hlist_item *item)
+{
+    uint16_t length = 0;
+    size_t i;
+    for (i = 0; i < ARRAY_SIZE(item->desc->fields) && item->desc->fields[i].name != NULL; i++)
+    {
+        /* If one of the fields has a different size in serialisation than in the struct, the length() method must be
+         * overridden. */
+        length += item->desc->fields[i].size;
+    }
+    /* Next print the children. */
+    for (i = 0; i < ARRAY_SIZE(item->children) && item->desc->children[i] != NULL; i++)
+    {
+        const hlist_item *child;
+        length += 1; /* num_children */
+        hlist_for_each_item(child, item->children[i])
+        {
+            length += tlv_length_single(child);
+        }
+    }
+
+    return length;
+}
+
 bool tlv_forge(tlv_defs_t defs, const hlist_head *tlvs, size_t max_length, uint8_t **buffer, size_t *length)
 {
     size_t total_length;
@@ -124,8 +198,8 @@ bool tlv_forge(tlv_defs_t defs, const hlist_head *tlvs, size_t max_length, uint8
         }
         else if (tlv_def->length == NULL)
         {
-            /* Assume 0-length TLV */
             total_length += 3;
+            total_length += tlv_length_single(&tlv->h);
         }
         else if (tlv_def->forge == NULL)
         {
@@ -154,14 +228,26 @@ bool tlv_forge(tlv_defs_t defs, const hlist_head *tlvs, size_t max_length, uint8
     hlist_for_each(tlv, *tlvs, struct tlv, h)
     {
         const struct tlv_def *tlv_def = tlv_find_tlv_def(defs, tlv);
-        uint16_t tlv_length = tlv_def->length(tlv);
+        uint16_t tlv_length;
+        if (tlv_def->length == NULL)
+            tlv_length = tlv_length_single(&tlv->h);
+        else
+            tlv_length = tlv_def->length(tlv);
 
         if (!_I1BL(&tlv->type, &p, &total_length))
             goto err_out;
         if (!_I2BL(&tlv_length, &p, &total_length))
             goto err_out;
-        if (!tlv_def->forge(tlv, &p, &total_length))
-            goto err_out;
+        if (tlv_def->forge == NULL)
+        {
+            if (!tlv_forge_single(&tlv->h, &p, &total_length))
+                goto err_out;
+        }
+        else
+        {
+            if (!tlv_def->forge(tlv, &p, &total_length))
+                goto err_out;
+        }
     }
     if (total_length != 0)
         goto err_out;

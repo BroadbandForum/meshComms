@@ -116,6 +116,21 @@ static int check_compare(struct htest1 *ht1, struct htest1 *ht1b, int expected_r
     return ret;
 }
 
+static int check_count(hlist_head *list, size_t expected_count)
+{
+    size_t real_count = hlist_count(list);
+    if (real_count != expected_count)
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("hlist_count result %u but expected %u\n", (unsigned)real_count, (unsigned)expected_count);
+        hlist_print(list, false, PLATFORM_PRINTF_DEBUG_INFO, "  ");
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 int main()
 {
     int ret = 0;
@@ -128,10 +143,14 @@ int main()
 
 
     hlist_head_init(&list1);
+    ret += check_count(&list1, 0);
     ht1 = HLIST_ALLOC(&htest1Desc, struct htest1, h, &list1);
     ht1->data = 242;
     HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1->h.children[0])->data = 42;
     HLIST_ALLOC(&htest2Desc, struct htest2, h, &ht1->h.children[0])->data = 43;
+
+    ret += check_count(&list1, 1);
+    ret += check_count(&ht1->h.children[0], 2);
 
     ret += check_print(ht1, "%%",
                        "%%htest1->data: 242\n%%htest1->htest2[0]->data: 0x2a\n%%htest1->htest2[1]->data: 0x2b\n");

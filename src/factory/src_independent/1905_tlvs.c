@@ -596,45 +596,6 @@ static bool tlv_parse_field2_associatedClients(const struct tlv_def *def __attri
     return true;
 }
 
-static uint16_t tlv_length_body_associatedClients(const struct associatedClientsTLV *self)
-{
-    uint16_t length = 1 /* bss_nr */;
-    struct _associatedClientsBssInfo *bssInfo;
-
-    hlist_for_each(bssInfo, self->tlv.h.children[0], struct _associatedClientsBssInfo, h)
-    {
-        length += 6 + 1; /* bssid, client_nr */
-        length += bssInfo->client_nr * (6 + 2); /* addr, age */
-    }
-    return length;
-}
-
-static bool tlv_forge_field2_associatedClients(const struct associatedClientsTLV *self,
-                                              uint8_t **buf,
-                                              size_t *length)
-{
-    struct _associatedClientsBssInfo *bssInfo;
-
-    hlist_for_each(bssInfo, self->tlv.h.children[0], struct _associatedClientsBssInfo, h)
-    {
-        struct _associatedClientInfo *clientInfo;
-
-        if (!_ImBL(bssInfo->bssid, buf, length))
-            return false;
-        if (!_I1BL(&bssInfo->client_nr, buf, length))
-            return false;
-
-        hlist_for_each(clientInfo, bssInfo->h.children[0], struct _associatedClientInfo, h)
-        {
-            if (!_ImBL(clientInfo->addr, buf, length))
-                return false;
-            if (!_I2BL(&clientInfo->age, buf, length))
-                return false;
-        }
-    }
-    return true;
-}
-
 #include <tlv_template.h>
 
 const hlist_description _associatedClientInfoDesc = {

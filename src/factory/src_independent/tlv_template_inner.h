@@ -93,7 +93,7 @@ static bool TLV_TEMPLATE_FIELD_FUNCTION_NAME(parse)(const struct tlv_def *def __
 #endif // TLV_PARSE
 
 
-#if !((TLV_FORGE) & TLV_FIELD_MASK)
+#if !((TLV_FORGE) & TLV_FIELD_MASK) && !defined(TLV_NEW)
 static bool TLV_TEMPLATE_FIELD_FUNCTION_NAME(forge)(const TLV_TEMPLATE_STRUCT_NAME *self,
                                                     uint8_t **buf,
                                                     size_t *length)

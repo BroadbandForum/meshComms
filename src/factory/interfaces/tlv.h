@@ -249,8 +249,6 @@ struct tlv_def
         },                         \
         .type = (tlv_type),        \
         .parse = tlv_parse_##tlv_name,   \
-        .length = tlv_length_##tlv_name, \
-        .forge = tlv_forge_##tlv_name,   \
     }
 
 /** @brief Definition of TLV metadata.

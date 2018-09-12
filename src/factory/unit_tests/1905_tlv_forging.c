@@ -39,7 +39,7 @@ static int _check(const char *test_description, const struct tlv *input, const u
 
     if (NULL == real_output)
     {
-        PLATFORM_PRINTF("Parse %-100s: KO !!!\n", test_description);
+        PLATFORM_PRINTF("Forge %-100s: KO !!!\n", test_description);
         PLATFORM_PRINTF("  forge_1905_TLV_from_structure() returned a NULL pointer\n");
 
         return 1;
@@ -48,14 +48,14 @@ static int _check(const char *test_description, const struct tlv *input, const u
     if ((expected_output_len == real_output_len) && (0 == memcmp(expected_output, real_output, real_output_len)))
     {
         result = 0;
-        PLATFORM_PRINTF("Parse %-100s: OK\n", test_description);
+        PLATFORM_PRINTF("Forge %-100s: OK\n", test_description);
     }
     else
     {
         uint16_t i;
 
         result = 1;
-        PLATFORM_PRINTF("Parse %-100s: KO !!!\n", test_description);
+        PLATFORM_PRINTF("Forge %-100s: KO !!!\n", test_description);
         PLATFORM_PRINTF("  Expected output: ");
         for (i=0; i<expected_output_len; i++)
         {

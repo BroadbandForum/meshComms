@@ -307,6 +307,7 @@ err_out:
     return NULL;
 }
 
+#ifndef TLV_NEW
 static uint16_t TLV_TEMPLATE_FUNCTION_NAME(length)(const struct tlv *tlv)
 {
     const TLV_TEMPLATE_STRUCT_NAME *self __attribute__((unused)) = (const TLV_TEMPLATE_STRUCT_NAME *)tlv;
@@ -372,7 +373,6 @@ static bool TLV_TEMPLATE_FUNCTION_NAME(forge)(const struct tlv *tlv,
     return true;
 }
 
-#ifndef TLV_NEW
 static void TLV_TEMPLATE_FUNCTION_NAME(print)(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     const TLV_TEMPLATE_STRUCT_NAME *self = (const TLV_TEMPLATE_STRUCT_NAME *)tlv;

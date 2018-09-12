@@ -204,6 +204,17 @@ static inline bool hlist_empty(const hlist_head *list)
          &(item)->l != &(head); \
          (item) = container_of((item)->l.next, hlist_item, l))
 
+static inline size_t hlist_count(const hlist_head *list)
+{
+    size_t count = 0;
+    hlist_item *item;
+    hlist_for_each_item(item, *list)
+    {
+        count++;
+    }
+    return count;
+}
+
 /** @brief Allocate a hlist_item structure.
  *
  * @internal
