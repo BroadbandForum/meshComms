@@ -85,7 +85,7 @@ static bool TLV_TEMPLATE_FIELD_FUNCTION_NAME(parse)(const struct tlv_def *def __
     if (!_EnBL(buf, self->TLV_FIELD_NAME, sizeof(self->TLV_FIELD_NAME), length))
 #endif
     {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: no " TLV_TEMPLATE_STR(TLV_FIELD_NAME) "\n", def->name);
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: no " TLV_TEMPLATE_STR(TLV_FIELD_NAME) "\n", def->desc.name);
         return false;
     }
     return true;
@@ -109,7 +109,7 @@ static bool TLV_TEMPLATE_FIELD_FUNCTION_NAME(forge)(const TLV_TEMPLATE_STRUCT_NA
 }
 #endif // TLV_FORGE
 
-#if !((TLV_PRINT) & TLV_FIELD_MASK)
+#if !((TLV_PRINT) & TLV_FIELD_MASK) && !defined(TLV_NEW)
 static void TLV_TEMPLATE_FIELD_FUNCTION_NAME(print)(const TLV_TEMPLATE_STRUCT_NAME *self,
                                                     void (*write_function)(const char *fmt, ...),
                                                     const char *prefix)

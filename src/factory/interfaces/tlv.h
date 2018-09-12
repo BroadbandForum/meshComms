@@ -101,14 +101,10 @@ struct tlv_unknown
  */
 struct tlv_def
 {
+    hlist_description desc;
+
     /** @brief The type identifier. */
     uint8_t type;
-
-    /** @brief Human-readable name.
-     *
-     * Must be set to identify a valid type, NULL for an unknown type.
-     */
-    const char *name;
 
     /** @brief TLV parse virtual function.
      *
@@ -123,8 +119,7 @@ struct tlv_def
      * This function must create a new TLV structure and initialise its value. The type and length are already parsed
      * out of the @a buffer, so it points directly to the value.
      *
-     * If the TLV is zero-length (and the full TLV structure only contains a ::tlv member), it is not necessary to
-     * implement this function.
+     * If NULL, a default parse function is used based on the field descriptions in ::desc.
      */
     struct tlv *(*parse)(const struct tlv_def *def, const uint8_t *buffer, size_t length);
 
@@ -136,7 +131,7 @@ struct tlv_def
      *
      * This function is called when forging a TLV list, to determine the size of the buffer that must be allocated.
      *
-     * If left as NULL, defaults to 0 length.
+     * If NULL, the length is calculated based on the field descriptions in ::desc.
      */
     uint16_t (*length)(const struct tlv *tlv);
 
@@ -156,7 +151,7 @@ struct tlv_def
      *
      * Use _I1BL() and friends to fill @buf and update @length.
      *
-     * May be left as NULL for 0 length TLVs. In that case, also tlv_def::length must be NULL.
+     * If NULL, a default forge function is used based on the field descriptions in ::desc.
      */
     bool (*forge)(const struct tlv *tlv, uint8_t **buf, size_t *length);
 
@@ -168,7 +163,7 @@ struct tlv_def
      *
      * @param prefix Prefix to be added to every line. This prefix will contain the TLV type name.
      *
-     * May be left as NULL for 0 length TLVs or where the value is not relevant to print.
+     * If NULL, hlist_print_item() is used.
      */
     void (*print)(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix);
 
@@ -179,6 +174,8 @@ struct tlv_def
      * This function must delete the TLV and everything allocated by the tlv_def::parse function.
      *
      * May be left as NULL if tlv_def::parse only allocates a single structure.
+     *
+     * @todo to remove.
      */
     void (*free)(struct tlv *tlv);
 
@@ -193,6 +190,8 @@ struct tlv_def
      * This function is called to compare TLVs. The type of @a tlv1 and @a tlv2 are guaranteed to be equal.
      *
      * May be left as NULL for 0 length TLVs.
+     *
+     * @todo to remove.
      */
     bool (*compare)(const struct tlv *tlv1, const struct tlv *tlv2);
 
@@ -232,8 +231,13 @@ struct tlv_def
  */
 #define TLV_DEF_ENTRY(tlv_name,tlv_type)    \
     [(tlv_type)] = {               \
+        .desc = {                  \
+            .name = #tlv_name,     \
+            .size = sizeof(struct tlv_name ## TLV), \
+            .fields = {HLIST_DESCRIBE_SENTINEL,}, \
+            .children = {NULL,},   \
+        },                         \
         .type = (tlv_type),        \
-        .name = #tlv_name,                 \
         .parse = tlv_parse_##tlv_name,   \
         .length = tlv_length_##tlv_name, \
         .forge = tlv_forge_##tlv_name,   \
@@ -243,14 +247,17 @@ struct tlv_def
     }
 
 /* Temporary, while converting to hlist */
-#define TLV_DEF_ENTRY_NEW(tlv_name,tlv_type)    \
+#define TLV_DEF_ENTRY_NEW(tlv_name,tlv_type, ...)    \
     [(tlv_type)] = {               \
+        .desc = {                  \
+            .name = #tlv_name,     \
+            .size = sizeof(struct tlv_name ## TLV), \
+            __VA_ARGS__,           \
+        },                         \
         .type = (tlv_type),        \
-        .name = #tlv_name,                 \
         .parse = tlv_parse_##tlv_name,   \
         .length = tlv_length_##tlv_name, \
         .forge = tlv_forge_##tlv_name,   \
-        .print = tlv_print_##tlv_name,   \
     }
 
 /** @brief Definition of TLV metadata.

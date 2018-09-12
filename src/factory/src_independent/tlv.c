@@ -72,7 +72,7 @@ struct tlv_list *tlv_parse(tlv_defs_t defs, const uint8_t *buffer, size_t length
         }
 
         tlv_def = tlv_find_def(defs, tlv_type);
-        if (tlv_def->name == NULL)
+        if (tlv_def->desc.name == NULL)
         {
             struct tlv_unknown *tlv;
             PLATFORM_PRINTF_DEBUG_WARNING("Unknown TLV type %u of length %u\n",
@@ -93,7 +93,7 @@ struct tlv_list *tlv_parse(tlv_defs_t defs, const uint8_t *buffer, size_t length
             else
             {
                 PLATFORM_PRINTF_DEBUG_ERROR("Implementation error: no parse function for TLV %s length %u\n",
-                                            tlv_def->name, (unsigned)tlv_length);
+                                            tlv_def->desc.name, (unsigned)tlv_length);
                 goto err_out;
             }
         }
@@ -135,7 +135,7 @@ bool tlv_forge(tlv_defs_t defs, const struct tlv_list *tlvs, size_t max_length, 
     {
         const struct tlv *tlv = tlvs->tlvs[i];
         const struct tlv_def *tlv_def = tlv_find_tlv_def(defs, tlv);
-        if (tlv_def->name == NULL)
+        if (tlv_def->desc.name == NULL)
         {
             PLATFORM_PRINTF_DEBUG_WARNING("tlv_forge: skipping unknown TLV %u\n", tlv->type);
         }
@@ -146,7 +146,7 @@ bool tlv_forge(tlv_defs_t defs, const struct tlv_list *tlvs, size_t max_length, 
         }
         else if (tlv_def->forge == NULL)
         {
-            PLATFORM_PRINTF_DEBUG_ERROR("No forge defined for TVL %s\n", tlv_def->name);
+            PLATFORM_PRINTF_DEBUG_ERROR("No forge defined for TVL %s\n", tlv_def->desc.name);
             return false;
         }
         else
@@ -205,12 +205,22 @@ void tlv_print(tlv_defs_t defs, const struct tlv_list *tlvs, void (*write_functi
         char new_prefix[100];
 
         snprintf(new_prefix, sizeof(new_prefix)-1, "%sTLV(%s)->",
-                          prefix, (tlv_def->name == NULL) ? "Unknown" : tlv_def->name);
+                          prefix, (tlv_def->desc.name == NULL) ? "Unknown" : tlv_def->desc.name);
         new_prefix[sizeof(new_prefix)-1] = '\0';
 
         if (tlv_def->print == NULL)
         {
-            write_function("%s\n", new_prefix);
+            /* @todo this is a hack waiting for the conversion of tlv_list to hlist */
+            if (hlist_empty(&tlv->h.l))
+            {
+                hlist_head list;
+                hlist_head_init(&list);
+                hlist_add_tail(&list, &tlv->h);
+                hlist_print(&list, false, write_function, prefix);
+                hlist_head_init(&tlv->h.l);
+            } else {
+                hlist_print(tlv->h.l.prev, false, write_function, prefix);
+            }
         }
         else
         {

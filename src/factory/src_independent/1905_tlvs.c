@@ -90,7 +90,7 @@ static bool tlv_parse_field2_supportedService(const struct tlv_def *def __attrib
     if (self->supported_service_nr != *length)
     {
         PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: supported_service_nr %u but length %u\n",
-                                      def->name, self->supported_service_nr, *length);
+                                      def->desc.name, self->supported_service_nr, *length);
         return false;
     }
     self->supported_service = memalloc(self->supported_service_nr * sizeof(self->supported_service));
@@ -217,7 +217,7 @@ static bool tlv_parse_field3_linkMetricQuery(const struct tlv_def *def __attribu
     }
     else
     {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid destination %u\n", def->name, self->destination);
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid destination %u\n", def->desc.name, self->destination);
         return false;
     }
 
@@ -238,7 +238,7 @@ static bool tlv_parse_field3_linkMetricQuery(const struct tlv_def *def __attribu
     }
     else
     {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid link_metrics_type %u\n", def->name, self->link_metrics_type);
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid link_metrics_type %u\n", def->desc.name, self->link_metrics_type);
         return false;
     }
 
@@ -453,7 +453,7 @@ static bool tlv_parse_field2_apOperationalBss(const struct tlv_def *def __attrib
                 return false;
             if (self->radio[i].bss[j].ssid.length > SSID_MAX_LEN)
             {
-                PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: SSID too large %u > %u\n", def->name,
+                PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: SSID too large %u > %u\n", def->desc.name,
                                               self->radio[i].bss[j].ssid.length, SSID_MAX_LEN);
                 return false;
             }
@@ -665,43 +665,6 @@ static bool tlv_forge_field2_associatedClients(const struct associatedClientsTLV
     return true;
 }
 
-static void tlv_print_field1_associatedClients(const struct associatedClientsTLV *self,
-                                              void (*write_function)(const char *fmt, ...),
-                                              const char *prefix)
-{
-    /* No need to print bss_nr */
-}
-
-static void tlv_print_field2_associatedClients(const struct associatedClientsTLV *self,
-                                              void (*write_function)(const char *fmt, ...),
-                                              const char *prefix)
-{
-    struct _associatedClientsBssInfo *bssInfo;
-    unsigned i = 0;
-
-    hlist_for_each(bssInfo, self->tlv.h.children[0], struct _associatedClientsBssInfo, h)
-    {
-        char bss_prefix[MAX_PREFIX];
-        struct _associatedClientInfo *clientInfo;
-        unsigned j = 0;
-
-        snprintf(bss_prefix, sizeof(bss_prefix), "%sbss[%u]->", prefix, i);
-        bss_prefix[sizeof(bss_prefix)-1] = '\0';
-        print_callback(write_function, bss_prefix, 6, "bss_uid", "0x%02x", bssInfo->bssid);
-
-        hlist_for_each(clientInfo, bssInfo->h.children[0], struct _associatedClientInfo, h)
-        {
-            char client_prefix[MAX_PREFIX];
-            snprintf(client_prefix, sizeof(client_prefix), "%sclient[%u]->", bss_prefix, j);
-            client_prefix[sizeof(client_prefix)-1] = '\0';
-            print_callback(write_function, client_prefix, 6, "addr", "0x%02x", clientInfo->addr);
-            print_callback(write_function, client_prefix, 2, "age", "%5d", &clientInfo->age);
-            j++;
-        }
-        i++;
-    }
-}
-
 #include <tlv_template.h>
 
 const hlist_description _associatedClientInfoDesc = {
@@ -740,7 +703,10 @@ const hlist_description _associatedClientsBssInfoDesc = {
 static tlv_defs_t tlv_1905_defs = {
     [TLV_TYPE_END_OF_MESSAGE] = {
         .type = TLV_TYPE_END_OF_MESSAGE,
-        .name = "endOfMessage",
+        .desc = {
+            .name = "endOfMessage",
+            .size = sizeof(struct tlv),
+        },
     },
     TLV_DEF_ENTRY(vendorSpecific,TLV_TYPE_VENDOR_SPECIFIC),
     TLV_DEF_ENTRY(alMacAddressType,TLV_TYPE_AL_MAC_ADDRESS_TYPE),
@@ -750,7 +716,16 @@ static tlv_defs_t tlv_1905_defs = {
     /* Searched service is exactly the same as supported service, so reuse the functions. */
     [TLV_TYPE_SEARCHED_SERVICE] = {
         .type = TLV_TYPE_SEARCHED_SERVICE,
-        .name = "searchedService",
+        .desc = {
+            .name = "searchedService",
+            .size = sizeof(struct supportedServiceTLV),
+            .fields = {
+                HLIST_DESCRIBE_SENTINEL,
+            },
+            .children = {
+                NULL
+            }
+        },
         .parse = tlv_parse_supportedService,
         .length = tlv_length_supportedService,
         .forge = tlv_forge_supportedService,
@@ -759,7 +734,15 @@ static tlv_defs_t tlv_1905_defs = {
         .compare = tlv_compare_supportedService,
     },
     TLV_DEF_ENTRY(apOperationalBss,TLV_TYPE_AP_OPERATIONAL_BSS),
-    TLV_DEF_ENTRY_NEW(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS),
+    TLV_DEF_ENTRY_NEW(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS,
+        .fields = {
+            HLIST_DESCRIBE_SENTINEL,
+        },
+        .children = {
+            &_associatedClientsBssInfoDesc,
+            NULL
+        }
+    ),
 };
 
 struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associatedClientsTLV* a, mac_address bssid)
@@ -782,7 +765,8 @@ struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associa
 
 struct associatedClientsTLV* associatedClientsTLVAlloc(hlist_head *parent)
 {
-    struct associatedClientsTLV *ret = HLIST_ALLOC(&tlv_desc_associatedClients, struct associatedClientsTLV, tlv.h, parent);
+    struct associatedClientsTLV *ret = HLIST_ALLOC(&tlv_1905_defs[TLV_TYPE_ASSOCIATED_CLIENTS].desc,
+                                                   struct associatedClientsTLV, tlv.h, parent);
     ret->tlv.type = TLV_TYPE_ASSOCIATED_CLIENTS;
     return ret;
 }
@@ -5329,7 +5313,7 @@ const char *convert_1905_TLV_type_to_string(uint8_t tlv_type)
             }
             else
             {
-                return tlv_def->name;
+                return tlv_def->desc.name;
             }
         }
     }
