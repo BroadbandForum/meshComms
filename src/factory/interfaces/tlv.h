@@ -55,6 +55,67 @@ struct ssid
 
 struct tlv_def;
 
+/** @brief Maximum number of scalar fields in a struct tlv_struct. */
+#define TLV_STRUCT_MAX_FIELDS 6
+
+/** @brief Format specified for printing a TLV field. */
+enum tlv_struct_print_format {
+    tlv_struct_print_format_hex, /**< 0-filled lower-case unsigned hexadecimal format. Native-endian if size is 1, 2 or 4,
+                                      otherwise space-separated sequence of single-byte. */
+    tlv_struct_print_format_dec, /**< Variable-width signed decimal. Size must be 1, 2 or 4. */
+    tlv_struct_print_format_unsigned, /**< Variable-width unsigned decimal. Size must be 1, 2 or 4. */
+    tlv_struct_print_format_mac, /**< MAC address, i.e. colon-separated hex. Size must be 6. */
+    tlv_struct_print_format_ipv4, /**< IPv4 address, i.e. dot-separated unsigned decimal. Size must be 4. */
+    tlv_struct_print_format_ipv6, /**< IPv6 address, i.e. colon-separated hex. Size must be 16. */
+};
+
+/** @brief Description of a TLV field, used to drive the parse, forge and print functionality. */
+struct tlv_struct_field_description {
+    const char *name; /**< Field name, used for printing. */
+    size_t size; /**< Field size, in bytes, i.e. the result of <tt>sizeof(structtype.field)</tt>. */
+    size_t offset; /**< Field offset, i.e. the result of <tt>offsetof(structtype, field)</tt>. */
+    enum tlv_struct_print_format format; /**< How to format the field when printing. */
+};
+
+/** @brief Description of a TLV (sub)structure, used to drive the parse, forge and print functionality. */
+struct tlv_struct_description {
+    const char *name; /**< Struct name, used for printing. */
+    size_t size; /**< Struct size, in bytes, i.e. the result of <tt>sizeof(structtype)</tt>. */
+    /** Description of the individual fields. Terminated when field struct tlv_struct_field_description::name is NULL. */
+    struct tlv_struct_field_description fields[TLV_STRUCT_MAX_FIELDS];
+    /** Description of the hlist_item::children. NULL-terminated. */
+    const struct tlv_struct_description *children[HLIST_MAX_CHILDREN];
+};
+
+#define TLV_STRUCT_FIELD_DESCRIPTION(structtype, field, fmt) \
+    .name = #field, \
+    .size = sizeof(((structtype*)0)->field), \
+    .offset = offsetof(structtype, field), \
+    .format = fmt
+
+#define TLV_STRUCT_FIELD_SENTINEL {NULL, 0, 0, 0, }
+
+/** @brief TLV (sub)structure.
+ *
+ * The internal representation of a TLV is a C structure with some fields. To allow automatic parse, forge and print
+ * functions, the structure is described with a tlv_struct_description object. The structure is hierarchical, i.e. it
+ * can have a list of children, which are again described by a (different) tlv_struct_description object.
+ *
+ * Allocation should be done through TLV_STRUCT_ALLOC.
+ */
+struct tlv_struct
+{
+    struct hlist_item h;
+    const struct tlv_struct_description *desc;
+};
+
+#define TLV_STRUCT_ALLOC(description, structtype, tlv_struct_member, parent) ({ \
+        assert((description)->size == sizeof(structtype)); \
+        structtype *allocced = HLIST_ALLOC(structtype, tlv_struct_member.h, parent); \
+        allocced->tlv_struct_member.desc = description; \
+        allocced; \
+    })
+
 /** @brief Type-Length-Value object.
  *
  * This is an abstract type. It is created by tlv_parse(), updated with tlv_add(), and deleted with tlv_free(). It is
@@ -73,7 +134,7 @@ struct tlv_def;
  */
 struct tlv
 {
-    hlist_item  h;
+    struct tlv_struct s;
     uint8_t type; /**< @private */
 };
 
@@ -88,13 +149,48 @@ struct tlv_unknown
     uint8_t *value;  /**< @brief The uninterpreted value. */
 };
 
+/** @brief Compare two lists of TLV structures.
+ *
+ * Byte-by-byte comparison of the two lists. Like memcmp, but iterates over the items and their substructures (children)
+ * using tlv_struct_compare() and tlv_struct_compare_list(), respectively.
+ */
+int tlv_struct_compare_list(hlist_head *h1, hlist_head *h2);
+
+/** @brief Compare two TLV structures.
+ *
+ * @internal
+ *
+ * Don't use this function directly, use the type-safe TLV_STRUCT_COMPARE macro instead.
+ */
+int tlv_struct_compare(struct tlv_struct *item1, struct tlv_struct *item2);
+
+/** @brief Compare two TLV structures.
+ *
+ * Byte-by-byte comparison of the two structures. Like memcmp, but iterates over the substructures (children) using
+ * tlv_struct_compare_list().
+ */
+#define TLV_STRUCT_COMPARE(ptr1, ptr2, hlist_member) \
+    tlv_struct_compare(&check_compatible_types(ptr1, ptr2)->hlist_member, \
+                       &ptr2->hlist_member)
+
+/** @brief Print a list of TLV structures. */
+void tlv_struct_print_list(const hlist_head *list, bool include_index,
+                           void (*write_function)(const char *fmt, ...), const char *prefix);
+
+/** @brief Print a TLV structure field. */
+void tlv_struct_print_field(const struct tlv_struct *item, const struct tlv_struct_field_description *field_desc,
+                            void (*write_function)(const char *fmt, ...), const char *prefix);
+
+/** @brief Print a TLV structure. */
+void tlv_struct_print(const struct tlv_struct *item, void (*write_function)(const char *fmt, ...), const char *prefix);
+
 /** @brief Definition of a TLV type.
  *
  * For a 0-length TLV, only tlv_def::type and tlv_def::name must be set.
  */
 struct tlv_def
 {
-    hlist_description desc;
+    struct tlv_struct_description desc;
 
     /** @brief The type identifier. */
     uint8_t type;
@@ -156,7 +252,7 @@ struct tlv_def
      *
      * @param prefix Prefix to be added to every line. This prefix will contain the TLV type name.
      *
-     * If NULL, hlist_print_item() is used.
+     * If NULL, tlv_struct_print() is used.
      */
     void (*print)(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix);
 
@@ -227,7 +323,7 @@ struct tlv_def
         .desc = {                  \
             .name = #tlv_name,     \
             .size = sizeof(struct tlv_name ## TLV), \
-            .fields = {HLIST_DESCRIBE_SENTINEL,}, \
+            .fields = {TLV_STRUCT_FIELD_SENTINEL,}, \
             .children = {NULL,},   \
         },                         \
         .type = (tlv_type),        \
@@ -239,7 +335,7 @@ struct tlv_def
         .compare = tlv_compare_##tlv_name,\
     }
 
-/* Temporary, while converting to hlist */
+/* Temporary, while converting to tlv_struct */
 #define TLV_DEF_ENTRY_NEW(tlv_name,tlv_type, ...)    \
     [(tlv_type)] = {               \
         .desc = {                  \
@@ -353,7 +449,7 @@ void tlv_free(tlv_defs_t defs, hlist_head *tlvs);
  *
  * @todo Currently the lists are assumed to be ordered in the same way.
  *
- * @todo replace by hlist_compare()
+ * @todo replace by tlv_struct_compare_list()
  */
 bool tlv_compare(tlv_defs_t defs, const hlist_head *tlvs1, const hlist_head *tlvs2);
 

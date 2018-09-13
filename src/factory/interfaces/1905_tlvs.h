@@ -955,14 +955,14 @@ struct apOperationalBssTLV
  *  @{
  */
 struct _associatedClientInfo {
-    hlist_item h;
+    struct tlv_struct s;
     mac_address addr; /**< @brief The MAC address of the associated 802.11 client. */
 #define ASSOCIATED_CLIENT_MAX_AGE 65535 /**< Saturation value of _associatedClientInfo::age. */
     uint16_t    age;  /**< @brief Time since the 802.11 client’s last association to this Multi-AP device, in seconds. */
 };
 
 struct _associatedClientsBssInfo {
-    hlist_item h;
+    struct tlv_struct s;
     mac_address bssid; /**< @brief The BSSID of the BSS operated by the Multi-AP Agent in which the clients are
                         * associated. */
 };

@@ -551,29 +551,29 @@ static bool tlv_compare_field2_apOperationalBss(const struct apOperationalBssTLV
  * @{
  */
 
-static const hlist_description _associatedClientInfoDesc = {
+static const struct tlv_struct_description _associatedClientInfoDesc = {
     .name = "client",
     .size = sizeof(struct _associatedClientInfo),
     .fields = {
         {
-            HLIST_DESCRIBE_FIELD(struct _associatedClientInfo, addr, hlist_format_mac),
+            TLV_STRUCT_FIELD_DESCRIPTION(struct _associatedClientInfo, addr, tlv_struct_print_format_mac),
         },
         {
-            HLIST_DESCRIBE_FIELD(struct _associatedClientInfo, age, hlist_format_unsigned),
+            TLV_STRUCT_FIELD_DESCRIPTION(struct _associatedClientInfo, age, tlv_struct_print_format_unsigned),
         },
-        HLIST_DESCRIBE_SENTINEL,
+        TLV_STRUCT_FIELD_SENTINEL,
     },
     .children = {NULL,},
 };
 
-static const hlist_description _associatedClientsBssInfoDesc = {
+static const struct tlv_struct_description _associatedClientsBssInfoDesc = {
     .name = "bss",
     .size = sizeof(struct _associatedClientsBssInfo),
     .fields = {
         {
-            HLIST_DESCRIBE_FIELD(struct _associatedClientsBssInfo, bssid, hlist_format_mac),
+            TLV_STRUCT_FIELD_DESCRIPTION(struct _associatedClientsBssInfo, bssid, tlv_struct_print_format_mac),
         },
-        HLIST_DESCRIBE_SENTINEL,
+        TLV_STRUCT_FIELD_SENTINEL,
     },
     .children = {
         &_associatedClientInfoDesc,
@@ -604,7 +604,7 @@ static tlv_defs_t tlv_1905_defs = {
             .name = "searchedService",
             .size = sizeof(struct supportedServiceTLV),
             .fields = {
-                HLIST_DESCRIBE_SENTINEL,
+                TLV_STRUCT_FIELD_SENTINEL,
             },
             .children = {
                 NULL
@@ -620,7 +620,7 @@ static tlv_defs_t tlv_1905_defs = {
     TLV_DEF_ENTRY(apOperationalBss,TLV_TYPE_AP_OPERATIONAL_BSS),
     TLV_DEF_ENTRY_NEW(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS,
         .fields = {
-            HLIST_DESCRIBE_SENTINEL,
+            TLV_STRUCT_FIELD_SENTINEL,
         },
         .children = {
             &_associatedClientsBssInfoDesc,
@@ -631,7 +631,8 @@ static tlv_defs_t tlv_1905_defs = {
 
 struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associatedClientsTLV* a, mac_address bssid)
 {
-    struct _associatedClientsBssInfo *ret = HLIST_ALLOC(&_associatedClientsBssInfoDesc, struct _associatedClientsBssInfo, h, &a->tlv.h.children[0]);
+    struct _associatedClientsBssInfo *ret =
+            TLV_STRUCT_ALLOC(&_associatedClientsBssInfoDesc, struct _associatedClientsBssInfo, s, &a->tlv.s.h.children[0]);
     memcpy(ret->bssid, bssid, sizeof(mac_address));
     return ret;
 }
@@ -639,7 +640,7 @@ struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associa
 struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associatedClientsBssInfo* a,
                                                                  mac_address addr, uint16_t age)
 {
-    struct _associatedClientInfo *ret = HLIST_ALLOC(&_associatedClientInfoDesc, struct _associatedClientInfo, h, &a->h.children[0]);
+    struct _associatedClientInfo *ret = TLV_STRUCT_ALLOC(&_associatedClientInfoDesc, struct _associatedClientInfo, s, &a->s.h.children[0]);
     memcpy(ret->addr, addr, sizeof(mac_address));
     ret->age = age;
     return ret;
@@ -647,8 +648,8 @@ struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associa
 
 struct associatedClientsTLV* associatedClientsTLVAlloc(hlist_head *parent)
 {
-    struct associatedClientsTLV *ret = HLIST_ALLOC(&tlv_1905_defs[TLV_TYPE_ASSOCIATED_CLIENTS].desc,
-                                                   struct associatedClientsTLV, tlv.h, parent);
+    struct associatedClientsTLV *ret = TLV_STRUCT_ALLOC(&tlv_1905_defs[TLV_TYPE_ASSOCIATED_CLIENTS].desc,
+                                                   struct associatedClientsTLV, tlv.s, parent);
     ret->tlv.type = TLV_TYPE_ASSOCIATED_CLIENTS;
     return ret;
 }
@@ -2108,8 +2109,8 @@ struct tlv *parse_1905_TLV_from_packet(const uint8_t *packet_stream)
             }
             else
             {
-                struct tlv *tlv = container_of(dummy.next, struct tlv, h.l);
-                hlist_head_init(&tlv->h.l);
+                struct tlv *tlv = container_of(dummy.next, struct tlv, s.h.l);
+                hlist_head_init(&tlv->s.h.l);
                 return tlv;
             }
         }
@@ -3206,7 +3207,7 @@ uint8_t *forge_1905_TLV_from_structure(const struct tlv *tlv, uint16_t *len)
                 ret = NULL;
             }
             *len = length;
-            hlist_head_init((hlist_head*)&tlv->h.l);
+            hlist_head_init((hlist_head*)&tlv->s.h.l);
             return ret;
         }
 
@@ -3550,8 +3551,8 @@ void free_1905_TLV_structure(struct tlv *tlv)
         default:
         {
             DECLARE_HLIST_HEAD(dummy);
-            hlist_head_init(&tlv->h.children[0]);
-            hlist_head_init(&tlv->h.children[1]);
+            hlist_head_init(&tlv->s.h.children[0]);
+            hlist_head_init(&tlv->s.h.children[1]);
             tlv_add(tlv_1905_defs, &dummy, tlv);
             tlv_free(tlv_1905_defs, &dummy);
             return;
@@ -4496,8 +4497,8 @@ uint8_t compare_1905_TLV_structures(struct tlv *tlv_1, struct tlv *tlv_2)
             {
                 ret = 1;
             }
-            hlist_head_init(&tlv_1->h.l);
-            hlist_head_init(&tlv_2->h.l);
+            hlist_head_init(&tlv_1->s.h.l);
+            hlist_head_init(&tlv_2->s.h.l);
 
             return ret;
         }
@@ -5131,7 +5132,7 @@ void visit_1905_TLV_structure(struct tlv *tlv, visitor_callback callback, void (
             DECLARE_HLIST_HEAD(dummy);
             tlv_add(tlv_1905_defs, &dummy, tlv);
             tlv_print(tlv_1905_defs, &dummy, write_function, prefix);
-            hlist_head_init(&tlv->h.l);
+            hlist_head_init(&tlv->s.h.l);
 
             return;
         }

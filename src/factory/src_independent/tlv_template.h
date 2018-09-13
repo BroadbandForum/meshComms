@@ -271,7 +271,7 @@ static struct tlv *TLV_TEMPLATE_FUNCTION_NAME(parse)(const struct tlv_def *def _
                                                      const uint8_t *buffer __attribute__((unused)),
                                                      size_t length __attribute__((unused)))
 {
-    TLV_TEMPLATE_STRUCT_NAME *self = HLIST_ALLOC(&def->desc, TLV_TEMPLATE_STRUCT_NAME, tlv.h, NULL);
+    TLV_TEMPLATE_STRUCT_NAME *self = TLV_STRUCT_ALLOC(&def->desc, TLV_TEMPLATE_STRUCT_NAME, tlv.s, NULL);
 
 #ifdef TLV_PARSE_BODY
     TLV_PARSE_BODY(self);

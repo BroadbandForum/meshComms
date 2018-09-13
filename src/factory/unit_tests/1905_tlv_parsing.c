@@ -72,7 +72,7 @@ int main(void)
     hlist_for_each(t, test_vectors, struct x1905_test_vector, h)
     {
         if (t->parse)
-            result += _check(t->description, t->stream, container_of(t->h.children[0].next, struct tlv, h.l));
+            result += _check(t->description, t->stream, container_of(t->h.children[0].next, struct tlv, s.h.l));
     }
     // @todo currently the test vectors still point to statically allocated TLVs
     // hlist_delete(&test_vectors);
