@@ -588,4 +588,19 @@ void tlv_free(tlv_defs_t defs, hlist_head *tlvs);
  */
 bool tlv_compare(tlv_defs_t defs, const hlist_head *tlvs1, const hlist_head *tlvs2);
 
+/** @brief Declare and allocate a TLV substructure pointer with default naming.
+ *
+ * The defaults for type <tt>struct structType</tt> are:
+ * @arg <tt>struct tlv_struct_description structTypeDesc</tt>;
+ * @arg <tt>struct structType</tt> has as first member <tt>struct tlv_struct s</tt>.
+ */
+#define TLV_STRUCT_DECLARE_DEFAULT(name, structType, parent_tlv_struct) \
+    struct structType *name = TLV_STRUCT_ALLOC(&structType##Desc, struct structType, s, \
+                                               &(parent_tlv_struct)->s.h.children[0])
+
+/** @brief Declare and allocate a TLV pointer from its tlv_defs. */
+#define TLV_DECLARE(name, defs, tlv_name, tlv_type, parent) \
+    struct tlv_name##TLV *name = TLV_STRUCT_ALLOC(&defs[tlv_type].desc, struct tlv_name##TLV, tlv.s, parent); \
+    name->tlv.type = tlv_type
+
 #endif // TLV_H
