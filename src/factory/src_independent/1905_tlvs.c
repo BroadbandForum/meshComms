@@ -559,24 +559,8 @@ static tlv_defs_t tlv_1905_defs = {
         .free = tlv_free_supportedService,
         .compare = tlv_compare_supportedService,
     },
-    TLV_DEF_ENTRY_NEW(apOperationalBss,TLV_TYPE_AP_OPERATIONAL_BSS,
-        .fields = {
-            TLV_STRUCT_FIELD_SENTINEL,
-        },
-        .children = {
-            &_apOperationalBssRadioDesc,
-            NULL,
-        }
-    ),
-    TLV_DEF_ENTRY_NEW(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS,
-        .fields = {
-            TLV_STRUCT_FIELD_SENTINEL,
-        },
-        .children = {
-            &_associatedClientsBssInfoDesc,
-            NULL
-        }
-    ),
+    TLV_DEF_ENTRY_0FIELDS(apOperationalBss,TLV_TYPE_AP_OPERATIONAL_BSS, &_apOperationalBssRadioDesc, ),
+    TLV_DEF_ENTRY_0FIELDS(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS, &_associatedClientsBssInfoDesc, ),
 };
 
 struct apOperationalBssTLV* apOperationalBssTLVAlloc(hlist_head *parent)

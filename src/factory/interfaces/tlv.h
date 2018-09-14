@@ -474,16 +474,71 @@ struct tlv_def
         .compare = tlv_compare_##tlv_name,\
     }
 
-/* Temporary, while converting to tlv_struct */
-#define TLV_DEF_ENTRY_NEW(tlv_name,tlv_type, ...)    \
+#define TLV_DEF_ENTRY_INTERNAL(tlv_name, tlv_type, child, ...) \
     [(tlv_type)] = {               \
+        .type = (tlv_type),        \
         .desc = {                  \
             .name = #tlv_name,     \
             .size = sizeof(struct tlv_name ## TLV), \
-            __VA_ARGS__,           \
+            .children = { child, NULL }, \
+            __VA_ARGS__ \
         },                         \
-        .type = (tlv_type),        \
     }
+
+/** @brief Helpers to do static initialization of tlv_defs_t for a structure with 0 fields.
+ *
+ * Use these macro to define an element of the tlv_defs_t array.
+ *
+ * They make sure that tlv_def::type is equal to the index of the tlv_defs_t array.
+ *
+ * @param tlv_name The name of the TLV, typically in lowerCamelCase.
+ * @param tlv_type The definition of the TLV type.
+ * @param child Pointer to the description of the first child structure.
+ * @param field1 Name of the first field.
+ * @param fmt1 How the first field must be formatted while printing.
+ * @param ... Other arguments can be passed to override the virtual functions.
+ *
+ * @{
+ */
+#define TLV_DEF_ENTRY_0FIELDS(tlv_name, tlv_type, child, ...) \
+    TLV_DEF_ENTRY_INTERNAL(tlv_name, tlv_type, child, \
+        .fields = { \
+            TLV_STRUCT_FIELD_SENTINEL, \
+        }, \
+        __VA_ARGS__ \
+    )
+
+#define TLV_DEF_ENTRY_1FIELDS(tlv_name, tlv_type, child, field1, fmt1, ...) \
+    TLV_DEF_ENTRY_INTERNAL(tlv_name, tlv_type, child, \
+        .fields = { \
+            TLV_STRUCT_FIELD_DESCRIPTION(struct tlv_name##TLV, field1, fmt1), \
+            TLV_STRUCT_FIELD_SENTINEL, \
+        }, \
+        __VA_ARGS__ \
+    )
+
+#define TLV_DEF_ENTRY_2FIELDS(tlv_name, tlv_type, child, field1, fmt1, field2, fmt2, ...) \
+    TLV_DEF_ENTRY_INTERNAL(tlv_name, tlv_type, child, \
+        .fields = { \
+            TLV_STRUCT_FIELD_DESCRIPTION(struct tlv_name##TLV, field1, fmt1), \
+            TLV_STRUCT_FIELD_DESCRIPTION(struct tlv_name##TLV, field2, fmt2), \
+            TLV_STRUCT_FIELD_SENTINEL, \
+        }, \
+        __VA_ARGS__ \
+    )
+
+#define TLV_DEF_ENTRY_3FIELDS(tlv_name, tlv_type, child, field1, fmt1, field2, fmt2, field3, fmt3, ...) \
+    TLV_DEF_ENTRY_INTERNAL(tlv_name, tlv_type, child, \
+        .fields = { \
+            TLV_STRUCT_FIELD_DESCRIPTION(struct tlv_name##TLV, field1, fmt1), \
+            TLV_STRUCT_FIELD_DESCRIPTION(struct tlv_name##TLV, field2, fmt2), \
+            TLV_STRUCT_FIELD_DESCRIPTION(struct tlv_name##TLV, field3, fmt3), \
+            TLV_STRUCT_FIELD_SENTINEL, \
+        }, \
+        __VA_ARGS__ \
+    )
+
+/** @} */
 
 /** @brief Definition of TLV metadata.
  *
