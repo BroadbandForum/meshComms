@@ -85,6 +85,98 @@ struct tlv_struct_description {
     struct tlv_struct_field_description fields[TLV_STRUCT_MAX_FIELDS];
     /** Description of the hlist_item::children. NULL-terminated. */
     const struct tlv_struct_description *children[HLIST_MAX_CHILDREN];
+
+    /** @brief TLV structure parse virtual function.
+     *
+     * @param desc The TLV struct definition. The same parse function may be used for different types.
+     *
+     * @param parent The parent to which to add the new TLV.
+     *
+     * @param buffer The buffer containing the value. Access/update with _EnBL() and friends.
+     *
+     * @param length The remaining length of the value in @a buffer. Access/update with _EnBL() and friends.
+     *
+     * @return The @a tlv_struct member of a newly allocated TLV structure. NULL in case of error.
+     *
+     * This function must create a new TLV structure, initialise its fields, and parse its children. The functions
+     * tlv_struct_parse_field() and tlv_struct_parse_list() can be used for fields/children that can be handled by
+     * the default parse function.
+     *
+     * If NULL, a default parse function is used based on the field and children descriptions.
+     */
+    struct tlv_struct *(*parse)(const struct tlv_struct_description *desc, hlist_head *parent, const uint8_t **buffer, size_t *length);
+
+    /** @brief TLV structure length virtual function.
+     *
+     * @param item The TLV (sub)structure to forge.
+     *
+     * @return the length of this substructure (including children).
+     *
+     * This function is called when forging a TLV list, to determine the size of the buffer that must be allocated. The
+     * function tlv_struct_length_list() can be used to get the total length of the children if only the fields are
+     * special.
+     *
+     * If NULL, the length is calculated based on the field and children descriptions.
+     */
+    size_t (*length)(const struct tlv_struct *item);
+
+    /** @brief TLV structure forge virtual function.
+     *
+     * @param item The TLV (sub)structure to forge.
+     *
+     * @param buffer Buffer in which to forge the value. Access/update with _InBL() and friends.
+     *
+     * @param length Remaining length of @a buffer. Access/update with _InBL() and friends.
+     *
+     * @return true. If false is returned, it's a programming error: either ::length returned a wrong value, or the
+     * structure was not consistent.
+     *
+     * This function is called when forging a TLV list, after allocating the buffer based on the calls to ::length.
+     * Note that @a length is the total length of the buffer, not just for this TLV. The functions
+     * tlv_struct_forge_field() and tlv_struct_forge_list() can be used for fields/children that can be handled by
+     * the default forge function.
+     *
+     * If NULL, a default forge function is used based on the field and children descriptions.
+     */
+    bool (*forge)(const struct tlv_struct *item, uint8_t **buffer, size_t *length);
+
+    /** @brief TLV structure print virtual function.
+     *
+     * @param item The TLV (sub)structure to forge.
+     *
+     * @param write_function The print callback.
+     *
+     * @param prefix Prefix to be added to every line. This prefix will already contain the TLV structure type name.
+     *
+     * The functions tlv_struct_print_field() and tlv_struct_print_list() can be used for fields/children that can be
+     * handled by the default print function.
+     *
+     * If NULL, a default print function is used based on the field and children descriptions.
+     */
+    void (*print)(const struct tlv_struct *item, void (*write_function)(const char *fmt, ...), const char *prefix);
+
+    /** @brief TLV structure delete virtual function.
+     *
+     * @param item The TLV (sub)structure to delete.
+     *
+     * This function must delete all TLV structure children and the TLV structure itself.
+     */
+    void (*free)(struct tlv_struct *item);
+
+    /** @brief TLV structure comparison virtual function.
+     *
+     * @param item1 The left-hand side TLV structure to compare.
+     *
+     * @param item2 The right-hand side TLV structure to compare.
+     *
+     * @return 1 if item1 > item2, -1 if item1 < item2, 0 if they are equal.
+     *
+     * The function tlv_struct compare_list() can be used for children that can be handled by the default compare
+     * function.
+     *
+     * If NULL, a default compare function is used based on the field and children descriptions.
+     */
+    int (*compare)(const struct tlv_struct *item1, const struct tlv_struct *item2);
 };
 
 #define TLV_STRUCT_FIELD_DESCRIPTION(structtype, field, fmt) \
@@ -111,9 +203,9 @@ struct tlv_struct
 
 #define TLV_STRUCT_ALLOC(description, structtype, tlv_struct_member, parent) ({ \
         assert((description)->size == sizeof(structtype)); \
-        structtype *allocced = HLIST_ALLOC(structtype, tlv_struct_member.h, parent); \
-        allocced->tlv_struct_member.desc = description; \
-        allocced; \
+        structtype *tlv_struct_allocced = HLIST_ALLOC(structtype, tlv_struct_member.h, parent); \
+        tlv_struct_allocced->tlv_struct_member.desc = description; \
+        tlv_struct_allocced; \
     })
 
 /** @brief Type-Length-Value object.
@@ -149,12 +241,46 @@ struct tlv_unknown
     uint8_t *value;  /**< @brief The uninterpreted value. */
 };
 
+/** @brief Parse a TLV structure field.
+ *
+ * This function can only be used if the field size is the same as the number of bytes in the buffer.
+ */
+bool tlv_struct_parse_field(struct tlv_struct *item, const struct tlv_struct_field_description *desc,
+                            const uint8_t **buffer, size_t *length);
+
+/** @brief Parse a list of TLV structures.
+ *
+ * This is represented as one byte with the number of children, followed by this number of child structures which are
+ * all described by the same @a desc.
+ */
+bool tlv_struct_parse_list(const struct tlv_struct_description *desc, hlist_head *parent,
+                           const uint8_t **buffer, size_t *length);
+
+/** @brief Forge a TLV structure field.
+ *
+ * This function can only be used if the field size is the same as the number of bytes in the buffer.
+ */
+bool tlv_struct_forge_field(const struct tlv_struct *item, const struct tlv_struct_field_description *desc,
+                            uint8_t **buffer, size_t *length);
+
+/** @brief Forge a list of TLV structures.
+ *
+ * This is represented as one byte with the number of children, followed by this number of child structures.
+ */
+bool tlv_struct_forge_list(const hlist_head *parent, uint8_t **buffer, size_t *length);
+
+/** @brief Calculate the length a list of TLV structures.
+ *
+ * This is represented as one byte with the number of children, followed by this number of child structures.
+ */
+size_t tlv_struct_length_list(const hlist_head *parent);
+
 /** @brief Compare two lists of TLV structures.
  *
  * Byte-by-byte comparison of the two lists. Like memcmp, but iterates over the items and their substructures (children)
  * using tlv_struct_compare() and tlv_struct_compare_list(), respectively.
  */
-int tlv_struct_compare_list(hlist_head *h1, hlist_head *h2);
+int tlv_struct_compare_list(const hlist_head *h1, const hlist_head *h2);
 
 /** @brief Compare two TLV structures.
  *
@@ -162,7 +288,7 @@ int tlv_struct_compare_list(hlist_head *h1, hlist_head *h2);
  *
  * Don't use this function directly, use the type-safe TLV_STRUCT_COMPARE macro instead.
  */
-int tlv_struct_compare(struct tlv_struct *item1, struct tlv_struct *item2);
+int tlv_struct_compare(const struct tlv_struct *item1, const struct tlv_struct *item2);
 
 /** @brief Compare two TLV structures.
  *
@@ -194,6 +320,11 @@ struct tlv_def
 
     /** @brief The type identifier. */
     uint8_t type;
+
+    /** @deprecated
+     * These functions are replaced with their counterparts in tlv_struct
+     * @{
+     */
 
     /** @brief TLV parse virtual function.
      *
@@ -283,6 +414,8 @@ struct tlv_def
      * @todo to remove.
      */
     bool (*compare)(const struct tlv *tlv1, const struct tlv *tlv2);
+
+    /** @} */
 
     /** @brief TLV aggregation virtual function.
      *

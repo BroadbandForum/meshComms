@@ -38,14 +38,11 @@ const struct tlv_def *tlv_find_tlv_def(tlv_defs_t defs, const struct tlv *tlv)
 }
 
 
-static bool tlv_parse_field(struct tlv_struct *item, const struct tlv_struct_field_description *desc, size_t size, const uint8_t **buffer, size_t *length)
+bool tlv_struct_parse_field(struct tlv_struct *item, const struct tlv_struct_field_description *desc,
+                            const uint8_t **buffer, size_t *length)
 {
     char *pfield = (char*)item + desc->offset;
-    if (size == 0)
-    {
-        size = desc->size;
-    }
-    switch (size)
+    switch (desc->size)
     {
         case 1:
             return _E1BL(buffer, (uint8_t*)pfield, length);
@@ -54,39 +51,50 @@ static bool tlv_parse_field(struct tlv_struct *item, const struct tlv_struct_fie
         case 4:
             return _E4BL(buffer, (uint32_t*)pfield, length);
         default:
-            return _EnBL(buffer, (uint32_t*)pfield, size, length);
+            return _EnBL(buffer, (uint32_t*)pfield, desc->size, length);
     }
 }
 
-static struct tlv_struct *tlv_parse_single(const struct tlv_struct_description *desc, hlist_head *parent, const uint8_t **buffer, size_t *length)
+static struct tlv_struct *tlv_struct_parse_single(const struct tlv_struct_description *desc, hlist_head *parent,
+                                                  const uint8_t **buffer, size_t *length)
 {
     size_t i;
+
+    if (desc->parse != NULL)
+        return desc->parse(desc, parent, buffer, length);
 
     struct tlv_struct *item = container_of(hlist_alloc(desc->size, parent), struct tlv_struct, h);
     item->desc = desc;
     for (i = 0; i < ARRAY_SIZE(item->desc->fields) && item->desc->fields[i].name != NULL; i++)
     {
-        if (!tlv_parse_field(item, &item->desc->fields[i], 0, buffer, length))
+        if (!tlv_struct_parse_field(item, &item->desc->fields[i], buffer, length))
             goto err_out;
     }
     for (i = 0; i < ARRAY_SIZE(item->h.children) && item->desc->children[i] != NULL; i++)
     {
-        uint8_t children_nr;
-        uint8_t j;
-
-        _E1BL(buffer, &children_nr, length);
-        for (j = 0; j < children_nr; j++)
-        {
-            const struct tlv_struct *child = tlv_parse_single(item->desc->children[i], &item->h.children[i], buffer, length);
-            if (child == NULL)
-                goto err_out;
-        }
+        tlv_struct_parse_list(item->desc->children[i], &item->h.children[i], buffer, length);
     }
     return item;
 
 err_out:
     hlist_delete_item(&item->h);
     return NULL;
+}
+
+bool tlv_struct_parse_list(const struct tlv_struct_description *desc, hlist_head *parent,
+                           const uint8_t **buffer, size_t *length)
+{
+    uint8_t children_nr;
+    uint8_t j;
+
+    _E1BL(buffer, &children_nr, length);
+    for (j = 0; j < children_nr; j++)
+    {
+        const struct tlv_struct *child = tlv_struct_parse_single(desc, parent, buffer, length);
+        if (child == NULL)
+            return false; /* Caller will delete parent */
+    }
+    return true;
 }
 
 bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t length)
@@ -132,7 +140,7 @@ bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t 
             {
                 /* @todo clean this up */
                 length -= tlv_length;
-                struct tlv_struct *tlv_new_item = tlv_parse_single(&tlv_def->desc, NULL, &buffer, &tlv_length);
+                struct tlv_struct *tlv_new_item = tlv_struct_parse_single(&tlv_def->desc, NULL, &buffer, &tlv_length);
                 if (tlv_new_item == NULL)
                     goto err_out;
                 if (tlv_length != 0)
@@ -173,14 +181,11 @@ err_out:
 }
 
 
-static bool tlv_forge_field(const struct tlv_struct *item, const struct tlv_struct_field_description *desc, size_t size, uint8_t **buffer, size_t *length)
+bool tlv_struct_forge_field(const struct tlv_struct *item, const struct tlv_struct_field_description *desc,
+                            uint8_t **buffer, size_t *length)
 {
     const char *pfield = (const char*)item + desc->offset;
-    if (size == 0)
-    {
-        size = desc->size;
-    }
-    switch (size)
+    switch (desc->size)
     {
         case 1:
             return _I1BL((const uint8_t*)pfield, buffer, length);
@@ -189,43 +194,56 @@ static bool tlv_forge_field(const struct tlv_struct *item, const struct tlv_stru
         case 4:
             return _I4BL((const uint32_t*)pfield, buffer, length);
         default:
-            return _InBL((const uint32_t*)pfield, buffer, size, length);
+            return _InBL((const uint32_t*)pfield, buffer, desc->size, length);
     }
 }
 
-static bool tlv_forge_single(const struct tlv_struct *item, uint8_t **buffer, size_t *length)
+static bool tlv_struct_forge_single(const struct tlv_struct *item, uint8_t **buffer, size_t *length)
 {
     size_t i;
+    if (item->desc->forge != NULL)
+        return item->desc->forge(item, buffer, length);
+
     for (i = 0; i < ARRAY_SIZE(item->desc->fields) && item->desc->fields[i].name != NULL; i++)
     {
-        if (!tlv_forge_field(item, &item->desc->fields[i], 0, buffer, length))
+        if (!tlv_struct_forge_field(item, &item->desc->fields[i], buffer, length))
             return false;
     }
     for (i = 0; i < ARRAY_SIZE(item->h.children) && item->desc->children[i] != NULL; i++)
     {
-        const struct tlv_struct *child;
-        size_t children_nr = hlist_count(&item->h.children[i]);
-        uint8_t children_nr_uint8;
-        if (children_nr > 255)
-        {
-            PLATFORM_PRINTF_DEBUG_WARNING("TLV with more than 255 children.\n");
-            return false;
-        }
-        children_nr_uint8 = children_nr;
-        _I1BL(&children_nr_uint8, buffer, length);
-        hlist_for_each(child, item->h.children[i], const struct tlv_struct, h)
-        {
-            if (!tlv_forge_single(child, buffer, length))
-                return false;
-        }
+        tlv_struct_forge_list(&item->h.children[i], buffer, length);
     }
     return true;
 }
 
-static uint16_t tlv_length_single(const struct tlv_struct *item)
+bool tlv_struct_forge_list(const hlist_head *parent, uint8_t **buffer, size_t *length)
 {
-    uint16_t length = 0;
+    const struct tlv_struct *child;
+    size_t children_nr = hlist_count(parent);
+    uint8_t children_nr_uint8;
+    if (children_nr > UINT8_MAX)
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("TLV with more than 255 children.\n");
+        return false;
+    }
+    children_nr_uint8 = (uint8_t)children_nr;
+    _I1BL(&children_nr_uint8, buffer, length);
+    hlist_for_each(child, *parent, const struct tlv_struct, h)
+    {
+        if (!tlv_struct_forge_single(child, buffer, length))
+            return false;
+    }
+    return true;
+}
+
+static size_t tlv_length_single(const struct tlv_struct *item)
+{
+    size_t length = 0;
     size_t i;
+
+    if (item->desc->length != NULL)
+        return item->desc->length(item);
+
     for (i = 0; i < ARRAY_SIZE(item->desc->fields) && item->desc->fields[i].name != NULL; i++)
     {
         /* If one of the fields has a different size in serialisation than in the struct, the length() method must be
@@ -235,16 +253,24 @@ static uint16_t tlv_length_single(const struct tlv_struct *item)
     /* Next print the children. */
     for (i = 0; i < ARRAY_SIZE(item->h.children) && item->desc->children[i] != NULL; i++)
     {
-        const struct tlv_struct *child;
-        length += 1; /* num_children */
-        hlist_for_each(child, item->h.children[i], const struct tlv_struct, h)
-        {
-            length += tlv_length_single(child);
-        }
+        length += tlv_struct_length_list(&item->h.children[i]);
     }
 
     return length;
 }
+
+size_t tlv_struct_length_list(const hlist_head *parent)
+{
+    size_t length = 0;
+    const struct tlv_struct *child;
+    length += 1; /* num_children */
+    hlist_for_each(child, *parent, const struct tlv_struct, h)
+    {
+        length += tlv_length_single(child);
+    }
+    return length;
+}
+
 
 bool tlv_forge(tlv_defs_t defs, const hlist_head *tlvs, size_t max_length, uint8_t **buffer, size_t *length)
 {
@@ -305,7 +331,7 @@ bool tlv_forge(tlv_defs_t defs, const hlist_head *tlvs, size_t max_length, uint8
             goto err_out;
         if (tlv_def->forge == NULL)
         {
-            if (!tlv_forge_single(&tlv->s, &p, &total_length))
+            if (!tlv_struct_forge_single(&tlv->s, &p, &total_length))
                 goto err_out;
         }
         else
@@ -419,7 +445,7 @@ bool tlv_add(tlv_defs_t defs, hlist_head *tlvs, struct tlv *tlv)
 }
 
 
-int tlv_struct_compare_list(hlist_head *h1, hlist_head *h2)
+int tlv_struct_compare_list(const hlist_head *h1, const hlist_head *h2)
 {
     int ret = 0;
     hlist_head *cur1;
@@ -444,10 +470,13 @@ int tlv_struct_compare_list(hlist_head *h1, hlist_head *h2)
     return ret;
 }
 
-int tlv_struct_compare(struct tlv_struct *item1, struct tlv_struct *item2)
+int tlv_struct_compare(const struct tlv_struct *item1, const struct tlv_struct *item2)
 {
     int ret;
     unsigned i;
+
+    if (item1->desc->compare != NULL)
+        return item1->desc->compare(item1, item2);
 
     assert(item1->desc == item2->desc);
 
@@ -483,6 +512,12 @@ void tlv_struct_print(const struct tlv_struct *item, void (*write_function)(cons
 {
     size_t i;
     char new_prefix[100];
+
+    if (item->desc->print != NULL)
+    {
+        item->desc->print(item, write_function, prefix);
+        return;
+    }
 
     /* Construct the new prefix. */
     snprintf(new_prefix, sizeof(new_prefix)-1, "%s->", prefix);
