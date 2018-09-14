@@ -931,22 +931,25 @@ struct supportedServiceTLV
  *  @{
  */
 struct _apOperationalBssInfo {
+    struct tlv_struct s;
     mac_address bssid; /**< @brief MAC Address of Local Interface (equal to BSSID) operating on the radio. */
     struct ssid ssid;  /**< @brief SSID of this BSS. */
 };
 
 struct _apOperationalBssRadio {
+    struct tlv_struct s;
     mac_address radio_uid; /**< @brief Radio Unique Identifier of the radio. */
-    uint8_t     bss_nr; /**< @brief Number of ::bss. */
-    struct _apOperationalBssInfo *bss; /**< @brief Definition of BSSes on this radio. */
 };
 
 struct apOperationalBssTLV
 {
     struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_AP_OPERATIONAL_BSS. */
-    uint8_t      radio_nr; /**< @brief Number of ::radios. */
-    struct _apOperationalBssRadio *radio; /**< @brief Definition of radios. */
 };
+
+struct apOperationalBssTLV* apOperationalBssTLVAlloc(hlist_head *parent);
+struct _apOperationalBssRadio *apOperationalBssTLVAddRadio(struct apOperationalBssTLV* a, mac_address radio_uid);
+struct _apOperationalBssInfo *apOperationalBssRadioAddBss(struct _apOperationalBssRadio* a,
+                                                          mac_address bssid, struct ssid ssid);
 
 /** @} */
 

@@ -1545,57 +1545,6 @@ static uint8_t x1905_tlv_stream_051[] =
 
 static uint16_t x1905_tlv_stream_len_051 = ARRAY_SIZE(x1905_tlv_stream_051);
 
-static struct apOperationalBssTLV x1905_tlv_structure_052 =
-{
-    .tlv.type                    = TLV_TYPE_AP_OPERATIONAL_BSS,
-    .radio_nr                    = 2,
-    .radio                       = (struct _apOperationalBssRadio[]){
-        {
-            .radio_uid = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25},
-            .bss_nr = 0,
-        },
-        {
-            .radio_uid = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
-            .bss_nr = 3,
-            .bss = (struct _apOperationalBssInfo[]){
-                {
-                    .bssid = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
-                    .ssid = { 0, "additional stuff is not shown"},
-                },
-                {
-                    .bssid = {0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5},
-                    .ssid = { 32, "01234567890123456789012345678901"},
-                },
-                {
-                    .bssid = {0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5},
-                    .ssid = { 8, "abba\0\xff\x80!"},
-                },
-            },
-        },
-    },
-};
-
-static uint8_t x1905_tlv_stream_052[] =
-{
-    0x83,
-    0x00, 76,
-    2,
-    0x20, 0x21, 0x22, 0x23, 0x24, 0x25,
-    0,
-    0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
-    3,
-    0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
-    0,
-    0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5,
-    32,
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1',
-    0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5,
-    8,
-    'a', 'b', 'b', 'a', 0x00, 0xff, 0x80, '!',
-};
-
-static uint16_t x1905_tlv_stream_len_052 = ARRAY_SIZE(x1905_tlv_stream_052);
 
 /* TEMPORARY until all TLVs have been converted to dynamic allocation */
 #define ADD_TEST_VECTOR(num, desc) \
@@ -1671,7 +1620,39 @@ void get_1905_test_vectors(hlist_head *test_vectors)
     ADD_TEST_VECTOR(041, "vendor specific TLV");
     ADD_TEST_VECTOR(050, "supported service TLV");
     ADD_TEST_VECTOR(051, "searched service TLV");
-    ADD_TEST_VECTOR(052, "searched service TLV");
+
+    INIT_TEST_VECTOR("AP operational BSS TLV",
+        0x83,
+        0x00, 76,
+        2,
+        0x20, 0x21, 0x22, 0x23, 0x24, 0x25,
+        0,
+        0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
+        3,
+        0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
+        0,
+        0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5,
+        32,
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1',
+        0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5,
+        8,
+        'a', 'b', 'b', 'a', 0x00, 0xff, 0x80, '!',
+    );
+    struct apOperationalBssTLV *apOperationalBss = apOperationalBssTLVAlloc(&v->h.children[0]);
+    mac_address radio_uid1 = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25};
+    apOperationalBssTLVAddRadio(apOperationalBss, radio_uid1);
+    mac_address radio_uid2 = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5};
+    struct _apOperationalBssRadio *radio2 = apOperationalBssTLVAddRadio(apOperationalBss, radio_uid2);
+    mac_address bssid2_1 = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5};
+    struct ssid ssid2_1 = { 0, "additional stuff is not shown"};
+    apOperationalBssRadioAddBss(radio2, bssid2_1, ssid2_1);
+    mac_address bssid2_2 = {0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5};
+    struct ssid ssid2_2 = { 32, "01234567890123456789012345678901"};
+    apOperationalBssRadioAddBss(radio2, bssid2_2, ssid2_2);
+    mac_address bssid2_3 = {0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5};
+    struct ssid ssid2_3 = { 8, "abba\0\xff\x80!"};
+    apOperationalBssRadioAddBss(radio2, bssid2_3, ssid2_3);
 
     INIT_TEST_VECTOR("associated clients TLV",
         0x84,

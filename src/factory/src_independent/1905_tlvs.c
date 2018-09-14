@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <string.h> // memcmp(), memcpy(), ...
 #include <stdio.h>  // snprintf
+#include <ctype.h>  // isprint(), isascii()
 
 
 // Buffer size to store a prefix string that will be used to show each
@@ -389,158 +390,105 @@ static bool tlv_compare_field2_vendorSpecific(const struct vendorSpecificTLV *se
  *
  * @{
  */
-#define TLV_NAME          apOperationalBss
-#define TLV_FIELD1_NAME   radio_nr
-#define TLV_FIELD1_LENGTH 1
-#define TLV_FIELD2_NAME   radio
-#define TLV_PARSE         0b10
-#define TLV_FORGE         0b10
-#define TLV_PRINT         0b11
-#define TLV_COMPARE       0b10
-#define TLV_LENGTH_BODY
-#define TLV_FREE_BODY
 
-static bool tlv_parse_field2_apOperationalBss(const struct tlv_def *def __attribute__((unused)),
-                                              struct apOperationalBssTLV *self,
-                                              const uint8_t **buf,
-                                              size_t *length)
+static const struct tlv_struct_description _apOperationalBssInfoDesc;
+
+static struct tlv_struct *_apOperationalBssInfoParse(const struct tlv_struct_description *desc, hlist_head *parent,
+                                                     const uint8_t **buffer, size_t *length)
 {
-    uint8_t i, j;
-    self->radio = memalloc(self->radio_nr * sizeof(*self->radio));
-
-    for (i = 0; i < self->radio_nr; i++)
+    struct _apOperationalBssInfo *bss_info =
+            TLV_STRUCT_ALLOC(&_apOperationalBssInfoDesc, struct _apOperationalBssInfo, s, parent);
+    if (!_EmBL(buffer, bss_info->bssid, length))
+        goto error_out;
+    if (!_E1BL(buffer, &bss_info->ssid.length, length))
+        goto error_out;
+    if (bss_info->ssid.length > SSID_MAX_LEN)
     {
-        if (!_EmBL(buf, self->radio[i].radio_uid, length))
-            return false;
-        if (!_E1BL(buf, &self->radio[i].bss_nr, length))
-            return false;
-        self->radio[i].bss = memalloc(self->radio[i].bss_nr * sizeof(*self->radio[i].bss));
-        for (j = 0; j < self->radio[i].bss_nr; j++)
-        {
-            if (!_EmBL(buf, self->radio[i].bss[j].bssid, length))
-                return false;
-            if (!_E1BL(buf, &self->radio[i].bss[j].ssid.length, length))
-                return false;
-            if (self->radio[i].bss[j].ssid.length > SSID_MAX_LEN)
-            {
-                PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: SSID too large %u > %u\n", def->desc.name,
-                                              self->radio[i].bss[j].ssid.length, SSID_MAX_LEN);
-                return false;
-            }
-            if (!_EnBL(buf, self->radio[i].bss[j].ssid.ssid, self->radio[i].bss[j].ssid.length, length))
-                return false;
-        }
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: SSID too large %u > %u\n", desc->name,
+                                      bss_info->ssid.length, SSID_MAX_LEN);
+        goto error_out;
     }
+    if (!_EnBL(buffer, bss_info->ssid.ssid, bss_info->ssid.length, length))
+        goto error_out;
+
+    return &bss_info->s;
+
+error_out:
+    hlist_delete_item(&bss_info->s.h);
+    return NULL;
+
+}
+
+static size_t _apOperationalBssInfoLength(const struct tlv_struct *item)
+{
+    const struct _apOperationalBssInfo *bss_info = container_of(item, const struct _apOperationalBssInfo, s);
+    return 6 + 1 + bss_info->ssid.length;
+}
+
+static bool _apOperationalBssInfoForge(const struct tlv_struct *item, uint8_t **buffer, size_t *length)
+{
+    const struct _apOperationalBssInfo *bss_info = container_of(item, const struct _apOperationalBssInfo, s);
+    if (!_ImBL(bss_info->bssid, buffer, length))
+        return false;
+    if (!_I1BL(&bss_info->ssid.length, buffer, length))
+        return false;
+    if (!_InBL(bss_info->ssid.ssid, buffer, bss_info->ssid.length, length))
+        return false;
+
     return true;
 }
 
-static uint16_t tlv_length_body_apOperationalBss(const struct apOperationalBssTLV *self)
-{
-    uint16_t length = 1 /* radio_nr */;
-    uint8_t i, j;
-    for (i = 0; i < self->radio_nr; i++)
-    {
-        length += 6 + 1; /* radio_uid, bss_nr */
-        for (j = 0; j < self->radio[i].bss_nr; j++)
-        {
-            length += 6 + 1; /* bssid, ssid.length */
-            length += self->radio[i].bss[j].ssid.length; /* ssid */
-        }
-    }
-    return length;
-}
+static void _apOperationalBssInfoPrint(const struct tlv_struct *item,
+                                       void (*write_function)(const char *fmt, ...),
+                                       const char *prefix)
 
-static bool tlv_forge_field2_apOperationalBss(const struct apOperationalBssTLV *self,
-                                              uint8_t **buf,
-                                              size_t *length)
 {
-    uint8_t i, j;
-    for (i = 0; i < self->radio_nr; i++)
-    {
-        if (!_ImBL(self->radio[i].radio_uid, buf, length))
-            return false;
-        if (!_I1BL(&self->radio[i].bss_nr, buf, length))
-            return false;
-        for (j = 0; j < self->radio[i].bss_nr; j++)
-        {
-            if (!_ImBL(self->radio[i].bss[j].bssid, buf, length))
-                return false;
-            if (!_I1BL(&self->radio[i].bss[j].ssid.length, buf, length))
-                return false;
-            if (!_InBL(self->radio[i].bss[j].ssid.ssid, buf, self->radio[i].bss[j].ssid.length, length))
-                return false;
-        }
-    }
-    return true;
-}
-
-static void tlv_print_field1_apOperationalBss(const struct apOperationalBssTLV *self,
-                                              void (*write_function)(const char *fmt, ...),
-                                              const char *prefix)
-{
-    /* No need to print radio_nr */
-}
-
-static void tlv_print_field2_apOperationalBss(const struct apOperationalBssTLV *self,
-                                              void (*write_function)(const char *fmt, ...),
-                                              const char *prefix)
-{
-    uint8_t i, j;
-    for (i = 0; i < self->radio_nr; i++)
-    {
-        char radio_prefix[MAX_PREFIX];
-        snprintf(radio_prefix, sizeof(radio_prefix), "%sradio[%d]->", prefix, i);
-        radio_prefix[sizeof(radio_prefix)-1] = '\0';
-        print_callback(write_function, radio_prefix, 6, "radio_uid", "0x%02x", self->radio[i].radio_uid);
-        for (j = 0; j < self->radio[i].bss_nr; j++)
-        {
-            char bss_prefix[MAX_PREFIX];
-            snprintf(bss_prefix, sizeof(bss_prefix), "%sbss[%d]->", radio_prefix, j);
-            bss_prefix[sizeof(bss_prefix)-1] = '\0';
-            print_callback(write_function, bss_prefix, 6, "bssid", "0x%02x", self->radio[i].bss[j].bssid);
-            /* @todo special characters (e.g. \0) in SSID should be escaped. */
-            print_callback(write_function, bss_prefix, self->radio[i].bss[j].ssid.length, "ssid", "%c",
-                           self->radio[i].bss[j].ssid.ssid);
-        }
-    }
-}
-
-static void tlv_free_body_apOperationalBss(const struct apOperationalBssTLV *self)
-{
+    const struct _apOperationalBssInfo *bss_info = container_of(item, const struct _apOperationalBssInfo, s);
     uint8_t i;
-    for (i = 0; i < self->radio_nr; i++)
-    {
-        free(self->radio[i].bss);
-    }
-    free(self->radio);
-}
 
-static bool tlv_compare_field2_apOperationalBss(const struct apOperationalBssTLV *self1,
-                                                const struct apOperationalBssTLV *self2)
-{
-    uint8_t i, j;
-    /* Already checked before that they have the same nr */
-    for (i = 0; i < self1->radio_nr; i++)
+    tlv_struct_print_field(item, &item->desc->fields[0], write_function, prefix);
+
+    write_function("%s->ssid: \"", prefix);
+    for (i = 0; i < bss_info->ssid.length; i++)
     {
-        if (memcmp(self1->radio[i].radio_uid, self2->radio[i].radio_uid, 6) != 0)
-            return false;
-        if (self1->radio[i].bss_nr != self2->radio[i].bss_nr)
-            return false;
-        for (j = 0; j < self1->radio[i].bss_nr; j++)
+        if (isprint(bss_info->ssid.ssid[i]) && isascii(bss_info->ssid.ssid[i]))
         {
-            if (memcmp(self1->radio[i].bss[j].bssid, self2->radio[i].bss[j].bssid, 6) != 0)
-                return false;
-            if (self1->radio[i].bss[j].ssid.length != self2->radio[i].bss[j].ssid.length)
-                return false;
-            if (memcmp(self1->radio[i].bss[j].ssid.ssid, self2->radio[i].bss[j].ssid.ssid,
-                                self1->radio[i].bss[j].ssid.length) != 0)
-                return false;
+            write_function("%c", bss_info->ssid.ssid[i]);
+        }
+        else
+        {
+            write_function("\\x%02x", bss_info->ssid.ssid[i]);
         }
     }
-    return true;
+    write_function("\"\n");
 }
 
-#include <tlv_template.h>
+static const struct tlv_struct_description _apOperationalBssInfoDesc = {
+    .name = "bss",
+    .size = sizeof(struct _apOperationalBssInfo),
+    .fields = {
+        { TLV_STRUCT_FIELD_DESCRIPTION(struct _apOperationalBssInfo, bssid, tlv_struct_print_format_mac), },
+        /* This is not actually used since we override all functions, but for reference we define it */
+        { TLV_STRUCT_FIELD_DESCRIPTION(struct _apOperationalBssInfo, ssid, tlv_struct_print_format_hex), },
+        TLV_STRUCT_FIELD_SENTINEL,
+    },
+    .children = {NULL,},
+    .parse = _apOperationalBssInfoParse,
+    .length = _apOperationalBssInfoLength,
+    .forge = _apOperationalBssInfoForge,
+    .print = _apOperationalBssInfoPrint,
+};
+
+static const struct tlv_struct_description _apOperationalBssRadioDesc = {
+    .name = "radio",
+    .size = sizeof(struct _apOperationalBssRadio),
+    .fields = {
+        { TLV_STRUCT_FIELD_DESCRIPTION(struct _apOperationalBssRadio, radio_uid, tlv_struct_print_format_mac), },
+        TLV_STRUCT_FIELD_SENTINEL,
+    },
+    .children = { &_apOperationalBssInfoDesc, NULL, },
+};
+
 
 /** @} */
 
@@ -617,7 +565,15 @@ static tlv_defs_t tlv_1905_defs = {
         .free = tlv_free_supportedService,
         .compare = tlv_compare_supportedService,
     },
-    TLV_DEF_ENTRY(apOperationalBss,TLV_TYPE_AP_OPERATIONAL_BSS),
+    TLV_DEF_ENTRY_NEW(apOperationalBss,TLV_TYPE_AP_OPERATIONAL_BSS,
+        .fields = {
+            TLV_STRUCT_FIELD_SENTINEL,
+        },
+        .children = {
+            &_apOperationalBssRadioDesc,
+            NULL,
+        }
+    ),
     TLV_DEF_ENTRY_NEW(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS,
         .fields = {
             TLV_STRUCT_FIELD_SENTINEL,
@@ -628,6 +584,35 @@ static tlv_defs_t tlv_1905_defs = {
         }
     ),
 };
+
+struct apOperationalBssTLV* apOperationalBssTLVAlloc(hlist_head *parent)
+{
+    struct apOperationalBssTLV *ret = TLV_STRUCT_ALLOC(&tlv_1905_defs[TLV_TYPE_AP_OPERATIONAL_BSS].desc,
+                                                       struct apOperationalBssTLV, tlv.s, parent);
+    ret->tlv.type = TLV_TYPE_AP_OPERATIONAL_BSS;
+    return ret;
+}
+
+struct _apOperationalBssRadio *apOperationalBssTLVAddRadio(struct apOperationalBssTLV* a, mac_address radio_uid)
+{
+    struct _apOperationalBssRadio *ret = TLV_STRUCT_ALLOC(&_apOperationalBssRadioDesc, struct _apOperationalBssRadio, s,
+                                                          &a->tlv.s.h.children[0]);
+    memcpy(ret->radio_uid, radio_uid, 6);
+    return ret;
+}
+
+struct _apOperationalBssInfo *apOperationalBssRadioAddBss(struct _apOperationalBssRadio* a,
+                                                          mac_address bssid, struct ssid ssid)
+{
+    struct _apOperationalBssInfo *ret = TLV_STRUCT_ALLOC(&_apOperationalBssInfoDesc, struct _apOperationalBssInfo, s,
+                                                          &a->s.h.children[0]);
+    memcpy(ret->bssid, bssid, 6);
+    memset(&ret->ssid.ssid, 0, sizeof(ret->ssid.ssid));
+    ret->ssid.length = ssid.length;
+    memcpy(ret->ssid.ssid, ssid.ssid, ssid.length);
+    return ret;
+
+}
 
 struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associatedClientsTLV* a, mac_address bssid)
 {

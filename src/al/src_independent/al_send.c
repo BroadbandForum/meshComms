@@ -1529,19 +1529,17 @@ static void _obtainLocalSupportedServicesTLV(struct supportedServiceTLV *support
 // structure, fill it with all the pertaining information retrieved from the
 // local device.
 //
-static void _obtainLocalApOperationalBssTLV(struct apOperationalBssTLV *ap_operational_bss_tlv)
+static struct apOperationalBssTLV *_obtainLocalApOperationalBssTLV(hlist_head *parent)
 {
     char **ifs_names;
     uint8_t  ifs_nr;
-    uint8_t  radio_nr = 0;
     uint8_t  i;
 
-    ap_operational_bss_tlv->tlv.type = TLV_TYPE_AP_OPERATIONAL_BSS;
+    struct apOperationalBssTLV *tlv = apOperationalBssTLVAlloc(parent);
 
     ifs_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&ifs_nr);
 
     /* @todo For now, 1 interface == 1 radio == 1 BSS */
-    /* First count # radios */
     for (i=0; i<ifs_nr; i++)
     {
         struct interfaceInfo *x;
@@ -1567,7 +1565,12 @@ static void _obtainLocalApOperationalBssTLV(struct apOperationalBssTLV *ap_opera
                     if (x->interface_type_data.ieee80211.role == IEEE80211_ROLE_AP &&
                         memcmp(x->interface_type_data.ieee80211.bssid, "\0\0\0\0\0\0", 6) != 0)
                     {
-                        radio_nr++;
+                        struct _apOperationalBssRadio *radio = apOperationalBssTLVAddRadio(tlv, x->mac_address);
+                        struct ssid ssid;
+                        ssid.length = strlen(x->interface_type_data.ieee80211.ssid);
+                        assert(ssid.length < SSID_MAX_LEN);
+                        memcpy(ssid.ssid, x->interface_type_data.ieee80211.ssid, ssid.length);
+                        apOperationalBssRadioAddBss(radio, x->interface_type_data.ieee80211.bssid, ssid);
                     }
                     break;
                 default:
@@ -1575,62 +1578,7 @@ static void _obtainLocalApOperationalBssTLV(struct apOperationalBssTLV *ap_opera
             }
         }
     }
-
-    ap_operational_bss_tlv->radio_nr = radio_nr;
-    if (0 == radio_nr)
-    {
-        ap_operational_bss_tlv->radio    = NULL;
-    }
-    else
-    {
-        uint8_t radio = 0;
-        ap_operational_bss_tlv->radio = memalloc(sizeof(*ap_operational_bss_tlv->radio) * radio_nr);
-
-        /* First count # radios */
-        for (i=0; i<ifs_nr; i++)
-        {
-            struct interfaceInfo *x;
-
-            x = PLATFORM_GET_1905_INTERFACE_INFO(ifs_names[i]);
-            if (NULL == x)
-            {
-                PLATFORM_PRINTF_DEBUG_WARNING("Could not retrieve info of interface %s\n", ifs_names[i]);
-            }
-            else
-            {
-                switch (x->interface_type)
-                {
-                    case INTERFACE_TYPE_IEEE_802_11AC_5_GHZ:
-                    case INTERFACE_TYPE_IEEE_802_11AD_60_GHZ:
-                    case INTERFACE_TYPE_IEEE_802_11AF_GHZ:
-                    case INTERFACE_TYPE_IEEE_802_11A_5_GHZ:
-                    case INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ:
-                    case INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ:
-                    case INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ:
-                    case INTERFACE_TYPE_IEEE_802_11N_5_GHZ:
-                        if (x->interface_type_data.ieee80211.role == IEEE80211_ROLE_AP &&
-                            memcmp(x->interface_type_data.ieee80211.bssid, "\0\0\0\0\0\0", 6) != 0)
-                        {
-                            memcpy(ap_operational_bss_tlv->radio[radio].radio_uid, x->mac_address, 6);
-                            ap_operational_bss_tlv->radio[radio].bss_nr = 1;
-                            ap_operational_bss_tlv->radio[radio].bss =
-                                    memalloc(sizeof(*ap_operational_bss_tlv->radio[radio].bss) * 1);
-                            memcpy(ap_operational_bss_tlv->radio[radio].bss[0].bssid,
-                                            x->interface_type_data.ieee80211.bssid, 6);
-                            ap_operational_bss_tlv->radio[radio].bss[0].ssid.length =
-                                    strlen(x->interface_type_data.ieee80211.ssid);
-                            memcpy(ap_operational_bss_tlv->radio[radio].bss[0].ssid.ssid,
-                                            x->interface_type_data.ieee80211.ssid,
-                                            ap_operational_bss_tlv->radio[radio].bss[0].ssid.length);
-                            radio++;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    }
+    return tlv;
 }
 
 // Given a pointer to a preallocated "genericPhyDeviceInformationTypeTLV"
@@ -2450,7 +2398,7 @@ uint8_t send1905TopologyResponsePacket(char *interface_name, uint16_t mid, uint8
     struct powerOffInterfaceTLV            power_off;
     struct l2NeighborDeviceTLV             l2_neighbors;
     struct supportedServiceTLV             supported_service_tlv;
-    struct apOperationalBssTLV             ap_operational_bss_tlv;
+    struct apOperationalBssTLV            *ap_operational_bss_tlv;
 
     uint8_t                                 non_1905_neighbors_nr;
     uint8_t                                 neighbors_nr;
@@ -2499,7 +2447,7 @@ uint8_t send1905TopologyResponsePacket(char *interface_name, uint16_t mid, uint8
 
     _obtainLocalSupportedServicesTLV(&supported_service_tlv);
     total_tlvs++;
-    _obtainLocalApOperationalBssTLV(&ap_operational_bss_tlv);
+    ap_operational_bss_tlv = _obtainLocalApOperationalBssTLV(NULL);
     total_tlvs++;
 
     response_message.message_version = CMDU_MESSAGE_VERSION_1905_1_2013;
@@ -2542,7 +2490,7 @@ uint8_t send1905TopologyResponsePacket(char *interface_name, uint16_t mid, uint8
     }
 
     response_message.list_of_TLVs[i++] = &supported_service_tlv.tlv;
-    response_message.list_of_TLVs[i++] = &ap_operational_bss_tlv.tlv;
+    response_message.list_of_TLVs[i++] = &ap_operational_bss_tlv->tlv;
 
     response_message.list_of_TLVs[i] = NULL;
 

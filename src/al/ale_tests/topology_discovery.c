@@ -43,35 +43,6 @@ static struct supportedServiceTLV multiApControllerService = {
     .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT },
 };
 
-static struct apOperationalBssTLV multiApOperationalBss =
-{
-    .tlv.type                    = TLV_TYPE_AP_OPERATIONAL_BSS,
-    .radio_nr                    = 2,
-    .radio                       = (struct _apOperationalBssRadio[]){
-        {
-            .radio_uid = ADDR_MAC0,
-            .bss_nr = 1,
-            .bss = (struct _apOperationalBssInfo[]){
-                {
-                    .bssid = { 0x00, 0x16, 0x03, 0x01, 0x85, 0x1f},
-                    .ssid = { 15, "My WIFI network"},
-                },
-            },
-        },
-        {
-            .radio_uid = ADDR_MAC2,
-            .bss_nr = 1,
-            .bss = (struct _apOperationalBssInfo[]){
-                {
-                    .bssid = { 0x00, 0x16, 0x03, 0x01, 0x85, 0x1E},
-                    .ssid = { 19, "My 2nd WIFI network"},
-                },
-            },
-        },
-    },
-};
-
-
 static struct CMDU aletest_expect_cmdu_topology_discovery =
 {
     .message_version = CMDU_MESSAGE_VERSION_1905_1_2013,
@@ -209,7 +180,7 @@ static struct CMDU aletest_expect_cmdu_topology_response =
                 },
             },
             &multiApControllerService.tlv,
-            &multiApOperationalBss.tlv,
+            NULL /* multiApOperationalBss */,
             NULL,
         },
 };
@@ -303,6 +274,22 @@ static struct CMDU aletest_expect_cmdu_topology_notification =
         },
 };
 
+static void initExpected()
+{
+    struct apOperationalBssTLV * multiApOperationalBss = apOperationalBssTLVAlloc(NULL);
+    aletest_expect_cmdu_topology_response.list_of_TLVs[6] = &multiApOperationalBss->tlv;
+    struct _apOperationalBssRadio *radio;
+    mac_address bssid1 = { 0x00, 0x16, 0x03, 0x01, 0x85, 0x1f};
+    struct ssid ssid1 = { 15, "My WIFI network"};
+    mac_address bssid2 = { 0x00, 0x16, 0x03, 0x01, 0x85, 0x1e};
+    struct ssid ssid2 = { 19, "My 2nd WIFI network"};
+
+    radio = apOperationalBssTLVAddRadio(multiApOperationalBss, (uint8_t *)ADDR_MAC0);
+    apOperationalBssRadioAddBss(radio, bssid1, ssid1);
+
+    radio = apOperationalBssTLVAddRadio(multiApOperationalBss, (uint8_t *)ADDR_MAC2);
+    apOperationalBssRadioAddBss(radio, bssid2, ssid2);
+}
 
 int main()
 {
@@ -312,6 +299,8 @@ int main()
 
     PLATFORM_INIT();
     PLATFORM_PRINTF_DEBUG_SET_VERBOSITY_LEVEL(3);
+
+    initExpected();
 
     s0 = openPacketSocket(getIfIndex("aletestpeer0"), ETHERTYPE_1905);
     if (-1 == s0) {
