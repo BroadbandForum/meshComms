@@ -187,6 +187,11 @@ struct vendorSpecificTLV
     uint8_t  *m;                    // Vendor specific information
 };
 
+/** @brief Allocate an empty vendorSpecificTLV.
+ *
+ * The buffer vendorSpecificTLV::m is not allocated, this must be done by the caller.
+ */
+struct vendorSpecificTLV *vendorSpecificTLVAlloc(hlist_head *parent);
 
 ////////////////////////////////////////////////////////////////////////////////
 // AL MAC address type TLV associated structures ("Section 6.4.3")

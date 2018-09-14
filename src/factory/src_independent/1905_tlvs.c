@@ -296,63 +296,76 @@ static bool tlv_forge_field2_linkMetricQuery(const struct linkMetricQueryTLV *se
  * @{
  */
 
-#define TLV_NAME          vendorSpecific
-#define TLV_FIELD1_NAME   vendorOUI
-#define TLV_FIELD2_NAME   m
-#define TLV_PARSE         2
-#define TLV_FORGE         2
-#define TLV_PRINT         2
-#define TLV_COMPARE       2
-#define TLV_LENGTH_BODY
-#define TLV_FREE_BODY
-
-static bool tlv_parse_field2_vendorSpecific(const struct tlv_def *def __attribute__((unused)),
-                                            struct vendorSpecificTLV *self,
-                                            const uint8_t **buf,
-                                            size_t *length)
+static struct tlv_struct *vendorSpecificTLVParse(const struct tlv_struct_description *desc, hlist_head *parent,
+                                                 const uint8_t **buffer, size_t *length)
 {
-    self->m = memalloc(*length);
-    self->m_nr = *length;
-    return _EnBL(buf, self->m, *length, length);
+    struct vendorSpecificTLV *self = vendorSpecificTLVAlloc(parent);
+
+    if (!_EnBL(buffer, self->vendorOUI, 3, length))
+        goto error_out;
+    /* m_nr is purely based in TLV length */
+    self->m_nr = (uint16_t) *length;
+    self->m = memalloc(self->m_nr);
+    if (!_EnBL(buffer, self->m, self->m_nr, length))
+        goto error_out;
+
+    return &self->tlv.s;
+
+error_out:
+    hlist_delete_item(&self->tlv.s.h);
+    return NULL;
 }
 
-static uint16_t tlv_length_body_vendorSpecific(const struct vendorSpecificTLV *self)
+static size_t vendorSpecificTLVLength(const struct tlv_struct *item)
 {
+    const struct vendorSpecificTLV *self = container_of(item, const struct vendorSpecificTLV, tlv.s);
     return 3 + self->m_nr;
 }
 
-static bool tlv_forge_field2_vendorSpecific(const struct vendorSpecificTLV *self,
-                                            uint8_t **buf,
-                                            size_t *length)
+static bool vendorSpecificTLVForge(const struct tlv_struct *item, uint8_t **buffer, size_t *length)
 {
-    return _InBL(self->m, buf, self->m_nr, length);
+    const struct vendorSpecificTLV *self = container_of(item, const struct vendorSpecificTLV, tlv.s);
+
+    if (!_InBL(self->vendorOUI, buffer, 3, length))
+        return false;
+    if (!_InBL(self->m, buffer, self->m_nr, length))
+        return false;
+    return true;
 }
 
-static void tlv_free_body_vendorSpecific(const struct vendorSpecificTLV *self)
+static void vendorSpecificTLVFree(struct tlv_struct *item)
 {
+    struct vendorSpecificTLV *self = container_of(item, struct vendorSpecificTLV, tlv.s);
     free(self->m);
+    hlist_delete_item(&item->h);
 }
 
-static void tlv_print_field2_vendorSpecific(const struct vendorSpecificTLV *self,
-                                            void (*write_function)(const char *fmt, ...),
-                                            const char *prefix)
+static void vendorSpecificTLVPrint(const struct tlv_struct *item,
+                                   void (*write_function)(const char *fmt, ...),
+                                   const char *prefix)
 {
-    print_callback(write_function, prefix, sizeof(self->m_nr), "m_nr", "%d ", &self->m_nr);
-    print_callback(write_function, prefix, self->m_nr, "m", "0x%02x", self->m);
+    const struct vendorSpecificTLV *self = container_of(item, const struct vendorSpecificTLV, tlv.s);
+    tlv_struct_print_field(item, &item->desc->fields[0], write_function, prefix);
+    tlv_struct_print_field(item, &item->desc->fields[1], write_function, prefix);
+    tlv_struct_print_hex_field("m", self->m, self->m_nr, write_function, prefix);
 }
 
-static bool tlv_compare_field2_vendorSpecific(const struct vendorSpecificTLV *self1,
-                                              const struct vendorSpecificTLV *self2)
+static int vendorSpecificTLVCompare(const struct tlv_struct *item1, const struct tlv_struct *item2)
 {
-    if (self1->m_nr != self2->m_nr)
-        return false;
-    else if (memcmp(self1->m, self2->m, self1->m_nr) != 0)
-        return false;
+    int ret = 0;
+    const struct vendorSpecificTLV *self1 = container_of(item1, const struct vendorSpecificTLV, tlv.s);
+    const struct vendorSpecificTLV *self2 = container_of(item2, const struct vendorSpecificTLV, tlv.s);
+
+    ret = memcmp(self1->vendorOUI, self2->vendorOUI, 3);
+    if (ret != 0)
+        return ret;
+    if (self1->m_nr < self2->m_nr)
+        return -1;
+    else if (self1->m_nr > self2->m_nr)
+        return 1;
     else
-        return true;
+        return memcmp(self1->m, self2->m, self1->m_nr);
 }
-
-#include <tlv_template.h>
 
 /** @} */
 
@@ -534,7 +547,17 @@ static tlv_defs_t tlv_1905_defs = {
             .size = sizeof(struct tlv),
         },
     },
-    TLV_DEF_ENTRY(vendorSpecific,TLV_TYPE_VENDOR_SPECIFIC),
+    TLV_DEF_ENTRY_2FIELDS(vendorSpecific, TLV_TYPE_VENDOR_SPECIFIC, NULL,
+        vendorOUI, tlv_struct_print_format_hex,
+        /* m_nr doesn't appear in the forged TLV. However, it is convenient to use it for printing. */
+        m_nr, tlv_struct_print_format_dec,
+        .parse = vendorSpecificTLVParse,
+        .length = vendorSpecificTLVLength,
+        .forge = vendorSpecificTLVForge,
+        .print = vendorSpecificTLVPrint,
+        .free = vendorSpecificTLVFree,
+        .compare = vendorSpecificTLVCompare
+    ),
     TLV_DEF_ENTRY(alMacAddressType,TLV_TYPE_AL_MAC_ADDRESS_TYPE),
     TLV_DEF_ENTRY(macAddressType,TLV_TYPE_MAC_ADDRESS_TYPE),
     TLV_DEF_ENTRY(linkMetricQuery,TLV_TYPE_LINK_METRIC_QUERY),
@@ -562,6 +585,13 @@ static tlv_defs_t tlv_1905_defs = {
     TLV_DEF_ENTRY_0FIELDS(apOperationalBss,TLV_TYPE_AP_OPERATIONAL_BSS, &_apOperationalBssRadioDesc, ),
     TLV_DEF_ENTRY_0FIELDS(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS, &_associatedClientsBssInfoDesc, ),
 };
+
+struct vendorSpecificTLV *vendorSpecificTLVAlloc(hlist_head *parent)
+{
+    TLV_DECLARE(ret, tlv_1905_defs, vendorSpecific, TLV_TYPE_VENDOR_SPECIFIC, parent);
+    return ret;
+}
+
 
 struct apOperationalBssTLV* apOperationalBssTLVAlloc(hlist_head *parent)
 {

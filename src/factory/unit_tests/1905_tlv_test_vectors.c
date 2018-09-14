@@ -1487,30 +1487,6 @@ static uint8_t x1905_tlv_stream_040[] =
 
 static uint16_t x1905_tlv_stream_len_040 = 64;
 
-////////////////////////////////////////////////////////////////////////////////
-////
-//// Test vector 041 (TLV <--> packet)
-////
-////////////////////////////////////////////////////////////////////////////////
-
-static struct vendorSpecificTLV x1905_tlv_structure_041 =
-{
-    .tlv.type                    = TLV_TYPE_VENDOR_SPECIFIC,
-    .vendorOUI                   = {0x00, 0x03, 0x7f},
-    .m_nr                        = 21,
-    .m                           = (uint8_t[]) {0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
-};
-
-static uint8_t x1905_tlv_stream_041[] =
-{
-    0x0b,
-    0x00, 0x18,
-    0x00, 0x03, 0x7f,
-    0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-};
-
-static uint16_t x1905_tlv_stream_len_041 = 27;
-
 static struct supportedServiceTLV x1905_tlv_structure_050 =
 {
     .tlv.type                    = TLV_TYPE_SUPPORTED_SERVICE,
@@ -1617,7 +1593,23 @@ void get_1905_test_vectors(hlist_head *test_vectors)
     ADD_TEST_VECTOR(038, "interface power change information TLV");
     ADD_TEST_VECTOR(039, "interface power change status TLV");
     ADD_TEST_VECTOR(040, "L2 neighbor device TLV");
-    ADD_TEST_VECTOR(041, "vendor specific TLV");
+
+    INIT_TEST_VECTOR("vendor specific TLV",
+        0x0b,
+        0x00, 0x18,
+        0x00, 0x03, 0x7f,
+        0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    );
+    struct vendorSpecificTLV *vendorSpecific = vendorSpecificTLVAlloc(&v->h.children[0]);
+    vendorSpecific->vendorOUI[0] = 0x00;
+    vendorSpecific->vendorOUI[1] = 0x03;
+    vendorSpecific->vendorOUI[2] = 0x7f;
+    uint8_t vendorSpecificData[] = {0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                                    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    vendorSpecific->m_nr = ARRAY_SIZE(vendorSpecificData);
+    vendorSpecific->m = memalloc(vendorSpecific->m_nr);
+    memcpy(vendorSpecific->m, vendorSpecificData, vendorSpecific->m_nr);
+
     ADD_TEST_VECTOR(050, "supported service TLV");
     ADD_TEST_VECTOR(051, "searched service TLV");
 
