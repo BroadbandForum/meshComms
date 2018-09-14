@@ -1487,39 +1487,6 @@ static uint8_t x1905_tlv_stream_040[] =
 
 static uint16_t x1905_tlv_stream_len_040 = 64;
 
-static struct supportedServiceTLV x1905_tlv_structure_050 =
-{
-    .tlv.type                    = TLV_TYPE_SUPPORTED_SERVICE,
-    .supported_service_nr        = 2,
-    .supported_service           = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT, },
-};
-
-static uint8_t x1905_tlv_stream_050[] =
-{
-    0x80,
-    0x00, 0x03,
-    0x02,
-    0x00, 0x01,
-};
-
-static uint16_t x1905_tlv_stream_len_050 = ARRAY_SIZE(x1905_tlv_stream_050);
-
-static struct supportedServiceTLV x1905_tlv_structure_051 =
-{
-    .tlv.type                    = TLV_TYPE_SEARCHED_SERVICE,
-    .supported_service_nr        = 1,
-    .supported_service           = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, },
-};
-
-static uint8_t x1905_tlv_stream_051[] =
-{
-    0x81,
-    0x00, 0x02,
-    0x01,
-    0x00,
-};
-
-static uint16_t x1905_tlv_stream_len_051 = ARRAY_SIZE(x1905_tlv_stream_051);
 
 
 /* TEMPORARY until all TLVs have been converted to dynamic allocation */
@@ -1610,8 +1577,21 @@ void get_1905_test_vectors(hlist_head *test_vectors)
     vendorSpecific->m = memalloc(vendorSpecific->m_nr);
     memcpy(vendorSpecific->m, vendorSpecificData, vendorSpecific->m_nr);
 
-    ADD_TEST_VECTOR(050, "supported service TLV");
-    ADD_TEST_VECTOR(051, "searched service TLV");
+    INIT_TEST_VECTOR("supported service TLV",
+        0x80,
+        0x00, 0x03,
+        0x02,
+        0x00, 0x01,
+    );
+    supportedServiceTLVAlloc(&v->h.children[0], true, true);
+
+    INIT_TEST_VECTOR("searched service TLV",
+        0x81,
+        0x00, 0x02,
+        0x01,
+        0x00,
+    );
+    searchedServiceTLVAlloc(&v->h.children[0], true);
 
     INIT_TEST_VECTOR("AP operational BSS TLV",
         0x83,

@@ -37,12 +37,6 @@ static struct alMacAddressTypeTLV expect_al_mac_tlv =
     .al_mac_address    = ADDR_AL,
 };
 
-static struct supportedServiceTLV multiApControllerService = {
-    .tlv.type          = TLV_TYPE_SUPPORTED_SERVICE,
-    .supported_service_nr = 2,
-    .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT },
-};
-
 static struct CMDU aletest_expect_cmdu_topology_discovery =
 {
     .message_version = CMDU_MESSAGE_VERSION_1905_1_2013,
@@ -179,7 +173,7 @@ static struct CMDU aletest_expect_cmdu_topology_response =
                     .local_interfaces_nr  = 0,
                 },
             },
-            &multiApControllerService.tlv,
+            NULL, /* multiApControllerService */
             NULL /* multiApOperationalBss */,
             NULL,
         },
@@ -251,13 +245,7 @@ static struct CMDU aletest_send_cmdu_topology_response2 = {
             /* No device bridging capability */
             /* No Non-1905 neighbors */
             /* No 1905 neighbors */
-            (struct tlv *)(struct supportedServiceTLV[]){
-                {
-                    .tlv.type          = TLV_TYPE_SUPPORTED_SERVICE,
-                    .supported_service_nr = 2,
-                    .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_AGENT },
-                },
-            },
+            NULL, /* supportedService */
             NULL,
         },
 };
@@ -276,8 +264,10 @@ static struct CMDU aletest_expect_cmdu_topology_notification =
 
 static void initExpected()
 {
+    struct supportedServiceTLV *multiApControllerService = supportedServiceTLVAlloc(NULL, true, true);
+    aletest_expect_cmdu_topology_response.list_of_TLVs[5] = &multiApControllerService->tlv;
+
     struct apOperationalBssTLV * multiApOperationalBss = apOperationalBssTLVAlloc(NULL);
-    aletest_expect_cmdu_topology_response.list_of_TLVs[6] = &multiApOperationalBss->tlv;
     struct _apOperationalBssRadio *radio;
     mac_address bssid1 = { 0x00, 0x16, 0x03, 0x01, 0x85, 0x1f};
     struct ssid ssid1 = { 15, "My WIFI network"};
@@ -289,6 +279,11 @@ static void initExpected()
 
     radio = apOperationalBssTLVAddRadio(multiApOperationalBss, (uint8_t *)ADDR_MAC2);
     apOperationalBssRadioAddBss(radio, bssid2, ssid2);
+
+    aletest_expect_cmdu_topology_response.list_of_TLVs[6] = &multiApOperationalBss->tlv;
+
+    struct supportedServiceTLV *multiApAgentService = supportedServiceTLVAlloc(NULL, false, true);
+    aletest_send_cmdu_topology_response2.list_of_TLVs[1] = &multiApAgentService->tlv;
 }
 
 int main()

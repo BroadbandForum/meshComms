@@ -41,113 +41,16 @@
  *
  * @{
  */
-#define TLV_NAME          supportedService
-#define TLV_FIELD1_NAME   supported_service_nr
-#define TLV_FIELD1_LENGTH 1
-#define TLV_FIELD2_NAME   supported_service
-#define TLV_PARSE         2
-#define TLV_FORGE         2
-#define TLV_PRINT         2
-#define TLV_COMPARE       2
-#define TLV_LENGTH_BODY
-#define TLV_FREE_BODY
 
-static bool tlv_parse_field2_supportedService(const struct tlv_def *def __attribute__((unused)),
-                                              struct supportedServiceTLV *self,
-                                              const uint8_t **buf,
-                                              size_t *length)
-{
-    uint8_t i;
-    if (self->supported_service_nr != *length)
-    {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: supported_service_nr %u but length %u\n",
-                                      def->desc.name, self->supported_service_nr, *length);
-        return false;
-    }
-    self->supported_service = memalloc(self->supported_service_nr * sizeof(self->supported_service));
-
-    for (i = 0; i < self->supported_service_nr; i++)
-    {
-        uint8_t service_type;
-        _E1BL(buf, &service_type, length);
-        self->supported_service[i] = (enum serviceType)service_type;
-    }
-    return true;
-}
-
-static uint16_t tlv_length_body_supportedService(const struct supportedServiceTLV *self)
-{
-    return 1 + self->supported_service_nr;
-}
-
-static bool tlv_forge_field2_supportedService(const struct supportedServiceTLV *self,
-                                              uint8_t **buf,
-                                              size_t *length)
-{
-    uint8_t i;
-    for (i = 0; i < self->supported_service_nr; i++)
-    {
-        uint8_t service_type = (uint8_t) self->supported_service[i];
-        if (!_I1BL(&service_type, buf, length))
-            return false;
-    }
-    return true;
-}
-
-static void tlv_print_field2_supportedService(const struct supportedServiceTLV *self,
-                                              void (*write_function)(const char *fmt, ...),
-                                              const char *prefix)
-{
-    uint8_t i;
-    char supported_services_list[80];
-    size_t supported_services_list_len = 0;
-    for (i = 0; i < self->supported_service_nr; i++)
-    {
-        snprintf(supported_services_list + supported_services_list_len,
-                          sizeof (supported_services_list) - supported_services_list_len,
-                          "0x%02x ", self->supported_service[i]);
-        supported_services_list_len += 5;
-        if (supported_services_list_len >= sizeof (supported_services_list) - 5 ||
-            i == self->supported_service_nr - 1)
-        {
-            supported_services_list[supported_services_list_len] = '\0';
-            print_callback(write_function, prefix, sizeof(self->supported_service[i]),
-                           "supported_services", "%s", supported_services_list);
-        }
-    }
-}
-
-static void tlv_free_body_supportedService(const struct supportedServiceTLV *self)
-{
-    free(self->supported_service);
-}
-
-static bool tlv_compare_field2_supportedService(const struct supportedServiceTLV *self1,
-                                                const struct supportedServiceTLV *self2)
-{
-    uint8_t i, j;
-    /* Already checked before that they have the same nr */
-    for (i = 0; i < self1->supported_service_nr; i++)
-    {
-        for (j = 0; j < self2->supported_service_nr; j++)
-        {
-            if (self1->supported_service[i] == self2->supported_service[j])
-            {
-                break;
-            }
-        }
-        if (j == self2->supported_service_nr)
-        {
-            /* Not found in p2 */
-            return false;
-        }
-    }
-    /** All services of p1 were also found in p2, and they have the same number, so they are equal.
-        @todo this does not check against duplicates */
-    return true;
-}
-
-#include <tlv_template.h>
+static struct tlv_struct_description _supportedServiceDesc = {
+    .name = "service",
+    .size = sizeof(struct _supportedService),
+    .fields = {
+        TLV_STRUCT_FIELD_DESCRIPTION(struct _supportedService, service, tlv_struct_print_format_hex),
+        TLV_STRUCT_FIELD_SENTINEL,
+    },
+    .children = {NULL,},
+};
 
 /** @} */
 
@@ -561,37 +464,46 @@ static tlv_defs_t tlv_1905_defs = {
     TLV_DEF_ENTRY(alMacAddressType,TLV_TYPE_AL_MAC_ADDRESS_TYPE),
     TLV_DEF_ENTRY(macAddressType,TLV_TYPE_MAC_ADDRESS_TYPE),
     TLV_DEF_ENTRY(linkMetricQuery,TLV_TYPE_LINK_METRIC_QUERY),
-    TLV_DEF_ENTRY(supportedService,TLV_TYPE_SUPPORTED_SERVICE),
-    /* Searched service is exactly the same as supported service, so reuse the functions. */
-    [TLV_TYPE_SEARCHED_SERVICE] = {
-        .type = TLV_TYPE_SEARCHED_SERVICE,
-        .desc = {
-            .name = "searchedService",
-            .size = sizeof(struct supportedServiceTLV),
-            .fields = {
-                TLV_STRUCT_FIELD_SENTINEL,
-            },
-            .children = {
-                NULL
-            }
-        },
-        .parse = tlv_parse_supportedService,
-        .length = tlv_length_supportedService,
-        .forge = tlv_forge_supportedService,
-        .print = tlv_print_supportedService,
-        .free = tlv_free_supportedService,
-        .compare = tlv_compare_supportedService,
-    },
+    TLV_DEF_ENTRY_0FIELDS(supportedService, TLV_TYPE_SUPPORTED_SERVICE, &_supportedServiceDesc, ),
+    /* Searched service is exactly the same as supported service, so reuse the functions. Will be printed with the
+     * wrong name, but who cares. */
+    TLV_DEF_ENTRY_0FIELDS(supportedService, TLV_TYPE_SEARCHED_SERVICE, &_supportedServiceDesc, ),
     TLV_DEF_ENTRY_0FIELDS(apOperationalBss,TLV_TYPE_AP_OPERATIONAL_BSS, &_apOperationalBssRadioDesc, ),
     TLV_DEF_ENTRY_0FIELDS(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS, &_associatedClientsBssInfoDesc, ),
 };
+
+struct supportedServiceTLV *supportedServiceTLVAlloc(hlist_head *parent, bool controller, bool agent)
+{
+    TLV_DECLARE(ret, tlv_1905_defs, supportedService, TLV_TYPE_SUPPORTED_SERVICE, parent);
+    if (controller)
+    {
+        TLV_STRUCT_DECLARE_DEFAULT(service, _supportedService, &ret->tlv);
+        service->service = SERVICE_MULTI_AP_CONTROLLER;
+    }
+    if (agent)
+    {
+        TLV_STRUCT_DECLARE_DEFAULT(service, _supportedService, &ret->tlv);
+        service->service = SERVICE_MULTI_AP_AGENT;
+    }
+    return ret;
+}
+
+struct supportedServiceTLV *searchedServiceTLVAlloc(hlist_head *parent, bool controller)
+{
+    TLV_DECLARE(ret, tlv_1905_defs, supportedService, TLV_TYPE_SEARCHED_SERVICE, parent);
+    if (controller)
+    {
+        TLV_STRUCT_DECLARE_DEFAULT(service, _supportedService, &ret->tlv);
+        service->service = SERVICE_MULTI_AP_CONTROLLER;
+    }
+    return ret;
+}
 
 struct vendorSpecificTLV *vendorSpecificTLVAlloc(hlist_head *parent)
 {
     TLV_DECLARE(ret, tlv_1905_defs, vendorSpecific, TLV_TYPE_VENDOR_SPECIFIC, parent);
     return ret;
 }
-
 
 struct apOperationalBssTLV* apOperationalBssTLVAlloc(hlist_head *parent)
 {

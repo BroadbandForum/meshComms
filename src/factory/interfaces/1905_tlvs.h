@@ -922,12 +922,18 @@ enum serviceType {
     SERVICE_MULTI_AP_AGENT = 0x01U,
 };
 
+struct _supportedService {
+    struct tlv_struct s;
+    uint8_t service; /* enum serviceType fits in a byte */
+};
+
 struct supportedServiceTLV
 {
     struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_SUPPORTED_SERVICE. */
-    uint8_t  supported_service_nr; /**< @brief Number of supported_service. */
-    enum serviceType *supported_service; /**< @brief List of supported services. */
 };
+
+struct supportedServiceTLV *supportedServiceTLVAlloc(hlist_head *parent, bool controller, bool agent);
+struct supportedServiceTLV *searchedServiceTLVAlloc(hlist_head *parent, bool controller);
 
 /** @} */
 

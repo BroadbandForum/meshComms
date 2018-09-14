@@ -31,24 +31,6 @@
 #include <unistd.h>
 #include <utime.h>             // utime()
 
-static struct supportedServiceTLV multiApAgentService = {
-    .tlv.type          = TLV_TYPE_SUPPORTED_SERVICE,
-    .supported_service_nr = 1,
-    .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_AGENT },
-};
-
-static struct supportedServiceTLV multiApControllerService = {
-    .tlv.type          = TLV_TYPE_SUPPORTED_SERVICE,
-    .supported_service_nr = 2,
-    .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER, SERVICE_MULTI_AP_AGENT },
-};
-
-static struct supportedServiceTLV multiApControllerSearchedService = {
-    .tlv.type          = TLV_TYPE_SEARCHED_SERVICE,
-    .supported_service_nr = 1,
-    .supported_service = (enum serviceType[]){ SERVICE_MULTI_AP_CONTROLLER },
-};
-
 static struct CMDU aletest_send_cmdu_autoconfig_search = {
     .message_version = CMDU_MESSAGE_VERSION_1905_1_2013,
     .message_type    = CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH,
@@ -74,8 +56,8 @@ static struct CMDU aletest_send_cmdu_autoconfig_search = {
                     .freq_band         = IEEE80211_FREQUENCY_BAND_2_4_GHZ,
                 }
             },
-            &multiApAgentService.tlv,
-            &multiApControllerSearchedService.tlv,
+            NULL, /* multiApAgentService */
+            NULL, /* multiApControllerSearchedService */
             NULL,
         },
 };
@@ -99,7 +81,7 @@ static struct CMDU aletest_expect_cmdu_autoconfig_response = {
                     .freq_band         = IEEE80211_FREQUENCY_BAND_2_4_GHZ,
                 }
             },
-            &multiApControllerService.tlv,
+            NULL, /* multiApControllerService */
             NULL,
         },
 };
@@ -140,6 +122,17 @@ static struct CMDU aletest_send_cmdu_autoconfig_wsc_m1 = {
 
 };
 
+void initExpected()
+{
+    struct supportedServiceTLV *multiApAgentService = supportedServiceTLVAlloc(NULL, false, true);
+    struct supportedServiceTLV *multiApControllerService = supportedServiceTLVAlloc(NULL, true, true);
+    struct supportedServiceTLV *multiApControllerSearchedService = searchedServiceTLVAlloc(NULL, true);
+
+    aletest_expect_cmdu_autoconfig_response.list_of_TLVs[2] = &multiApControllerService->tlv;
+    aletest_send_cmdu_autoconfig_search.list_of_TLVs[3] = &multiApAgentService->tlv;
+    aletest_send_cmdu_autoconfig_search.list_of_TLVs[4] = &multiApControllerSearchedService->tlv;
+}
+
 
 int main()
 {
@@ -158,6 +151,7 @@ int main()
 
     /* Wait for ALE to be up and running */
     sleep (2);
+    initExpected();
 
     result += send_cmdu(s0, (uint8_t *)MCAST_1905, (uint8_t *)ADDR_AL_PEER0, &aletest_send_cmdu_autoconfig_search);
     result += expect_cmdu_match(s0, 1000, "autoconfiguration response", &aletest_expect_cmdu_autoconfig_response,
