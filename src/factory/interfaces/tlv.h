@@ -180,10 +180,12 @@ struct tlv_struct_description {
 };
 
 #define TLV_STRUCT_FIELD_DESCRIPTION(structtype, field, fmt) \
-    .name = #field, \
-    .size = sizeof(((structtype*)0)->field), \
-    .offset = offsetof(structtype, field), \
-    .format = fmt
+    { \
+        .name = #field, \
+        .size = sizeof(((structtype*)0)->field), \
+        .offset = offsetof(structtype, field), \
+        .format = fmt, \
+    }
 
 #define TLV_STRUCT_FIELD_SENTINEL {NULL, 0, 0, 0, }
 

@@ -467,9 +467,9 @@ static const struct tlv_struct_description _apOperationalBssInfoDesc = {
     .name = "bss",
     .size = sizeof(struct _apOperationalBssInfo),
     .fields = {
-        { TLV_STRUCT_FIELD_DESCRIPTION(struct _apOperationalBssInfo, bssid, tlv_struct_print_format_mac), },
+        TLV_STRUCT_FIELD_DESCRIPTION(struct _apOperationalBssInfo, bssid, tlv_struct_print_format_mac),
         /* This is not actually used since we override all functions, but for reference we define it */
-        { TLV_STRUCT_FIELD_DESCRIPTION(struct _apOperationalBssInfo, ssid, tlv_struct_print_format_hex), },
+        TLV_STRUCT_FIELD_DESCRIPTION(struct _apOperationalBssInfo, ssid, tlv_struct_print_format_hex),
         TLV_STRUCT_FIELD_SENTINEL,
     },
     .children = {NULL,},
@@ -483,7 +483,7 @@ static const struct tlv_struct_description _apOperationalBssRadioDesc = {
     .name = "radio",
     .size = sizeof(struct _apOperationalBssRadio),
     .fields = {
-        { TLV_STRUCT_FIELD_DESCRIPTION(struct _apOperationalBssRadio, radio_uid, tlv_struct_print_format_mac), },
+        TLV_STRUCT_FIELD_DESCRIPTION(struct _apOperationalBssRadio, radio_uid, tlv_struct_print_format_mac),
         TLV_STRUCT_FIELD_SENTINEL,
     },
     .children = { &_apOperationalBssInfoDesc, NULL, },
@@ -503,12 +503,8 @@ static const struct tlv_struct_description _associatedClientInfoDesc = {
     .name = "client",
     .size = sizeof(struct _associatedClientInfo),
     .fields = {
-        {
-            TLV_STRUCT_FIELD_DESCRIPTION(struct _associatedClientInfo, addr, tlv_struct_print_format_mac),
-        },
-        {
-            TLV_STRUCT_FIELD_DESCRIPTION(struct _associatedClientInfo, age, tlv_struct_print_format_unsigned),
-        },
+        TLV_STRUCT_FIELD_DESCRIPTION(struct _associatedClientInfo, addr, tlv_struct_print_format_mac),
+        TLV_STRUCT_FIELD_DESCRIPTION(struct _associatedClientInfo, age, tlv_struct_print_format_unsigned),
         TLV_STRUCT_FIELD_SENTINEL,
     },
     .children = {NULL,},
@@ -518,9 +514,7 @@ static const struct tlv_struct_description _associatedClientsBssInfoDesc = {
     .name = "bss",
     .size = sizeof(struct _associatedClientsBssInfo),
     .fields = {
-        {
-            TLV_STRUCT_FIELD_DESCRIPTION(struct _associatedClientsBssInfo, bssid, tlv_struct_print_format_mac),
-        },
+        TLV_STRUCT_FIELD_DESCRIPTION(struct _associatedClientsBssInfo, bssid, tlv_struct_print_format_mac),
         TLV_STRUCT_FIELD_SENTINEL,
     },
     .children = {
