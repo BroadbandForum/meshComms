@@ -534,15 +534,25 @@ void tlv_struct_print(const struct tlv_struct *item, void (*write_function)(cons
     }
 }
 
+void tlv_struct_print_hex_field(const char *name, const uint8_t *value, size_t length,
+                                void (*write_function)(const char *fmt, ...), const char *prefix)
+{
+    size_t i;
+    /* @todo Break off long lines */
+    write_function("%s%s: ", prefix, name);
+    for (i = 0; i < length; i++)
+    {
+        write_function("%02x ", value[i]);
+    }
+    write_function("\n");
+
+}
 void tlv_struct_print_field(const struct tlv_struct *item, const struct tlv_struct_field_description *field_desc,
                        void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     unsigned value;
     char *pvalue = ((char*)item) + field_desc->offset;
     uint8_t *uvalue = (uint8_t *)pvalue;
-    size_t i;
-
-    write_function("%s%s: ", prefix, field_desc->name);
 
     switch (field_desc->format)
     {
@@ -562,14 +572,11 @@ void tlv_struct_print_field(const struct tlv_struct *item, const struct tlv_stru
                     break;
                 default:
                     assert(field_desc->format == tlv_struct_print_format_hex);
-                    /* @todo Break off long lines */
-                    for (i = 0; i < field_desc->size; i++)
-                    {
-                        write_function("%02x ", uvalue[i]);
-                    }
-                    write_function("\n");
+                    tlv_struct_print_hex_field(field_desc->name, uvalue, field_desc->size, write_function, prefix);
                     return;
             }
+
+            write_function("%s%s: ", prefix, field_desc->name);
             switch (field_desc->format)
             {
                 case tlv_struct_print_format_hex:
@@ -589,16 +596,19 @@ void tlv_struct_print_field(const struct tlv_struct *item, const struct tlv_stru
 
         case tlv_struct_print_format_mac:
             assert(field_desc->size == 6);
+            write_function("%s%s: ", prefix, field_desc->name);
             write_function(MACSTR, MAC2STR(uvalue));
             break;
 
         case tlv_struct_print_format_ipv4:
             assert(field_desc->size == 4);
+            write_function("%s%s: ", prefix, field_desc->name);
             write_function("%u.%u.%u.%u", uvalue[0], uvalue[1], uvalue[2], uvalue[3]);
             break;
 
         case tlv_struct_print_format_ipv6:
             assert(field_desc->size == 16);
+            write_function("%s%s: ", prefix, field_desc->name);
             write_function("%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
                            uvalue[0], uvalue[1], uvalue[2], uvalue[3], uvalue[4], uvalue[5], uvalue[6], uvalue[7],
                            uvalue[8], uvalue[9], uvalue[10], uvalue[11], uvalue[12], uvalue[13], uvalue[14],

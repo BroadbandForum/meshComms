@@ -301,6 +301,10 @@ int tlv_struct_compare(const struct tlv_struct *item1, const struct tlv_struct *
     tlv_struct_compare(&check_compatible_types(ptr1, ptr2)->hlist_member, \
                        &ptr2->hlist_member)
 
+/** @brief Print a buffer in hex. */
+void tlv_struct_print_hex_field(const char *name, const uint8_t *value, size_t length,
+                                void (*write_function)(const char *fmt, ...), const char *prefix);
+
 /** @brief Print a list of TLV structures. */
 void tlv_struct_print_list(const hlist_head *list, bool include_index,
                            void (*write_function)(const char *fmt, ...), const char *prefix);
