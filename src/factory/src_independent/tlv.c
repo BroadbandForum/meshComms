@@ -32,12 +32,6 @@ const struct tlv_def *tlv_find_def(tlv_defs_t defs, uint8_t tlv_type)
     return &defs[tlv_type];
 }
 
-const struct tlv_def *tlv_find_tlv_def(tlv_defs_t defs, const struct tlv *tlv)
-{
-    return tlv_find_def(defs, tlv->type);
-}
-
-
 bool tlv_struct_parse_field(struct tlv_struct *item, const struct tlv_struct_field_description *desc,
                             const uint8_t **buffer, size_t *length)
 {
@@ -129,7 +123,7 @@ bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t 
             memcpy(tlv->value, buffer, tlv_length);
             tlv_new = &tlv->tlv;
         }
-        else if (tlv_def->parse == NULL)
+        else
         {
             /* Special case for 0-length TLVs */
             if (tlv_length == 0)
@@ -153,11 +147,6 @@ bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t 
                 tlv_new = container_of(tlv_new_item, struct tlv, s);
             }
         }
-        else
-        {
-            tlv_new = tlv_def->parse(tlv_def, buffer, tlv_length);
-            /* @todo check no remaining bytes in tlv_length */
-        }
         if (tlv_new == NULL)
         {
             goto err_out;
@@ -166,7 +155,7 @@ bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t 
         if (!tlv_add(defs, tlvs, tlv_new))
         {
             /* tlv_add already prints an error */
-            tlv_def ? tlv_def->free(tlv_new) : free(tlv_new);
+            hlist_delete_item(&tlv_new->s.h);
             goto err_out;
         }
         buffer += tlv_length;
@@ -176,7 +165,7 @@ bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t 
     return true;
 
 err_out:
-    tlv_free(defs, tlvs);
+    hlist_delete(tlvs);
     return false;
 }
 
@@ -282,25 +271,16 @@ bool tlv_forge(tlv_defs_t defs, const hlist_head *tlvs, size_t max_length, uint8
     total_length = 0;
     hlist_for_each(tlv, *tlvs, struct tlv, s.h)
     {
-        const struct tlv_def *tlv_def = tlv_find_tlv_def(defs, tlv);
+        const struct tlv_def *tlv_def = tlv_find_def(defs, tlv->type);
         if (tlv_def->desc.name == NULL)
         {
             PLATFORM_PRINTF_DEBUG_WARNING("tlv_forge: skipping unknown TLV %u\n", tlv->type);
         }
-        else if (tlv_def->length == NULL)
-        {
-            total_length += 3;
-            total_length += tlv_length_single(&tlv->s);
-        }
-        else if (tlv_def->forge == NULL)
-        {
-            PLATFORM_PRINTF_DEBUG_ERROR("No forge defined for TVL %s\n", tlv_def->desc.name);
-            return false;
-        }
         else
         {
             /* Add 3 bytes for type + length */
-            total_length += tlv_def->length(tlv) + 3;
+            total_length += 3;
+            total_length += tlv_length_single(&tlv->s);
         }
     }
 
@@ -318,27 +298,22 @@ bool tlv_forge(tlv_defs_t defs, const hlist_head *tlvs, size_t max_length, uint8
     p = *buffer;
     hlist_for_each(tlv, *tlvs, struct tlv, s.h)
     {
-        const struct tlv_def *tlv_def = tlv_find_tlv_def(defs, tlv);
-        uint16_t tlv_length;
-        if (tlv_def->length == NULL)
-            tlv_length = tlv_length_single(&tlv->s);
-        else
-            tlv_length = tlv_def->length(tlv);
+        size_t tlv_length = tlv_length_single(&tlv->s);
+        uint16_t tlv_length_u16 = (uint16_t)tlv_length;
+
+        if (tlv_length > UINT16_MAX)
+        {
+            PLATFORM_PRINTF_DEBUG_ERROR("TLV length for %s to large: %llu\n",
+                                        tlv->s.desc->name, (unsigned long long) tlv_length);
+            goto err_out;
+        }
 
         if (!_I1BL(&tlv->type, &p, &total_length))
             goto err_out;
-        if (!_I2BL(&tlv_length, &p, &total_length))
+        if (!_I2BL(&tlv_length_u16, &p, &total_length))
             goto err_out;
-        if (tlv_def->forge == NULL)
-        {
-            if (!tlv_struct_forge_single(&tlv->s, &p, &total_length))
-                goto err_out;
-        }
-        else
-        {
-            if (!tlv_def->forge(tlv, &p, &total_length))
-                goto err_out;
-        }
+        if (!tlv_struct_forge_single(&tlv->s, &p, &total_length))
+            goto err_out;
     }
     if (total_length != 0)
         goto err_out;
@@ -348,93 +323,6 @@ err_out:
     PLATFORM_PRINTF_DEBUG_ERROR("TLV list forging implementation error.\n");
     free(*buffer);
     return false;
-}
-
-void tlv_print(tlv_defs_t defs, const hlist_head *tlvs, void (*write_function)(const char *fmt, ...), const char *prefix)
-{
-    const struct tlv *tlv;
-
-    hlist_for_each(tlv, *tlvs, struct tlv, s.h)
-    {
-        const struct tlv_def *tlv_def = tlv_find_tlv_def(defs, tlv);
-        // In order to make it easier for the callback() function to present
-        // useful information, append the type of the TLV to the prefix
-        //
-        char new_prefix[100];
-
-        if (tlv_def->print == NULL)
-        {
-            /* @todo this is a hack waiting for the removal of the tlv_def->print function */
-            snprintf(new_prefix, sizeof(new_prefix)-1, "%s%s", prefix, tlv_def->desc.name);
-            tlv_struct_print(&tlv->s, write_function, new_prefix);
-        }
-        else
-        {
-            snprintf(new_prefix, sizeof(new_prefix)-1, "%sTLV(%s)->",
-                              prefix, (tlv_def->desc.name == NULL) ? "Unknown" : tlv_def->desc.name);
-            new_prefix[sizeof(new_prefix)-1] = '\0';
-            tlv_def->print(tlv, write_function, new_prefix);
-        }
-    }
-}
-
-void tlv_free(tlv_defs_t defs, hlist_head *tlvs)
-{
-    hlist_head *next = tlvs->next;
-
-    /* Since we will free all items in the list, it is not needed to remove them from the list. However, the normal
-     * hlist_for_each macro would use the next pointer after the item has been freed. Therefore, we use an open-coded
-     * iteration here. */
-    while (next != tlvs)
-    {
-        struct tlv *tlv = container_of(next, struct tlv, s.h.l);
-        next = next->next;
-        hlist_head_init(&tlv->s.h.l);
-        const struct tlv_def *tlv_def = tlv_find_tlv_def(defs, tlv);
-        if (tlv_def->free == NULL)
-        {
-            hlist_delete_item(&tlv->s.h);
-        }
-        else
-        {
-            tlv_def->free(tlv);
-        }
-    }
-    /* We still have to make sure the list is empty, in case it is reused later. */
-    hlist_head_init(tlvs);
-}
-
-bool tlv_compare(tlv_defs_t defs, const hlist_head *tlvs1, const hlist_head *tlvs2)
-{
-    /** @todo this assumes TLVs are ordered the same */
-    bool ret = true;
-    hlist_head *cur1;
-    hlist_head *cur2;
-    /* Open-code hlist_for_each because we need to iterate over both at once. */
-    for (cur1 = tlvs1->next, cur2 = tlvs2->next;
-         ret && cur1 != tlvs1 && cur2 != tlvs2;
-         cur1 = cur1->next, cur2 = cur2->next)
-    {
-        struct tlv *tlv1 = container_of(cur1, struct tlv, s.h.l);
-        struct tlv *tlv2 = container_of(cur2, struct tlv, s.h.l);
-        const struct tlv_def *tlv_def = tlv_find_def(defs, tlv1->type);
-        if (tlv1->type != tlv2->type)
-        {
-            return false;
-        }
-        if (tlv_def->compare != NULL)
-        {
-            if (!tlv_def->compare(tlv1, tlv2))
-            {
-                return false;
-            }
-        }
-        else
-        {
-            ret = TLV_STRUCT_COMPARE(tlv1, tlv2, s) == 0;
-        }
-    }
-    return ret;
 }
 
 bool tlv_add(tlv_defs_t defs, hlist_head *tlvs, struct tlv *tlv)

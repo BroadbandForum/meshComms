@@ -3451,7 +3451,7 @@ void free_1905_TLV_structure(struct tlv *tlv)
             hlist_head_init(&tlv->s.h.children[0]);
             hlist_head_init(&tlv->s.h.children[1]);
             tlv_add(tlv_1905_defs, &dummy, tlv);
-            tlv_free(tlv_1905_defs, &dummy);
+            hlist_delete(&dummy);
             return;
         }
     }
@@ -4381,23 +4381,14 @@ uint8_t compare_1905_TLV_structures(struct tlv *tlv_1, struct tlv *tlv_2)
 
         default:
         {
-            uint8_t ret;
-            DECLARE_HLIST_HEAD(dummy1);
-            tlv_add(tlv_1905_defs, &dummy1, tlv_1);
-            DECLARE_HLIST_HEAD(dummy2);
-            tlv_add(tlv_1905_defs, &dummy2, tlv_2);
-            if (tlv_compare(tlv_1905_defs, &dummy1, &dummy2))
+            if (tlv_struct_compare(&tlv_1->s, &tlv_2->s) == 0)
             {
-                ret = 0;
+                return 0;
             }
             else
             {
-                ret = 1;
+                return 1;
             }
-            hlist_head_init(&tlv_1->s.h.l);
-            hlist_head_init(&tlv_2->s.h.l);
-
-            return ret;
         }
     }
 
@@ -5028,7 +5019,7 @@ void visit_1905_TLV_structure(struct tlv *tlv, visitor_callback callback, void (
         {
             DECLARE_HLIST_HEAD(dummy);
             tlv_add(tlv_1905_defs, &dummy, tlv);
-            tlv_print(tlv_1905_defs, &dummy, write_function, prefix);
+            tlv_struct_print_list(&dummy, false, write_function, prefix);
             hlist_head_init(&tlv->s.h.l);
 
             return;

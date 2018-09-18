@@ -212,8 +212,8 @@ struct tlv_struct
 
 /** @brief Type-Length-Value object.
  *
- * This is an abstract type. It is created by tlv_parse(), updated with tlv_add(), and deleted with tlv_free(). It is
- * not intended to be manipulated directly.
+ * This is an abstract type. It is created by tlv_parse(), updated with tlv_add(). It is not intended to be manipulated
+ * directly.
  *
  * The intended use is as a member of the structure representing the specific type. E.g.
  * @code
@@ -327,102 +327,6 @@ struct tlv_def
     /** @brief The type identifier. */
     uint8_t type;
 
-    /** @deprecated
-     * These functions are replaced with their counterparts in tlv_struct
-     * @{
-     */
-
-    /** @brief TLV parse virtual function.
-     *
-     * @param def The TLV type definition. The same parse function may be used for different types.
-     *
-     * @param buffer The value part of the TLV.
-     *
-     * @param length The length of the value.
-     *
-     * @return The @a tlv member of a newly allocated TLV structure. NULL in case of error.
-     *
-     * This function must create a new TLV structure and initialise its value. The type and length are already parsed
-     * out of the @a buffer, so it points directly to the value.
-     *
-     * If NULL, a default parse function is used based on the field descriptions in ::desc.
-     */
-    struct tlv *(*parse)(const struct tlv_def *def, const uint8_t *buffer, size_t length);
-
-    /** @brief TLV length virtual function.
-     *
-     * @param tlv The TLV to forge.
-     *
-     * @return the length of the TLV value (i.e., without type and length fields).
-     *
-     * This function is called when forging a TLV list, to determine the size of the buffer that must be allocated.
-     *
-     * If NULL, the length is calculated based on the field descriptions in ::desc.
-     */
-    uint16_t (*length)(const struct tlv *tlv);
-
-    /** @brief TLV forge virtual function.
-     *
-     * @param tlv The TLV to forge.
-     *
-     * @param buf Buffer in which to forge the value.
-     *
-     * @param length Remaining length of @a buf.
-     *
-     * @return true. If false is returned, it's a programming error: either tlv_def::length returned a wrong value, or
-     * the structure was not consistent.
-     *
-     * This function is called when forging a TLV list, after allocating the buffer based on the calls to
-     * tlv_def::length. Note that @a length is the total length of the buffer, not just for this TLV.
-     *
-     * Use _I1BL() and friends to fill @buf and update @length.
-     *
-     * If NULL, a default forge function is used based on the field descriptions in ::desc.
-     */
-    bool (*forge)(const struct tlv *tlv, uint8_t **buf, size_t *length);
-
-    /** @brief TLV print virtual function.
-     *
-     * @param tlv The TLV to print.
-     *
-     * @param write_function The print callback.
-     *
-     * @param prefix Prefix to be added to every line. This prefix will contain the TLV type name.
-     *
-     * If NULL, tlv_struct_print() is used.
-     */
-    void (*print)(const struct tlv *tlv, void (*write_function)(const char *fmt, ...), const char *prefix);
-
-    /** @brief TLV delete virtual function.
-     *
-     * @param tlv The TLV to delete.
-     *
-     * This function must delete the TLV and everything allocated by the tlv_def::parse function.
-     *
-     * May be left as NULL if tlv_def::parse only allocates a single structure.
-     *
-     * @todo to remove.
-     */
-    void (*free)(struct tlv *tlv);
-
-    /** @brief TLV comparison virtual function.
-     *
-     * @param tlv1 The left-hand side TLV to compare.
-     *
-     * @param tlv2 The right-hand side TLV to compare.
-     *
-     * @return true if tlv1 is equal to tlv2, false if they differ.
-     *
-     * This function is called to compare TLVs. The type of @a tlv1 and @a tlv2 are guaranteed to be equal.
-     *
-     * May be left as NULL for 0 length TLVs.
-     *
-     * @todo to remove.
-     */
-    bool (*compare)(const struct tlv *tlv1, const struct tlv *tlv2);
-
-    /** @} */
-
     /** @brief TLV aggregation virtual function.
      *
      * @param tlv1 The existing TLV.
@@ -442,37 +346,6 @@ struct tlv_def
      */
     struct tlv *(*aggregate)(struct tlv *tlv1, const struct tlv *tlv2);
 };
-
-/** @brief Helper to do static initialization of tlv_defs_t.
- *
- * Use this macro to define an element of the tlv_defs_t array.
- *
- * It makes sure that tlv_def::type is equal to the index of the tlv_defs_t array.
- *
- * It assumes that the virtual functions are called tlv_<function>_<name>, e.g. for TLV type linkMetricQuery of
- * the 1905 TLV definitions, the parse function would be called tlv_parse_linkMetricQuery.
- *
- * @param tlv_name The name of the TLV, typically in lowerCamelCase.
- *
- * @param tlv_type The definition of the TLV type.
- * @todo This should be derived automatically as tlv_type_##tlv_name.
- */
-#define TLV_DEF_ENTRY(tlv_name,tlv_type)    \
-    [(tlv_type)] = {               \
-        .desc = {                  \
-            .name = #tlv_name,     \
-            .size = sizeof(struct tlv_name ## TLV), \
-            .fields = {TLV_STRUCT_FIELD_SENTINEL,}, \
-            .children = {NULL,},   \
-        },                         \
-        .type = (tlv_type),        \
-        .parse = tlv_parse_##tlv_name,   \
-        .length = tlv_length_##tlv_name, \
-        .forge = tlv_forge_##tlv_name,   \
-        .print = tlv_print_##tlv_name,   \
-        .free = tlv_free_##tlv_name,     \
-        .compare = tlv_compare_##tlv_name,\
-    }
 
 #define TLV_DEF_ENTRY_INTERNAL(tlv_name, tlv_type, child, ...) \
     [(tlv_type)] = {               \
@@ -549,9 +422,6 @@ typedef const struct tlv_def tlv_defs_t[TLV_TYPE_NUM];
 /** @brief Find the definition of a specific TLV type. */
 const struct tlv_def *tlv_find_def(tlv_defs_t defs, uint8_t tlv_type);
 
-/** @brief Find the definition corresponding to a specific TLV. */
-const struct tlv_def *tlv_find_tlv_def(tlv_defs_t defs, const struct tlv *tlv);
-
 /** @brief Append a TLV to a list of TLVs.
  *
  * @param defs The TLV metadata.
@@ -583,7 +453,7 @@ bool tlv_add(tlv_defs_t defs, hlist_head *tlvs, struct tlv *tlv);
  * The new TLVs are appended to @a tlvs. If parsing fails at some point, this function returns @a false immediately.
  * At that point, some TLVs may already have been appended to @a tlvs.
  *
- * The new TLVs have to be freed by calling tlv_free() on @a tlvs.
+ * The new TLVs have to be freed by calling hlist_delete() on @a tlvs.
  */
 bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t length);
 
@@ -608,44 +478,6 @@ bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t 
  * @todo The allocated buffers should have some headroom, so they don't have to be copied again to form a full packet.
  */
 bool tlv_forge(tlv_defs_t defs, const hlist_head *tlvs, size_t max_length, uint8_t **buffer, size_t *length);
-
-/** @brief Print a list of TLVs.
- *
- * @param defs The TLV metadata.
- *
- * @param tlvs The tlvs to print.
- *
- * @param write_function The print callback.
- *
- * @param prefix Prefix to be added to every line.
- */
-void tlv_print(tlv_defs_t defs, const hlist_head *tlvs, void (*write_function)(const char *fmt, ...), const char *prefix);
-
-/** @brief Delete a list of TLVs.
- *
- * @param defs The TLV metadata.
- *
- * @param tlvs The tlvs to delete.
- *
- * This function deletes each ::tlv but not @a tlvs itself.
- *
- * @todo replace by hlist_delete()
- */
-void tlv_free(tlv_defs_t defs, hlist_head *tlvs);
-
-/** @brief Compare two TLV lists.
- *
- * @param tlvs1 The left-hand side list of TLVs to compare.
- *
- * @param tlvs2 The right-hand side list of TLVs to compare.
- *
- * @return true if each TLV in @a tlvs1 is equal to the corresponding one in @a tlvs2, false if they differ.
- *
- * @todo Currently the lists are assumed to be ordered in the same way.
- *
- * @todo replace by tlv_struct_compare_list()
- */
-bool tlv_compare(tlv_defs_t defs, const hlist_head *tlvs1, const hlist_head *tlvs2);
 
 /** @brief Declare and allocate a TLV substructure pointer with default naming.
  *
