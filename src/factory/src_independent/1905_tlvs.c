@@ -279,20 +279,6 @@ static int vendorSpecificTLVCompare(const struct tlv_struct *item1, const struct
 
 /** @} */
 
-/** @brief Support functions for macAddressType TLV.
- *
- * See "IEEE Std 1905.1-2013" Section 6.4.4
- *
- * @{
- */
-
-#define TLV_NAME          macAddressType
-#define TLV_FIELD1_NAME   mac_address
-
-#include <tlv_template.h>
-
-/** @} */
-
 /** @brief Support functions for apOperationalBss TLV.
  *
  * See "Multi-AP Specification Version 1.0" Section 17.2.1
@@ -492,7 +478,9 @@ static tlv_defs_t tlv_1905_defs = {
     TLV_DEF_ENTRY_1FIELDS(alMacAddressType,TLV_TYPE_AL_MAC_ADDRESS_TYPE, NULL,
         al_mac_address, tlv_struct_print_format_mac,
     ),
-    TLV_DEF_ENTRY(macAddressType,TLV_TYPE_MAC_ADDRESS_TYPE),
+    TLV_DEF_ENTRY_1FIELDS(macAddressType,TLV_TYPE_MAC_ADDRESS_TYPE, NULL,
+        mac_address, tlv_struct_print_format_mac,
+    ),
     TLV_DEF_ENTRY_3FIELDS(linkMetricQuery,TLV_TYPE_LINK_METRIC_QUERY, NULL,
         destination, tlv_struct_print_format_hex,
         specific_neighbor, tlv_struct_print_format_mac,

@@ -39,12 +39,7 @@ static struct CMDU aletest_expect_cmdu_topology_discovery =
     .list_of_TLVs    =
         (struct tlv *[]){
             NULL, // expect_al_mac_tlv.tlv,
-            (struct tlv *)(struct macAddressTypeTLV[]){
-                {
-                    .tlv.type          = TLV_TYPE_MAC_ADDRESS_TYPE,
-                    .mac_address       = ADDR_MAC0,
-                }
-            },
+            NULL, // ADDR_MAC0
             NULL,
         },
 };
@@ -58,12 +53,7 @@ static struct CMDU aletest_send_cmdu_topology_discovery =
     .list_of_TLVs    =
         (struct tlv *[]){
             NULL, // (struct tlv *)(struct alMacAddressTypeTLV[]){
-            (struct tlv *)(struct macAddressTypeTLV[]){
-                {
-                    .tlv.type          = TLV_TYPE_MAC_ADDRESS_TYPE,
-                    .mac_address       = ADDR_MAC_PEER0,
-                }
-            },
+            NULL, // ADDR_MAC_PEER0
             NULL,
         },
 };
@@ -176,12 +166,7 @@ static struct CMDU aletest_send_cmdu_topology_discovery2 =
     .list_of_TLVs    =
         (struct tlv *[]){
             NULL, // (struct tlv *)(struct alMacAddressTypeTLV[]){
-            (struct tlv *)(struct macAddressTypeTLV[]){
-                {
-                    .tlv.type          = TLV_TYPE_MAC_ADDRESS_TYPE,
-                    .mac_address       = ADDR_MAC_PEER1,
-                }
-            },
+            NULL, // ADDR_MAC_PEER1
             NULL,
         },
 };
@@ -195,12 +180,7 @@ static struct CMDU aletest_expect_cmdu_topology_discovery2 =
     .list_of_TLVs    =
         (struct tlv *[]){
             NULL, // &expect_al_mac_tlv.tlv,
-            (struct tlv *)(struct macAddressTypeTLV[]){
-                {
-                    .tlv.type          = TLV_TYPE_MAC_ADDRESS_TYPE,
-                    .mac_address       = ADDR_MAC1,
-                }
-            },
+            NULL, // ADDR_MAC1,
             NULL,
         },
 };
@@ -252,11 +232,19 @@ static void initExpected()
             X1905_TLV_ALLOC(alMacAddressType, TLV_TYPE_AL_MAC_ADDRESS_TYPE, NULL);
     memcpy(expect_al_mac_tlv->al_mac_address, ADDR_AL, 6);
     aletest_expect_cmdu_topology_discovery.list_of_TLVs[0] = &expect_al_mac_tlv->tlv;
+    struct macAddressTypeTLV *expect_mac_tlv =
+            X1905_TLV_ALLOC(macAddressType, TLV_TYPE_MAC_ADDRESS_TYPE, NULL);
+    memcpy(expect_mac_tlv->mac_address, ADDR_MAC0, 6);
+    aletest_expect_cmdu_topology_discovery.list_of_TLVs[1] = &expect_mac_tlv->tlv;
 
     struct alMacAddressTypeTLV *send_al_mac_tlv =
             X1905_TLV_ALLOC(alMacAddressType, TLV_TYPE_AL_MAC_ADDRESS_TYPE, NULL);
     memcpy(send_al_mac_tlv->al_mac_address, ADDR_AL_PEER0, 6);
     aletest_send_cmdu_topology_discovery.list_of_TLVs[0] = &send_al_mac_tlv->tlv;
+    struct macAddressTypeTLV *send_mac_tlv =
+            X1905_TLV_ALLOC(macAddressType, TLV_TYPE_MAC_ADDRESS_TYPE, NULL);
+    memcpy(send_mac_tlv->mac_address, ADDR_MAC_PEER0, 6);
+    aletest_send_cmdu_topology_discovery.list_of_TLVs[1] = &send_mac_tlv->tlv;
 
     struct supportedServiceTLV *multiApControllerService = supportedServiceTLVAlloc(NULL, true, true);
     aletest_expect_cmdu_topology_response.list_of_TLVs[5] = &multiApControllerService->tlv;
@@ -281,6 +269,10 @@ static void initExpected()
             X1905_TLV_ALLOC(alMacAddressType, TLV_TYPE_AL_MAC_ADDRESS_TYPE, NULL);
     memcpy(send_al_mac_tlv2->al_mac_address, ADDR_AL_PEER1, 6);
     aletest_send_cmdu_topology_discovery2.list_of_TLVs[0] = &send_al_mac_tlv2->tlv;
+    struct macAddressTypeTLV *send_mac_tlv2 =
+            X1905_TLV_ALLOC(macAddressType, TLV_TYPE_MAC_ADDRESS_TYPE, NULL);
+    memcpy(send_mac_tlv2->mac_address, ADDR_MAC_PEER1, 6);
+    aletest_send_cmdu_topology_discovery2.list_of_TLVs[1] = &send_mac_tlv2->tlv;
 
     struct supportedServiceTLV *multiApAgentService = supportedServiceTLVAlloc(NULL, false, true);
     aletest_send_cmdu_topology_response2.list_of_TLVs[1] = &multiApAgentService->tlv;
@@ -289,6 +281,10 @@ static void initExpected()
             X1905_TLV_ALLOC(alMacAddressType, TLV_TYPE_AL_MAC_ADDRESS_TYPE, NULL);
     memcpy(expect_al_mac_tlv2->al_mac_address, ADDR_AL, 6);
     aletest_expect_cmdu_topology_discovery2.list_of_TLVs[0] = &expect_al_mac_tlv2->tlv;
+    struct macAddressTypeTLV *expect_mac_tlv2 =
+            X1905_TLV_ALLOC(macAddressType, TLV_TYPE_MAC_ADDRESS_TYPE, NULL);
+    memcpy(expect_mac_tlv2->mac_address, ADDR_MAC1, 6);
+    aletest_expect_cmdu_topology_discovery2.list_of_TLVs[1] = &expect_mac_tlv2->tlv;
 
     struct alMacAddressTypeTLV *expect_al_mac_tlv3 =
             X1905_TLV_ALLOC(alMacAddressType, TLV_TYPE_AL_MAC_ADDRESS_TYPE, NULL);

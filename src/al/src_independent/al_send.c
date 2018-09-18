@@ -2249,7 +2249,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
 
     struct CMDU                discovery_message;
     struct alMacAddressTypeTLV *al_mac_addr_tlv;
-    struct macAddressTypeTLV   mac_addr_tlv;
+    struct macAddressTypeTLV   *mac_addr_tlv = X1905_TLV_ALLOC(macAddressType, TLV_TYPE_MAC_ADDRESS_TYPE, NULL);
 
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_TOPOLOGY_DISCOVERY (%s)\n", interface_name);
 
@@ -2261,13 +2261,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
 
     // Fill the MAC address type TLV
     //
-    mac_addr_tlv.tlv.type             = TLV_TYPE_MAC_ADDRESS_TYPE;
-    mac_addr_tlv.mac_address[0]       = interface_mac_address[0];
-    mac_addr_tlv.mac_address[1]       = interface_mac_address[1];
-    mac_addr_tlv.mac_address[2]       = interface_mac_address[2];
-    mac_addr_tlv.mac_address[3]       = interface_mac_address[3];
-    mac_addr_tlv.mac_address[4]       = interface_mac_address[4];
-    mac_addr_tlv.mac_address[5]       = interface_mac_address[5];
+    memcpy(mac_addr_tlv->mac_address, interface_mac_address, 6);
 
     // Build the CMDU
     //
@@ -2277,7 +2271,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
     discovery_message.relay_indicator = 0;
     discovery_message.list_of_TLVs    = (struct tlv **)memalloc(sizeof(struct tlv *)*3);
     discovery_message.list_of_TLVs[0] = &al_mac_addr_tlv->tlv;
-    discovery_message.list_of_TLVs[1] = &mac_addr_tlv.tlv;
+    discovery_message.list_of_TLVs[1] = &mac_addr_tlv->tlv;
     discovery_message.list_of_TLVs[2] = NULL;
 
     // Send the packet
