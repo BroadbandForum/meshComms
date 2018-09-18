@@ -1524,7 +1524,8 @@ void get_1905_tlv_test_vectors(hlist_head *test_vectors)
         0x00, 0x03, 0x7f,
         0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x02, 0x03, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
     );
-    struct vendorSpecificTLV *vendorSpecific = vendorSpecificTLVAlloc(&v->h.children[0]);
+    struct vendorSpecificTLV *vendorSpecific =
+            X1905_TLV_ALLOC(vendorSpecific, TLV_TYPE_VENDOR_SPECIFIC, &v->h.children[0]);
     vendorSpecific->vendorOUI[0] = 0x00;
     vendorSpecific->vendorOUI[1] = 0x03;
     vendorSpecific->vendorOUI[2] = 0x7f;
@@ -1568,7 +1569,8 @@ void get_1905_tlv_test_vectors(hlist_head *test_vectors)
         8,
         'a', 'b', 'b', 'a', 0x00, 0xff, 0x80, '!',
     );
-    struct apOperationalBssTLV *apOperationalBss = apOperationalBssTLVAlloc(&v->h.children[0]);
+    struct apOperationalBssTLV *apOperationalBss =
+            X1905_TLV_ALLOC(apOperationalBss, TLV_TYPE_AP_OPERATIONAL_BSS, &v->h.children[0]);
     mac_address radio_uid1 = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25};
     apOperationalBssTLVAddRadio(apOperationalBss, radio_uid1);
     mac_address radio_uid2 = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5};
@@ -1598,7 +1600,8 @@ void get_1905_tlv_test_vectors(hlist_head *test_vectors)
         0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5,
         0xff, 0xff,
     );
-    struct associatedClientsTLV *associatedClients = associatedClientsTLVAlloc(&v->h.children[0]);
+    struct associatedClientsTLV *associatedClients =
+            X1905_TLV_ALLOC(associatedClients, TLV_TYPE_ASSOCIATED_CLIENTS, &v->h.children[0]);
     struct _associatedClientsBssInfo *bssInfo;
     mac_address bssid1 = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25};
     mac_address bssid2 = {0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5};

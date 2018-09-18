@@ -175,8 +175,8 @@ int main(void)
 
     /* The TLV print and comparison functions are not sufficiently covered by the parse/forge tests, so they are tested
      * here separately on an associatedClientsTLV. */
-    tlv1 = associatedClientsTLVAlloc(&list1);
-    tlv2 = associatedClientsTLVAlloc(&list2);
+    tlv1 = X1905_TLV_ALLOC(associatedClients, TLV_TYPE_ASSOCIATED_CLIENTS, &list1);
+    tlv2 = X1905_TLV_ALLOC(associatedClients, TLV_TYPE_ASSOCIATED_CLIENTS, &list2);
     result += check_compare(&tlv1->tlv.s, &tlv2->tlv.s, 0, "Empty associatedClientsTLV");
     bss_info = associatedClientsTLVAddBssInfo(tlv1, addr);
     result += check_compare(&tlv1->tlv.s, &tlv2->tlv.s, 1, "Longer associatedClientsTLV is larger");

@@ -1529,7 +1529,7 @@ static struct apOperationalBssTLV *_obtainLocalApOperationalBssTLV(hlist_head *p
     uint8_t  ifs_nr;
     uint8_t  i;
 
-    struct apOperationalBssTLV *tlv = apOperationalBssTLVAlloc(parent);
+    struct apOperationalBssTLV *tlv = X1905_TLV_ALLOC(apOperationalBss, TLV_TYPE_AP_OPERATIONAL_BSS, parent);
 
     ifs_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&ifs_nr);
 

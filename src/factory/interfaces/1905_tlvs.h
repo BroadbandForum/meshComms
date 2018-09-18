@@ -187,12 +187,6 @@ struct vendorSpecificTLV
     uint8_t  *m;                    // Vendor specific information
 };
 
-/** @brief Allocate an empty vendorSpecificTLV.
- *
- * The buffer vendorSpecificTLV::m is not allocated, this must be done by the caller.
- */
-struct vendorSpecificTLV *vendorSpecificTLVAlloc(hlist_head *parent);
-
 ////////////////////////////////////////////////////////////////////////////////
 // AL MAC address type TLV associated structures ("Section 6.4.3")
 ////////////////////////////////////////////////////////////////////////////////
@@ -961,7 +955,6 @@ struct apOperationalBssTLV
     struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_AP_OPERATIONAL_BSS. */
 };
 
-struct apOperationalBssTLV* apOperationalBssTLVAlloc(hlist_head *parent);
 struct _apOperationalBssRadio *apOperationalBssTLVAddRadio(struct apOperationalBssTLV* a, mac_address radio_uid);
 struct _apOperationalBssInfo *apOperationalBssRadioAddBss(struct _apOperationalBssRadio* a,
                                                           mac_address bssid, struct ssid ssid);
@@ -990,7 +983,6 @@ struct associatedClientsTLV
     struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_ASSOCIATED_CLIENTS. */
 };
 
-struct associatedClientsTLV* associatedClientsTLVAlloc(hlist_head *parent);
 struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associatedClientsTLV* a, mac_address bssid);
 struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associatedClientsBssInfo* a,
                                                                  mac_address addr, uint16_t age);
@@ -1040,6 +1032,15 @@ uint8_t *forge_1905_TLV_from_structure(const struct tlv *memory_structure, uint1
 ////////////////////////////////////////////////////////////////////////////////
 // Utility API functions
 ////////////////////////////////////////////////////////////////////////////////
+
+/** @brief Allocate a TLV of the given type.
+ *
+ * The TLV is allocated without children and with all fields set to 0.
+ */
+struct tlv *x1905TLVAlloc(hlist_head *parent, uint8_t type);
+
+#define X1905_TLV_ALLOC(tlv_name, tlv_type, parent) \
+    container_of(x1905TLVAlloc(parent, tlv_type), struct tlv_name ## TLV, tlv);
 
 // This function receives a pointer to a TLV structure and then traverses it
 // and all nested structures, calling "free()" on each one of them

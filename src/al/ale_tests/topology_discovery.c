@@ -267,7 +267,8 @@ static void initExpected()
     struct supportedServiceTLV *multiApControllerService = supportedServiceTLVAlloc(NULL, true, true);
     aletest_expect_cmdu_topology_response.list_of_TLVs[5] = &multiApControllerService->tlv;
 
-    struct apOperationalBssTLV * multiApOperationalBss = apOperationalBssTLVAlloc(NULL);
+    struct apOperationalBssTLV * multiApOperationalBss =
+            X1905_TLV_ALLOC(apOperationalBss, TLV_TYPE_AP_OPERATIONAL_BSS, NULL);
     struct _apOperationalBssRadio *radio;
     mac_address bssid1 = { 0x00, 0x16, 0x03, 0x01, 0x85, 0x1f};
     struct ssid ssid1 = { 15, "My WIFI network"};

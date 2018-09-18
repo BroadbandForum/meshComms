@@ -65,8 +65,7 @@ static struct tlv_struct_description _supportedServiceDesc = {
 static struct tlv_struct *linkMetricQueryTLVParse(const struct tlv_struct_description *desc, hlist_head *parent,
                                                   const uint8_t **buffer, size_t *length)
 {
-    /* For convenience, reuse the existing allocator function even though we'll override all of it. */
-    struct linkMetricQueryTLV *self = linkMetricQueryTLVAllocAll(parent, 0);
+    struct linkMetricQueryTLV *self = X1905_TLV_ALLOC(linkMetricQuery, TLV_TYPE_LINK_METRIC_QUERY, parent);
 
     /* Use the normal parse functions to parse the fields. */
     if (!tlv_struct_parse_field(&self->tlv.s, &desc->fields[0], buffer, length))
@@ -210,7 +209,7 @@ static bool linkMetricQueryTLVForge(const struct tlv_struct *item, uint8_t **buf
 static struct tlv_struct *vendorSpecificTLVParse(const struct tlv_struct_description *desc, hlist_head *parent,
                                                  const uint8_t **buffer, size_t *length)
 {
-    struct vendorSpecificTLV *self = vendorSpecificTLVAlloc(parent);
+    struct vendorSpecificTLV *self = X1905_TLV_ALLOC(vendorSpecific, TLV_TYPE_VENDOR_SPECIFIC, parent);
 
     if (!_EnBL(buffer, self->vendorOUI, 3, length))
         goto error_out;
@@ -413,6 +412,24 @@ static const struct tlv_struct_description _apOperationalBssRadioDesc = {
     .children = { &_apOperationalBssInfoDesc, NULL, },
 };
 
+struct _apOperationalBssRadio *apOperationalBssTLVAddRadio(struct apOperationalBssTLV* a, mac_address radio_uid)
+{
+    TLV_STRUCT_DECLARE_DEFAULT(ret, _apOperationalBssRadio, &a->tlv);
+    memcpy(ret->radio_uid, radio_uid, 6);
+    return ret;
+}
+
+struct _apOperationalBssInfo *apOperationalBssRadioAddBss(struct _apOperationalBssRadio* a,
+                                                          mac_address bssid, struct ssid ssid)
+{
+    TLV_STRUCT_DECLARE_DEFAULT(ret, _apOperationalBssInfo, a);
+    memcpy(ret->bssid, bssid, 6);
+    memset(&ret->ssid.ssid, 0, sizeof(ret->ssid.ssid));
+    ret->ssid.length = ssid.length;
+    memcpy(ret->ssid.ssid, ssid.ssid, ssid.length);
+    return ret;
+
+}
 
 /** @} */
 
@@ -446,6 +463,23 @@ static const struct tlv_struct_description _associatedClientsBssInfoDesc = {
         NULL
     }
 };
+
+
+struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associatedClientsTLV* a, mac_address bssid)
+{
+    TLV_STRUCT_DECLARE_DEFAULT(ret, _associatedClientsBssInfo, &a->tlv);
+    memcpy(ret->bssid, bssid, sizeof(mac_address));
+    return ret;
+}
+
+struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associatedClientsBssInfo* a,
+                                                                 mac_address addr, uint16_t age)
+{
+    TLV_STRUCT_DECLARE_DEFAULT(ret, _associatedClientInfo, a);
+    memcpy(ret->addr, addr, sizeof(mac_address));
+    ret->age = age;
+    return ret;
+}
 
 /** @} */
 
@@ -486,6 +520,13 @@ static tlv_defs_t tlv_1905_defs = {
     TLV_DEF_ENTRY_0FIELDS(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS, &_associatedClientsBssInfoDesc, ),
 };
 
+struct tlv *x1905TLVAlloc(hlist_head *parent, uint8_t type)
+{
+    struct tlv *ret = container_of(hlist_alloc(tlv_1905_defs[type].desc.size, parent), struct tlv, s.h);
+    ret->s.desc = &tlv_1905_defs[type].desc;
+    ret->type = type;
+    return ret;
+}
 
 struct linkMetricQueryTLV *linkMetricQueryTLVAllocAll(hlist_head *parent, uint8_t link_metrics_type)
 {
@@ -531,59 +572,6 @@ struct supportedServiceTLV *searchedServiceTLVAlloc(hlist_head *parent, bool con
         TLV_STRUCT_DECLARE_DEFAULT(service, _supportedService, &ret->tlv);
         service->service = SERVICE_MULTI_AP_CONTROLLER;
     }
-    return ret;
-}
-
-struct vendorSpecificTLV *vendorSpecificTLVAlloc(hlist_head *parent)
-{
-    TLV_DECLARE(ret, tlv_1905_defs, vendorSpecific, TLV_TYPE_VENDOR_SPECIFIC, parent);
-    return ret;
-}
-
-struct apOperationalBssTLV* apOperationalBssTLVAlloc(hlist_head *parent)
-{
-    TLV_DECLARE(ret, tlv_1905_defs, apOperationalBss, TLV_TYPE_AP_OPERATIONAL_BSS, parent);
-    return ret;
-}
-
-struct _apOperationalBssRadio *apOperationalBssTLVAddRadio(struct apOperationalBssTLV* a, mac_address radio_uid)
-{
-    TLV_STRUCT_DECLARE_DEFAULT(ret, _apOperationalBssRadio, &a->tlv);
-    memcpy(ret->radio_uid, radio_uid, 6);
-    return ret;
-}
-
-struct _apOperationalBssInfo *apOperationalBssRadioAddBss(struct _apOperationalBssRadio* a,
-                                                          mac_address bssid, struct ssid ssid)
-{
-    TLV_STRUCT_DECLARE_DEFAULT(ret, _apOperationalBssInfo, a);
-    memcpy(ret->bssid, bssid, 6);
-    memset(&ret->ssid.ssid, 0, sizeof(ret->ssid.ssid));
-    ret->ssid.length = ssid.length;
-    memcpy(ret->ssid.ssid, ssid.ssid, ssid.length);
-    return ret;
-
-}
-
-struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associatedClientsTLV* a, mac_address bssid)
-{
-    TLV_STRUCT_DECLARE_DEFAULT(ret, _associatedClientsBssInfo, &a->tlv);
-    memcpy(ret->bssid, bssid, sizeof(mac_address));
-    return ret;
-}
-
-struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associatedClientsBssInfo* a,
-                                                                 mac_address addr, uint16_t age)
-{
-    TLV_STRUCT_DECLARE_DEFAULT(ret, _associatedClientInfo, a);
-    memcpy(ret->addr, addr, sizeof(mac_address));
-    ret->age = age;
-    return ret;
-}
-
-struct associatedClientsTLV* associatedClientsTLVAlloc(hlist_head *parent)
-{
-    TLV_DECLARE(ret, tlv_1905_defs, associatedClients, TLV_TYPE_ASSOCIATED_CLIENTS, parent);
     return ret;
 }
 
