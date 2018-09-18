@@ -38,12 +38,7 @@ static struct CMDU aletest_send_cmdu_autoconfig_search = {
     .relay_indicator = 1,
     .list_of_TLVs    =
         (struct tlv *[]){
-            (struct tlv *)(struct alMacAddressTypeTLV[]){
-                {
-                    .tlv.type          = TLV_TYPE_AL_MAC_ADDRESS_TYPE,
-                    .al_mac_address    = ADDR_AL_PEER0,
-                }
-            },
+            NULL, // alMacAddressTypeTLV
             (struct tlv *)(struct searchedRoleTLV[]){
                 {
                     .tlv.type          = TLV_TYPE_SEARCHED_ROLE,
@@ -127,8 +122,12 @@ void initExpected()
     struct supportedServiceTLV *multiApAgentService = supportedServiceTLVAlloc(NULL, false, true);
     struct supportedServiceTLV *multiApControllerService = supportedServiceTLVAlloc(NULL, true, true);
     struct supportedServiceTLV *multiApControllerSearchedService = searchedServiceTLVAlloc(NULL, true);
+    struct alMacAddressTypeTLV *alMacAddressType =
+            X1905_TLV_ALLOC(alMacAddressType, TLV_TYPE_AL_MAC_ADDRESS_TYPE, NULL);
+    memcpy(alMacAddressType->al_mac_address, ADDR_AL_PEER0, 6);
 
     aletest_expect_cmdu_autoconfig_response.list_of_TLVs[2] = &multiApControllerService->tlv;
+    aletest_send_cmdu_autoconfig_search.list_of_TLVs[0] = &alMacAddressType->tlv;
     aletest_send_cmdu_autoconfig_search.list_of_TLVs[3] = &multiApAgentService->tlv;
     aletest_send_cmdu_autoconfig_search.list_of_TLVs[4] = &multiApControllerSearchedService->tlv;
 }

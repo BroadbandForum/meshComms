@@ -271,28 +271,6 @@ static uint16_t x1905_tlv_stream_len_007 = 61;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////
-//// Test vector 008 (TLV <--> packet)
-////
-////////////////////////////////////////////////////////////////////////////////
-
-static struct alMacAddressTypeTLV x1905_tlv_structure_008 =
-{
-    .tlv.type                    = TLV_TYPE_AL_MAC_ADDRESS_TYPE,
-    .al_mac_address              = {0x01, 0x02, 0xf2, 0x01, 0x02, 0x00},
-};
-
-static uint8_t x1905_tlv_stream_008[] =
-{
-    0x01,
-    0x00, 0x06,
-    0x01, 0x02, 0xf2, 0x01, 0x02, 0x00,
-};
-
-static uint16_t x1905_tlv_stream_len_008 = 9;
-
-
-////////////////////////////////////////////////////////////////////////////////
-////
 //// Test vector 009 (TLV <--> packet)
 ////
 ////////////////////////////////////////////////////////////////////////////////
@@ -1479,7 +1457,17 @@ void get_1905_tlv_test_vectors(hlist_head *test_vectors)
     ADD_TEST_VECTOR(005, "transmitter link metric TLV");
     ADD_TEST_VECTOR(006, "receiver link metric TLV");
     ADD_TEST_VECTOR(007, "receiver link metric TLV");
-    ADD_TEST_VECTOR(008, "AL MAC address type TLV");
+
+    INIT_TEST_VECTOR("AL MAC address type TLV",
+        0x01,
+        0x00, 0x06,
+        0x01, 0x02, 0xf2, 0x01, 0x02, 0x00,
+    );
+    struct alMacAddressTypeTLV *al_mac_address_type =
+            X1905_TLV_ALLOC(alMacAddressType, TLV_TYPE_AL_MAC_ADDRESS_TYPE, &v->h.children[0]);
+    mac_address al_mac_address = {0x01, 0x02, 0xf2, 0x01, 0x02, 0x00};
+    memcpy(al_mac_address_type->al_mac_address, al_mac_address, 6);
+
     ADD_TEST_VECTOR(009, "MAC address type TLV");
     ADD_TEST_VECTOR(010, "device information type TLV");
     ADD_TEST_VECTOR(011, "device bridging capability TLV");

@@ -925,28 +925,12 @@ void _freeLocalL2NeighborsTLV(struct l2NeighborDeviceTLV *l2_neighbors)
 // Given a pointer to a preallocated "alMacAddressTypeTLV" structure, fill it
 // with all the pertaining information retrieved from the local device.
 //
-void _obtainLocalAlMacAddressTLV(struct alMacAddressTypeTLV *al_mac_addr)
+static struct alMacAddressTypeTLV *_obtainLocalAlMacAddressTLV(hlist_head *parent)
 {
-    uint8_t  al_mac_address[6];
-
-    memcpy(al_mac_address, DMalMacGet(), 6);
-
-    al_mac_addr->tlv.type          = TLV_TYPE_AL_MAC_ADDRESS_TYPE;
-    al_mac_addr->al_mac_address[0] = al_mac_address[0];
-    al_mac_addr->al_mac_address[1] = al_mac_address[1];
-    al_mac_addr->al_mac_address[2] = al_mac_address[2];
-    al_mac_addr->al_mac_address[3] = al_mac_address[3];
-    al_mac_addr->al_mac_address[4] = al_mac_address[4];
-    al_mac_addr->al_mac_address[5] = al_mac_address[5];
-}
-
-// Free the contents of the provided "alMacAddressTypeTLV" structure (ie.  only
-// what was allocated by "_freeLocalAlMacAddressTLV()", and not the
-// "alMacAddressTypeTLV" structure itself, which is the caller's responsability)
-//
-void _freeLocalAlMacAddressTLV(__attribute__((unused)) struct alMacAddressTypeTLV *al_mac_address)
-{
-    // Nothing needs to be freed
+    struct alMacAddressTypeTLV *al_mac_tlv =
+            X1905_TLV_ALLOC(alMacAddressType, TLV_TYPE_AL_MAC_ADDRESS_TYPE, parent);
+    memcpy(al_mac_tlv->al_mac_address, DMalMacGet(), 6);
+    return al_mac_tlv;
 }
 
 // Return a list of Tx metrics TLV and/or a list of Rx metrics TLV involving
@@ -2264,7 +2248,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
     uint8_t  mcast_address[] = MCAST_1905;
 
     struct CMDU                discovery_message;
-    struct alMacAddressTypeTLV al_mac_addr_tlv;
+    struct alMacAddressTypeTLV *al_mac_addr_tlv;
     struct macAddressTypeTLV   mac_addr_tlv;
 
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_TOPOLOGY_DISCOVERY (%s)\n", interface_name);
@@ -2273,7 +2257,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
 
     // Fill the AL MAC address type TLV
     //
-    _obtainLocalAlMacAddressTLV(&al_mac_addr_tlv);
+    al_mac_addr_tlv = _obtainLocalAlMacAddressTLV(NULL);
 
     // Fill the MAC address type TLV
     //
@@ -2292,7 +2276,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
     discovery_message.message_id      = mid;
     discovery_message.relay_indicator = 0;
     discovery_message.list_of_TLVs    = (struct tlv **)memalloc(sizeof(struct tlv *)*3);
-    discovery_message.list_of_TLVs[0] = &al_mac_addr_tlv.tlv;
+    discovery_message.list_of_TLVs[0] = &al_mac_addr_tlv->tlv;
     discovery_message.list_of_TLVs[1] = &mac_addr_tlv.tlv;
     discovery_message.list_of_TLVs[2] = NULL;
 
@@ -2304,10 +2288,6 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
         free(discovery_message.list_of_TLVs);
         return 0;
     }
-
-    // Free memory
-    //
-    _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
 
     free(discovery_message.list_of_TLVs);
     return 1;
@@ -2524,13 +2504,13 @@ uint8_t send1905TopologyNotificationPacket(char *interface_name, uint16_t mid)
     uint8_t  mcast_address[] = MCAST_1905;
 
     struct CMDU                discovery_message;
-    struct alMacAddressTypeTLV al_mac_addr_tlv;
+    struct alMacAddressTypeTLV *al_mac_addr_tlv;
 
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_TOPOLOGY_NOTIFICATION (%s)\n", interface_name);
 
     // Fill all the needed TLVs
     //
-    _obtainLocalAlMacAddressTLV(&al_mac_addr_tlv);
+    al_mac_addr_tlv = _obtainLocalAlMacAddressTLV(NULL);
 
     // Build the CMDU
     //
@@ -2539,7 +2519,7 @@ uint8_t send1905TopologyNotificationPacket(char *interface_name, uint16_t mid)
     discovery_message.message_id      = mid;
     discovery_message.relay_indicator = 0;
     discovery_message.list_of_TLVs    = (struct tlv **)memalloc(sizeof(struct tlv *)*3);
-    discovery_message.list_of_TLVs[0] = &al_mac_addr_tlv.tlv;
+    discovery_message.list_of_TLVs[0] = &al_mac_addr_tlv->tlv;
     discovery_message.list_of_TLVs[1] = NULL;
 
     // Send the packet
@@ -2554,10 +2534,6 @@ uint8_t send1905TopologyNotificationPacket(char *interface_name, uint16_t mid)
     {
         ret = 1;
     }
-
-    // Free all allocated (and no longer needed) memory
-    //
-    _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
 
     free(discovery_message.list_of_TLVs);
 
@@ -2718,15 +2694,10 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
     uint8_t  i, j;
 
     struct CMDU                                       notification_message;
-    struct alMacAddressTypeTLV                        al_mac_addr_tlv;
     struct pushButtonEventNotificationTLV             pb_event_tlv;
     struct pushButtonGenericPhyEventNotificationTLV   pbg_event_tlv;
 
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_PUSH_BUTTON_EVENT_NOTIFICATION (%s)\n", interface_name);
-
-    // Fill the AL MAC address type TLV
-    //
-    _obtainLocalAlMacAddressTLV(&al_mac_addr_tlv);
 
     // Fill the push button event notification TLV
     //
@@ -2999,7 +2970,7 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
         notification_message.list_of_TLVs[2] = NULL;
     }
 
-    notification_message.list_of_TLVs[0] = &al_mac_addr_tlv.tlv;
+    notification_message.list_of_TLVs[0] = &_obtainLocalAlMacAddressTLV(NULL)->tlv;
     notification_message.list_of_TLVs[1] = &pb_event_tlv.tlv;
 
     // Send the packet
@@ -3013,10 +2984,6 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
     {
         ret = 1;
     }
-
-    // Free memory
-    //
-    _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
 
     if (media_types_nr > 0)
     {
@@ -3051,16 +3018,11 @@ uint8_t send1905PushButtonJoinNotificationPacket(char *interface_name, uint16_t 
     uint8_t  mcast_address[] = MCAST_1905;
 
     struct CMDU                             notification_message;
-    struct alMacAddressTypeTLV              al_mac_addr_tlv;
     struct pushButtonJoinNotificationTLV    pb_join_tlv;
 
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_PUSH_BUTTON_JOIN_NOTIFICATION (%s)\n", interface_name);
 
     memcpy(al_mac_address, DMalMacGet(), 6);
-
-    // Fill the AL MAC address type TLV
-    //
-    _obtainLocalAlMacAddressTLV(&al_mac_addr_tlv);
 
     // Fill the push button join notification TLV
     //
@@ -3092,7 +3054,7 @@ uint8_t send1905PushButtonJoinNotificationPacket(char *interface_name, uint16_t 
     notification_message.message_id      = mid;
     notification_message.relay_indicator = 1;
     notification_message.list_of_TLVs    = (struct tlv **)memalloc(sizeof(struct tlv *)*3);
-    notification_message.list_of_TLVs[0] = &al_mac_addr_tlv.tlv;
+    notification_message.list_of_TLVs[0] = &_obtainLocalAlMacAddressTLV(NULL)->tlv;
     notification_message.list_of_TLVs[1] = &pb_join_tlv.tlv;
     notification_message.list_of_TLVs[2] = NULL;
 
@@ -3107,10 +3069,6 @@ uint8_t send1905PushButtonJoinNotificationPacket(char *interface_name, uint16_t 
     {
         ret = 1;
     }
-
-    // Free memory
-    //
-    _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
 
     free(notification_message.list_of_TLVs);
 
@@ -3129,17 +3087,12 @@ uint8_t send1905APAutoconfigurationSearchPacket(char *interface_name, uint16_t m
     uint8_t  mcast_address[] = MCAST_1905;
 
     struct CMDU                   search_message;
-    struct alMacAddressTypeTLV    al_mac_addr_tlv;
     struct searchedRoleTLV        searched_role_tlv;
     struct autoconfigFreqBandTLV  ac_freq_band_tlv;
     struct supportedServiceTLV    *supported_service_tlv;
     struct supportedServiceTLV    *searched_service_tlv;
 
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_AP_AUTOCONFIGURATION_SEARCH (%s)\n", interface_name);
-
-    // Fill the AL MAC address type TLV
-    //
-    _obtainLocalAlMacAddressTLV(&al_mac_addr_tlv);
 
     // Fill the searched role TLV
     //
@@ -3164,7 +3117,7 @@ uint8_t send1905APAutoconfigurationSearchPacket(char *interface_name, uint16_t m
     search_message.message_id      = mid;
     search_message.relay_indicator = 1;
     search_message.list_of_TLVs    = (struct tlv **)memalloc(sizeof(struct tlv *)*6);
-    search_message.list_of_TLVs[0] = &al_mac_addr_tlv.tlv;
+    search_message.list_of_TLVs[0] = &_obtainLocalAlMacAddressTLV(NULL)->tlv;
     search_message.list_of_TLVs[1] = &searched_role_tlv.tlv;
     search_message.list_of_TLVs[2] = &ac_freq_band_tlv.tlv;
     search_message.list_of_TLVs[3] = &supported_service_tlv->tlv;
@@ -3183,7 +3136,6 @@ uint8_t send1905APAutoconfigurationSearchPacket(char *interface_name, uint16_t m
 
     // Free memory
     //
-    _freeLocalAlMacAddressTLV(&al_mac_addr_tlv);
     /** @todo free supported services */
 
     free(search_message.list_of_TLVs);
@@ -3443,7 +3395,6 @@ uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint
     uint8_t i;
 
     struct CMDU                         response_message;
-    struct alMacAddressTypeTLV          al_mac_addr_tlv;
     struct x1905ProfileVersionTLV       profile_tlv;
     struct deviceIdentificationTypeTLV  identification_tlv;
     struct controlUrlTypeTLV            control_tlv;
@@ -3452,9 +3403,6 @@ uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint
 
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_HIGHER_LAYER_RESPONSE (%s)\n", interface_name);
 
-    // Fill all the needed TLVs
-    //
-    _obtainLocalAlMacAddressTLV         (&al_mac_addr_tlv);
     _obtainLocalProfileTLV              (&profile_tlv);
     _obtainLocalDeviceIdentificationTLV (&identification_tlv);
     _obtainLocalControlUrlTLV           (&control_tlv);
@@ -3486,7 +3434,7 @@ uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint
     response_message.message_id      = mid;
     response_message.relay_indicator = 0;
     response_message.list_of_TLVs    = (struct tlv **)memalloc(sizeof(struct tlv *)*(total_tlvs+1));
-    response_message.list_of_TLVs[0] = &al_mac_addr_tlv.tlv;
+    response_message.list_of_TLVs[0] = &_obtainLocalAlMacAddressTLV(NULL)->tlv;
     response_message.list_of_TLVs[1] = &profile_tlv.tlv;
     response_message.list_of_TLVs[2] = &identification_tlv.tlv;
 
@@ -3519,9 +3467,6 @@ uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint
         return 0;
     }
 
-    // Free all allocated (and no longer needed) memory
-    //
-    _freeLocalAlMacAddressTLV         (&al_mac_addr_tlv);
     _freeLocalProfileTLV              (&profile_tlv);
     _freeLocalDeviceIdentificationTLV (&identification_tlv);
     _freeLocalControlUrlTLV           (&control_tlv);
