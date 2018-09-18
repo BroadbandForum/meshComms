@@ -83,6 +83,6 @@ extern uint8_t            x1905_cmdu_packet_004[];
 extern size_t             x1905_cmdu_packet_len_004;
 /** @} */
 
-
+void init_1905_cmdu_test_vectors(void);
 
 #endif

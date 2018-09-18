@@ -1128,16 +1128,8 @@ uint8_t CBKSend1905BBFExtensions(struct CMDU *memory_structure)
 
             // Fill non-1905 metric query TLV
             //
-            non_1905_metric_query_tlv                       = (struct linkMetricQueryTLV *)memalloc(sizeof(struct linkMetricQueryTLV));
+            non_1905_metric_query_tlv = linkMetricQueryTLVAllocAll(NULL, LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS);
             non_1905_metric_query_tlv->tlv.type             = BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY;
-            non_1905_metric_query_tlv->destination          = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
-            non_1905_metric_query_tlv->specific_neighbor[0] = 0x00;
-            non_1905_metric_query_tlv->specific_neighbor[1] = 0x00;
-            non_1905_metric_query_tlv->specific_neighbor[2] = 0x00;
-            non_1905_metric_query_tlv->specific_neighbor[3] = 0x00;
-            non_1905_metric_query_tlv->specific_neighbor[4] = 0x00;
-            non_1905_metric_query_tlv->specific_neighbor[5] = 0x00;
-            non_1905_metric_query_tlv->link_metrics_type    = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS;
 
             // Embed the TLV inside a BBF Vendor Specific TLV
             //

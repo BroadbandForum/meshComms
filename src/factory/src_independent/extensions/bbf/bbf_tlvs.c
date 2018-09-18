@@ -45,6 +45,7 @@ struct tlv *parse_bbf_TLV_from_packet(const uint8_t *packet_stream)
         {
             // This parsing is done according to the information detailed in
             // ...
+            // @todo refactor with 1905 linkMetricQuery parse function.
 
             struct linkMetricQueryTLV  *ret;
 
@@ -53,8 +54,6 @@ struct tlv *parse_bbf_TLV_from_packet(const uint8_t *packet_stream)
 
             uint8_t destination;
             uint8_t link_metrics_type;
-
-            ret = (struct linkMetricQueryTLV *)memalloc(sizeof(struct linkMetricQueryTLV));
 
             p = packet_stream + 1;
             _E2B(&p, &len);
@@ -65,10 +64,10 @@ struct tlv *parse_bbf_TLV_from_packet(const uint8_t *packet_stream)
             {
                // Malformed packet
                //
-               free(ret);
                return NULL;
             }
 
+            ret = linkMetricQueryTLVAllocAll(NULL, LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS);
             ret->tlv.type = BBF_TLV_TYPE_NON_1905_LINK_METRIC_QUERY;
 
             _E1B(&p, &destination);

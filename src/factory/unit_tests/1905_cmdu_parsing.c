@@ -109,6 +109,8 @@ int main(void)
 {
     int result = 0;
 
+    init_1905_cmdu_test_vectors();
+
     #define x1905CMDUPARSE001 "x1905CMDUPARSE001 - Parse link metric query CMDU (x1905_cmdu_streams_001)"
     result += check_parse_1905_cmdu(x1905CMDUPARSE001, x1905_cmdu_streams_001, &x1905_cmdu_structure_001);
 

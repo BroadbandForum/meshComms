@@ -2572,22 +2572,14 @@ uint8_t send1905MetricsQueryPacket(char *interface_name, uint16_t mid, uint8_t *
     uint8_t ret;
 
     struct CMDU                query_message;
-    struct linkMetricQueryTLV  metric_query_tlv;
+    struct linkMetricQueryTLV  *metric_query_tlv;
 
     PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_LINK_METRIC_QUERY (%s)\n", interface_name);
     PLATFORM_PRINTF_DEBUG_DETAIL("Sending to %02x:%02x:%02x:%02x:%02x:%02x\n", destination_al_mac_address[0], destination_al_mac_address[1], destination_al_mac_address[2], destination_al_mac_address[3], destination_al_mac_address[4], destination_al_mac_address[5]);
 
     // Fill all the needed TLVs
     //
-    metric_query_tlv.tlv.type             = TLV_TYPE_LINK_METRIC_QUERY;
-    metric_query_tlv.destination          = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
-    metric_query_tlv.specific_neighbor[0] = 0x00;
-    metric_query_tlv.specific_neighbor[1] = 0x00;
-    metric_query_tlv.specific_neighbor[2] = 0x00;
-    metric_query_tlv.specific_neighbor[3] = 0x00;
-    metric_query_tlv.specific_neighbor[4] = 0x00;
-    metric_query_tlv.specific_neighbor[5] = 0x00;
-    metric_query_tlv.link_metrics_type    = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS;
+    metric_query_tlv = linkMetricQueryTLVAllocAll(NULL, LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS);
 
     // Build the CMDU
     //
@@ -2596,7 +2588,7 @@ uint8_t send1905MetricsQueryPacket(char *interface_name, uint16_t mid, uint8_t *
     query_message.message_id      = mid;
     query_message.relay_indicator = 0;
     query_message.list_of_TLVs    = (struct tlv **)memalloc(sizeof(struct tlv *)*2);
-    query_message.list_of_TLVs[0] = &metric_query_tlv.tlv;
+    query_message.list_of_TLVs[0] = &metric_query_tlv->tlv;
     query_message.list_of_TLVs[1] = NULL;
 
     if (0 == send1905RawPacket(interface_name, mid, destination_al_mac_address, &query_message))

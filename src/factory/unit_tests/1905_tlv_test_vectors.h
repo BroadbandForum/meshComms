@@ -22,9 +22,8 @@
 #include <hlist.h>
 #include <stdint.h>
 
-struct x1905_test_vector {
+struct x1905_tlv_test_vector {
     hlist_item h;
-    struct tlv *tlv;
     const uint8_t *stream;
     uint16_t stream_len;
     const char *description;
@@ -32,7 +31,7 @@ struct x1905_test_vector {
     bool forge;
 };
 
-void get_1905_test_vectors(hlist_head *test_vectors);
+void get_1905_tlv_test_vectors(hlist_head *test_vectors);
 
 #endif
 

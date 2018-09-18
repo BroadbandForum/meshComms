@@ -56,77 +56,6 @@
 
 #include "1905_tlv_test_vectors.h"
 
-////////////////////////////////////////////////////////////////////////////////
-//// Test vector 001 (TLV <--> packet)
-////////////////////////////////////////////////////////////////////////////////
-
-static struct linkMetricQueryTLV x1905_tlv_structure_001 =
-{
-    .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
-    .destination       = LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR,
-    .specific_neighbor = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05},
-    .link_metrics_type = LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY,
-};
-
-static uint8_t x1905_tlv_stream_001[] =
-{
-    0x08,
-    0x00, 0x08,
-    0x01,
-    0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
-    0x01
-};
-
-static uint16_t x1905_tlv_stream_len_001 = 11;
-
-
-////////////////////////////////////////////////////////////////////////////////
-//// Test vector 002 (TLV --> packet)
-////////////////////////////////////////////////////////////////////////////////
-
-static struct linkMetricQueryTLV x1905_tlv_structure_002 =
-{
-    .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
-    .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
-    .specific_neighbor = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05},
-    .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
-};
-
-static uint8_t x1905_tlv_stream_002[] =
-{
-    0x08,
-    0x00, 0x08,
-    0x00,
-    0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x02
-};
-
-static uint16_t x1905_tlv_stream_len_002 = 11;
-
-
-////////////////////////////////////////////////////////////////////////////////
-//// Test vector 003 (TLV <-- packet)
-////////////////////////////////////////////////////////////////////////////////
-
-static struct linkMetricQueryTLV x1905_tlv_structure_003 =
-{
-    .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
-    .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
-    .specific_neighbor = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-    .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
-};
-
-static uint8_t x1905_tlv_stream_003[] =
-{
-    0x08,
-    0x00, 0x08,
-    0x00,
-    0x01, 0xaa, 0x04, 0x00, 0xfc, 0x10,
-    0x02
-};
-
-static uint16_t x1905_tlv_stream_len_003 = 11;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //// Test vector 004 (TLV <--> packet)
@@ -1491,7 +1420,7 @@ static uint16_t x1905_tlv_stream_len_040 = 64;
 
 /* TEMPORARY until all TLVs have been converted to dynamic allocation */
 #define ADD_TEST_VECTOR(num, desc) \
-    v = HLIST_ALLOC(struct x1905_test_vector, h, test_vectors); \
+    v = HLIST_ALLOC(struct x1905_tlv_test_vector, h, test_vectors); \
     v->stream = x1905_tlv_stream_##num; \
     v->stream_len = x1905_tlv_stream_len_##num; \
     v->description = desc; \
@@ -1502,7 +1431,7 @@ static uint16_t x1905_tlv_stream_len_040 = 64;
 #define INIT_TEST_VECTOR(desc, ...) \
     do { \
         static const uint8_t stream[] = { __VA_ARGS__ }; \
-        v = HLIST_ALLOC(struct x1905_test_vector, h, test_vectors); \
+        v = HLIST_ALLOC(struct x1905_tlv_test_vector, h, test_vectors); \
         v->stream = stream; \
         v->stream_len = sizeof(stream); \
         v->description = desc; \
@@ -1510,14 +1439,42 @@ static uint16_t x1905_tlv_stream_len_040 = 64;
         v->forge = true; \
     } while (0);
 
-void get_1905_test_vectors(hlist_head *test_vectors)
+void get_1905_tlv_test_vectors(hlist_head *test_vectors)
 {
-    struct x1905_test_vector *v;
-    ADD_TEST_VECTOR(001, "link metric query TLV");
-    ADD_TEST_VECTOR(002, "link metric query TLV with specific neighbour filled in internally");
+    struct x1905_tlv_test_vector *v;
+
+    INIT_TEST_VECTOR("link metric query TLV",
+        0x08,
+        0x00, 0x08,
+        0x01,
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
+        0x01
+    );
+    mac_address specific_neighbor = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05};
+    linkMetricQueryTLVAllocSpecific(&v->h.children[0], specific_neighbor, LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY);
+
+    INIT_TEST_VECTOR("link metric query TLV with specific neighbour filled in internally",
+        0x08,
+        0x00, 0x08,
+        0x00,
+        0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x02
+    );
+    struct linkMetricQueryTLV *link_metric_query = linkMetricQueryTLVAllocAll(&v->h.children[0],
+            LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS);
+    memcpy(link_metric_query->specific_neighbor, specific_neighbor, 6);
     v->parse = false; /* TLV memory structure has specific neighbour filled in, to check it is not emitted. */
-    ADD_TEST_VECTOR(003, "link metric query TLV with specific neighbour filled in packet");
-    v->forge = false;
+
+    INIT_TEST_VECTOR("link metric query TLV with specific neighbour filled in packet",
+        0x08,
+        0x00, 0x08,
+        0x00,
+        0x01, 0xaa, 0x04, 0x00, 0xfc, 0x10,
+        0x02
+    );
+    linkMetricQueryTLVAllocAll(&v->h.children[0], LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS);
+    v->forge = false; /* We don't forge the neighbor when destination is ALL. */
+
     ADD_TEST_VECTOR(004, "transmitter link metric TLV");
     ADD_TEST_VECTOR(005, "transmitter link metric TLV");
     ADD_TEST_VECTOR(006, "receiver link metric TLV");

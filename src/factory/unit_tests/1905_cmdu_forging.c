@@ -196,9 +196,9 @@ static const char *x1905_cmdu_print_expected_001 =
     "->message_type: 5\n"
     "->message_id: 7\n"
     "->relay_indicator: 0\n"
-    "->TLV(linkMetricQuery)->destination: 0\n"
-    "->TLV(linkMetricQuery)->specific_neighbor: 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \n"
-    "->TLV(linkMetricQuery)->link_metrics_type: 2\n";
+    "->linkMetricQuery->destination: 0x00\n"
+    "->linkMetricQuery->specific_neighbor: 00:00:00:00:00:00\n"
+    "->linkMetricQuery->link_metrics_type: 0x02\n";
 
 static char x1905_cmdu_print_real[4000];
 
@@ -217,6 +217,8 @@ static void check_print(const char *format, ...)
 int main(void)
 {
     uint8_t result = 0;
+
+    init_1905_cmdu_test_vectors();
 
     #define x1905CMDUFORGE001 "x1905CMDUFORGE001 - Forge link metric query CMDU (x1905_cmdu_001)"
     result += _check(x1905CMDUFORGE001, &x1905_cmdu_structure_001, x1905_cmdu_streams_001, x1905_cmdu_streams_len_001);

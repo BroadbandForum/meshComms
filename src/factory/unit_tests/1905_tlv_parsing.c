@@ -63,13 +63,13 @@ static uint8_t _check(const char *test_description, const uint8_t *input, struct
 int main(void)
 {
     int result = 0;
-    struct x1905_test_vector *t;
+    struct x1905_tlv_test_vector *t;
     hlist_head test_vectors;
 
     hlist_head_init(&test_vectors);
-    get_1905_test_vectors(&test_vectors);
+    get_1905_tlv_test_vectors(&test_vectors);
 
-    hlist_for_each(t, test_vectors, struct x1905_test_vector, h)
+    hlist_for_each(t, test_vectors, struct x1905_tlv_test_vector, h)
     {
         if (t->parse)
             result += _check(t->description, t->stream, container_of(t->h.children[0].next, struct tlv, s.h.l));

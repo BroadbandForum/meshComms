@@ -151,7 +151,7 @@ static int _check(const char *test_description, const struct tlv *input, const u
 int main(void)
 {
     int result = 0;
-    struct x1905_test_vector *t;
+    struct x1905_tlv_test_vector *t;
     hlist_head test_vectors;
     DECLARE_HLIST_HEAD(list1);
     DECLARE_HLIST_HEAD(list2);
@@ -163,9 +163,9 @@ int main(void)
     const struct tlv_struct_description *bssid_desc_orig;
 
     hlist_head_init(&test_vectors);
-    get_1905_test_vectors(&test_vectors);
+    get_1905_tlv_test_vectors(&test_vectors);
 
-    hlist_for_each(t, test_vectors, struct x1905_test_vector, h)
+    hlist_for_each(t, test_vectors, struct x1905_tlv_test_vector, h)
     {
         if (t->forge)
             result += _check(t->description, container_of(t->h.children[0].next, struct tlv, s.h.l), t->stream, t->stream_len);

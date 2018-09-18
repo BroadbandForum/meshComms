@@ -68,17 +68,7 @@ struct CMDU x1905_cmdu_structure_001 =
     .message_id      = 7,
     .relay_indicator = 0,
     .list_of_TLVs    =
-        (struct tlv* []){
-            (struct tlv *)(struct linkMetricQueryTLV[]){
-                {
-                    .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
-                    .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
-                    .specific_neighbor = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-                    .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
-                },
-            },
-            NULL
-        },
+        (struct tlv* []){ NULL, NULL, },
 };
 
 uint8_t *x1905_cmdu_streams_001[] =
@@ -117,17 +107,7 @@ struct CMDU x1905_cmdu_structure_002 =
     .message_id      = 2348,
     .relay_indicator = 0,
     .list_of_TLVs    =
-        (struct tlv* []){
-            (struct tlv *)(struct linkMetricQueryTLV[]){
-                {
-                    .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
-                    .destination       = LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR,
-                    .specific_neighbor = {0x01, 0x02, 0x02, 0x03, 0x04, 0x05},
-                    .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
-                },
-            },
-            NULL
-        },
+        (struct tlv* []){ NULL, NULL, },
 };
 
 uint8_t *x1905_cmdu_streams_002[] =
@@ -166,17 +146,7 @@ struct CMDU x1905_cmdu_structure_003 =
     .message_id      = 2348,
     .relay_indicator = 1,
     .list_of_TLVs    =
-        (struct tlv* []){
-            (struct tlv *)(struct linkMetricQueryTLV[]){
-                {
-                    .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
-                    .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
-                    .specific_neighbor = {0x01, 0x02, 0x02, 0x03, 0x04, 0x05},
-                    .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
-                },
-            },
-            NULL
-        },
+        (struct tlv* []){ NULL, NULL, },
 };
 
 uint8_t *x1905_cmdu_streams_003[] =
@@ -217,17 +187,7 @@ struct CMDU x1905_cmdu_structure_004 =
     .message_id      = 2348,
     .relay_indicator = 0,
     .list_of_TLVs    =
-        (struct tlv* []){
-            (struct tlv *)(struct linkMetricQueryTLV[]){
-                {
-                    .tlv.type          = TLV_TYPE_LINK_METRIC_QUERY,
-                    .destination       = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS,
-                    .specific_neighbor = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-                    .link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS,
-                },
-            },
-            NULL
-        },
+        (struct tlv* []){ NULL, NULL, },
 };
 
 uint8_t *x1905_cmdu_streams_004[] =
@@ -376,3 +336,22 @@ uint8_t x1905_cmdu_packet_004[] =
     0x01,
 };
 size_t  x1905_cmdu_packet_len_004 = ARRAY_SIZE(x1905_cmdu_packet_004);
+
+void init_1905_cmdu_test_vectors(void)
+{
+    x1905_cmdu_structure_001.list_of_TLVs[0] =
+            &linkMetricQueryTLVAllocAll(NULL, LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS)->tlv;
+
+    mac_address specific_neighbor = {0x01, 0x02, 0x02, 0x03, 0x04, 0x05};
+    x1905_cmdu_structure_002.list_of_TLVs[0] =
+            &linkMetricQueryTLVAllocSpecific(NULL, specific_neighbor,
+                                             LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS)->tlv;
+
+    struct linkMetricQueryTLV *link_metric_query =
+            linkMetricQueryTLVAllocAll(NULL, LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS);
+    memcpy(link_metric_query->specific_neighbor, specific_neighbor, 6);
+    x1905_cmdu_structure_003.list_of_TLVs[0] = &link_metric_query->tlv;
+
+    x1905_cmdu_structure_004.list_of_TLVs[0] =
+            &linkMetricQueryTLVAllocAll(NULL, LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS)->tlv;
+}

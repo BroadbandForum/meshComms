@@ -353,6 +353,10 @@ struct linkMetricQueryTLV
     uint8_t  link_metrics_type;     // One of the values from above
 };
 
+struct linkMetricQueryTLV *linkMetricQueryTLVAllocAll(hlist_head *parent, uint8_t link_metrics_type);
+struct linkMetricQueryTLV *linkMetricQueryTLVAllocSpecific(hlist_head *parent, mac_address neighbour,
+                                                           uint8_t link_metrics_type);
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Transmitter link metric TLV associated structures ("Section 6.4.11")

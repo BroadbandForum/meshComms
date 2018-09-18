@@ -54,6 +54,7 @@ static struct tlv_struct_description _supportedServiceDesc = {
 
 /** @} */
 
+
 /** @brief Support functions for linkMetricQuery TLV.
  *
  * See "IEEE Std 1905.1-2013" Section 6.4.10
@@ -61,23 +62,20 @@ static struct tlv_struct_description _supportedServiceDesc = {
  * @{
  */
 
-#define TLV_NAME          linkMetricQuery
-#define TLV_FIELD1_NAME   destination
-#define TLV_FIELD1_LENGTH 1
-#define TLV_FIELD2_NAME   specific_neighbor
-#define TLV_FIELD3_NAME   link_metrics_type
-#define TLV_FIELD3_LENGTH 1
-#define TLV_PARSE         0b100
-#define TLV_FORGE         0b010
-
-static bool tlv_parse_field3_linkMetricQuery(const struct tlv_def *def __attribute__((unused)),
-                                             struct linkMetricQueryTLV *self,
-                                             const uint8_t **buf,
-                                             size_t *length)
+static struct tlv_struct *linkMetricQueryTLVParse(const struct tlv_struct_description *desc, hlist_head *parent,
+                                                  const uint8_t **buffer, size_t *length)
 {
-    uint8_t link_metrics_type;
+    /* For convenience, reuse the existing allocator function even though we'll override all of it. */
+    struct linkMetricQueryTLV *self = linkMetricQueryTLVAllocAll(parent, 0);
 
-    /* This is really a check of field1 and field2, but it's easier to include it here. */
+    /* Use the normal parse functions to parse the fields. */
+    if (!tlv_struct_parse_field(&self->tlv.s, &desc->fields[0], buffer, length))
+        goto err_out;
+    if (!tlv_struct_parse_field(&self->tlv.s, &desc->fields[1], buffer, length))
+        goto err_out;
+    if (!tlv_struct_parse_field(&self->tlv.s, &desc->fields[2], buffer, length))
+        goto err_out;
+
     if (0 == self->destination)
     {
         uint8_t dummy_address[] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
@@ -91,41 +89,48 @@ static bool tlv_parse_field3_linkMetricQuery(const struct tlv_def *def __attribu
     }
     else
     {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid destination %u\n", def->desc.name, self->destination);
-        return false;
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid destination %u\n", desc->name, self->destination);
+        goto err_out;
     }
 
-    if (!_E1BL(buf, &link_metrics_type, length))
-        return false;
-
-    if (0 == link_metrics_type)
+    if (0 == self->link_metrics_type)
     {
         self->link_metrics_type = LINK_METRIC_QUERY_TLV_TX_LINK_METRICS_ONLY;
     }
-    else if (1 == link_metrics_type)
+    else if (1 == self->link_metrics_type)
     {
         self->link_metrics_type = LINK_METRIC_QUERY_TLV_RX_LINK_METRICS_ONLY;
     }
-    else if (2 == link_metrics_type)
+    else if (2 == self->link_metrics_type)
     {
         self->link_metrics_type = LINK_METRIC_QUERY_TLV_BOTH_TX_AND_RX_LINK_METRICS;
     }
     else
     {
-        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid link_metrics_type %u\n", def->desc.name, self->link_metrics_type);
-        return false;
+        PLATFORM_PRINTF_DEBUG_WARNING("Malformed %s TLV: invalid link_metrics_type %u\n",
+                                      desc->name, self->link_metrics_type);
+        goto err_out;
     }
 
-    return true;
+    return &self->tlv.s;
+
+err_out:
+    hlist_delete_item(&self->tlv.s.h);
+    return NULL;
 }
 
-static bool tlv_forge_field2_linkMetricQuery(const struct linkMetricQueryTLV *self,
-                                             uint8_t **buf,
-                                             size_t *length)
+static bool linkMetricQueryTLVForge(const struct tlv_struct *item, uint8_t **buffer, size_t *length)
 {
+    const struct linkMetricQueryTLV* self = container_of(item, const struct linkMetricQueryTLV, tlv.s);
+
+    /* First field is forged in the normal way. */
+    if (!tlv_struct_forge_field(item, &item->desc->fields[0], buffer, length))
+        return false;
+
+    /* Second field depends on destination type */
     if (LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR == self->destination)
     {
-        if (!_ImBL(self->specific_neighbor, buf, length))
+        if (!_ImBL(self->specific_neighbor, buffer, length))
             return false;
     }
     else
@@ -182,13 +187,16 @@ static bool tlv_forge_field2_linkMetricQuery(const struct linkMetricQueryTLV *se
          * decided to interpret the standard, will work :)
          */
         uint8_t empty_address[] = {self->link_metrics_type, 0x00, 0x00, 0x00, 0x00, 0x00};
-        if (!_ImBL(empty_address, buf, length))
+        if (!_ImBL(empty_address, buffer, length))
             return false;
     }
+
+    /* Third field is forged in the normal way. */
+    if (!tlv_struct_forge_field(item, &item->desc->fields[2], buffer, length))
+        return false;
+
     return true;
 }
-
-#include <tlv_template.h>
 
 /** @} */
 
@@ -463,7 +471,13 @@ static tlv_defs_t tlv_1905_defs = {
     ),
     TLV_DEF_ENTRY(alMacAddressType,TLV_TYPE_AL_MAC_ADDRESS_TYPE),
     TLV_DEF_ENTRY(macAddressType,TLV_TYPE_MAC_ADDRESS_TYPE),
-    TLV_DEF_ENTRY(linkMetricQuery,TLV_TYPE_LINK_METRIC_QUERY),
+    TLV_DEF_ENTRY_3FIELDS(linkMetricQuery,TLV_TYPE_LINK_METRIC_QUERY, NULL,
+        destination, tlv_struct_print_format_hex,
+        specific_neighbor, tlv_struct_print_format_mac,
+        link_metrics_type, tlv_struct_print_format_hex,
+        .parse = linkMetricQueryTLVParse,
+        .forge = linkMetricQueryTLVForge,
+    ),
     TLV_DEF_ENTRY_0FIELDS(supportedService, TLV_TYPE_SUPPORTED_SERVICE, &_supportedServiceDesc, ),
     /* Searched service is exactly the same as supported service, so reuse the functions. Will be printed with the
      * wrong name, but who cares. */
@@ -471,6 +485,27 @@ static tlv_defs_t tlv_1905_defs = {
     TLV_DEF_ENTRY_0FIELDS(apOperationalBss,TLV_TYPE_AP_OPERATIONAL_BSS, &_apOperationalBssRadioDesc, ),
     TLV_DEF_ENTRY_0FIELDS(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS, &_associatedClientsBssInfoDesc, ),
 };
+
+
+struct linkMetricQueryTLV *linkMetricQueryTLVAllocAll(hlist_head *parent, uint8_t link_metrics_type)
+{
+    TLV_DECLARE(ret, tlv_1905_defs, linkMetricQuery, TLV_TYPE_LINK_METRIC_QUERY, parent);
+    ret->destination = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
+    memset(ret->specific_neighbor, 0, sizeof(ret->specific_neighbor));
+    ret->link_metrics_type = link_metrics_type;
+    return ret;
+}
+
+struct linkMetricQueryTLV *linkMetricQueryTLVAllocSpecific(hlist_head *parent, mac_address neighbour,
+                                                           uint8_t link_metrics_type)
+{
+    TLV_DECLARE(ret, tlv_1905_defs, linkMetricQuery, TLV_TYPE_LINK_METRIC_QUERY, parent);
+    ret->destination = LINK_METRIC_QUERY_TLV_SPECIFIC_NEIGHBOR;
+    memcpy(ret->specific_neighbor, neighbour, sizeof(ret->specific_neighbor));
+    ret->link_metrics_type = link_metrics_type;
+    return ret;
+}
+
 
 struct supportedServiceTLV *supportedServiceTLVAlloc(hlist_head *parent, bool controller, bool agent)
 {
