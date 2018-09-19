@@ -107,7 +107,7 @@ bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t 
         if (tlv_length > length)
         {
             PLATFORM_PRINTF_DEBUG_ERROR("TLV(%u) of length %u but only %u bytes left in buffer\n",
-                                        tlv_type, tlv_length, (unsigned)length);
+                                        tlv_type, (unsigned)tlv_length, (unsigned)length);
             goto err_out;
         }
 

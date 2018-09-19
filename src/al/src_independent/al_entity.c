@@ -781,7 +781,7 @@ void _triggerAPSearchProcess(void)
            }
            else
            {
-               PLATFORM_PRINTF_DEBUG_WARNING("Unknown interface type %s\n", x->interface_type);
+               PLATFORM_PRINTF_DEBUG_WARNING("Unknown interface type %d\n", x->interface_type);
                unconfigured_ap_exists = 0;
 
                free_1905_INTERFACE_INFO(x);

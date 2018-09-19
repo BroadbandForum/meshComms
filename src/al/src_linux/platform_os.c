@@ -1096,13 +1096,13 @@ uint8_t PLATFORM_READ_QUEUE(uint8_t queue_id, uint8_t *message_buffer)
     {
         uint16_t payload_len;
 
-        PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Receiving %d bytes from queue (%02x, %02x, %02x, ...)\n", len, message_buffer[0], message_buffer[1], message_buffer[2]);
+        PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Receiving %d bytes from queue (%02x, %02x, %02x, ...)\n", (unsigned)len, message_buffer[0], message_buffer[1], message_buffer[2]);
 
         payload_len = *(((uint8_t *)message_buffer)+1) * 256 + *(((uint8_t *)message_buffer)+2);
 
         if (payload_len != len-3)
         {
-            PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] mq_receive() returned %d bytes, but the TLV is %d bytes\n", len, payload_len+3);
+            PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] mq_receive() returned %d bytes, but the TLV is %d bytes\n", (unsigned)len, payload_len+3);
             return 0;
         }
     }

@@ -1495,14 +1495,14 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                           0 != memcmp(x->mac_address, DMregistrarMacGet(), 6)
                          )
                      {
-                         PLATFORM_PRINTF_DEBUG_DETAIL("This wifi interface is not the registrar. Skipping...\n",ifs_names[i]);
+                         PLATFORM_PRINTF_DEBUG_DETAIL("This wifi interface %s is already configured. Skipping...\n",ifs_names[i]);
 
                          free_1905_INTERFACE_INFO(x);
                          continue;
                      }
                      else if (0 == wifi_data_is_present)
                      {
-                         PLATFORM_PRINTF_DEBUG_DETAIL("This wifi interface is the registrar, but the 'push button event notification' message did not contain wifi data. Skipping...\n",ifs_names[i]);
+                         PLATFORM_PRINTF_DEBUG_DETAIL("This wifi interface is the registrar, but the 'push button event notification' message did not contain wifi data. Skipping...\n");
 
                          free_1905_INTERFACE_INFO(x);
                          continue;
@@ -1514,7 +1514,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 PLATFORM_PRINTF_DEBUG_INFO("Starting push button configuration process on interface %s\n", ifs_names[i]);
                 if (0 == PLATFORM_START_PUSH_BUTTON_CONFIGURATION(ifs_names[i], queue_id, al_mac_address, c->message_id))
                 {
-                    PLATFORM_PRINTF_DEBUG_WARNING("Could not start 'push button' configuration process on interface\n",ifs_names[i]);
+                    PLATFORM_PRINTF_DEBUG_WARNING("Could not start 'push button' configuration process on interface %s\n",ifs_names[i]);
                 }
             }
 
@@ -2069,7 +2069,7 @@ uint8_t processLlpdPayload(struct PAYLOAD *payload, uint8_t *receiving_interface
             }
             default:
             {
-                PLATFORM_PRINTF_DEBUG_DETAIL("Ignoring TLV type %d\n", *p);
+                PLATFORM_PRINTF_DEBUG_DETAIL("Ignoring TLV type %d\n", p->type);
                 break;
             }
         }

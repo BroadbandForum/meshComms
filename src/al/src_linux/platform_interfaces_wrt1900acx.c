@@ -167,7 +167,7 @@ static void _get_wifi_connected_devices(char *interface_name, struct interfaceIn
         }
         else
         {
-             PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Invalid MAC address \n", line);
+             PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Invalid MAC address %s\n", line);
         }
     }
 

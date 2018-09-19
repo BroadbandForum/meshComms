@@ -327,7 +327,7 @@ static void *_pushButtonConfigurationThread(void *p)
     x = PLATFORM_GET_1905_INTERFACE_INFO(aux->interface_name);
     if (NULL == x)
     {
-        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Push button configuration thread* Error retrieving interface %s information\n");
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Push button configuration thread* Error retrieving interface %s information\n", aux->interface_name);
         return NULL;
     }
 
@@ -415,7 +415,7 @@ static void *_pushButtonConfigurationThread(void *p)
 
         if (NULL == x)
         {
-            PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Push button configuration thread* Error retrieving interface %s information\n");
+            PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] *Push button configuration thread* Error retrieving interface %s information\n", aux->interface_name);
 
             push_button_result = 0;
             break;
@@ -578,7 +578,7 @@ static int32_t _readWifiNeighborParameter(char *interface_name, uint8_t *neighbo
         value = strstr(line, ":");
         if ((NULL != value) && (1 == sscanf(value+1, "%d", &ret)))
         {
-             PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Neighbor %02x:%02x:%02x:%02x:%02x:%02x (%s) %d = %d\n",
+             PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Neighbor %02x:%02x:%02x:%02x:%02x:%02x (%s) %s = %d\n",
                  neighbor_interface_address[0], neighbor_interface_address[1], neighbor_interface_address[2],
                  neighbor_interface_address[3], neighbor_interface_address[4], neighbor_interface_address[5],
                  interface_name, parameter_name, ret);
@@ -1010,7 +1010,7 @@ struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
     PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM]   vendor_specific_elements_nr : %d\n", m->vendor_specific_elements_nr);
     for (i=0; i<m->vendor_specific_elements_nr; i++)
     {
-        PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM]     - vendor %d\n");
+        PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM]     - vendor\n");
         PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM]         OUI                       : %02x:%02x:%02x\n", m->vendor_specific_elements[i].oui[0], m->vendor_specific_elements[i].oui[1], m->vendor_specific_elements[i].oui[2]);
         PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM]         vendor_data_len           : %d\n", m->vendor_specific_elements[i].vendor_data_len);
         PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM]         vendor_data               : <TODO>\n"); // TODO: Dump bytes as done, for example, in PLATFORM_SEND_ALME_REPLY()

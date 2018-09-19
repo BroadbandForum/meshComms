@@ -70,15 +70,15 @@
 
 // Output the provided format string (see 'man 3 printf' on any Linux box)
 //
-void PLATFORM_PRINTF(const char *format, ...);
+void PLATFORM_PRINTF(const char *format, ...) __attribute__((format (printf, 1, 2)));
 
 // Same as 'PLATFORM_PRINTF', but the message will only be processed if the
 // platform has the pertaining debug level enabled
 //
-void PLATFORM_PRINTF_DEBUG_ERROR(const char *format, ...);
-void PLATFORM_PRINTF_DEBUG_WARNING(const char *format, ...);
-void PLATFORM_PRINTF_DEBUG_INFO(const char *format, ...);
-void PLATFORM_PRINTF_DEBUG_DETAIL(const char *format, ...);
+void PLATFORM_PRINTF_DEBUG_ERROR(const char *format, ...) __attribute__((format (printf, 1, 2)));
+void PLATFORM_PRINTF_DEBUG_WARNING(const char *format, ...) __attribute__((format (printf, 1, 2)));
+void PLATFORM_PRINTF_DEBUG_INFO(const char *format, ...) __attribute__((format (printf, 1, 2)));
+void PLATFORM_PRINTF_DEBUG_DETAIL(const char *format, ...) __attribute__((format (printf, 1, 2)));
 
 // Used to set the verbosity of the previous functions:
 //
