@@ -27,20 +27,22 @@
 
 #include "al_extension.h"
 
+#include <datamodel.h>
+
 #include <string.h> // memcmp(), memcpy(), ...
 #include <stdio.h>    // snprintf
+#include <assert.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Private stuff
 ////////////////////////////////////////////////////////////////////////////////
 
-struct _dataModel
+static struct _dataModel
 {
     uint8_t              map_whole_network_flag;
 
     uint8_t              registrar_mac_address[6];
 
-    uint8_t              al_mac_address[6];
     uint8_t              local_interfaces_nr;
 
     struct _localInterface
@@ -125,6 +127,7 @@ struct _dataModel
                          // containing the info of the *local* device.
 } data_model;
 
+static mac_address empty_mac_address = {0, 0, 0, 0, 0, 0};
 
 // Given a 'mac_address', return a pointer to the "struct _localInterface" that
 // represents the local interface with that address.
@@ -339,6 +342,8 @@ uint8_t _insertNeighborInterface(char *local_interface_name, uint8_t *neighbor_a
 
 void DMinit()
 {
+    datamodelInit();
+
     data_model.map_whole_network_flag   = 0;
 
     data_model.registrar_mac_address[0] = 0x00;
@@ -347,13 +352,6 @@ void DMinit()
     data_model.registrar_mac_address[3] = 0x00;
     data_model.registrar_mac_address[4] = 0x00;
     data_model.registrar_mac_address[5] = 0x00;
-
-    data_model.al_mac_address[0]        = 0x00;
-    data_model.al_mac_address[1]        = 0x00;
-    data_model.al_mac_address[2]        = 0x00;
-    data_model.al_mac_address[3]        = 0x00;
-    data_model.al_mac_address[4]        = 0x00;
-    data_model.al_mac_address[5]        = 0x00;
 
     data_model.local_interfaces_nr      = 0;
     data_model.local_interfaces         = NULL;
@@ -392,14 +390,18 @@ void DMinit()
 
 void DMalMacSet(uint8_t *al_mac_address)
 {
-    memcpy(data_model.al_mac_address, al_mac_address, 6);
+    assert(local_device == NULL);
+    local_device = alDeviceAlloc(al_mac_address);
 
     return;
 }
 
 uint8_t *DMalMacGet()
 {
-    return data_model.al_mac_address;
+    if (local_device != NULL)
+        return local_device->al_mac_addr;
+    else
+        return empty_mac_address;
 }
 
 void DMregistrarMacSet(uint8_t *registrar_mac_address)
@@ -903,16 +905,16 @@ uint8_t *DMmacToAlMac(uint8_t *mac_address)
     found  = 0;
     al_mac = (uint8_t *)memalloc(sizeof(uint8_t)*6);
 
-    if (0 == memcmp(data_model.al_mac_address, mac_address, 6))
+    if (local_device != NULL && 0 == memcmp(local_device->al_mac_addr, mac_address, 6))
     {
-        return data_model.al_mac_address;
+        return local_device->al_mac_addr;
     }
     for (i=0; i<data_model.local_interfaces_nr; i++)
     {
-        if (0 == memcmp(data_model.local_interfaces[i].mac_address, mac_address, 6))
+        if (local_device != NULL && 0 == memcmp(data_model.local_interfaces[i].mac_address, mac_address, 6))
         {
             found = 1;
-            memcpy(al_mac, data_model.al_mac_address, 6);
+            memcpy(al_mac, local_device->al_mac_addr, 6);
         }
 
         for (j=0; j<data_model.local_interfaces[i].neighbors_nr; j++)

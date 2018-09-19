@@ -27,7 +27,7 @@
 
 // This function must be called before any other function of this header file
 //
-void DMinit();
+void DMinit(void);
 
 // When the AL entity is initialized, it knows its AL MAC address. At this point
 // the "DMalMacSet()" function must be called to store this value in the
@@ -35,7 +35,7 @@ void DMinit();
 // Later, anyone can consult this value with "DMalMacGet()"
 //
 void  DMalMacSet(uint8_t *al_mac_address);
-uint8_t *DMalMacGet();
+uint8_t *DMalMacGet(void);
 
 // When the AL entity is initialized, it knows the MAC address of the interface
 // designated as 'network registrar'. At this point the "DMregistrarMacSet()"

@@ -16,7 +16,7 @@
  *  limitations under the License.
  */
 
-#include <interface.h>
+#include <datamodel.h>
 #include "platform.h"
 #include "platform_os.h"
 #include "platform_os_priv.h"
