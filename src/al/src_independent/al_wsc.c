@@ -1160,7 +1160,6 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         len[0]  = shared_secret_len;
 
         PLATFORM_SHA256(1, addr, len, dhkey);
-        free(shared_secret);
 
         // Next, concatenate three things (the enrollee nonce contained in M1,
         // the enrolle MAC address -also contained in M1-, and the nonce we just
@@ -1197,6 +1196,8 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         PLATFORM_PRINTF_DEBUG_DETAIL("  authkey           (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", WPS_AUTHKEY_LEN, authkey[0], authkey[1], authkey[2], authkey[WPS_AUTHKEY_LEN-3], authkey[WPS_AUTHKEY_LEN-2], authkey[WPS_AUTHKEY_LEN-1]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  keywrapkey        (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", WPS_KEYWRAPKEY_LEN, keywrapkey[0], keywrapkey[1], keywrapkey[2], keywrapkey[WPS_KEYWRAPKEY_LEN-3], keywrapkey[WPS_KEYWRAPKEY_LEN-2], keywrapkey[WPS_KEYWRAPKEY_LEN-1]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  emsk              (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", WPS_EMSK_LEN, emsk[0], emsk[1], emsk[2], emsk[WPS_EMSK_LEN-3], emsk[WPS_EMSK_LEN-2], emsk[WPS_EMSK_LEN-1]);
+
+        free(shared_secret);
     }
 
     aux16 = ATTR_AUTH_TYPE_FLAGS;                                     _I2B(&aux16,                &p2);
