@@ -66,6 +66,16 @@ struct interface
     /** @brief IEEE 1905.1a Media-specific Information, as per "IEEE Std 1905.1-2013, Table 6-12 and 6-13". */
     uint8_t media_specific_info[16];
     uint8_t media_specific_info_length; /**< @brief Valid length of ::media_specific_info. */
+
+    /** @brief Info to control discovery messages sent to this interface.
+     *
+     * For interfaces on the local device, these are unused.
+     *
+     * @{
+     */
+    uint32_t              last_topology_discovery_ts;
+    uint32_t              last_bridge_discovery_ts;
+    /** @} */
 };
 
 enum interfaceWifiRole {
