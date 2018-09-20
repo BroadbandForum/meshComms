@@ -90,6 +90,19 @@ static inline void *memrealloc(void *ptr, size_t size)
     return p;
 }
 
+/** @brief Copy a 0-terminated string to a max-sized string.
+ *
+ * Some strings are represented by a length and value field in the internal model, but are initialized from 0-terminated
+ * strings (e.g. coming from a config file). This function copies in such a string. Note that the destination will NOT
+ * be 0-terminated.
+ *
+ * @param dest Pointer to the value field in which to copy.
+ * @param length Pointer to the (1-byte) length field.
+ * @param src Source string to copy.
+ * @param size Allocated size of @a dest, typically sizeof(dest). Must be <=255.
+ */
+void copyLengthString(uint8_t *dest, uint8_t *length, const char *src, size_t size);
+
 
 typedef void (*visitor_callback) (void (*write_function)(const char *fmt, ...), const char *prefix, uint8_t size, const char *name, const char *fmt, const void *p);
 

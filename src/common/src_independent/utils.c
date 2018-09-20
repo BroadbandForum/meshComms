@@ -22,11 +22,23 @@
 
 #include <string.h> // memcmp(), strncat()
 #include <stdio.h> // snprintf()
+#include <assert.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Public API
 ////////////////////////////////////////////////////////////////////////////////
 //
+
+void copyLengthString(uint8_t *dest, uint8_t *length, const char *src, size_t size)
+{
+    size_t src_len = strlen(src);
+    if (src_len > size)
+        src_len = size;
+    assert (size <= UINT8_MAX);
+    *length = (uint8_t)src_len;
+    memcpy(dest, src, src_len);
+}
+
 void print_callback(void (*write_function)(const char *fmt, ...), const char *prefix, uint8_t size, const char *name, const char *fmt, const void *p)
 {
 
