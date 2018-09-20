@@ -19,11 +19,27 @@
 #include <datamodel.h>
 #include <string.h> // memcpy
 
+#define EMPTY_MAC_ADDRESS {0, 0, 0, 0, 0, 0}
+
 struct alDevice *local_device = NULL;
 
 struct registrar registrar = {
     .d = NULL,
     .is_map = false,
+    .wsc_data = {
+        {
+            .bssid = EMPTY_MAC_ADDRESS,
+            .rf_bands = 0,
+        },
+        {
+            .bssid = EMPTY_MAC_ADDRESS,
+            .rf_bands = 0,
+        },
+        {
+            .bssid = EMPTY_MAC_ADDRESS,
+            .rf_bands = 0,
+        },
+    }
 };
 
 DECLARE_HLIST_HEAD(network);

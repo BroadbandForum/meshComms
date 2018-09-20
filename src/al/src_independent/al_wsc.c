@@ -25,6 +25,8 @@
 #include "platform_crypto.h"
 #include "platform_interfaces.h"
 
+#include <datamodel.h>
+
 #include <string.h> // memcmp(), memcpy(), ...
 
 
@@ -45,17 +47,7 @@
 #define ATTR_REGISTRAR_NONCE   (0x1039)
 #define ATTR_PUBLIC_KEY        (0x1032)
 #define ATTR_AUTH_TYPE_FLAGS   (0x1004)
-    #define WPS_AUTH_OPEN          (0x0001)
-    #define WPS_AUTH_WPAPSK        (0x0002)
-    #define WPS_AUTH_SHARED        (0x0004) /* deprecated */
-    #define WPS_AUTH_WPA           (0x0008)
-    #define WPS_AUTH_WPA2          (0x0010)
-    #define WPS_AUTH_WPA2PSK       (0x0020)
 #define ATTR_ENCR_TYPE_FLAGS   (0x1010)
-    #define WPS_ENCR_NONE          (0x0001)
-    #define WPS_ENCR_WEP           (0x0002) /* deprecated */
-    #define WPS_ENCR_TKIP          (0x0004)
-    #define WPS_ENCR_AES           (0x0008)
 #define ATTR_CONN_TYPE_FLAGS   (0x100d)
     #define WPS_CONN_ESS           (0x01)
     #define WPS_CONN_IBSS          (0x02)
@@ -143,9 +135,6 @@
         #define WPS_DEV_AUDIO_HOME_THEATRE                (7)
 #define ATTR_DEV_NAME          (0x1011)
 #define ATTR_RF_BANDS          (0x103c)
-    #define WPS_RF_24GHZ           (0x01)
-    #define WPS_RF_50GHZ           (0x02)
-    #define WPS_RF_60GHZ           (0x04)
 #define ATTR_ASSOC_STATE       (0x1002)
     #define WPS_ASSOC_NOT_ASSOC     (0)
     #define WPS_ASSOC_CONN_SUCCESS  (1)
@@ -983,8 +972,6 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
 {
     uint8_t  *buffer;
 
-    struct interfaceInfo  *x;
-
     const uint8_t *p1;
     uint8_t *p2;
 
@@ -1006,17 +993,12 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
 
     uint8_t  registrar_nonce[16];
 
-    char  *registrar_interface_name;
+    /* @todo Support multiple bands. */
+    struct wscDeviceData *wsc_data = &registrar.wsc_data[0];
 
-    uint16_t encryption_types;
-    uint16_t auth_types;
-
-    // If this node is processing an M1 message, it must mean one of our
-    // interfaces is the network registrar.
-    //
-    if (NULL == (registrar_interface_name = DMmacToInterfaceName(DMregistrarMacGet())))
+    if (!registrarIsLocal())
     {
-        PLATFORM_PRINTF_DEBUG_WARNING("None of this nodes' interfaces matches the registrar MAC address. Ignoring M1 message.\n");
+        PLATFORM_PRINTF_DEBUG_WARNING("We are not a registrar. Ignoring M1 message.\n");
         return 0;
     }
 
@@ -1087,11 +1069,6 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
 
     // Now we can build "M2"
     //
-    if (NULL == (x = PLATFORM_GET_1905_INTERFACE_INFO(registrar_interface_name)))
-    {
-        PLATFORM_PRINTF_DEBUG_WARNING("Could not retrieve info of interface %s\n", registrar_interface_name );
-        return 0;
-    }
 
     buffer = (uint8_t *)memalloc(sizeof(uint8_t)*1000);
     p2      = buffer;
@@ -1130,7 +1107,7 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
     {
         aux16 = ATTR_UUID_R;                                              _I2B(&aux16,     &p2);
         aux16 = 16;                                                       _I2B(&aux16,     &p2);
-                                                                          _InB( x->uuid,   &p2, 16);
+                                                                          _InB( wsc_data->uuid,   &p2, 16);
     }
 
     // PUBLIC KEY
@@ -1222,56 +1199,13 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         PLATFORM_PRINTF_DEBUG_DETAIL("  emsk              (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", WPS_EMSK_LEN, emsk[0], emsk[1], emsk[2], emsk[WPS_EMSK_LEN-3], emsk[WPS_EMSK_LEN-2], emsk[WPS_EMSK_LEN-1]);
     }
 
-    // AUTHENTICATION TYPES
-    {
-        auth_types = 0;
+    aux16 = ATTR_AUTH_TYPE_FLAGS;                                     _I2B(&aux16,                &p2);
+    aux16 = 2;                                                        _I2B(&aux16,                &p2);
+                                                                      _I2B(&wsc_data->auth_types, &p2);
 
-        if (IEEE80211_AUTH_MODE_OPEN & x->interface_type_data.ieee80211.authentication_mode)
-        {
-            auth_types |= WPS_AUTH_OPEN;
-        }
-        if (IEEE80211_AUTH_MODE_WPA & x->interface_type_data.ieee80211.authentication_mode)
-        {
-            auth_types |= WPS_AUTH_WPA;
-        }
-        if (IEEE80211_AUTH_MODE_WPAPSK & x->interface_type_data.ieee80211.authentication_mode)
-        {
-            auth_types |= WPS_AUTH_WPAPSK;
-        }
-        if (IEEE80211_AUTH_MODE_WPA2 & x->interface_type_data.ieee80211.authentication_mode)
-        {
-            auth_types |= WPS_AUTH_WPA2;
-        }
-        if (IEEE80211_AUTH_MODE_WPA2PSK & x->interface_type_data.ieee80211.authentication_mode)
-        {
-            auth_types |= WPS_AUTH_WPA2PSK;
-        }
-
-        aux16 = ATTR_AUTH_TYPE_FLAGS;                                     _I2B(&aux16,      &p2);
-        aux16 = 2;                                                        _I2B(&aux16,      &p2);
-                                                                          _I2B(&auth_types, &p2);
-    }
-
-    // ENCRYPTION TYPES
-    {
-        encryption_types = 0;
-
-        if (IEEE80211_ENCRYPTION_MODE_NONE & x->interface_type_data.ieee80211.encryption_mode)
-        {
-            encryption_types |= WPS_ENCR_NONE;
-        }
-        if (IEEE80211_ENCRYPTION_MODE_TKIP & x->interface_type_data.ieee80211.encryption_mode)
-        {
-            encryption_types |= WPS_ENCR_TKIP;
-        }
-        if (IEEE80211_ENCRYPTION_MODE_AES & x->interface_type_data.ieee80211.encryption_mode)
-        {
-            encryption_types |= WPS_ENCR_AES;
-        }
-        aux16 = ATTR_ENCR_TYPE_FLAGS;                                     _I2B(&aux16,            &p2);
-        aux16 = 2;                                                        _I2B(&aux16,            &p2);
-                                                                          _I2B(&encryption_types, &p2);
-    }
+    aux16 = ATTR_ENCR_TYPE_FLAGS;                                     _I2B(&aux16,                &p2);
+    aux16 = 2;                                                        _I2B(&aux16,                &p2);
+                                                                      _I2B(&wsc_data->encr_types, &p2);
 
     // CONNECTION TYPES
     {
@@ -1298,29 +1232,29 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
     // MANUFACTURER
     {
         aux16 = ATTR_MANUFACTURER;                                        _I2B(&aux16,                &p2);
-        aux16 = strlen(x->manufacturer_name);                    _I2B(&aux16,                &p2);
-                                                                          _InB( x->manufacturer_name, &p2, strlen(x->manufacturer_name));
+        aux16 = strlen(wsc_data->manufacturer_name);                    _I2B(&aux16,                &p2);
+                                                                          _InB( wsc_data->manufacturer_name, &p2, strlen(wsc_data->manufacturer_name));
     }
 
     // MODEL NAME
     {
         aux16 = ATTR_MODEL_NAME;                                          _I2B(&aux16,         &p2);
-        aux16 = strlen(x->model_name);                           _I2B(&aux16,         &p2);
-                                                                          _InB( x->model_name, &p2, strlen(x->model_name));
+        aux16 = strlen(wsc_data->model_name);                           _I2B(&aux16,         &p2);
+                                                                          _InB( wsc_data->model_name, &p2, strlen(wsc_data->model_name));
     }
 
     // MODEL NUMBER
     {
         aux16 = ATTR_MODEL_NUMBER;                                        _I2B(&aux16,           &p2);
-        aux16 = strlen(x->model_number);                         _I2B(&aux16,           &p2);
-                                                                          _InB( x->model_number, &p2, strlen(x->model_number));
+        aux16 = strlen(wsc_data->model_number);                         _I2B(&aux16,           &p2);
+                                                                          _InB( wsc_data->model_number, &p2, strlen(wsc_data->model_number));
     }
 
     // SERIAL NUMBER
     {
         aux16 = ATTR_SERIAL_NUMBER;                                       _I2B(&aux16,            &p2);
-        aux16 = strlen(x->serial_number);                        _I2B(&aux16,            &p2);
-                                                                          _InB( x->serial_number, &p2, strlen(x->serial_number));
+        aux16 = strlen(wsc_data->serial_number);                        _I2B(&aux16,            &p2);
+                                                                          _InB( wsc_data->serial_number, &p2, strlen(wsc_data->serial_number));
     }
 
     // PRIMARY DEVICE TYPE
@@ -1341,43 +1275,13 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
     // DEVICE NAME
     {
         aux16 = ATTR_DEV_NAME;                                            _I2B(&aux16,          &p2);
-        aux16 = strlen(x->device_name);                          _I2B(&aux16,          &p2);
-                                                                          _InB( x->device_name, &p2, strlen(x->device_name));
+        aux16 = strlen(wsc_data->device_name);                          _I2B(&aux16,          &p2);
+                                                                          _InB( wsc_data->device_name, &p2, strlen(wsc_data->device_name));
     }
 
-    // RF BANDS
-    {
-        uint8_t  rf_bands;
-
-        rf_bands = 0;
-
-        if (
-             INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ ==  x->interface_type ||
-             INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ ==  x->interface_type ||
-             INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ ==  x->interface_type
-           )
-        {
-            rf_bands = WPS_RF_24GHZ;
-        }
-        else if (
-             INTERFACE_TYPE_IEEE_802_11A_5_GHZ  ==  x->interface_type ||
-             INTERFACE_TYPE_IEEE_802_11N_5_GHZ  ==  x->interface_type ||
-             INTERFACE_TYPE_IEEE_802_11AC_5_GHZ ==  x->interface_type
-           )
-        {
-            rf_bands = WPS_RF_50GHZ;
-        }
-        else if (
-             INTERFACE_TYPE_IEEE_802_11AD_60_GHZ ==  x->interface_type
-           )
-        {
-            rf_bands = WPS_RF_60GHZ;
-        }
-
-        aux16 = ATTR_RF_BANDS;                                            _I2B(&aux16,         &p2);
-        aux16 = 1;                                                        _I2B(&aux16,         &p2);
-                                                                          _I1B(&rf_bands,      &p2);
-    }
+    aux16 = ATTR_RF_BANDS;                                            _I2B(&aux16,         &p2);
+    aux16 = 1;                                                        _I2B(&aux16,         &p2);
+                                                                      _I1B(&wsc_data->rf_bands,      &p2);
 
     // ASSOCIATION STATE
     {
@@ -1447,45 +1351,39 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         const uint8_t  *addr[1];
         uint32_t  len[1];
 
-        char   *ssid;
-        char   *network_key;
-
-        ssid        = x->interface_type_data.ieee80211.ssid;
-        network_key = x->interface_type_data.ieee80211.network_key;
-
         r = plain;
 
         // SSID
         aux16 = ATTR_SSID;                                                _I2B(&aux16,         &r);
-        aux16 = strlen(ssid);                                    _I2B(&aux16,         &r);
-                                                                          _InB( ssid,          &r, strlen(ssid));
+        aux16 = wsc_data->ssid.length;                                    _I2B(&aux16,         &r);
+                                                                          _InB( wsc_data->ssid.ssid, &r, wsc_data->ssid.length);
 
         // AUTH TYPE
         aux16 = ATTR_AUTH_TYPE;                                           _I2B(&aux16,         &r);
         aux16 = 2;                                                        _I2B(&aux16,         &r);
-        aux16 = auth_types;                                               _I2B(&aux16,         &r);
+        aux16 = wsc_data->auth_types;                                     _I2B(&aux16,         &r);
 
         // ENCRYPTION TYPE
         aux16 = ATTR_ENCR_TYPE;                                           _I2B(&aux16,         &r);
         aux16 = 2;                                                        _I2B(&aux16,         &r);
-        aux16 = encryption_types;                                         _I2B(&aux16,         &r);
+        aux16 = wsc_data->encr_types;                                     _I2B(&aux16,         &r);
 
         // NETWORK KEY
         aux16 = ATTR_NETWORK_KEY;                                         _I2B(&aux16,         &r);
-        aux16 = strlen(network_key);                             _I2B(&aux16,         &r);
-                                                                          _InB( network_key,   &r, strlen(network_key));
+        aux16 = wsc_data->key_len;                                        _I2B(&aux16,         &r);
+                                                                          _InB( wsc_data->key, &r, wsc_data->key_len);
 
         // MAC ADDR
         aux16 = ATTR_MAC_ADDR;                                            _I2B(&aux16,           &r);
         aux16 = 6;                                                        _I2B(&aux16,           &r);
-                                                                          _InB( x->mac_address,  &r, 6);
+                                                                          _InB( wsc_data->bssid, &r, 6);
 
         PLATFORM_PRINTF_DEBUG_DETAIL("AP configuration settings that we are going to send:\n");
-        PLATFORM_PRINTF_DEBUG_DETAIL("  - SSID            : %s\n", ssid);
-        PLATFORM_PRINTF_DEBUG_DETAIL("  - BSSID           : %02x:%02x:%02x:%02x:%02x:%02x\n", x->mac_address[0], x->mac_address[1], x->mac_address[2], x->mac_address[3], x->mac_address[4], x->mac_address[5]);
-        PLATFORM_PRINTF_DEBUG_DETAIL("  - AUTH_TYPE       : 0x%04x\n", auth_types);
-        PLATFORM_PRINTF_DEBUG_DETAIL("  - ENCRYPTION_TYPE : 0x%04x\n", encryption_types);
-        PLATFORM_PRINTF_DEBUG_DETAIL("  - NETWORK_KEY     : %s\n", network_key);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  - SSID            : %.*s\n", wsc_data->ssid.length, wsc_data->ssid.ssid);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  - BSSID           : " MACSTR "\n", MAC2STR(wsc_data->bssid));
+        PLATFORM_PRINTF_DEBUG_DETAIL("  - AUTH_TYPE       : 0x%04x\n", wsc_data->auth_types);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  - ENCRYPTION_TYPE : 0x%04x\n", wsc_data->encr_types);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  - NETWORK_KEY     : %.*s\n", wsc_data->key_len, wsc_data->key);
 
         // Obtain the HMAC of the whole plain buffer using "authkey" as the
         // secret key.
@@ -1551,8 +1449,6 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         aux16 = 8;                                                        _I2B(&aux16,         &p2);
                                                                           _InB( hash,          &p2,  8);
     }
-
-    free_1905_INTERFACE_INFO(x);
 
     *m2      = buffer;
     *m2_size = p2-buffer;

@@ -44,6 +44,8 @@
 #include "platform_os.h"
 #include "platform_alme_server.h"
 
+#include <datamodel.h>
+
 #include <string.h> // memcmp(), memcpy(), ...
 
 #define TIMER_TOKEN_DISCOVERY          (1)
@@ -930,25 +932,98 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
         {
             if (0 == memcmp(x->name, registrar_interface, strlen(x->name)))
             {
-                if (
-                     INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ != x->interface_type  &&
-                     INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ != x->interface_type  &&
-                     INTERFACE_TYPE_IEEE_802_11A_5_GHZ   != x->interface_type  &&
-                     INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ != x->interface_type  &&
-                     INTERFACE_TYPE_IEEE_802_11N_5_GHZ   != x->interface_type  &&
-                     INTERFACE_TYPE_IEEE_802_11AC_5_GHZ  != x->interface_type  &&
-                     INTERFACE_TYPE_IEEE_802_11AD_60_GHZ != x->interface_type  &&
-                     INTERFACE_TYPE_IEEE_802_11AF_GHZ    != x->interface_type
-                    )
-                {
-                    PLATFORM_PRINTF_DEBUG_ERROR("Interface %s is not a 802.11 interface and thus cannot act as a registrar!\n",x->name);
+                registrar.d = local_device;
+                /* For now, it is always a MAP Controller. */
+                registrar.is_map = true;
 
-                    free_1905_INTERFACE_INFO(x);
-                    return AL_ERROR_INTERFACE_ERROR;
-                }
-                else
+                /* Copy interface info into WSC info.
+                 * @todo this should come from a config file.
+                 * @todo Support multiple bands.
+                 */
+                struct wscDeviceData *wsc_data = &registrar.wsc_data[0];
+                /* Make sure all strings are 0-terminated. */
+                memset(wsc_data, 0, sizeof(*wsc_data));
+                memcpy(wsc_data->bssid, x->mac_address, 6);
+                strncpy(wsc_data->device_name, x->device_name, sizeof(wsc_data->device_name) - 1);
+                strncpy(wsc_data->manufacturer_name, x->manufacturer_name, sizeof(wsc_data->manufacturer_name) - 1);
+                strncpy(wsc_data->model_name, x->model_name, sizeof(wsc_data->model_name) - 1);
+                strncpy(wsc_data->model_number, x->model_number, sizeof(wsc_data->model_number) - 1);
+                strncpy(wsc_data->serial_number, x->serial_number, sizeof(wsc_data->serial_number) - 1);
+                /* @todo support UUID; for now its 0. */
+                switch(x->interface_type)
                 {
-                    DMregistrarMacSet(x->mac_address);
+                    case INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ:
+                    case INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ:
+                    case INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ:
+                        wsc_data->rf_bands = WPS_RF_24GHZ;
+                        break;
+
+                    case INTERFACE_TYPE_IEEE_802_11A_5_GHZ:
+                    case INTERFACE_TYPE_IEEE_802_11N_5_GHZ:
+                    case INTERFACE_TYPE_IEEE_802_11AC_5_GHZ:
+                        wsc_data->rf_bands = WPS_RF_50GHZ;
+                        break;
+
+                    case INTERFACE_TYPE_IEEE_802_11AD_60_GHZ:
+                        wsc_data->rf_bands = WPS_RF_60GHZ;
+                        break;
+
+                    case INTERFACE_TYPE_IEEE_802_11AF_GHZ:
+                        PLATFORM_PRINTF_DEBUG_ERROR("Interface %s is 802.11af which is not supported by WSC!\n",x->name);
+
+                        free_1905_INTERFACE_INFO(x);
+                        return AL_ERROR_INTERFACE_ERROR;
+
+                    default:
+                        PLATFORM_PRINTF_DEBUG_ERROR("Interface %s is not a 802.11 interface and thus cannot act as a registrar!\n",x->name);
+
+                        free_1905_INTERFACE_INFO(x);
+                        return AL_ERROR_INTERFACE_ERROR;
+
+                }
+                copyLengthString(wsc_data->ssid.ssid, &wsc_data->ssid.length, x->interface_type_data.ieee80211.ssid,
+                                 sizeof(wsc_data->ssid.ssid));
+                copyLengthString(wsc_data->key, &wsc_data->key_len, x->interface_type_data.ieee80211.network_key,
+                                 sizeof(wsc_data->key));
+
+                // AUTHENTICATION TYPES
+                wsc_data->auth_types = 0;
+
+                if (IEEE80211_AUTH_MODE_OPEN & x->interface_type_data.ieee80211.authentication_mode)
+                {
+                    wsc_data->auth_types |= WPS_AUTH_OPEN;
+                }
+                if (IEEE80211_AUTH_MODE_WPA & x->interface_type_data.ieee80211.authentication_mode)
+                {
+                    wsc_data->auth_types |= WPS_AUTH_WPA;
+                }
+                if (IEEE80211_AUTH_MODE_WPAPSK & x->interface_type_data.ieee80211.authentication_mode)
+                {
+                    wsc_data->auth_types |= WPS_AUTH_WPAPSK;
+                }
+                if (IEEE80211_AUTH_MODE_WPA2 & x->interface_type_data.ieee80211.authentication_mode)
+                {
+                    wsc_data->auth_types |= WPS_AUTH_WPA2;
+                }
+                if (IEEE80211_AUTH_MODE_WPA2PSK & x->interface_type_data.ieee80211.authentication_mode)
+                {
+                    wsc_data->auth_types |= WPS_AUTH_WPA2PSK;
+                }
+
+                // ENCRYPTION TYPES
+                wsc_data->encr_types = 0;
+
+                if (IEEE80211_ENCRYPTION_MODE_NONE & x->interface_type_data.ieee80211.encryption_mode)
+                {
+                    wsc_data->encr_types |= WPS_ENCR_NONE;
+                }
+                if (IEEE80211_ENCRYPTION_MODE_TKIP & x->interface_type_data.ieee80211.encryption_mode)
+                {
+                    wsc_data->encr_types |= WPS_ENCR_TKIP;
+                }
+                if (IEEE80211_ENCRYPTION_MODE_AES & x->interface_type_data.ieee80211.encryption_mode)
+                {
+                    wsc_data->encr_types |= WPS_ENCR_AES;
                 }
             }
         }

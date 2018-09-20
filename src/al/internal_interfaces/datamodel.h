@@ -151,15 +151,90 @@ struct alDevice *alDeviceAlloc(mac_address al_mac_addr);
  */
 extern struct alDevice *local_device;
 
+/** @brief WPS constants used in the wscDeviceData fields.
+ *
+ * These correspond to the definitions in WSC.
+ * @{
+ */
+
+#define WPS_AUTH_OPEN          (0x0001)
+#define WPS_AUTH_WPAPSK        (0x0002)
+#define WPS_AUTH_SHARED        (0x0004) /* deprecated */
+#define WPS_AUTH_WPA           (0x0008)
+#define WPS_AUTH_WPA2          (0x0010)
+#define WPS_AUTH_WPA2PSK       (0x0020)
+
+#define WPS_ENCR_NONE          (0x0001)
+#define WPS_ENCR_WEP           (0x0002) /* deprecated */
+#define WPS_ENCR_TKIP          (0x0004)
+#define WPS_ENCR_AES           (0x0008)
+
+#define WPS_RF_24GHZ           (0x01)
+#define WPS_RF_50GHZ           (0x02)
+#define WPS_RF_60GHZ           (0x04)
+
+/** @} */
+
+/** @brief Device data received from registrar/controller through WSC.
+ *
+ * If local_device is the registrar/controller, this is the device data that is sent out through WSC.
+ *
+ * Note that the WSC data can only be mapped to a specific radio through the RF band. Note that WSC allows to apply the
+ * same data to multiple bands simultaneously, but 1905.1/Multi-AP does not; still, the WSC frame may specify multiple
+ * bands.
+ *
+ * Only PSK authentication is supported, not entreprise, so we can use a fixed-length key.
+ */
+struct wscDeviceData {
+    mac_address bssid;          /**< BSSID (MAC address) of the BSS configured by this WSC exchange. */
+    char device_name      [33]; /**< Device Name (0..32 octets encoded in UTF-8). */
+    char manufacturer_name[65]; /**< Manufacturer (0..64 octets encoded in UTF-8). */
+    char model_name       [65]; /**< Model Name (0..32 octets encoded in UTF-8). */
+    char model_number     [65]; /**< Model Number (0..32 octets encoded in UTF-8). */
+    char serial_number    [65]; /**< Serial Number (0..32 octets encoded in UTF-8). */
+    uint8_t uuid          [16]; /**< UUID (16 octets). */
+    uint8_t rf_bands;           /**< Bitmask of WPS_RF_24GHZ, WPS_RF_50GHZ, WPS_RF_60GHZ. */
+    struct ssid ssid;           /**< SSID configured by this WSC. */
+    uint16_t auth_types;        /**< Bitmask of WPS_AUTH_NONE, WPS_AUTH_WPA2PSK. */
+    uint16_t encr_types;        /**< Bitmask of WPS_ENCR_NONE, WPS_ENCR_TKIP, WPS_ENCR_AES. */
+    uint8_t key           [64]; /**< Enryption key. */
+    uint8_t key_len;            /**< Length of ::key. */
+};
+
+
 /** @brief The discovered/configured Multi-AP controller or 1905.1 AP-Autoconfiguration Registrar.
  *
  * This points to the alDevice that was discovered to offer the Controller service. It may be the local_device, if it
- * was configured to take the controller role. There can be only one controller OR registrar in the network.
+ * was configured to take the controller role.
+ *
+ * There can be only one controller OR registrar in the network, so this is a singleton.
+ *
+ * The local device is the registrar/controller if registrar.d == local_device and local_device is not NULL.
  */
 extern struct registrar {
     struct alDevice *d; /**< If non-NULL, a controller/registrar was configured/discovered. */
     bool is_map; /**< If true, it is a Multi-AP Controller. If it is false, it is only a 1905.1 Registrar. */
+
+    /** @brief List of wscDeviceData objects received or configured.
+     *
+     * Since there can be only one WSC per band, the three bands are included explicitly. If a WSC covers multiple
+     * bands, it is duplicated. Note that this makes it redundant with wscDeviceData::rf_band; however, a wscDeviceData
+     * structure can also be built up independently (e.g. in WSC exchange).
+     *
+     * Unconfigured bands have wscDeviceData::bssid and wscDeviceData::rf_band set to 0.
+     */
+    struct wscDeviceData wsc_data[3];
 } registrar;
+
+/** @brief true if the local device is a registrar/controller, false if not.
+ *
+ * If there is no local device, it is always false (even a MultiAP Controller without Agent must have an AL MAC
+ * address, so it must have a local device).
+ */
+static inline bool registrarIsLocal(void)
+{
+    return local_device != NULL && local_device == registrar.d;
+}
 
 /** @brief The network, i.e. a list of all discovered devices.
  *

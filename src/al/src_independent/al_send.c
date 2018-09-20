@@ -39,6 +39,7 @@
 
 #include "al_extension.h"
 
+#include <datamodel.h>
 #include <string.h> // memset(), memcmp(), ...
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1492,15 +1493,8 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
 //
 static struct supportedServiceTLV *_obtainLocalSupportedServicesTLV(hlist_head *parent)
 {
-    if (memcmp(DMregistrarMacGet(), "\0\0\0\0\0\0", 6) == 0)
-    {
-        /* Not a controller */
-        return supportedServiceTLVAlloc(parent, false, true);
-    }
-    else
-    {
-        return supportedServiceTLVAlloc(parent, true, true);
-    }
+    /* Always and agent, controller if registrarIsLocal() is true. */
+    return supportedServiceTLVAlloc(parent, registrarIsLocal(), true);
 }
 
 // Given a pointer to a preallocated "supportedServiceTLV"

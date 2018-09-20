@@ -37,17 +37,6 @@ void DMinit(void);
 void  DMalMacSet(uint8_t *al_mac_address);
 uint8_t *DMalMacGet(void);
 
-// When the AL entity is initialized, it knows the MAC address of the interface
-// designated as 'network registrar'. At this point the "DMregistrarMacSet()"
-// function must be called to store this value in the database.
-// Later, anyone can consult this value with "DMregistrarMacGet()"
-//
-// Note that the registrar MAC address can or cannot match any of the local
-// interfaces.
-//
-void  DMregistrarMacSet(uint8_t *registrar_mac_address);
-uint8_t *DMregistrarMacGet();
-
 // When the AL entity is initialized, it knows whether the user want to map the
 // whole network or only direct neighbors (using much less memory).
 // the "DMalMacSet()" function must be called to store this value in the

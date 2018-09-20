@@ -35,6 +35,8 @@
 #include "platform_interfaces.h"
 #include "platform_alme_server.h"
 
+#include <datamodel.h>
+
 #include <string.h> // memcmp(), memcpy(), ...
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -856,9 +858,6 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
             uint8_t dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-            char **ifs_names;
-            uint8_t  ifs_nr;
-
             uint8_t searched_role_is_present;
             uint8_t searched_role;
 
@@ -960,46 +959,31 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 return PROCESS_CMDU_KO;
             }
 
-            // Check our local interfaces, looking for one acting as the
-            // registrar.
-            // If one is found, send the response.
+            // If we are the registrar, send the response.
             //
-            ifs_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&ifs_nr);
-            for (i=0; i<ifs_nr; i++)
+            if (registrarIsLocal())
             {
-                struct interfaceInfo *x;
-
-                x = PLATFORM_GET_1905_INTERFACE_INFO(ifs_names[i]);
-                if (NULL == x)
+                // Only send response if we support the requested band.
+                bool bandIsSupported;
+                /* @todo support multiple bands */
+                switch (freq_band)
                 {
-                    PLATFORM_PRINTF_DEBUG_WARNING("Could not retrieve info of interface %s\n", ifs_names[i]);
-                    continue;
+                    case IEEE80211_FREQUENCY_BAND_2_4_GHZ:
+                        bandIsSupported = (registrar.wsc_data[0].rf_bands | WPS_RF_24GHZ) == WPS_RF_24GHZ;
+                        break;
+                    case IEEE80211_FREQUENCY_BAND_5_GHZ:
+                        bandIsSupported = (registrar.wsc_data[0].rf_bands | WPS_RF_24GHZ) == WPS_RF_24GHZ;
+                        break;
+                    case IEEE80211_FREQUENCY_BAND_60_GHZ:
+                        bandIsSupported = (registrar.wsc_data[0].rf_bands | WPS_RF_24GHZ) == WPS_RF_24GHZ;
+                        break;
+                    default:
+                        assert(false);
+                        break;
                 }
-
-                if (
-                     IEEE80211_ROLE_AP == x->interface_type_data.ieee80211.role     &&
-                     0 == memcmp(x->mac_address, DMregistrarMacGet(), 6)   &&
-                     (
-                       (
-                        (INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ == x->interface_type   ||
-                         INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ == x->interface_type   ||
-                         INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ == x->interface_type)  &&
-                        freq_band == IEEE80211_FREQUENCY_BAND_2_4_GHZ
-                       )                                                               ||
-                       (
-                        (INTERFACE_TYPE_IEEE_802_11A_5_GHZ   == x->interface_type   ||
-                         INTERFACE_TYPE_IEEE_802_11N_5_GHZ   == x->interface_type   ||
-                         INTERFACE_TYPE_IEEE_802_11AC_5_GHZ  == x->interface_type)  &&
-                        freq_band == IEEE80211_FREQUENCY_BAND_5_GHZ
-                       )                                                               ||
-                       (
-                        (INTERFACE_TYPE_IEEE_802_11AD_60_GHZ == x->interface_type)  &&
-                        freq_band == IEEE80211_FREQUENCY_BAND_60_GHZ
-                       )
-                     )
-                   )
+                if (bandIsSupported)
                 {
-                    PLATFORM_PRINTF_DEBUG_DETAIL("Interface %s is AP, registrar, and uses the same freq band. Sending response...\n",ifs_names[i]);
+                    PLATFORM_PRINTF_DEBUG_DETAIL("Local device is registrar, and has the requested freq band. Sending response...\n");
 
                     if ( 0 == send1905APAutoconfigurationResponsePacket(DMmacToInterfaceName(receiving_interface_addr), c->message_id, al_mac_address, freq_band,
                                                                         supported_service_is_present || searched_service_is_present))
@@ -1007,18 +991,19 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                         PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration response' message\n");
                     }
 
-                    free_1905_INTERFACE_INFO(x);
                     break;
                 }
                 else
                 {
-                    PLATFORM_PRINTF_DEBUG_WARNING("Interface %s is not AP, or not registrar, or does not use the same freq band (interface type = %d, freq_band = %d,  role = %d)\n", ifs_names[i], x->interface_type, freq_band, x->interface_type_data.ieee80211.role );
+                    PLATFORM_PRINTF_DEBUG_WARNING("Local device is registrar but does not have requested freq band %d\n", freq_band);
+                    /* Strangely enough, we should NOT react with a response saying that the band is not supported.
+                     * Instead, the searcher will just time out. */
                 }
-
-                free_1905_INTERFACE_INFO(x);
             }
-
-            free_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
+            else
+            {
+                PLATFORM_PRINTF_DEBUG_INFO("Local device is not registrar\n");
+            }
 
             break;
         }
@@ -1458,6 +1443,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // Finally, for those non wifi interfaces (or a wifi interface whose
             // MAC address matches the network registrar MAC address), start
             // the "push button" configuration process.
+            // @todo this is different from Multi-AP PBC.
             //
             PLATFORM_PRINTF_DEBUG_DETAIL("Starting 'push button' configuration process on all compatible interfaces\n");
             for (i=0; i<ifs_nr; i++)
@@ -1492,7 +1478,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 {
                      if (
                           IEEE80211_ROLE_AP != x->interface_type_data.ieee80211.role ||
-                          0 != memcmp(x->mac_address, DMregistrarMacGet(), 6)
+                          !registrarIsLocal()
                          )
                      {
                          PLATFORM_PRINTF_DEBUG_DETAIL("This wifi interface %s is already configured. Skipping...\n",ifs_names[i]);

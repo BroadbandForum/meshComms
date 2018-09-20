@@ -41,8 +41,6 @@ static struct _dataModel
 {
     uint8_t              map_whole_network_flag;
 
-    uint8_t              registrar_mac_address[6];
-
     uint8_t              local_interfaces_nr;
 
     struct _localInterface
@@ -346,13 +344,6 @@ void DMinit()
 
     data_model.map_whole_network_flag   = 0;
 
-    data_model.registrar_mac_address[0] = 0x00;
-    data_model.registrar_mac_address[1] = 0x00;
-    data_model.registrar_mac_address[2] = 0x00;
-    data_model.registrar_mac_address[3] = 0x00;
-    data_model.registrar_mac_address[4] = 0x00;
-    data_model.registrar_mac_address[5] = 0x00;
-
     data_model.local_interfaces_nr      = 0;
     data_model.local_interfaces         = NULL;
 
@@ -402,18 +393,6 @@ uint8_t *DMalMacGet()
         return local_device->al_mac_addr;
     else
         return empty_mac_address;
-}
-
-void DMregistrarMacSet(uint8_t *registrar_mac_address)
-{
-    memcpy(data_model.registrar_mac_address, registrar_mac_address, 6);
-
-    return;
-}
-
-uint8_t *DMregistrarMacGet()
-{
-    return data_model.registrar_mac_address;
 }
 
 void DMmapWholeNetworkSet(uint8_t map_whole_network_flag)
