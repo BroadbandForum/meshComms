@@ -75,6 +75,7 @@
 #define TLV_TYPE_SEARCHED_SERVICE                    (0x81)
 #define TLV_TYPE_AP_OPERATIONAL_BSS                  (0x83)
 #define TLV_TYPE_ASSOCIATED_CLIENTS                  (0x84)
+#define TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES         (0x85)
 
 /** @} */
 
@@ -986,6 +987,39 @@ struct associatedClientsTLV
 struct _associatedClientsBssInfo *associatedClientsTLVAddBssInfo (struct associatedClientsTLV* a, mac_address bssid);
 struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associatedClientsBssInfo* a,
                                                                  mac_address addr, uint16_t age);
+
+/** @} */
+
+/** @brief EasyMesh Radio Basic Capabilities TLV.
+ *
+ *  @{
+ */
+
+struct _apRadioBasicCapabilitiesChannel {
+    struct tlv_struct s;
+    uint8_t     channel;    /**< @brief Channel number of a channel which is statically a Non-operable channel in the operating class */
+};
+
+struct _apRadioBasicCapabilitiesClass {
+    struct tlv_struct s;
+    uint8_t     opclass;    /**< @brief Operating class per Table E-4 in [1], that this radio is capable of operating on. */
+    uint8_t     txpower;    /**< @brief Maximum tx power EIRP that this radio is capable of transmitting in the current regulatory domain for the operating class. */
+};
+
+struct apRadioBasicCapabilitiesTLV {
+    struct tlv  tlv;        /**< @brief TLV type, must always be set to TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES. */
+    mac_address radio_uid;  /**< @brief Radio unique identifier of the radio for which capabilities are reported. */
+    uint8_t     maxbss;     /**< @brief Maximum number of BSSs supported by this radio. */
+};
+
+struct _apRadioBasicCapabilitiesChannel *   apRadioBasicCapabilitiesTLVAddChannel(
+                                                struct _apRadioBasicCapabilitiesClass *, /**< @brief Class to add a Non Operational Channel into */
+                                                uint8_t); /**< @brief Non-operational channel */
+
+struct _apRadioBasicCapabilitiesClass *     apRadioBasicCapabilitiesTLVAddClass(
+                                                struct apRadioBasicCapabilitiesTLV *, /**< @brief Capability to add a class into */
+                                                uint8_t,  /**< @brief Operational Class */
+                                                uint8_t); /**< @brief Transmit power */
 
 /** @} */
 

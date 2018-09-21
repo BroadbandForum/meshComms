@@ -1589,5 +1589,32 @@ void get_1905_tlv_test_vectors(hlist_head *test_vectors)
     associatedClientsTLVAddClientInfo(bssInfo, client1, 0);
     associatedClientsTLVAddClientInfo(bssInfo, client2, 0x1234);
     associatedClientsTLVAddClientInfo(bssInfo, client3, ASSOCIATED_CLIENT_MAX_AGE);
-}
 
+    INIT_TEST_VECTOR("AP Radio Basic Capabilities TLV",
+        0x85,
+        0x00, 18,
+        0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
+        4, 2,
+        0x01, 0x55,
+            3, 0x11, 0x12, 0x13,
+        0x02, 0x66,
+            1, 0x21,
+    );
+    struct apRadioBasicCapabilitiesTLV *apRadioBasicCapabilities =
+            X1905_TLV_ALLOC(apRadioBasicCapabilities, TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES, &v->h.children[0]);
+
+    memcpy(&apRadioBasicCapabilities->radio_uid,
+            &(mac_address){0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
+            sizeof(mac_address));
+    apRadioBasicCapabilities->maxbss = 4;
+
+    struct _apRadioBasicCapabilitiesClass *ARBCclass;
+
+    ARBCclass = apRadioBasicCapabilitiesTLVAddClass(apRadioBasicCapabilities, 0x01, 0x55);
+    apRadioBasicCapabilitiesTLVAddChannel(ARBCclass, 0x11);
+    apRadioBasicCapabilitiesTLVAddChannel(ARBCclass, 0x12);
+    apRadioBasicCapabilitiesTLVAddChannel(ARBCclass, 0x13);
+
+    ARBCclass = apRadioBasicCapabilitiesTLVAddClass(apRadioBasicCapabilities, 0x02, 0x66);
+    apRadioBasicCapabilitiesTLVAddChannel(ARBCclass, 0x21);
+}

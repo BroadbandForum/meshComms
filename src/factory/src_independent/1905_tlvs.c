@@ -455,6 +455,56 @@ struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associa
 
 /** @} */
 
+/** @brief Support functions for apRadioBasicCapabilities TLV.
+ *
+ * See "Multi-AP Specification Version 1.0" Section 17.2.7
+ *
+ * @{
+ */
+
+static const struct tlv_struct_description _apRadioBasicCapabilitiesChannelDesc = {
+    .name = "channel",
+    .size = sizeof(struct _apRadioBasicCapabilitiesChannel),
+    .fields = {
+        TLV_STRUCT_FIELD_DESCRIPTION(struct _apRadioBasicCapabilitiesChannel, channel, tlv_struct_print_format_unsigned),
+        TLV_STRUCT_FIELD_SENTINEL,
+    },
+    .children = {NULL,},
+};
+
+static const struct tlv_struct_description _apRadioBasicCapabilitiesClassDesc = {
+    .name = "class",
+    .size = sizeof(struct _apRadioBasicCapabilitiesClass),
+    .fields = {
+        TLV_STRUCT_FIELD_DESCRIPTION(struct _apRadioBasicCapabilitiesClass, opclass,  tlv_struct_print_format_unsigned),
+        TLV_STRUCT_FIELD_DESCRIPTION(struct _apRadioBasicCapabilitiesClass, txpower,  tlv_struct_print_format_unsigned),
+        TLV_STRUCT_FIELD_SENTINEL,
+    },
+    .children = { &_apRadioBasicCapabilitiesChannelDesc, NULL, },
+};
+
+struct _apRadioBasicCapabilitiesChannel* apRadioBasicCapabilitiesTLVAddChannel(
+    struct _apRadioBasicCapabilitiesClass *c,
+    uint8_t chan)
+{
+    TLV_STRUCT_DECLARE_DEFAULT(r, _apRadioBasicCapabilitiesChannel, c);
+    r->channel = chan;
+    return r;
+}
+
+struct _apRadioBasicCapabilitiesClass* apRadioBasicCapabilitiesTLVAddClass(
+    struct apRadioBasicCapabilitiesTLV *t,
+    uint8_t opclass,
+    uint8_t txpower)
+{
+    TLV_STRUCT_DECLARE_DEFAULT(r, _apRadioBasicCapabilitiesClass, &t->tlv);
+    r->opclass = opclass;
+    r->txpower = txpower;
+    return r;
+}
+
+
+/** @} */
 
 static tlv_defs_t tlv_1905_defs = {
     [TLV_TYPE_END_OF_MESSAGE] = {
@@ -494,6 +544,10 @@ static tlv_defs_t tlv_1905_defs = {
     TLV_DEF_ENTRY_0FIELDS(supportedService, TLV_TYPE_SEARCHED_SERVICE, &_supportedServiceDesc, ),
     TLV_DEF_ENTRY_0FIELDS(apOperationalBss,TLV_TYPE_AP_OPERATIONAL_BSS, &_apOperationalBssRadioDesc, ),
     TLV_DEF_ENTRY_0FIELDS(associatedClients,TLV_TYPE_ASSOCIATED_CLIENTS, &_associatedClientsBssInfoDesc, ),
+    TLV_DEF_ENTRY_2FIELDS(apRadioBasicCapabilities, TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES, &_apRadioBasicCapabilitiesClassDesc,
+        radio_uid, tlv_struct_print_format_mac,
+        maxbss,    tlv_struct_print_format_unsigned,
+    ),
 };
 
 struct tlv *x1905TLVAlloc(hlist_head *parent, uint8_t type)
