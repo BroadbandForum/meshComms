@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/prplfoundation/prplMesh.svg?branch=master)](https://travis-ci.org/prplfoundation/prplMesh)
+
 # Index
 
   1. What is this?
