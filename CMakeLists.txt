@@ -15,18 +15,18 @@
 cmake_minimum_required(VERSION 3.4)
 project(prplMesh LANGUAGES C VERSION 0.9)
 
-add_compile_definitions(_BUILD_NUMBER_=\"${prplMesh_VERSION}\")
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS _BUILD_NUMBER_=\"${prplMesh_VERSION}\")
 
 INCLUDE(TestBigEndian)
 TEST_BIG_ENDIAN(BIGENDIAN)
 if(BIGENDIAN)
-    add_compile_definitions(_HOST_IS_BIG_ENDIAN_=1)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS _HOST_IS_BIG_ENDIAN_=1)
 else()
-    add_compile_definitions(_HOST_IS_LITTLE_ENDIAN_=1)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS _HOST_IS_LITTLE_ENDIAN_=1)
 endif(BIGENDIAN)
 
 # @todo make these configurable
-add_compile_definitions(
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
     MAX_NETWORK_SEGMENT_SIZE=1500
     SEND_EMPTY_TLVS
     FIX_BROKEN_TLVS
