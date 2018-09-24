@@ -1603,9 +1603,7 @@ void get_1905_tlv_test_vectors(hlist_head *test_vectors)
     struct apRadioBasicCapabilitiesTLV *apRadioBasicCapabilities =
             X1905_TLV_ALLOC(apRadioBasicCapabilities, TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES, &v->h.children[0]);
 
-    memcpy(&apRadioBasicCapabilities->radio_uid,
-            &(mac_address){0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5},
-            sizeof(mac_address));
+    memcpy(&apRadioBasicCapabilities->radio_uid, client1, sizeof(mac_address));
     apRadioBasicCapabilities->maxbss = 4;
 
     struct _apRadioBasicCapabilitiesClass *ARBCclass;
