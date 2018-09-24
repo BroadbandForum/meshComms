@@ -455,6 +455,14 @@ struct _associatedClientInfo *associatedClientsTLVAddClientInfo (struct _associa
 
 /** @} */
 
+/** @brief Support functions for apRadioIdentifier TLV.
+ *
+ * See "Multi-AP Specification Version 1.0" Section 17.2.3
+ * @{
+ */
+
+/** @} */
+
 /** @brief Support functions for apRadioBasicCapabilities TLV.
  *
  * See "Multi-AP Specification Version 1.0" Section 17.2.7
@@ -547,6 +555,9 @@ static tlv_defs_t tlv_1905_defs = {
     TLV_DEF_ENTRY_2FIELDS(apRadioBasicCapabilities, TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES, &_apRadioBasicCapabilitiesClassDesc,
         radio_uid, tlv_struct_print_format_mac,
         maxbss,    tlv_struct_print_format_unsigned,
+    ),
+    TLV_DEF_ENTRY_1FIELDS(apRadioIdentifier, TLV_TYPE_AP_RADIO_IDENTIFIER, NULL,
+        radio_uid, tlv_struct_print_format_mac,
     ),
 };
 

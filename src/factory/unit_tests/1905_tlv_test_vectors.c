@@ -1615,4 +1615,14 @@ void get_1905_tlv_test_vectors(hlist_head *test_vectors)
 
     ARBCclass = apRadioBasicCapabilitiesTLVAddClass(apRadioBasicCapabilities, 0x02, 0x66);
     apRadioBasicCapabilitiesTLVAddChannel(ARBCclass, 0x21);
+
+    INIT_TEST_VECTOR("AP Radio Identifier TLV",
+        0x82,
+        0x00, 6,
+        0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5,
+    );
+    struct apRadioIdentifierTLV *apRadioIdentifier =
+            X1905_TLV_ALLOC(apRadioIdentifier, TLV_TYPE_AP_RADIO_IDENTIFIER, &v->h.children[0]);
+
+    memcpy(&apRadioIdentifier->radio_uid, client1, sizeof(mac_address));
 }

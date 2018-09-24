@@ -73,6 +73,7 @@
 
 #define TLV_TYPE_SUPPORTED_SERVICE                   (0x80)
 #define TLV_TYPE_SEARCHED_SERVICE                    (0x81)
+#define TLV_TYPE_AP_RADIO_IDENTIFIER                 (0x82)
 #define TLV_TYPE_AP_OPERATIONAL_BSS                  (0x83)
 #define TLV_TYPE_ASSOCIATED_CLIENTS                  (0x84)
 #define TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES         (0x85)
@@ -1020,6 +1021,16 @@ struct _apRadioBasicCapabilitiesClass *     apRadioBasicCapabilitiesTLVAddClass(
                                                 struct apRadioBasicCapabilitiesTLV *, /**< @brief Capability to add a class into */
                                                 uint8_t,  /**< @brief Operational Class */
                                                 uint8_t); /**< @brief Transmit power */
+
+/** @} */
+
+/** @brief AP Radio Identifier TLV (MultiAP Specs v1.0 - 17.2.3)
+ *  @{
+ */
+struct apRadioIdentifierTLV {
+    struct tlv  tlv;        /**< @brief TLV type, must always be set to TLV_TYPE_AP_RADIO_IDENTIFIER. */
+    mac_address radio_uid;  /**< @brief Radio unique identifier of a radio of the Multi-AP Agent. */
+};
 
 /** @} */
 
