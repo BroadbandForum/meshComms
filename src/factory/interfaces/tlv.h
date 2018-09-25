@@ -128,10 +128,10 @@ struct tlv_struct_description {
      *
      * @param length Remaining length of @a buffer. Access/update with _InBL() and friends.
      *
-     * @return true. If false is returned, it's a programming error: either ::length returned a wrong value, or the
+     * @return true. If false is returned, it's a programming error: either @a length returned a wrong value, or the
      * structure was not consistent.
      *
-     * This function is called when forging a TLV list, after allocating the buffer based on the calls to ::length.
+     * This function is called when forging a TLV list, after allocating the buffer based on the calls to @a length.
      * Note that @a length is the total length of the buffer, not just for this TLV. The functions
      * tlv_struct_forge_field() and tlv_struct_forge_list() can be used for fields/children that can be handled by
      * the default forge function.

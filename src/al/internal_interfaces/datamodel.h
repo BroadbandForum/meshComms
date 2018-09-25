@@ -65,7 +65,7 @@ struct interface
 
     /** @brief IEEE 1905.1a Media-specific Information, as per "IEEE Std 1905.1-2013, Table 6-12 and 6-13". */
     uint8_t media_specific_info[16];
-    uint8_t media_specific_info_length; /**< @brief Valid length of ::media_specific_info. */
+    uint8_t media_specific_info_length; /**< @brief Valid length of @a media_specific_info. */
 
     /** @brief Info to control discovery messages sent to this interface.
      *
@@ -208,7 +208,7 @@ struct wscDeviceData {
     uint16_t auth_types;        /**< Bitmask of WPS_AUTH_NONE, WPS_AUTH_WPA2PSK. */
     uint16_t encr_types;        /**< Bitmask of WPS_ENCR_NONE, WPS_ENCR_TKIP, WPS_ENCR_AES. */
     uint8_t key           [64]; /**< Enryption key. */
-    uint8_t key_len;            /**< Length of ::key. */
+    uint8_t key_len;            /**< Length of @a key. */
 };
 
 

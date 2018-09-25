@@ -1014,13 +1014,13 @@ struct apRadioBasicCapabilitiesTLV {
 };
 
 struct _apRadioBasicCapabilitiesChannel *   apRadioBasicCapabilitiesTLVAddChannel(
-                                                struct _apRadioBasicCapabilitiesClass *, /**< @brief Class to add a Non Operational Channel into */
-                                                uint8_t); /**< @brief Non-operational channel */
+                                                struct _apRadioBasicCapabilitiesClass *, /**< Class to add a Non Operational Channel into */
+                                                uint8_t); /**< Non-operational channel */
 
 struct _apRadioBasicCapabilitiesClass *     apRadioBasicCapabilitiesTLVAddClass(
-                                                struct apRadioBasicCapabilitiesTLV *, /**< @brief Capability to add a class into */
-                                                uint8_t,  /**< @brief Operational Class */
-                                                uint8_t); /**< @brief Transmit power */
+                                                struct apRadioBasicCapabilitiesTLV *, /**< Capability to add a class into */
+                                                uint8_t,  /**< Operational Class */
+                                                uint8_t); /**< Transmit power */
 
 /** @} */
 
