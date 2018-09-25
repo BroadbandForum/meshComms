@@ -199,6 +199,14 @@ struct hlist_item *hlist_alloc(size_t size, hlist_head *parent);
         container_of(allocced, type, hlist_member); \
     })
 
+/** @brief Remove an item from its list, without deleting it. */
+static inline void hlist_remove(hlist_item *item)
+{
+    item->l.prev->next = item->l.next;
+    item->l.next->prev = item->l.prev;
+    hlist_head_init(&item->l);
+}
+
 /** @brief Delete a hlist.
  *
  * Recursively delete all elements from @a list. @a list itself is not free()'d, so it can be a static or

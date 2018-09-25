@@ -49,8 +49,7 @@ void hlist_delete(hlist_head *list)
         hlist_delete_item(item);
     }
     /* We still have to make sure the list is empty, in case it is reused later. */
-    list->prev = list;
-    list->next = list;
+    hlist_head_init(list);
 }
 
 void hlist_delete_item(hlist_item *item)

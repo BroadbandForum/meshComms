@@ -62,12 +62,14 @@ int main()
     ret += check_count(&list, 1);
     ret += check_count(&ht1->h.children[0], 2);
 
-    /* Remove ht1b from list by just resetting both lists */
-    hlist_head_init(&ht1->h.l);
-    hlist_head_init(&list);
+    hlist_remove(&ht1->h);
+    ret += check_count(&list, 0);
     hlist_delete_item(&ht1->h);
+    /* This also deletes the two htest2 children, but there's no way to check that. */
+
     /* Deleting an empty list works. */
     hlist_delete(&list);
+    ret += check_count(&list, 0);
 
     return ret;
 }
