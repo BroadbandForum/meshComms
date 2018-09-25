@@ -48,16 +48,9 @@ static struct _dataModel
         char               *name;
         uint8_t               mac_address[6];
 
-        uint8_t               neighbors_nr;
+        hlist_head          neighbors;
 
-        struct _neighbor
-        {
-            uint8_t               al_mac_address[6];
-
-            hlist_head interfaces; /* of type interface */
-        }                  *neighbors;
-
-    }                 *local_interfaces;
+    }                 local_interfaces[20];
 
     uint8_t              network_devices_nr;
 
@@ -172,11 +165,10 @@ static struct _localInterface *_nameToLocalInterfaceStruct(char *name)
 // provided 'local_interface_name'.
 // Returns NONE if such a neighbor could not be found.
 //
-static struct _neighbor *_alMacAddressToNeighborStruct(char *local_interface_name, uint8_t *al_mac_address)
+static struct alDevice *_alMacAddressToNeighborStruct(char *local_interface_name, uint8_t *al_mac_address)
 {
-    uint8_t i;
-
     struct _localInterface *x;
+    struct alDevice *neighbor;
 
     if (NULL == (x = _nameToLocalInterfaceStruct(local_interface_name)))
     {
@@ -187,11 +179,11 @@ static struct _neighbor *_alMacAddressToNeighborStruct(char *local_interface_nam
 
     if (NULL != al_mac_address)
     {
-        for (i=0; i<x->neighbors_nr; i++)
+        hlist_for_each(neighbor, x->neighbors, struct alDevice, h)
         {
-            if (0 == memcmp(x->neighbors[i].al_mac_address, al_mac_address, 6))
+            if (0 == memcmp(neighbor->al_mac_addr, al_mac_address, 6))
             {
-                return &x->neighbors[i];
+                return neighbor;
             }
         }
     }
@@ -209,9 +201,9 @@ static struct _neighbor *_alMacAddressToNeighborStruct(char *local_interface_nam
 //
 static struct interface *_macAddressToRemoteInterfaceStruct(char *local_interface_name, uint8_t *neighbor_al_mac_address, uint8_t *mac_address)
 {
-    struct _neighbor *x;
+    struct alDevice *neighbor;
 
-    if (NULL == (x = _alMacAddressToNeighborStruct(local_interface_name, neighbor_al_mac_address)))
+    if (NULL == (neighbor = _alMacAddressToNeighborStruct(local_interface_name, neighbor_al_mac_address)))
     {
         // Non existent neighbor
         //
@@ -221,7 +213,7 @@ static struct interface *_macAddressToRemoteInterfaceStruct(char *local_interfac
     if (NULL != mac_address)
     {
         struct interface *ret;
-        hlist_for_each(ret, x->interfaces, struct interface, h)
+        hlist_for_each(ret, *alDeviceInterfaces(neighbor), struct interface, h)
         {
             if (0 == memcmp(ret->addr, mac_address, 6))
             {
@@ -244,6 +236,7 @@ static struct interface *_macAddressToRemoteInterfaceStruct(char *local_interfac
 static uint8_t _insertNeighbor(char *local_interface_name, uint8_t *al_mac_address)
 {
     struct _localInterface *x;
+    struct alDevice *neighbor;
 
     // First, make sure the interface exists
     //
@@ -261,20 +254,14 @@ static uint8_t _insertNeighbor(char *local_interface_name, uint8_t *al_mac_addre
         return 2;
     }
 
-    if (0 == x->neighbors_nr)
-    {
-        x->neighbors = (struct _neighbor *)memalloc(sizeof (struct _neighbor));
+    neighbor = alDeviceAlloc(al_mac_address);
 
-    }
-    else
-    {
-        x->neighbors = (struct _neighbor *)memrealloc(x->neighbors, sizeof (struct _neighbor) * (x->neighbors_nr + 1));
-    }
-
-    memcpy(x->neighbors[x->neighbors_nr].al_mac_address,        al_mac_address, 6);
-    hlist_head_init(&x->neighbors[x->neighbors_nr].interfaces);
-
-    x->neighbors_nr++;
+    /* @todo alDevice objects are supposed to be global (i.e. only one alDevice object per AL MAC address) but
+     * for now there is a separate list per interface, and an alDevice object can be member of maximum one list.
+     * That should be replaced with link objects that represent the link between two interfaces.
+     */
+    hlist_remove(&neighbor->h);
+    hlist_add_tail(&x->neighbors, &neighbor->h);
 
     return 1;
 }
@@ -287,7 +274,7 @@ static uint8_t _insertNeighbor(char *local_interface_name, uint8_t *al_mac_addre
 //
 static uint8_t _insertNeighborInterface(char *local_interface_name, uint8_t *neighbor_al_mac_address, uint8_t *mac_address)
 {
-    struct _neighbor        *x;
+    struct alDevice        *x;
 
     // First, make sure the interface and neighbor exist
     //
@@ -305,7 +292,7 @@ static uint8_t _insertNeighborInterface(char *local_interface_name, uint8_t *nei
         return 2;
     }
 
-    struct interface *interface = HLIST_ALLOC(struct interface, h, &x->interfaces);
+    struct interface *interface = HLIST_ALLOC(struct interface, h, alDeviceInterfaces(x));
     memcpy(interface->addr,                 mac_address, 6);
     interface->last_topology_discovery_ts = 0;
     interface->last_bridge_discovery_ts   = 0;
@@ -325,7 +312,6 @@ void DMinit()
     data_model.map_whole_network_flag   = 0;
 
     data_model.local_interfaces_nr      = 0;
-    data_model.local_interfaces         = NULL;
 
     // Regarding the "network_devices" list, we will init it with one element,
     // representing the local node
@@ -416,20 +402,11 @@ uint8_t DMinsertInterface(char *name, uint8_t *mac_address)
         }
     }
 
-    if (0 == data_model.local_interfaces_nr)
-    {
-        data_model.local_interfaces = (struct _localInterface *)memalloc(sizeof (struct _localInterface));
-
-    }
-    else
-    {
-        data_model.local_interfaces = (struct _localInterface *)memrealloc(data_model.local_interfaces, sizeof (struct _localInterface) * (data_model.local_interfaces_nr + 1));
-    }
+    assert(data_model.local_interfaces_nr < ARRAY_SIZE(data_model.local_interfaces));
 
                     data_model.local_interfaces[data_model.local_interfaces_nr].name         = strdup(name);
     memcpy(data_model.local_interfaces[data_model.local_interfaces_nr].mac_address,   mac_address, 6);
-                    data_model.local_interfaces[data_model.local_interfaces_nr].neighbors    = NULL;
-                    data_model.local_interfaces[data_model.local_interfaces_nr].neighbors_nr = 0;
+    hlist_head_init(&data_model.local_interfaces[data_model.local_interfaces_nr].neighbors);
 
     data_model.local_interfaces_nr++;
 
@@ -482,6 +459,7 @@ uint8_t (*DMgetListOfInterfaceNeighbors(char *local_interface_name, uint8_t *al_
     uint8_t (*ret)[6];
 
     struct _localInterface *x;
+    struct alDevice *neighbor;
 
     if (NULL == (x = _nameToLocalInterfaceStruct(local_interface_name)))
     {
@@ -491,31 +469,28 @@ uint8_t (*DMgetListOfInterfaceNeighbors(char *local_interface_name, uint8_t *al_
         return NULL;
     }
 
-    if (0 == x->neighbors_nr)
+    *al_mac_addresses_nr = hlist_count(&x->neighbors);
+    if (0 == *al_mac_addresses_nr)
     {
         *al_mac_addresses_nr = 0;
         return NULL;
     }
 
-    ret = (uint8_t (*)[6])memalloc(sizeof(uint8_t[6]) * x->neighbors_nr);
+    ret = (uint8_t (*)[6])memalloc(sizeof(uint8_t[6]) * (*al_mac_addresses_nr));
+    i = 0;
 
-    for (i=0; i<x->neighbors_nr; i++)
+    hlist_for_each(neighbor, x->neighbors, struct alDevice, h)
     {
-        ret[i][0] = x->neighbors[i].al_mac_address[0];
-        ret[i][1] = x->neighbors[i].al_mac_address[1];
-        ret[i][2] = x->neighbors[i].al_mac_address[2];
-        ret[i][3] = x->neighbors[i].al_mac_address[3];
-        ret[i][4] = x->neighbors[i].al_mac_address[4];
-        ret[i][5] = x->neighbors[i].al_mac_address[5];
+        memcpy(&ret[i][0], neighbor->al_mac_addr, 6);
+        i++;
     }
 
-    *al_mac_addresses_nr = x->neighbors_nr;
     return ret;
 }
 
 uint8_t (*DMgetListOfNeighbors(uint8_t *al_mac_addresses_nr))[6]
 {
-    uint8_t i, j, k;
+    uint8_t i, k;
 
     uint8_t total;
     uint8_t (*ret)[6];
@@ -530,7 +505,8 @@ uint8_t (*DMgetListOfNeighbors(uint8_t *al_mac_addresses_nr))[6]
 
     for (i=0; i<data_model.local_interfaces_nr; i++)
     {
-        for (j=0; j<data_model.local_interfaces[i].neighbors_nr; j++)
+        struct alDevice *neighbor;
+        hlist_for_each(neighbor, data_model.local_interfaces[i].neighbors, struct alDevice, h)
         {
             // Check for duplicates
             //
@@ -539,7 +515,7 @@ uint8_t (*DMgetListOfNeighbors(uint8_t *al_mac_addresses_nr))[6]
             already_present = 0;
             for (k=0; k<total; k++)
             {
-                if (0 == memcmp(&ret[k], data_model.local_interfaces[i].neighbors[j].al_mac_address, 6))
+                if (0 == memcmp(&ret[k], neighbor->al_mac_addr, 6))
                 {
                     already_present = 1;
                     break;
@@ -562,7 +538,7 @@ uint8_t (*DMgetListOfNeighbors(uint8_t *al_mac_addresses_nr))[6]
             {
                 ret = (uint8_t (*)[6])memrealloc(ret, sizeof(uint8_t[6])*(total + 1));
             }
-            memcpy(&ret[total], data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
+            memcpy(&ret[total], neighbor->al_mac_addr, 6);
 
             total++;
         }
@@ -575,11 +551,12 @@ uint8_t (*DMgetListOfNeighbors(uint8_t *al_mac_addresses_nr))[6]
 
 uint8_t (*DMgetListOfLinksWithNeighbor(uint8_t *neighbor_al_mac_address, char ***interfaces, uint8_t *links_nr))[6]
 {
-    uint8_t i, j;
+    uint8_t i;
     uint8_t total;
 
     uint8_t (*ret)[6];
     char  **intfs;
+    struct alDevice *neighbor;
 
     total = 0;
     ret   = NULL;
@@ -587,18 +564,18 @@ uint8_t (*DMgetListOfLinksWithNeighbor(uint8_t *neighbor_al_mac_address, char **
 
     for (i=0; i<data_model.local_interfaces_nr; i++)
     {
-        for (j=0; j<data_model.local_interfaces[i].neighbors_nr; j++)
+        hlist_for_each(neighbor, data_model.local_interfaces[i].neighbors, struct alDevice, h)
         {
             // Filter neighbor (we are just interested in
             // 'neighbor_al_mac_address')
             //
-            if (0 != memcmp(neighbor_al_mac_address, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6))
+            if (0 != memcmp(neighbor_al_mac_address, neighbor->al_mac_addr, 6))
             {
                 continue;
             }
 
             struct interface *interface;
-            hlist_for_each(interface, data_model.local_interfaces[i].neighbors[j].interfaces, struct interface, h)
+            hlist_for_each(interface, *alDeviceInterfaces(neighbor), struct interface, h)
             {
                 // This is a new link between the local AL and the remote AL.
                 // Add it.
@@ -795,7 +772,7 @@ uint8_t DMisLinkBridged(char *local_interface_name, uint8_t *neighbor_al_mac_add
 
 uint8_t DMisNeighborBridged(char *local_interface_name, uint8_t *neighbor_al_mac_address)
 {
-    struct _neighbor *x;
+    struct alDevice *x;
 
     if (NULL == (x = _alMacAddressToNeighborStruct(local_interface_name, neighbor_al_mac_address)))
     {
@@ -805,7 +782,7 @@ uint8_t DMisNeighborBridged(char *local_interface_name, uint8_t *neighbor_al_mac
     }
 
     struct interface *interface;
-    hlist_for_each(interface, x->interfaces, struct interface, h)
+    hlist_for_each(interface, *alDeviceInterfaces(x), struct interface, h)
     {
         if (1 == DMisLinkBridged(local_interface_name, neighbor_al_mac_address, interface->addr))
         {
@@ -825,8 +802,7 @@ uint8_t DMisNeighborBridged(char *local_interface_name, uint8_t *neighbor_al_mac
 uint8_t DMisInterfaceBridged(char *local_interface_name)
 {
     struct _localInterface *x;
-
-    uint8_t i;
+    struct alDevice *neighbor;
 
     x = _nameToLocalInterfaceStruct(local_interface_name);
     if (NULL == x)
@@ -835,9 +811,9 @@ uint8_t DMisInterfaceBridged(char *local_interface_name)
         return 2;
     }
 
-    for (i=0; i<x->neighbors_nr; i++)
+    hlist_for_each(neighbor, x->neighbors, struct alDevice, h)
     {
-        if (1 == DMisNeighborBridged(local_interface_name, x->neighbors[i].al_mac_address))
+        if (1 == DMisNeighborBridged(local_interface_name, neighbor->al_mac_addr))
         {
             // If at least one neighbor is bridged, then this interface is
             // considered to be bridged.
@@ -856,8 +832,9 @@ uint8_t DMisInterfaceBridged(char *local_interface_name)
 
 uint8_t *DMmacToAlMac(uint8_t *mac_address)
 {
-    uint8_t i, j, k;
+    uint8_t i;
 
+    struct alDevice *neighbor;
     uint8_t *al_mac;
     uint8_t found;
 
@@ -876,21 +853,21 @@ uint8_t *DMmacToAlMac(uint8_t *mac_address)
             memcpy(al_mac, local_device->al_mac_addr, 6);
         }
 
-        for (j=0; j<data_model.local_interfaces[i].neighbors_nr; j++)
+        hlist_for_each(neighbor, data_model.local_interfaces[i].neighbors, struct alDevice, h)
         {
-            if (0 == memcmp(data_model.local_interfaces[i].neighbors[j].al_mac_address, mac_address, 6))
+            if (0 == memcmp(neighbor->al_mac_addr, mac_address, 6))
             {
                 found = 1;
-                memcpy(al_mac, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
+                memcpy(al_mac, neighbor->al_mac_addr, 6);
             }
 
             struct interface *interface;
-            hlist_for_each(interface, data_model.local_interfaces[i].neighbors[j].interfaces, struct interface, h)
+            hlist_for_each(interface, *alDeviceInterfaces(neighbor), struct interface, h)
             {
                 if (0 == memcmp(interface->addr, mac_address, 6))
                 {
                     found = 1;
-                    memcpy(al_mac, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6);
+                    memcpy(al_mac, neighbor->al_mac_addr, 6);
                 }
             }
         }
@@ -1704,12 +1681,11 @@ uint8_t DMrunGarbageCollector(void)
 
 void DMremoveALNeighborFromInterface(uint8_t *al_mac_address, char *interface_name)
 {
-    uint8_t i, j;
+    uint8_t i;
+    struct alDevice *neighbor;
 
     for (i=0; i<data_model.local_interfaces_nr; i++)
     {
-        uint8_t original_neighbors_nr;
-
         if (
              (0 != memcmp(data_model.local_interfaces[i].name, interface_name, strlen(data_model.local_interfaces[i].name)+1)) &&
              (0 != memcmp(interface_name,                      "all",          strlen(interface_name)+1))
@@ -1720,40 +1696,11 @@ void DMremoveALNeighborFromInterface(uint8_t *al_mac_address, char *interface_na
             continue;
         }
 
-        original_neighbors_nr = data_model.local_interfaces[i].neighbors_nr;
-
-        for (j=0; j<data_model.local_interfaces[i].neighbors_nr; j++)
+        hlist_for_each(neighbor, data_model.local_interfaces[i].neighbors, struct alDevice, h)
         {
-            if (0 == memcmp(al_mac_address, data_model.local_interfaces[i].neighbors[j].al_mac_address, 6))
+            if (0 == memcmp(al_mac_address, neighbor->al_mac_addr, 6))
             {
-                hlist_delete(&data_model.local_interfaces[i].neighbors[j].interfaces);
-
-                // Place last element here (we don't care about preserving
-                // order)
-                //
-                if (j == (data_model.local_interfaces[i].neighbors_nr-1))
-                {
-                    // Last element. It will automatically be removed
-                    // below (keep reading)
-                }
-                else
-                {
-                    data_model.local_interfaces[i].neighbors[j] = data_model.local_interfaces[i].neighbors[data_model.local_interfaces[i].neighbors_nr-1];
-                    j--;
-                }
-                data_model.local_interfaces[i].neighbors_nr--;
-            }
-        }
-
-        if (original_neighbors_nr != data_model.local_interfaces[i].neighbors_nr)
-        {
-            if (0 == data_model.local_interfaces[i].neighbors_nr)
-            {
-                free(data_model.local_interfaces[i].neighbors);
-            }
-            else
-            {
-                data_model.local_interfaces[i].neighbors = (struct _neighbor *)memrealloc(data_model.local_interfaces[i].neighbors, sizeof(struct _neighbor)*(data_model.local_interfaces[i].neighbors_nr));
+                hlist_delete_item(&neighbor->h);
             }
         }
     }

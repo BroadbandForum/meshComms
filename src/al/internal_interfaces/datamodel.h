@@ -52,8 +52,11 @@ struct interface
 {
     hlist_item h; /**< @brief Parent/child relationship. */
 
-    /** @brief Interface name, e.g. eth0. */
-    char  *name;
+    /** @brief Interface name, e.g. eth0.
+     *
+     * Only set for local interfaces. Other device interface has this as NULL.
+     */
+    const char  *name;
     /** @brief Interface address. */
     mac_address addr;
 
