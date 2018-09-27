@@ -82,6 +82,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
 
     unittest(src/factory/unit_tests/hlist_test.c)
     unittest(src/common/unit_tests/dlist_test.c)
+    unittest(src/common/unit_tests/ptrarray_test.c)
 
     foreach(factory_unit_test 1905_alme 1905_cmdu 1905_tlv lldp_payload lldp_tlv extensions/bbf/bbf_tlv)
         unittest(
