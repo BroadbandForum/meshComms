@@ -31,7 +31,7 @@ struct x1905_tlv_test_vector {
     bool forge;
 };
 
-void get_1905_tlv_test_vectors(hlist_head *test_vectors);
+void get_1905_tlv_test_vectors(dlist_head *test_vectors);
 
 #endif
 

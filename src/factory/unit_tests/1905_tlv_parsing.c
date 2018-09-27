@@ -64,9 +64,9 @@ int main(void)
 {
     int result = 0;
     struct x1905_tlv_test_vector *t;
-    hlist_head test_vectors;
+    dlist_head test_vectors;
 
-    hlist_head_init(&test_vectors);
+    dlist_head_init(&test_vectors);
     get_1905_tlv_test_vectors(&test_vectors);
 
     hlist_for_each(t, test_vectors, struct x1905_tlv_test_vector, h)

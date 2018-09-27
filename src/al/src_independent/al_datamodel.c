@@ -48,7 +48,7 @@ static struct _dataModel
         char               *name;
         uint8_t               mac_address[6];
 
-        hlist_head          neighbors;
+        dlist_head          neighbors;
 
     }                 local_interfaces[20];
 
@@ -260,8 +260,8 @@ static uint8_t _insertNeighbor(char *local_interface_name, uint8_t *al_mac_addre
      * for now there is a separate list per interface, and an alDevice object can be member of maximum one list.
      * That should be replaced with link objects that represent the link between two interfaces.
      */
-    hlist_remove(&neighbor->h);
-    hlist_add_tail(&x->neighbors, &neighbor->h);
+    dlist_remove(&neighbor->h);
+    dlist_add_tail(&x->neighbors, &neighbor->h);
 
     return 1;
 }
@@ -406,7 +406,7 @@ uint8_t DMinsertInterface(char *name, uint8_t *mac_address)
 
                     data_model.local_interfaces[data_model.local_interfaces_nr].name         = strdup(name);
     memcpy(data_model.local_interfaces[data_model.local_interfaces_nr].mac_address,   mac_address, 6);
-    hlist_head_init(&data_model.local_interfaces[data_model.local_interfaces_nr].neighbors);
+    dlist_head_init(&data_model.local_interfaces[data_model.local_interfaces_nr].neighbors);
 
     data_model.local_interfaces_nr++;
 
@@ -469,7 +469,7 @@ uint8_t (*DMgetListOfInterfaceNeighbors(char *local_interface_name, uint8_t *al_
         return NULL;
     }
 
-    *al_mac_addresses_nr = hlist_count(&x->neighbors);
+    *al_mac_addresses_nr = dlist_count(&x->neighbors);
     if (0 == *al_mac_addresses_nr)
     {
         *al_mac_addresses_nr = 0;

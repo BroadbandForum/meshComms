@@ -20,23 +20,23 @@
 #include <utils.h> /* memalloc() */
 #include <string.h> /* memset() */
 
-struct hlist_item *hlist_alloc(size_t size, hlist_head *parent)
+struct hlist_item *hlist_alloc(size_t size, dlist_head *parent)
 {
     hlist_item *ret = memalloc(size);
     memset(ret, 0, size);
-    hlist_head_init(&ret->l);
-    hlist_head_init(&ret->children[0]);
-    hlist_head_init(&ret->children[1]);
+    dlist_head_init(&ret->l);
+    dlist_head_init(&ret->children[0]);
+    dlist_head_init(&ret->children[1]);
     if (parent)
     {
-        hlist_add_tail(parent, ret);
+        dlist_add_tail(parent, ret);
     }
     return ret;
 }
 
-void hlist_delete(hlist_head *list)
+void hlist_delete(dlist_head *list)
 {
-    hlist_head *next = list->next;
+    dlist_head *next = list->next;
 
     /* Since we will free all items in the list, it is not needed to remove them from the list. However, the normal
      * hlist_for_each macro would use the next pointer after the item has been freed. Therefore, we use an open-coded
@@ -45,16 +45,16 @@ void hlist_delete(hlist_head *list)
     {
         hlist_item *item = container_of(next, hlist_item, l);
         next = next->next;
-        hlist_head_init(&item->l);
+        dlist_head_init(&item->l);
         hlist_delete_item(item);
     }
     /* We still have to make sure the list is empty, in case it is reused later. */
-    hlist_head_init(list);
+    dlist_head_init(list);
 }
 
 void hlist_delete_item(hlist_item *item)
 {
-    assert(hlist_empty(&item->l));
+    assert(dlist_empty(&item->l));
     hlist_delete(&item->children[0]);
     hlist_delete(&item->children[1]);
     free(item);

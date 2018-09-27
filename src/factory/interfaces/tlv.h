@@ -27,7 +27,7 @@
  * The concrete TLV types are handled through the tlv_def structure. A TLV implementation must define the full array
  * of TLV types tlv_defs_t. Undefined types can be left as 0.
  *
- * The TLV functions take lists of TLVs, passed in as a hlist_head. TLVs are always allocated and freed as a full list.
+ * The TLV functions take lists of TLVs, passed in as a dlist_head. TLVs are always allocated and freed as a full list.
  */
 
 #include <hlist.h>
@@ -104,7 +104,7 @@ struct tlv_struct_description {
      *
      * If NULL, a default parse function is used based on the field and children descriptions.
      */
-    struct tlv_struct *(*parse)(const struct tlv_struct_description *desc, hlist_head *parent, const uint8_t **buffer, size_t *length);
+    struct tlv_struct *(*parse)(const struct tlv_struct_description *desc, dlist_head *parent, const uint8_t **buffer, size_t *length);
 
     /** @brief TLV structure length virtual function.
      *
@@ -255,7 +255,7 @@ bool tlv_struct_parse_field(struct tlv_struct *item, const struct tlv_struct_fie
  * This is represented as one byte with the number of children, followed by this number of child structures which are
  * all described by the same @a desc.
  */
-bool tlv_struct_parse_list(const struct tlv_struct_description *desc, hlist_head *parent,
+bool tlv_struct_parse_list(const struct tlv_struct_description *desc, dlist_head *parent,
                            const uint8_t **buffer, size_t *length);
 
 /** @brief Forge a TLV structure field.
@@ -269,20 +269,20 @@ bool tlv_struct_forge_field(const struct tlv_struct *item, const struct tlv_stru
  *
  * This is represented as one byte with the number of children, followed by this number of child structures.
  */
-bool tlv_struct_forge_list(const hlist_head *parent, uint8_t **buffer, size_t *length);
+bool tlv_struct_forge_list(const dlist_head *parent, uint8_t **buffer, size_t *length);
 
 /** @brief Calculate the length a list of TLV structures.
  *
  * This is represented as one byte with the number of children, followed by this number of child structures.
  */
-size_t tlv_struct_length_list(const hlist_head *parent);
+size_t tlv_struct_length_list(const dlist_head *parent);
 
 /** @brief Compare two lists of TLV structures.
  *
  * Byte-by-byte comparison of the two lists. Like memcmp, but iterates over the items and their substructures (children)
  * using tlv_struct_compare() and tlv_struct_compare_list(), respectively.
  */
-int tlv_struct_compare_list(const hlist_head *h1, const hlist_head *h2);
+int tlv_struct_compare_list(const dlist_head *h1, const dlist_head *h2);
 
 /** @brief Compare two TLV structures.
  *
@@ -306,7 +306,7 @@ void tlv_struct_print_hex_field(const char *name, const uint8_t *value, size_t l
                                 void (*write_function)(const char *fmt, ...), const char *prefix);
 
 /** @brief Print a list of TLV structures. */
-void tlv_struct_print_list(const hlist_head *list, bool include_index,
+void tlv_struct_print_list(const dlist_head *list, bool include_index,
                            void (*write_function)(const char *fmt, ...), const char *prefix);
 
 /** @brief Print a TLV structure field. */
@@ -436,7 +436,7 @@ const struct tlv_def *tlv_find_def(tlv_defs_t defs, uint8_t tlv_type);
  *
  * @todo aggregation is not implemented at the moment.
  */
-bool tlv_add(tlv_defs_t defs, hlist_head *tlvs, struct tlv *tlv);
+bool tlv_add(tlv_defs_t defs, dlist_head *tlvs, struct tlv *tlv);
 
 /** @brief Parse a list of TLVs.
  *
@@ -455,7 +455,7 @@ bool tlv_add(tlv_defs_t defs, hlist_head *tlvs, struct tlv *tlv);
  *
  * The new TLVs have to be freed by calling hlist_delete() on @a tlvs.
  */
-bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t length);
+bool tlv_parse(tlv_defs_t defs, dlist_head *tlvs, const uint8_t *buffer, size_t length);
 
 /** @brief Forge a list of TLVs.
  *
@@ -477,7 +477,7 @@ bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t 
  *
  * @todo The allocated buffers should have some headroom, so they don't have to be copied again to form a full packet.
  */
-bool tlv_forge(tlv_defs_t defs, const hlist_head *tlvs, size_t max_length, uint8_t **buffer, size_t *length);
+bool tlv_forge(tlv_defs_t defs, const dlist_head *tlvs, size_t max_length, uint8_t **buffer, size_t *length);
 
 /** @brief Declare and allocate a TLV substructure pointer with default naming.
  *

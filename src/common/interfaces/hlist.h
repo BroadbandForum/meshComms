@@ -27,6 +27,7 @@
 #include <utils.h> /* container_of() */
 #include <assert.h>
 #include <stdbool.h>
+#include <dlist.h>
 #include <stddef.h> /* size_t */
 
 /** @brief Maximum number of children in a hlist_item.
@@ -52,15 +53,6 @@ typedef uint8_t mac_address[6];
 #define MAC2STR(a) (a)[0], (a)[1], (a)[2], (a)[3], (a)[4], (a)[5]
 #define MACSTR "%02x:%02x:%02x:%02x:%02x:%02x"
 /** @} */
-
-/** @brief Reference to a hlist.
- *
- * Use hlist_empty() to check if the list is empty.
- */
-typedef struct hlist_head {
-    struct hlist_head *next;
-    struct hlist_head *prev;
-} hlist_head;
 
 /** @brief Hierarchical linked list.
  *
@@ -94,55 +86,9 @@ typedef struct hlist_head {
  * An entire list, including children, can be freed with hlist_delete(), or a single item with hlist_delete_item().
  */
 typedef struct hlist_item {
-    hlist_head l;
-    struct hlist_head children[HLIST_MAX_CHILDREN];
+    dlist_item l;
+    struct dlist_head children[HLIST_MAX_CHILDREN];
 } hlist_item;
-
-/** @brief Initialise an empty hlist_head.
- *
- * Must be called for user-allocated hlist_head before doing any manipulation of the @a head.
- */
-static inline void hlist_head_init(hlist_head *head)
-{
-    head->next = head;
-    head->prev = head;
-}
-
-/** @brief Declaration of static or stack hlist_head variable. May be preceded by the @c static keyword. */
-#define DECLARE_HLIST_HEAD(name) hlist_head name = {&name, &name}
-
-/** @brief Add an element at the front of a list.
- *
- * @param list The list head.
- * @param item The new element to be added to the list.
- * @pre @a list and @a item are not NULL.
- * @pre @a item is not part of a list.
- */
-static inline void hlist_add_head(hlist_head *list, hlist_item *item)
-{
-    item->l.next = list->next;
-    item->l.prev = list;
-    list->next->prev = &item->l;
-    list->next = &item->l;
-}
-
-/** @brief Add an element at the back of a list.
- *
- * @param list The list head.
- * @param item The new element to be added to the list.
- * @pre @a list and @a item are not NULL.
- * @pre @a item is not part of a list.
- */
-static inline void hlist_add_tail(hlist_head *list, hlist_item *item)
-{
-    hlist_add_head(list->prev, item);
-}
-
-/** @brief Check if the list is empty. */
-static inline bool hlist_empty(const hlist_head *list)
-{
-    return list->next == list;
-}
 
 /** @brief Iterate over a hlist (non-recursively)
  *
@@ -165,31 +111,20 @@ static inline bool hlist_empty(const hlist_head *list)
          &(item)->l != &(head); \
          (item) = container_of((item)->l.next, hlist_item, l))
 
-static inline size_t hlist_count(const hlist_head *list)
-{
-    size_t count = 0;
-    hlist_item *item;
-    hlist_for_each_item(item, *list)
-    {
-        count++;
-    }
-    return count;
-}
-
 /** @brief Allocate a hlist_item structure.
  *
  * @internal
  *
  * Do not call this function directly, use the HLIST_ALLOC* family of macros.
  */
-struct hlist_item *hlist_alloc(size_t size, hlist_head *parent);
+struct hlist_item *hlist_alloc(size_t size, dlist_head *parent);
 
 /** @brief Type-safe allocation of a hlist_item.
  *
  * @return A new object of type @a type with all hlist_item members properly initialised.
  * @param type Type of the object to allocate.
  * @param hlist_member Name of the member of @a type that is an hlist_item. Must be the first member.
- * @param parent The parent hlist_head to which to append the new item, or NULL to allocate a loose item.
+ * @param parent The parent dlist_head to which to append the new item, or NULL to allocate a loose item.
  *
  * All the lists are initialized to empty. The entire allocated structure is initialised to 0.
  */
@@ -199,20 +134,12 @@ struct hlist_item *hlist_alloc(size_t size, hlist_head *parent);
         container_of(allocced, type, hlist_member); \
     })
 
-/** @brief Remove an item from its list, without deleting it. */
-static inline void hlist_remove(hlist_item *item)
-{
-    item->l.prev->next = item->l.next;
-    item->l.next->prev = item->l.prev;
-    hlist_head_init(&item->l);
-}
-
 /** @brief Delete a hlist.
  *
  * Recursively delete all elements from @a list. @a list itself is not free()'d, so it can be a static or
  * stack-allocated variable.
  */
-void hlist_delete(hlist_head *list);
+void hlist_delete(dlist_head *list);
 
 /** @brief Delete a hlist item.
  *

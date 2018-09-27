@@ -110,7 +110,7 @@ struct interfaceWifi {
 };
 
 /** @brief Get the list of clients for an interfaceWifi. Elements are of type ::client. */
-static inline hlist_head* interfaceWifiClients(struct interfaceWifi* w)
+static inline dlist_head* interfaceWifiClients(struct interfaceWifi* w)
 {
     return &w->i.h.children[0];
 }
@@ -129,7 +129,7 @@ struct radio {
      *
      * Elements are of type interfaceWifi. Their interfaceWifi::radio pointer points to this object.
      */
-    hlist_head configured_bsses;
+    dlist_head configured_bsses;
 };
 
 /** @brief 1905.1 device.
@@ -144,13 +144,13 @@ struct alDevice {
 };
 
 /** Get the list of interfaces of an alDevice. Elements are of type ::interface. */
-static inline hlist_head* alDeviceInterfaces(struct alDevice *device)
+static inline dlist_head* alDeviceInterfaces(struct alDevice *device)
 {
     return &device->h.children[0];
 }
 
 /** Get the list of radios of an alDevice. Elements are of type ::radio. */
-static inline hlist_head* alDeviceRadios(struct alDevice *device)
+static inline dlist_head* alDeviceRadios(struct alDevice *device)
 {
     return &device->h.children[1];
 }
@@ -253,7 +253,7 @@ static inline bool registrarIsLocal(void)
  *
  * Every discovered alDevice is added to this list. local_device (if it exists) is part of the list.
  */
-extern hlist_head network;
+extern dlist_head network;
 
 void datamodelInit(void);
 

@@ -49,7 +49,7 @@ bool tlv_struct_parse_field(struct tlv_struct *item, const struct tlv_struct_fie
     }
 }
 
-static struct tlv_struct *tlv_struct_parse_single(const struct tlv_struct_description *desc, hlist_head *parent,
+static struct tlv_struct *tlv_struct_parse_single(const struct tlv_struct_description *desc, dlist_head *parent,
                                                   const uint8_t **buffer, size_t *length)
 {
     size_t i;
@@ -75,7 +75,7 @@ err_out:
     return NULL;
 }
 
-bool tlv_struct_parse_list(const struct tlv_struct_description *desc, hlist_head *parent,
+bool tlv_struct_parse_list(const struct tlv_struct_description *desc, dlist_head *parent,
                            const uint8_t **buffer, size_t *length)
 {
     uint8_t children_nr;
@@ -91,7 +91,7 @@ bool tlv_struct_parse_list(const struct tlv_struct_description *desc, hlist_head
     return true;
 }
 
-bool tlv_parse(tlv_defs_t defs, hlist_head *tlvs, const uint8_t *buffer, size_t length)
+bool tlv_parse(tlv_defs_t defs, dlist_head *tlvs, const uint8_t *buffer, size_t length)
 {
     while (length >= 3)    // Minimal TLV: 1 byte type, 2 bytes length
     {
@@ -205,10 +205,10 @@ static bool tlv_struct_forge_single(const struct tlv_struct *item, uint8_t **buf
     return true;
 }
 
-bool tlv_struct_forge_list(const hlist_head *parent, uint8_t **buffer, size_t *length)
+bool tlv_struct_forge_list(const dlist_head *parent, uint8_t **buffer, size_t *length)
 {
     const struct tlv_struct *child;
-    size_t children_nr = hlist_count(parent);
+    size_t children_nr = dlist_count(parent);
     uint8_t children_nr_uint8;
     if (children_nr > UINT8_MAX)
     {
@@ -248,7 +248,7 @@ static size_t tlv_length_single(const struct tlv_struct *item)
     return length;
 }
 
-size_t tlv_struct_length_list(const hlist_head *parent)
+size_t tlv_struct_length_list(const dlist_head *parent)
 {
     size_t length = 0;
     const struct tlv_struct *child;
@@ -261,7 +261,7 @@ size_t tlv_struct_length_list(const hlist_head *parent)
 }
 
 
-bool tlv_forge(tlv_defs_t defs, const hlist_head *tlvs, size_t max_length, uint8_t **buffer, size_t *length)
+bool tlv_forge(tlv_defs_t defs, const dlist_head *tlvs, size_t max_length, uint8_t **buffer, size_t *length)
 {
     size_t total_length;
     uint8_t *p;
@@ -325,19 +325,19 @@ err_out:
     return false;
 }
 
-bool tlv_add(tlv_defs_t defs, hlist_head *tlvs, struct tlv *tlv)
+bool tlv_add(tlv_defs_t defs, dlist_head *tlvs, struct tlv *tlv)
 {
     /** @todo keep ordered, check for duplicates, handle aggregation */
-    hlist_add_tail(tlvs, &tlv->s.h);
+    dlist_add_tail(tlvs, &tlv->s.h);
     return true;
 }
 
 
-int tlv_struct_compare_list(const hlist_head *h1, const hlist_head *h2)
+int tlv_struct_compare_list(const dlist_head *h1, const dlist_head *h2)
 {
     int ret = 0;
-    hlist_head *cur1;
-    hlist_head *cur2;
+    dlist_head *cur1;
+    dlist_head *cur2;
     /* Open-code hlist_for_each because we need to iterate over both at once. */
     for (cur1 = h1->next, cur2 = h2->next;
          ret == 0 && cur1 != h1 && cur2 != h2;
@@ -377,7 +377,7 @@ int tlv_struct_compare(const struct tlv_struct *item1, const struct tlv_struct *
     return ret;
 }
 
-void tlv_struct_print_list(const hlist_head *list, bool include_index, void (*write_function)(const char *fmt, ...), const char *prefix)
+void tlv_struct_print_list(const dlist_head *list, bool include_index, void (*write_function)(const char *fmt, ...), const char *prefix)
 {
     const struct tlv_struct *child;
     char new_prefix[100];

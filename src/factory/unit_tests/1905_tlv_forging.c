@@ -152,9 +152,9 @@ int main(void)
 {
     int result = 0;
     struct x1905_tlv_test_vector *t;
-    hlist_head test_vectors;
-    DECLARE_HLIST_HEAD(list1);
-    DECLARE_HLIST_HEAD(list2);
+    dlist_head test_vectors;
+    DEFINE_DLIST_HEAD(list1);
+    DEFINE_DLIST_HEAD(list2);
     struct associatedClientsTLV *tlv1;
     struct associatedClientsTLV *tlv2;
     struct _associatedClientsBssInfo *bss_info;
@@ -162,7 +162,7 @@ int main(void)
     struct tlv_struct_description bssid_desc;
     const struct tlv_struct_description *bssid_desc_orig;
 
-    hlist_head_init(&test_vectors);
+    dlist_head_init(&test_vectors);
     get_1905_tlv_test_vectors(&test_vectors);
 
     hlist_for_each(t, test_vectors, struct x1905_tlv_test_vector, h)

@@ -32,12 +32,12 @@ struct htest2 {
     char data2[15]; /* The rest of data, used to test the various print formats. */
 };
 
-static int check_count(hlist_head *list, size_t expected_count)
+static int check_count(dlist_head *list, size_t expected_count)
 {
-    size_t real_count = hlist_count(list);
+    size_t real_count = dlist_count(list);
     if (real_count != expected_count)
     {
-        PLATFORM_PRINTF_DEBUG_WARNING("hlist_count result %u but expected %u\n", (unsigned)real_count, (unsigned)expected_count);
+        PLATFORM_PRINTF_DEBUG_WARNING("dlist_count result %u but expected %u\n", (unsigned)real_count, (unsigned)expected_count);
         return 1;
     }
     else
@@ -49,10 +49,10 @@ static int check_count(hlist_head *list, size_t expected_count)
 int main()
 {
     int ret = 0;
-    hlist_head list;
+    dlist_head list;
     struct htest1 *ht1;
 
-    hlist_head_init(&list);
+    dlist_head_init(&list);
     ret += check_count(&list, 0);
     ht1 = HLIST_ALLOC(struct htest1, h, &list);
     ht1->data = 242;
@@ -62,7 +62,7 @@ int main()
     ret += check_count(&list, 1);
     ret += check_count(&ht1->h.children[0], 2);
 
-    hlist_remove(&ht1->h);
+    dlist_remove(&ht1->h);
     ret += check_count(&list, 0);
     hlist_delete_item(&ht1->h);
     /* This also deletes the two htest2 children, but there's no way to check that. */

@@ -62,7 +62,7 @@ static struct tlv_struct_description _supportedServiceDesc = {
  * @{
  */
 
-static struct tlv_struct *linkMetricQueryTLVParse(const struct tlv_struct_description *desc, hlist_head *parent,
+static struct tlv_struct *linkMetricQueryTLVParse(const struct tlv_struct_description *desc, dlist_head *parent,
                                                   const uint8_t **buffer, size_t *length)
 {
     struct linkMetricQueryTLV *self = X1905_TLV_ALLOC(linkMetricQuery, TLV_TYPE_LINK_METRIC_QUERY, parent);
@@ -206,7 +206,7 @@ static bool linkMetricQueryTLVForge(const struct tlv_struct *item, uint8_t **buf
  * @{
  */
 
-static struct tlv_struct *vendorSpecificTLVParse(const struct tlv_struct_description *desc, hlist_head *parent,
+static struct tlv_struct *vendorSpecificTLVParse(const struct tlv_struct_description *desc, dlist_head *parent,
                                                  const uint8_t **buffer, size_t *length)
 {
     struct vendorSpecificTLV *self = X1905_TLV_ALLOC(vendorSpecific, TLV_TYPE_VENDOR_SPECIFIC, parent);
@@ -288,7 +288,7 @@ static int vendorSpecificTLVCompare(const struct tlv_struct *item1, const struct
 
 static const struct tlv_struct_description _apOperationalBssInfoDesc;
 
-static struct tlv_struct *_apOperationalBssInfoParse(const struct tlv_struct_description *desc, hlist_head *parent,
+static struct tlv_struct *_apOperationalBssInfoParse(const struct tlv_struct_description *desc, dlist_head *parent,
                                                      const uint8_t **buffer, size_t *length)
 {
     struct _apOperationalBssInfo *bss_info =
@@ -561,7 +561,7 @@ static tlv_defs_t tlv_1905_defs = {
     ),
 };
 
-struct tlv *x1905TLVAlloc(hlist_head *parent, uint8_t type)
+struct tlv *x1905TLVAlloc(dlist_head *parent, uint8_t type)
 {
     struct tlv *ret = container_of(hlist_alloc(tlv_1905_defs[type].desc.size, parent), struct tlv, s.h);
     ret->s.desc = &tlv_1905_defs[type].desc;
@@ -569,7 +569,7 @@ struct tlv *x1905TLVAlloc(hlist_head *parent, uint8_t type)
     return ret;
 }
 
-struct linkMetricQueryTLV *linkMetricQueryTLVAllocAll(hlist_head *parent, uint8_t link_metrics_type)
+struct linkMetricQueryTLV *linkMetricQueryTLVAllocAll(dlist_head *parent, uint8_t link_metrics_type)
 {
     TLV_DECLARE(ret, tlv_1905_defs, linkMetricQuery, TLV_TYPE_LINK_METRIC_QUERY, parent);
     ret->destination = LINK_METRIC_QUERY_TLV_ALL_NEIGHBORS;
@@ -578,7 +578,7 @@ struct linkMetricQueryTLV *linkMetricQueryTLVAllocAll(hlist_head *parent, uint8_
     return ret;
 }
 
-struct linkMetricQueryTLV *linkMetricQueryTLVAllocSpecific(hlist_head *parent, mac_address neighbour,
+struct linkMetricQueryTLV *linkMetricQueryTLVAllocSpecific(dlist_head *parent, mac_address neighbour,
                                                            uint8_t link_metrics_type)
 {
     TLV_DECLARE(ret, tlv_1905_defs, linkMetricQuery, TLV_TYPE_LINK_METRIC_QUERY, parent);
@@ -589,7 +589,7 @@ struct linkMetricQueryTLV *linkMetricQueryTLVAllocSpecific(hlist_head *parent, m
 }
 
 
-struct supportedServiceTLV *supportedServiceTLVAlloc(hlist_head *parent, bool controller, bool agent)
+struct supportedServiceTLV *supportedServiceTLVAlloc(dlist_head *parent, bool controller, bool agent)
 {
     TLV_DECLARE(ret, tlv_1905_defs, supportedService, TLV_TYPE_SUPPORTED_SERVICE, parent);
     if (controller)
@@ -605,7 +605,7 @@ struct supportedServiceTLV *supportedServiceTLVAlloc(hlist_head *parent, bool co
     return ret;
 }
 
-struct supportedServiceTLV *searchedServiceTLVAlloc(hlist_head *parent, bool controller)
+struct supportedServiceTLV *searchedServiceTLVAlloc(dlist_head *parent, bool controller)
 {
     TLV_DECLARE(ret, tlv_1905_defs, supportedService, TLV_TYPE_SEARCHED_SERVICE, parent);
     if (controller)
@@ -2058,7 +2058,7 @@ struct tlv *parse_1905_TLV_from_packet(const uint8_t *packet_stream)
         default:
         {
             uint16_t len;
-            DECLARE_HLIST_HEAD(dummy);
+            DEFINE_DLIST_HEAD(dummy);
             bool parsed;
             p = packet_stream + 1;
             _E2B(&p, &len);
@@ -2072,7 +2072,7 @@ struct tlv *parse_1905_TLV_from_packet(const uint8_t *packet_stream)
             else
             {
                 struct tlv *tlv = container_of(dummy.next, struct tlv, s.h.l);
-                hlist_head_init(&tlv->s.h.l);
+                dlist_head_init(&tlv->s.h.l);
                 return tlv;
             }
         }
@@ -3160,7 +3160,7 @@ uint8_t *forge_1905_TLV_from_structure(const struct tlv *tlv, uint16_t *len)
         {
             uint8_t *ret = NULL;
             size_t length;
-            DECLARE_HLIST_HEAD(dummy);
+            DEFINE_DLIST_HEAD(dummy);
             tlv_add(tlv_1905_defs, &dummy, (struct tlv*)tlv);
             if (!tlv_forge(tlv_1905_defs, &dummy, MAX_NETWORK_SEGMENT_SIZE, &ret, &length))
             {
@@ -3169,7 +3169,7 @@ uint8_t *forge_1905_TLV_from_structure(const struct tlv *tlv, uint16_t *len)
                 ret = NULL;
             }
             *len = length;
-            hlist_head_init((hlist_head*)&tlv->s.h.l);
+            dlist_head_init((dlist_head*)&tlv->s.h.l);
             return ret;
         }
 
@@ -3512,9 +3512,9 @@ void free_1905_TLV_structure(struct tlv *tlv)
 
         default:
         {
-            DECLARE_HLIST_HEAD(dummy);
-            hlist_head_init(&tlv->s.h.children[0]);
-            hlist_head_init(&tlv->s.h.children[1]);
+            DEFINE_DLIST_HEAD(dummy);
+            dlist_head_init(&tlv->s.h.children[0]);
+            dlist_head_init(&tlv->s.h.children[1]);
             tlv_add(tlv_1905_defs, &dummy, tlv);
             hlist_delete(&dummy);
             return;
@@ -5082,10 +5082,10 @@ void visit_1905_TLV_structure(struct tlv *tlv, visitor_callback callback, void (
 
         default:
         {
-            DECLARE_HLIST_HEAD(dummy);
+            DEFINE_DLIST_HEAD(dummy);
             tlv_add(tlv_1905_defs, &dummy, tlv);
             tlv_struct_print_list(&dummy, false, write_function, prefix);
-            hlist_head_init(&tlv->s.h.l);
+            dlist_head_init(&tlv->s.h.l);
 
             return;
         }

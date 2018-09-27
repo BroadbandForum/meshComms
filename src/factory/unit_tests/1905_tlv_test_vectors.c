@@ -1382,7 +1382,7 @@ static uint16_t x1905_tlv_stream_len_040 = 64;
     v->description = desc; \
     v->parse = true; \
     v->forge = true; \
-    hlist_add_tail(&v->h.children[0], &x1905_tlv_structure_##num.tlv.s.h);
+    dlist_add_tail(&v->h.children[0], &x1905_tlv_structure_##num.tlv.s.h);
 
 #define INIT_TEST_VECTOR(desc, ...) \
     do { \
@@ -1395,7 +1395,7 @@ static uint16_t x1905_tlv_stream_len_040 = 64;
         v->forge = true; \
     } while (0);
 
-void get_1905_tlv_test_vectors(hlist_head *test_vectors)
+void get_1905_tlv_test_vectors(dlist_head *test_vectors)
 {
     struct x1905_tlv_test_vector *v;
 

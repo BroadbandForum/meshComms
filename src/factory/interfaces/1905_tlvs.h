@@ -349,8 +349,8 @@ struct linkMetricQueryTLV
     uint8_t  link_metrics_type;     // One of the values from above
 };
 
-struct linkMetricQueryTLV *linkMetricQueryTLVAllocAll(hlist_head *parent, uint8_t link_metrics_type);
-struct linkMetricQueryTLV *linkMetricQueryTLVAllocSpecific(hlist_head *parent, mac_address neighbour,
+struct linkMetricQueryTLV *linkMetricQueryTLVAllocAll(dlist_head *parent, uint8_t link_metrics_type);
+struct linkMetricQueryTLV *linkMetricQueryTLVAllocSpecific(dlist_head *parent, mac_address neighbour,
                                                            uint8_t link_metrics_type);
 
 
@@ -932,8 +932,8 @@ struct supportedServiceTLV
     struct tlv   tlv; /**< @brief TLV type, must always be set to TLV_TYPE_SUPPORTED_SERVICE. */
 };
 
-struct supportedServiceTLV *supportedServiceTLVAlloc(hlist_head *parent, bool controller, bool agent);
-struct supportedServiceTLV *searchedServiceTLVAlloc(hlist_head *parent, bool controller);
+struct supportedServiceTLV *supportedServiceTLVAlloc(dlist_head *parent, bool controller, bool agent);
+struct supportedServiceTLV *searchedServiceTLVAlloc(dlist_head *parent, bool controller);
 
 /** @} */
 
@@ -1082,7 +1082,7 @@ uint8_t *forge_1905_TLV_from_structure(const struct tlv *memory_structure, uint1
  *
  * The TLV is allocated without children and with all fields set to 0.
  */
-struct tlv *x1905TLVAlloc(hlist_head *parent, uint8_t type);
+struct tlv *x1905TLVAlloc(dlist_head *parent, uint8_t type);
 
 #define X1905_TLV_ALLOC(tlv_name, tlv_type, parent) \
     container_of(x1905TLVAlloc(parent, tlv_type), struct tlv_name ## TLV, tlv);

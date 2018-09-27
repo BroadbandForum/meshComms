@@ -926,7 +926,7 @@ void _freeLocalL2NeighborsTLV(struct l2NeighborDeviceTLV *l2_neighbors)
 // Given a pointer to a preallocated "alMacAddressTypeTLV" structure, fill it
 // with all the pertaining information retrieved from the local device.
 //
-static struct alMacAddressTypeTLV *_obtainLocalAlMacAddressTLV(hlist_head *parent)
+static struct alMacAddressTypeTLV *_obtainLocalAlMacAddressTLV(dlist_head *parent)
 {
     struct alMacAddressTypeTLV *al_mac_tlv =
             X1905_TLV_ALLOC(alMacAddressType, TLV_TYPE_AL_MAC_ADDRESS_TYPE, parent);
@@ -1491,7 +1491,7 @@ uint8_t _reStructureMetricsTLVs(struct transmitterLinkMetricTLV ***tx,
 // structure, fill it with all the pertaining information retrieved from the
 // local device.
 //
-static struct supportedServiceTLV *_obtainLocalSupportedServicesTLV(hlist_head *parent)
+static struct supportedServiceTLV *_obtainLocalSupportedServicesTLV(dlist_head *parent)
 {
     /* Always and agent, controller if registrarIsLocal() is true. */
     return supportedServiceTLVAlloc(parent, registrarIsLocal(), true);
@@ -1501,7 +1501,7 @@ static struct supportedServiceTLV *_obtainLocalSupportedServicesTLV(hlist_head *
 // structure, fill it with all the pertaining information retrieved from the
 // local device.
 //
-static struct apOperationalBssTLV *_obtainLocalApOperationalBssTLV(hlist_head *parent)
+static struct apOperationalBssTLV *_obtainLocalApOperationalBssTLV(dlist_head *parent)
 {
     char **ifs_names;
     uint8_t  ifs_nr;

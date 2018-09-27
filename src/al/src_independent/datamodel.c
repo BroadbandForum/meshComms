@@ -42,7 +42,7 @@ struct registrar registrar = {
     }
 };
 
-DECLARE_HLIST_HEAD(network);
+DEFINE_DLIST_HEAD(network);
 
 void datamodelInit(void)
 {
