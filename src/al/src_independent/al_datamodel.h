@@ -44,7 +44,7 @@ uint8_t *DMalMacGet(void);
 // Later, anyone can consult this value with "DMmapWholeNetworkGet()"
 //
 void  DMmapWholeNetworkSet(uint8_t map_whole_network_flag);
-uint8_t DMmapWholeNetworkGet();
+uint8_t DMmapWholeNetworkGet(void);
 
 // When a new local interface is made available to the AL entity, this function
 // must be called to update the database.
@@ -59,7 +59,7 @@ uint8_t DMinsertInterface(char *name, uint8_t *mac_address);
 //
 // Returned values must not be freed.
 //
-char *DMmacToInterfaceName(const uint8_t *mac_address);
+const char *DMmacToInterfaceName(const uint8_t *mac_address);
 uint8_t *DMinterfaceNameToMac(const char *interface_name);
 
 

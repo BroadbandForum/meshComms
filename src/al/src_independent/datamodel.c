@@ -17,6 +17,8 @@
  */
 
 #include <datamodel.h>
+
+#include <assert.h>
 #include <string.h> // memcpy
 
 #define EMPTY_MAC_ADDRESS {0, 0, 0, 0, 0, 0}
@@ -48,10 +50,131 @@ void datamodelInit(void)
 {
 }
 
-struct alDevice *alDeviceAlloc(mac_address al_mac_addr)
+struct alDevice *alDeviceAlloc(const mac_address al_mac_addr)
 {
-    struct alDevice *ret = HLIST_ALLOC(struct alDevice, h, &network);
+    struct alDevice *ret = memalloc(sizeof(struct alDevice));
+    dlist_add_tail(&network, &ret->l);
     memcpy(ret->al_mac_addr, al_mac_addr, 6);
+    dlist_head_init(&ret->interfaces);
     ret->is_map_agent = false;
     return ret;
 }
+
+void alDeviceDelete(struct alDevice *alDevice)
+{
+    while (!dlist_empty(&alDevice->interfaces))
+    {
+        struct interface *interface = container_of(dlist_get_first(&alDevice->interfaces), struct interface, l);
+        interfaceDelete(interface);
+    }
+    free(alDevice);
+}
+
+struct interface *interfaceAlloc(const mac_address addr, struct alDevice *owner)
+{
+    struct interface *ret;
+    ret = memalloc(sizeof(*ret));
+    memset(ret, 0, sizeof(*ret));
+    ret->type = interface_type_unknown;
+    memcpy(ret->addr, addr, 6);
+    if (owner != NULL)
+    {
+        alDeviceAddInterface(owner, ret);
+    }
+    return ret;
+}
+
+void interfaceDelete(struct interface *interface)
+{
+    unsigned i;
+    for (i = 0; i < interface->neighbors.length; i++)
+    {
+        interfaceRemoveNeighbor(interface, interface->neighbors.data[i]);
+    }
+    /* Even if the interface doesn't have an owner, removing it from the empty list doesn't hurt. */
+    dlist_remove(&interface->l);
+    free(interface);
+}
+
+
+void interfaceAddNeighbor(struct interface *interface, struct interface *neighbor)
+{
+    PTRARRAY_ADD(interface->neighbors, neighbor);
+    PTRARRAY_ADD(neighbor->neighbors, interface);
+}
+
+void interfaceRemoveNeighbor(struct interface *interface, struct interface *neighbor)
+{
+    PTRARRAY_REMOVE_ELEMENT(interface->neighbors, neighbor);
+    PTRARRAY_REMOVE_ELEMENT(neighbor->neighbors, interface);
+    if (neighbor->owner == NULL && neighbor->neighbors.length == 0)
+    {
+        /* No more references to the neighbor interface. */
+        free(neighbor);
+    }
+}
+
+void alDeviceAddInterface(struct alDevice *device, struct interface *interface)
+{
+    assert(interface->owner == NULL);
+    dlist_add_tail(&device->interfaces, &interface->l);
+    interface->owner = device;
+}
+
+struct alDevice *alDeviceFind(const mac_address al_mac_addr)
+{
+    struct alDevice *ret;
+    dlist_for_each(ret, network, l)
+    {
+        if (memcmp(ret->al_mac_addr, al_mac_addr, 6) == 0)
+            return ret;
+    }
+    return NULL;
+}
+
+struct interface *alDeviceFindInterface(const struct alDevice *device, const mac_address addr)
+{
+    struct interface *ret;
+    dlist_for_each(ret, device->interfaces, l)
+    {
+        if (memcmp(ret->addr, addr, 6) == 0)
+        {
+            return ret;
+        }
+    }
+    return NULL;
+}
+
+struct interface *findDeviceInterface(const mac_address addr)
+{
+    struct alDevice *alDevice;
+    struct interface *ret = NULL;
+
+    dlist_for_each(alDevice, network, l)
+    {
+        ret = alDeviceFindInterface(alDevice, addr);
+        if (ret != NULL)
+        {
+            return ret;
+        }
+    }
+    return NULL;
+}
+
+struct interface *findLocalInterface(const char *name)
+{
+    struct interface *ret;
+    if (local_device == NULL)
+    {
+        return NULL;
+    }
+    dlist_for_each(ret, local_device->interfaces, l)
+    {
+        if (strcmp(ret->name, name) == 0)
+        {
+            return ret;
+        }
+    }
+    return NULL;
+}
+

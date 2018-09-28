@@ -97,6 +97,19 @@ static inline bool dlist_empty(const dlist_head *list)
     return list->next == list;
 }
 
+/** @brief Get the first element of a dlist, NULL if empty. */
+static inline dlist_item *dlist_get_first(const dlist_head *list)
+{
+    if (list->next == list)
+    {
+        return NULL;
+    }
+    else
+    {
+        return list->next;
+    }
+}
+
 /** @brief Iterate over a dlist.
  *
  * @param item the iterator variable. This must be a pointer to a struct that contains a dlist_item.

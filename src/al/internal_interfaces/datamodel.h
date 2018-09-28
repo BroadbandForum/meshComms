@@ -20,6 +20,7 @@
 #define DATAMODEL_H
 
 #include <tlv.h> // ssid
+#include <ptrarray.h>
 
 #include <stdbool.h> // bool
 #include <stddef.h>  // size_t
@@ -39,6 +40,7 @@ struct bssInfo {
 };
 
 enum interfaceType {
+    interface_type_unknown = -1, /**< Interface was created without further information. */
     interface_type_ethernet = 0, /**< Wired ethernet interface. */
     interface_type_wifi = 1,     /**< 802.11 wireless interface. */
     interface_type_other = 255,  /**< Other interfaces types, not supported by this data model. */
@@ -47,10 +49,18 @@ enum interfaceType {
 /** @brief Definition of an interface
  *
  * The interface stores some information, but mostly the information is retrieved through callback functions.
+ *
+ * An interface may be created either because it belongs to an alDevice, or because it is a neighbor of an interface
+ * that belongs to an alDevice.
+ *
+ * When an interface is added as the neighbor of another interface, the inverse relationship is added as well.
+ *
+ * When an interface is removed as the neighbor of another interface, and the interface does not belong to an alDevice,
+ * it is destroyed.
  */
 struct interface
 {
-    hlist_item h; /**< @brief Parent/child relationship. */
+    dlist_item l; /**< @brief Membership of the owner's alDevice::interfaces */
 
     /** @brief Interface name, e.g. eth0.
      *
@@ -63,6 +73,9 @@ struct interface
     /** @brief Interface type. This indicates the subclass of the interface struct. */
     enum interfaceType type;
 
+    /** @brief If the interface belongs to a 1905.1/EasyMesh device, this points to the owning device. */
+    struct alDevice *owner;
+
     /** @brief IEEE 1905.1a Media Type, as per "IEEE Std 1905.1-2013, Table 6-12". */
     uint16_t media_type;
 
@@ -72,13 +85,18 @@ struct interface
 
     /** @brief Info to control discovery messages sent to this interface.
      *
-     * For interfaces on the local device, these are unused.
+     * These are only valid for interfaces that are direct neighbors of the local device.
+     *
+     * @todo these don't belong here, because a single neighbor interface may be linked with multiple local interfaces.
      *
      * @{
      */
     uint32_t              last_topology_discovery_ts;
     uint32_t              last_bridge_discovery_ts;
     /** @} */
+
+    /** @brief Neighbour interfaces. */
+    PTRARRAY(struct interface *) neighbors;
 };
 
 enum interfaceWifiRole {
@@ -107,13 +125,15 @@ struct interfaceWifi {
 
     /** @brief Radio on which this interface is active. Must not be NULL. */
     struct radio *radio;
-};
 
-/** @brief Get the list of clients for an interfaceWifi. Elements are of type ::client. */
-static inline dlist_head* interfaceWifiClients(struct interfaceWifi* w)
-{
-    return &w->i.h.children[0];
-}
+    /** @brief Clients connected to this BSS.
+     *
+     * Only valid if this is an AP.
+     *
+     * These are also included in interface::neighbors.
+     */
+    PTRARRAY(struct interfaceWifi *) clients;
+};
 
 /** @brief Wi-Fi radio.
  *
@@ -121,8 +141,6 @@ static inline dlist_head* interfaceWifiClients(struct interfaceWifi* w)
  * AP and can join exactly one BSSID.
  */
 struct radio {
-    hlist_item h;
-
     mac_address uid; /**< @brief Radio Unique Identifier for this radio. */
 
     /**< @brief List of BSSes configured for this radio.
@@ -137,25 +155,14 @@ struct radio {
  * Representation of a 1905.1 device in the network, discovered through topology discovery.
  */
 struct alDevice {
-    hlist_item h;
+    dlist_item l; /**< @brief Membership of ::network */
 
     mac_address al_mac_addr; /**< @brief 1905.1 AL MAC address for this device. */
+    dlist_head interfaces; /**< @brief The interfaces belonging to this device. */
+    PTRARRAY(struct radio *) radios; /**< @brief The radios belonging to this device. */
+
     bool is_map_agent; /**< @brief true if this device is a Multi-AP Agent. */
 };
-
-/** Get the list of interfaces of an alDevice. Elements are of type ::interface. */
-static inline dlist_head* alDeviceInterfaces(struct alDevice *device)
-{
-    return &device->h.children[0];
-}
-
-/** Get the list of radios of an alDevice. Elements are of type ::radio. */
-static inline dlist_head* alDeviceRadios(struct alDevice *device)
-{
-    return &device->h.children[1];
-}
-
-struct alDevice *alDeviceAlloc(mac_address al_mac_addr);
 
 /** @brief The local AL device.
  *
@@ -239,6 +246,64 @@ extern struct registrar {
     struct wscDeviceData wsc_data[3];
 } registrar;
 
+/** @brief The network, i.e. a list of all discovered devices.
+ *
+ * Every discovered alDevice is added to this list. local_device (if it exists) is part of the list.
+ */
+extern dlist_head network;
+
+
+/** @brief Initialize the data model. Must be called before anything else. */
+void datamodelInit(void);
+
+/** @brief Add a @a neighbor as a neighbor of @a interface. */
+void interfaceAddNeighbor(struct interface *interface, struct interface *neighbor);
+
+/** @brief Remove a @a neighbor as a neighbor of @a interface.
+ *
+ * @a neighbor may be free'd by this function. If the @a neighbor is not owned by an alDevice, and the neighbor has no
+ * other neighbors, it is deleted.
+ */
+void interfaceRemoveNeighbor(struct interface *interface, struct interface *neighbor);
+
+/** @brief Allocate a new alDevice. */
+struct alDevice *alDeviceAlloc(const mac_address al_mac_addr);
+
+/** @brief Delete a device and all its interfaces. */
+void alDeviceDelete(struct alDevice *alDevice);
+
+/** @brief Allocate a new interface, with optional owning device.
+ *
+ * If the owner is NULL, the interface must be added as a neighbor of another interface, to make sure it is still
+ * referenced.
+ */
+struct interface *interfaceAlloc(const mac_address addr, struct alDevice *owner);
+
+/** @brief Delete an interface and all its neighbors. */
+void interfaceDelete(struct interface *interface);
+
+/** @brief Associate an interface with an alDevice.
+ *
+ * The interface must not be associated with another device already.
+ */
+void alDeviceAddInterface(struct alDevice *device, struct interface *interface);
+
+/** @brief Find an alDevice based on its AL-MAC address. */
+struct alDevice *alDeviceFind(const mac_address al_mac_addr);
+
+/** @brief Find the interface belonging to a specific device. */
+struct interface *alDeviceFindInterface(const struct alDevice *device, const mac_address addr);
+
+/** @brief Find the interface belonging to any device.
+ *
+ * Only interfaces that are owned by a 1905 device are taken into account, not non-1905 neighbors.
+ */
+struct interface *findDeviceInterface(const mac_address addr);
+
+/** @brief Find the local interface with a specific interface name. */
+struct interface *findLocalInterface(const char *name);
+
+
 /** @brief true if the local device is a registrar/controller, false if not.
  *
  * If there is no local device, it is always false (even a MultiAP Controller without Agent must have an AL MAC
@@ -248,13 +313,5 @@ static inline bool registrarIsLocal(void)
 {
     return local_device != NULL && local_device == registrar.d;
 }
-
-/** @brief The network, i.e. a list of all discovered devices.
- *
- * Every discovered alDevice is added to this list. local_device (if it exists) is part of the list.
- */
-extern dlist_head network;
-
-void datamodelInit(void);
 
 #endif // DATAMODEL_H
