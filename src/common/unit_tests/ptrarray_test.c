@@ -38,7 +38,8 @@ static int check_count(unsigned expected_count)
 
 static int check_values(const unsigned values[])
 {
-    for (unsigned i = 0; i < ptrarray.length; i++)
+    unsigned i;
+    for (i = 0; i < ptrarray.length; i++)
     {
         if (values[i] == 0)
         {
