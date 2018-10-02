@@ -16,6 +16,8 @@
  *  limitations under the License.
  */
 
+#include "hlist.h"
+
 #include "platform.h"
 #include "platform_interfaces_priv.h"            // addInterface
 #include "platform_interfaces_ghnspirit_priv.h"  // registerGhnSpiritInterfaceType
@@ -35,77 +37,6 @@
 // Port number where the ALME server will be listening to by default
 //
 #define DEFAULT_ALME_SERVER_PORT 8888
-
-// Convert a character to lower case
-//
-static char _asciiToLowCase (char c)
-{
-    if (c >= 'a' && c <= 'z')
-    {
-        return c;
-    }
-    else if (c >= 'A' && c <= 'Z')
-    {
-        return c + ('a' - 'A');
-    }
-    else
-    {
-        return c;
-    }
-}
-
-// Convert a MAC string representation (example: "0a:fa:41:a3:ff:40") into a
-// six bytes array (example: {0x0a, 0xfa, 0x41, 0xa3, 0xff, 0x40})
-//
-static void _asciiToMac (const char *str, uint8_t *addr)
-{
-    int i = 0;
-
-    if (NULL == str)
-    {
-        addr[0] = 0x00;
-        addr[1] = 0x00;
-        addr[2] = 0x00;
-        addr[3] = 0x00;
-        addr[4] = 0x00;
-        addr[5] = 0x00;
-
-        return;
-    }
-
-    while (0x00 != *str && i < 6)
-    {
-        uint8_t byte = 0;
-
-        while (0x00 != *str && ':' != *str)
-        {
-            char low;
-
-            byte <<= 4;
-            low    = _asciiToLowCase (*str);
-
-            if (low >= 'a')
-            {
-                byte |= low - 'a' + 10;
-            }
-            else
-            {
-                byte |= low - '0';
-            }
-            str++;
-        }
-
-        addr[i] = byte;
-        i++;
-
-        if (*str == 0)
-        {
-            break;
-        }
-
-        str++;
-      }
-}
 
 // This function receives a comma separated list of interface names (example:
 // "eth0,eth1,wlan0") and, for each of them, calls "addInterface()" (example:
@@ -176,7 +107,7 @@ static void _printUsage(char *program_name)
 
 int main(int argc, char *argv[])
 {
-    uint8_t al_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    mac_address al_mac_address = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     uint8_t map_whole_network = 0;
 
     int   c;
@@ -271,7 +202,7 @@ int main(int argc, char *argv[])
     PLATFORM_PRINTF_DEBUG_SET_VERBOSITY_LEVEL(verbosity_counter);
 
     _parseInterfacesList(al_interfaces);
-    _asciiToMac(al_mac, al_mac_address);
+    asciiToMac(al_mac, &al_mac_address);
 
     almeServerPortSet(alme_port_number);
 

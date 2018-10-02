@@ -52,6 +52,19 @@ typedef uint8_t mac_address[6];
  */
 #define MAC2STR(a) (a)[0], (a)[1], (a)[2], (a)[3], (a)[4], (a)[5]
 #define MACSTR "%02x:%02x:%02x:%02x:%02x:%02x"
+
+/** @brief Convert a @a string to a @a mac_address
+ *
+ *  Convert a MAC string representation (example: "0a:fa:41:a3:ff:40") into a
+ *  six bytes array (example: {0x0a, 0xfa, 0x41, 0xa3, 0xff, 0x40})
+ *
+ *  @pre        @a string must be valid (case insensitive) or NULL
+ *  @return     Pointer to the output mac_address
+ */
+extern mac_address *    asciiToMac(
+                            const char *,   /**< Input string (can be NULL) */
+                            mac_address *); /**< Output mac_address */
+
 /** @} */
 
 /** @brief Hierarchical linked list.
