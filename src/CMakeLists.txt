@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_library(prplMesh STATIC
+add_library(${libname} STATIC
     1905_alme.c
     1905_cmdus.c
     1905_tlvs.c
@@ -36,15 +36,20 @@ add_library(prplMesh STATIC
     tlv.c
     utils.c)
 
+install(TARGETS ${libname} DESTINATION lib COMPONENT Devel)
+
 if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
+
     find_package(OpenSSL REQUIRED)
     find_package(Threads REQUIRED)
 
     find_package(PkgConfig)
     pkg_check_modules(NL3 libnl-3.0 libnl-genl-3.0 REQUIRED)
 
-    set_property(TARGET prplMesh APPEND PROPERTY COMPILE_OPTIONS ${NL3_CFLAGS})
-    target_sources(prplMesh PRIVATE
+    find_library(LIBRT rt)
+
+    set_property(TARGET ${libname} APPEND PROPERTY COMPILE_OPTIONS ${NL3_CFLAGS})
+    target_sources(${libname} PRIVATE
          linux/netlink_collect.c
          linux/netlink_socks.c
          linux/netlink_utils.c
@@ -56,20 +61,17 @@ if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
          linux/platform_interfaces_simulated.c
          linux/platform_interfaces_wrt1900acx.c
          linux/platform_os.c)
-endif (${CMAKE_SYSTEM_NAME} MATCHES Linux)
 
-
-if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
     add_executable(al_entity linux/al_entity/al_entity_main.c)
-    target_link_libraries(al_entity prplMesh OpenSSL::Crypto Threads::Threads ${NL3_LIBRARIES})
-
-    find_library(LIBRT rt)
+    target_link_libraries(al_entity ${libname} OpenSSL::Crypto Threads::Threads ${NL3_LIBRARIES})
     if (LIBRT)
         target_link_libraries(al_entity rt)
     endif (LIBRT)
+    install(TARGETS al_entity DESTINATION bin)
 
     add_executable(hl_entity linux/hl_entity/hl_entity_main.c)
-    target_link_libraries(hl_entity prplMesh OpenSSL::Crypto Threads::Threads)
+    target_link_libraries(hl_entity ${libname} OpenSSL::Crypto Threads::Threads)
+    install(TARGETS hl_entity DESTINATION bin)
 
 endif (${CMAKE_SYSTEM_NAME} MATCHES Linux)
 

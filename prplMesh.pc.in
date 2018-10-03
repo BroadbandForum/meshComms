@@ -1,0 +1,11 @@
+prefix=@DEST_DIR@
+exec_prefix=${prefix}
+libdir=${prefix}/@LIB_INSTALL_DIR@
+includedir=${prefix}/@INCLUDE_INSTALL_DIR@
+
+Name: @libname@
+Description: IEEE 1905.1 and Wi-Fi Multi-AP stack
+Version: @prplMesh_VERSION@
+
+Libs: -L${libdir} @PRIVATE_LIBS@
+Cflags: -I${includedir}
