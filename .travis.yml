@@ -26,5 +26,5 @@ addons:
 sudo: required
 
 script:
-  - ( cd src && doxygen )
+  - doxygen
   - cmake . && make && make test
