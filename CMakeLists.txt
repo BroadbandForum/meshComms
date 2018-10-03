@@ -68,6 +68,12 @@ if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
         target_link_libraries(al_entity rt)
     endif (LIBRT)
 
+    find_package(PkgConfig)
+    pkg_check_modules(NL3 libnl-3.0 libnl-genl-3.0 REQUIRED)
+
+    set_property(TARGET al_entity APPEND PROPERTY COMPILE_OPTIONS ${NL3_CFLAGS})
+    target_link_libraries(al_entity ${NL3_LIBRARIES})
+
     file (GLOB hleExeSrcs src/hle/src_linux/*.c)
     add_executable(hle_entity ${hleExeSrcs})
     target_link_libraries(hle_entity factory common OpenSSL::Crypto Threads::Threads)
