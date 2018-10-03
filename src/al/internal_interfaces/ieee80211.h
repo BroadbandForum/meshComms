@@ -31,12 +31,12 @@
 
 /**
  * struct ieee80211_mcs_info - MCS information
- * @rx_mask: RX mask
- * @rx_highest: highest supported RX rate. If set represents
+ * @param rx_mask: RX mask
+ * @param rx_highest: highest supported RX rate. If set represents
  *      the highest supported RX data rate in units of 1 Mbps.
  *      If this field is 0 this value should not be used to
  *      consider the highest RX data rate supported.
- * @tx_params: TX parameters
+ * @param tx_params: TX parameters
  */
 struct ieee80211_mcs_info {
 	__u8 rx_mask[IEEE80211_HT_MCS_MASK_LEN];

@@ -367,8 +367,6 @@ struct tlv_def
  * @param tlv_name The name of the TLV, typically in lowerCamelCase.
  * @param tlv_type The definition of the TLV type.
  * @param child Pointer to the description of the first child structure.
- * @param field1 Name of the first field.
- * @param fmt1 How the first field must be formatted while printing.
  * @param ... Other arguments can be passed to override the virtual functions.
  *
  * @{
@@ -381,6 +379,14 @@ struct tlv_def
         __VA_ARGS__ \
     )
 
+/** @brief Helpers to do static initialization of tlv_defs_t for a structure with 1 field.
+ * @param tlv_name The name of the TLV, typically in lowerCamelCase.
+ * @param tlv_type The definition of the TLV type.
+ * @param child Pointer to the description of the first child structure.
+ * @param field1 Name of the first field.
+ * @param fmt1 How the first field must be formatted while printing.
+ * @param ... Other arguments can be passed to override the virtual functions.
+ */
 #define TLV_DEF_ENTRY_1FIELDS(tlv_name, tlv_type, child, field1, fmt1, ...) \
     TLV_DEF_ENTRY_INTERNAL(tlv_name, tlv_type, child, \
         .fields = { \

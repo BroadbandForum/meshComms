@@ -50,8 +50,8 @@
     }
  * @endcode
  *
- * Note that @type may be any type (it must be a scalar type because other macros use assignment and comparison on it).
- * Normally it is a pointer type (hence the name pointer array).
+ * Note that @a type may be any type (it must be a scalar type because other macros use assignment and comparison on
+ * it). Normally it is a pointer type (hence the name pointer array).
  */
 #define PTRARRAY(type) \
     struct { \

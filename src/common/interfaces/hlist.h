@@ -62,8 +62,9 @@ typedef uint8_t mac_address[6];
  *  @return     Pointer to the output mac_address
  */
 extern mac_address *    asciiToMac(
-                            const char *,   /**< Input string (can be NULL) */
-                            mac_address *); /**< Output mac_address */
+                            const char *string, /**< Input string (must be valid, can be NULL) */
+                            mac_address *mac    /**< Output mac_address */
+                        );
 
 /** @} */
 

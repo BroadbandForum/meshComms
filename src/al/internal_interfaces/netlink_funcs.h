@@ -45,15 +45,17 @@ struct _phy {
 /** @brief  Collect some infos from sysfs (mac, index, ...)
  *  @return >0:success, 0:not found, <0:error
  */
-extern int          phy_lookup(
-                        struct _phy *,              /**< Phy's informations found */
-                        const char *);              /**< Name of the radio interface (phy? in /sys/class/ieee80211) */
+extern int  phy_lookup(
+                struct _phy *phy,   /**< Phy's informations found */
+                const char *name    /**< Name of the radio interface (phy? in /sys/class/ieee80211) */
+            );
 
 /** @brief  Add all the local radios found with their collected datas into the datamodel
  *  @return 0:success, <0:error
  */
-extern int          add_local_radios(
-                        struct alDevice *);         /**< ::alDevice on which this radio belongs */
+extern int  add_local_radios(
+                struct alDevice *aldev  /**< ::alDevice on which this radio belongs */
+            );
 
 /** @brief  Open a netlink socket and issue a netlink command
  *
@@ -62,10 +64,11 @@ extern int          add_local_radios(
  *
  *  @return 0:success, <0:error
  */
-extern int          netlink_process(
-                        enum nl80211_commands,            /**< Netlink request command */
-                        int,                              /**< Radio index (_phy::index) */
-                        int (*)(struct nl_msg *, void *), /**< Callback to process the datas returned by the command */
-                        void *);                          /**< Callback's datas */
+extern int  netlink_process(
+                enum nl80211_commands cmd,          /**< Netlink request command */
+                int device_index,                   /**< Radio index (_phy::index) */
+                int (*cb)(struct nl_msg *, void *), /**< Callback to process the datas returned by the command */
+                void *db_datas                      /**< Callback's datas */
+            );
 
 #endif
