@@ -128,11 +128,11 @@ static int nl80211_init(struct nl80211_state *state)
         goto out_handle_destroy;
     }
     nl_socket_set_buffer_size(state->nl_sock, 8192, 8192);
-
+#ifdef NETLINK_EXT_ACK
     /* try to set NETLINK_EXT_ACK to 1, ignoring errors */
     err = 1;
     setsockopt(nl_socket_get_fd(state->nl_sock), SOL_NETLINK, NETLINK_EXT_ACK, &err, sizeof(err));
-
+#endif
     state->nl80211_id = genl_ctrl_resolve(state->nl_sock, "nl80211");
     if ( state->nl80211_id < 0 ) {
         PLATFORM_PRINTF("ERROR! nl80211 not found !");
