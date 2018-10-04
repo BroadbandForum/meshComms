@@ -60,36 +60,42 @@
 
 static int error_handler(struct sockaddr_nl *nla, struct nlmsgerr *err, void *arg)
 {
-	struct nlmsghdr *nlh = (struct nlmsghdr *)err - 1;
-	unsigned         len = nlh->nlmsg_len;
-	struct nlattr   *attrs;
-	struct nlattr   *tb[NLMSGERR_ATTR_MAX + 1];
-	unsigned         ack_len = sizeof(*nlh) + sizeof(int) + sizeof(*nlh);
+    PLATFORM_PRINTF_DEBUG_INFO("** error_handler() called **");
 
-	PLATFORM_PRINTF_DEBUG_INFO("** error_handler() called **");
+    *(int *)arg = err->error;
 
-	*(int *)arg = err->error;
+#ifdef NLM_F_ACK_TLVS
+    {
+        struct nlmsghdr *nlh = (struct nlmsghdr *)err - 1;
+        unsigned         len = nlh->nlmsg_len;
+        struct nlattr   *attrs;
+        struct nlattr   *tb[NLMSGERR_ATTR_MAX + 1];
+        unsigned         ack_len = sizeof(*nlh) + sizeof(int) + sizeof(*nlh);
 
-	if ( ! (nlh->nlmsg_flags & NLM_F_ACK_TLVS) )
-	    return NL_STOP;
+        /* netlink: extended ACK reporting
+         * Only since kernel 4.11.0-rc5
+         */
+        if ( ! (nlh->nlmsg_flags & NLM_F_ACK_TLVS) )
+            return NL_STOP;
 
-	if ( ! (nlh->nlmsg_flags & NLM_F_CAPPED) )
-		ack_len += err->msg.nlmsg_len - sizeof(*nlh);
+        if ( ! (nlh->nlmsg_flags & NLM_F_CAPPED) )
+            ack_len += err->msg.nlmsg_len - sizeof(*nlh);
 
-	if ( len <= ack_len )
-		return NL_STOP;
+        if ( len <= ack_len )
+            return NL_STOP;
 
-	attrs = (void *)((unsigned char *)nlh + ack_len);
-	len  -= ack_len;
+        attrs = (void *)((unsigned char *)nlh + ack_len);
+        len  -= ack_len;
 
-	nla_parse(tb, NLMSGERR_ATTR_MAX, attrs, len, NULL);
+        nla_parse(tb, NLMSGERR_ATTR_MAX, attrs, len, NULL);
 
-	if ( tb[NLMSGERR_ATTR_MSG] ) {
-	    len = strnlen((char *)nla_data(tb[NLMSGERR_ATTR_MSG]), nla_len(tb[NLMSGERR_ATTR_MSG]));
-		PLATFORM_PRINTF_DEBUG_ERROR("kernel reports: %*s\n"
-		        , len, (char *)nla_data(tb[NLMSGERR_ATTR_MSG]));
-	}
-	return NL_STOP;
+        if ( tb[NLMSGERR_ATTR_MSG] ) {
+            len = strnlen((char *)nla_data(tb[NLMSGERR_ATTR_MSG]), nla_len(tb[NLMSGERR_ATTR_MSG]));
+            PLATFORM_PRINTF_DEBUG_ERROR("kernel reports: %*s\n", len, (char *)nla_data(tb[NLMSGERR_ATTR_MSG]));
+        }
+    }
+#endif
+    return NL_STOP;
 }
 
 static int finish_handler(struct nl_msg *msg, void *arg)
