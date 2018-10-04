@@ -27,6 +27,8 @@
 #include "netlink_funcs.h"
 #include "hlist.h"
 
+extern const char *__sysfs_ieee80211;
+
 int phy_lookup(struct _phy *p, const char *name)
 {
     char    buf[256];
@@ -35,7 +37,7 @@ int phy_lookup(struct _phy *p, const char *name)
     #define _GET_FILE_CONTENT(b) do { \
         int fd, n; \
         if ( (fd = open((b), O_RDONLY)) < 0 ) \
-            return 0; \
+            return -1; \
         if ( (n = read(fd, (b), sizeof(b)-1)) <= 0 ) { \
             close(fd); \
             return -1; \
@@ -44,11 +46,11 @@ int phy_lookup(struct _phy *p, const char *name)
         (b)[n] = 0; \
     } while (0)
 
-    snprintf(buf, sizeof(buf), "/sys/class/ieee80211/%s/index", name);
+    snprintf(buf, sizeof(buf), "%s/%s/index", __sysfs_ieee80211, name);
     _GET_FILE_CONTENT(buf);
     p->index = atoi(buf);
 
-    snprintf(buf, sizeof(buf), "/sys/class/ieee80211/%s/macaddress", name);
+    snprintf(buf, sizeof(buf), "%s/%s/macaddress", __sysfs_ieee80211, name);
     _GET_FILE_CONTENT(buf);
     asciiToMac(buf, &p->mac);
 

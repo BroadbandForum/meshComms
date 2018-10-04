@@ -16,11 +16,16 @@
  *  limitations under the License.
  */
 
+#include <sys/types.h>
+#include <dirent.h>
+#include <errno.h>
+
 #include <netlink/attr.h>       // nla_parse()
 #include <netlink/genl/genl.h>  // genlmsg_attr*()
 
 #include "netlink_funcs.h"
 #include "datamodel.h"
+#include "nl80211.h"
 
 static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
 {
@@ -29,31 +34,47 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
 
     nla_parse(tb_msg, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0), genlmsg_attrlen(gnlh, 0), NULL);
 
-    /** @todo   Extract all the netlink relevant data into ::radio struct */
+    /** @todo   Extract all the netlink relevant data into ::radio */
 
     return NL_SKIP;
 }
 
-int add_local_radios(struct alDevice *alDevice)
+const char *__sysfs_ieee80211 = "/sys/class/ieee80211";
+
+int netlink_collect_local_infos(struct alDevice *alDevice)
 {
-    int     i, r;
-    char    phy[16];
+    DIR                 *d;
+    struct dirent       *f;
+    int                  i = 0, r;
+    struct radio        *radio;
+    struct _phy          phy;
 
-    for ( i=0 ; i < 255 ; i++ ) {
-        struct radio    *radio;
-        struct _phy      radio_phy;
+	if ( ! (d = opendir(__sysfs_ieee80211)) )
+		return -1;
 
-        sprintf(phy, "phy%d", i);
+    errno = 0;
+    while ( (f = readdir(d)) )
+    {
+		if ( f->d_name[0] == '.' )  /* Skip '.', '..' & hidden files */
+		    continue;
 
-        if ( (r = phy_lookup(&radio_phy, phy)) <= 0 )
+        if ( (r = phy_lookup(&phy, f->d_name)) < 0 )
             break;
 
-        /** @todo   Allocate a new ::radio struct */
+        radio = radioAlloc(phy.mac, f->d_name, phy.index);
 
-        if ( netlink_process(radio_phy.index, NL80211_CMD_GET_WIPHY, (void *)collect_radio_datas, &radio) < 0 )
+        if ( netlink_process(phy.index, NL80211_CMD_GET_WIPHY, (void *)collect_radio_datas, radio) < 0 ) {
+            radioDelete(radio);
             return -1;
+        }
+        alDeviceAddRadio(local_device, radio);
+        i++;
+        errno = 0;
+	}
+	if ( !f && errno )
+		return -1;
 
-        /** @todo   Connect the new ::radio to ::alDevice */
-    }
+	closedir(d);
+
     return r < 0 ? r : i;
 }

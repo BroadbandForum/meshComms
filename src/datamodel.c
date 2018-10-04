@@ -50,9 +50,11 @@ void datamodelInit(void)
 {
 }
 
+/* 'alDevice' related functions
+ */
 struct alDevice *alDeviceAlloc(const mac_address al_mac_addr)
 {
-    struct alDevice *ret = memalloc(sizeof(struct alDevice));
+    struct alDevice *ret = zmemalloc(sizeof(struct alDevice));
     dlist_add_tail(&network, &ret->l);
     memcpy(ret->al_mac_addr, al_mac_addr, 6);
     dlist_head_init(&ret->interfaces);
@@ -67,21 +69,62 @@ void alDeviceDelete(struct alDevice *alDevice)
         struct interface *interface = container_of(dlist_get_first(&alDevice->interfaces), struct interface, l);
         interfaceDelete(interface);
     }
+    while ( ! dlist_empty(&alDevice->radios) ) {
+        struct radio *radio = container_of(dlist_get_first(&alDevice->radios), struct radio, l);
+        radioDelete(radio);
+    }
     free(alDevice);
+}
+
+int alDeviceAddRadio(struct alDevice *device, struct radio *radio)
+{
+    dlist_add_tail(&device->radios, &radio->l);
+    return 0;
+}
+
+/* 'radio' related functions
+ */
+struct radio *  radioAlloc(const mac_address mac, const char *name, int index)
+{
+    struct radio *r = zmemalloc(sizeof(*r));
+    memcpy(&r->uid, &mac, 6);
+    strcpy(r->name, name);
+    r->index = index;
+    return r;
+}
+
+void    radioDelete(struct radio *radio)
+{
+    dlist_remove(&radio->l);
+    while ( ! dlist_empty(&radio->configured_bsses) ) {
+        struct interfaceWifi *ifw = container_of(dlist_get_first(&radio->configured_bsses), struct interfaceWifi, i.l);
+        interfaceWifiDelete(ifw);
+    }
+    free(radio);
+}
+
+int     radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *ifw)
+{
+    dlist_add_tail(&radio->configured_bsses, &ifw->i.l);
+    ifw->radio = radio;
+    return 0;
+}
+
+/* 'interface' related functions
+ */
+static struct interface * interfaceInit(struct interface *i, const mac_address addr, struct alDevice *owner)
+{
+    i->type = interface_type_unknown;
+    memcpy(i->addr, addr, 6);
+    if (owner != NULL) {
+        alDeviceAddInterface(owner, i);
+    }
+    return i;
 }
 
 struct interface *interfaceAlloc(const mac_address addr, struct alDevice *owner)
 {
-    struct interface *ret;
-    ret = memalloc(sizeof(*ret));
-    memset(ret, 0, sizeof(*ret));
-    ret->type = interface_type_unknown;
-    memcpy(ret->addr, addr, 6);
-    if (owner != NULL)
-    {
-        alDeviceAddInterface(owner, ret);
-    }
-    return ret;
+    return interfaceInit(zmemalloc(sizeof(struct interface)), addr, owner);
 }
 
 void interfaceDelete(struct interface *interface)
@@ -95,7 +138,6 @@ void interfaceDelete(struct interface *interface)
     dlist_remove(&interface->l);
     free(interface);
 }
-
 
 void interfaceAddNeighbor(struct interface *interface, struct interface *neighbor)
 {
@@ -114,6 +156,25 @@ void interfaceRemoveNeighbor(struct interface *interface, struct interface *neig
     }
 }
 
+/* 'interfaceWifi' related functions
+ */
+struct interfaceWifi *interfaceWifiAlloc(const mac_address addr, struct alDevice *owner)
+{
+    struct interfaceWifi *ifw = zmemalloc(sizeof(*ifw));
+    interfaceInit(&ifw->i, addr, owner);
+    ifw->i.type = interface_type_wifi;
+    return ifw;
+}
+
+void    interfaceWifiDelete(struct interfaceWifi *ifw)
+{
+    if ( ifw->i.l.prev )
+        dlist_remove(&ifw->i.l);
+    free(ifw);
+}
+
+/* 'alDevice' related functions
+ */
 void alDeviceAddInterface(struct alDevice *device, struct interface *interface)
 {
     assert(interface->owner == NULL);

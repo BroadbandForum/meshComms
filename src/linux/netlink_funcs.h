@@ -53,8 +53,8 @@ extern int  phy_lookup(
 /** @brief  Add all the local radios found with their collected datas into the datamodel
  *  @return 0:success, <0:error
  */
-extern int  add_local_radios(
-                struct alDevice *aldev  /**< ::alDevice on which this radio belongs */
+extern int  netlink_collect_local_infos(
+                struct alDevice *aldev  /**< ::alDevice on which data collection has to be set */
             );
 
 /** @brief  Open a netlink socket and issue a netlink command

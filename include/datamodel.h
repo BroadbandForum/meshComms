@@ -141,9 +141,13 @@ struct interfaceWifi {
  * AP and can join exactly one BSSID.
  */
 struct radio {
-    mac_address uid; /**< @brief Radio Unique Identifier for this radio. */
+    dlist_item  l;          /**< Membership of ::alDevice */
 
-    /**< @brief List of BSSes configured for this radio.
+    mac_address uid;        /**< Radio Unique Identifier for this radio. */
+    char        name[16];   /**< Radio's name */
+    int         index;      /**< Radio's index */
+
+    /** @brief List of BSSes configured for this radio.
      *
      * Elements are of type interfaceWifi. Their interfaceWifi::radio pointer points to this object.
      */
@@ -157,9 +161,9 @@ struct radio {
 struct alDevice {
     dlist_item l; /**< @brief Membership of ::network */
 
-    mac_address al_mac_addr; /**< @brief 1905.1 AL MAC address for this device. */
-    dlist_head interfaces; /**< @brief The interfaces belonging to this device. */
-    PTRARRAY(struct radio *) radios; /**< @brief The radios belonging to this device. */
+    mac_address al_mac_addr;    /**< @brief 1905.1 AL MAC address for this device. */
+    dlist_head interfaces;      /**< @brief The interfaces belonging to this device. */
+    dlist_head radios;          /**< @brief The radios belonging to this device. */
 
     bool is_map_agent; /**< @brief true if this device is a Multi-AP Agent. */
 };
@@ -266,11 +270,32 @@ void interfaceAddNeighbor(struct interface *interface, struct interface *neighbo
  */
 void interfaceRemoveNeighbor(struct interface *interface, struct interface *neighbor);
 
-/** @brief Allocate a new alDevice. */
+/** @brief Allocate a new @a alDevice. */
 struct alDevice *alDeviceAlloc(const mac_address al_mac_addr);
 
-/** @brief Delete a device and all its interfaces. */
+/** @brief Delete a device and all its interfaces/radios.
+  */
 void alDeviceDelete(struct alDevice *alDevice);
+
+/** @brief  Add a radio into ::alDevice
+ *  @return 0:success, <0:error
+ */
+int alDeviceAddRadio(struct alDevice *alDevice, struct radio *radio);
+
+/** @brief  Allocate a new ::radio
+ *  @param mac      Unique identifier (mac address)
+ *  @param name     Local system name
+ *  @param index    Local system index
+ */
+struct radio *  radioAlloc(const mac_address mac, const char *name, int index);
+
+/** @brief  Delete a ::radio and all its interfaces. */
+void radioDelete(struct radio *radio);
+
+/** @brief  Add an interface to ::radio
+ *  @return 0:success, <0:error
+ */
+int radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *iface);
 
 /** @brief Allocate a new interface, with optional owning device.
  *
@@ -281,6 +306,12 @@ struct interface *interfaceAlloc(const mac_address addr, struct alDevice *owner)
 
 /** @brief Delete an interface and all its neighbors. */
 void interfaceDelete(struct interface *interface);
+
+/** @brief Allocate a new interface wifi (BSS) */
+struct interfaceWifi *interfaceWifiAlloc(const mac_address addr, struct alDevice *owner);
+
+/** @brief Delete an interface wifi (bss) */
+void interfaceWifiDelete(struct interfaceWifi *interfaceWifi);
 
 /** @brief Associate an interface with an alDevice.
  *
