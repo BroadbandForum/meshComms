@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdlib.h> // malloc(), NULL
+#include <string.h> // memset()
 #include <stdio.h> // fprintf
 
 /** @brief Get the number of elements in an array.
@@ -69,6 +70,10 @@ static inline void *memalloc(size_t size)
     }
 
     return p;
+}
+
+static inline void *zmemalloc(size_t size) {
+    return memset(memalloc(size), 0, size);
 }
 
 /** @brief Redimension a memory area previously obtained with memalloc().
