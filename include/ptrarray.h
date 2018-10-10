@@ -68,7 +68,7 @@
  */
 #define PTRARRAY_ADD(ptrarray, item) \
     do { \
-        (ptrarray).data = memrealloc((ptrarray).data, ((ptrarray).length + 1) * sizeof((ptrarray).data)); \
+        (ptrarray).data = memrealloc((ptrarray).data, ((ptrarray).length + 1) * sizeof(*(ptrarray).data)); \
         (ptrarray).data[(ptrarray).length] = item; \
         (ptrarray).length++; \
     } while (0)
@@ -100,8 +100,8 @@
         if ((ptrarray).length > 0) \
         { \
             memmove((ptrarray).data + index, (ptrarray).data + (index) + 1, \
-                    ((ptrarray).length - (index)) * sizeof((ptrarray).data)); \
-            (ptrarray).data = memrealloc((ptrarray).data, ((ptrarray).length) * sizeof((ptrarray).data)); \
+                    ((ptrarray).length - (index)) * sizeof(*(ptrarray).data)); \
+            (ptrarray).data = memrealloc((ptrarray).data, ((ptrarray).length) * sizeof(*(ptrarray).data)); \
         } else { \
             free((ptrarray).data); \
             (ptrarray).data = NULL; \
