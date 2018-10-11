@@ -37,38 +37,79 @@ struct nl80211_state {
     int             nl80211_id; /**< Generic netlink family identifer */
 };
 
-struct _phy {
-    mac_address     mac;
-    int             index;
-};
-
 /** @brief  Collect some infos from sysfs (mac, index, ...)
+ *
+ *  @param  name    Name of the radio interface (phy? in /sys/class/ieee80211)
+ *  @param  mac     Output mac address (uid) of the radio
+ *  @param  index   Index of the PHY device
+ *
  *  @return >0:success, 0:not found, <0:error
  */
-extern int  phy_lookup(
-                struct _phy *phy,   /**< Phy's informations found */
-                const char *name    /**< Name of the radio interface (phy? in /sys/class/ieee80211) */
-            );
+extern int  phy_lookup(const char *name, mac_address *mac, int *index);
 
 /** @brief  Add all the local radios found with their collected datas into the datamodel
+ *
+ *  @param  aldev   Output ::alDevice on which data collection has to be performed.
+ *
  *  @return 0:success, <0:error
  */
-extern int  netlink_collect_local_infos(
-                struct alDevice *aldev  /**< ::alDevice on which data collection has to be set */
-            );
+extern int  netlink_collect_local_infos(struct alDevice *aldev);
 
-/** @brief  Open a netlink socket and issue a netlink command
+/** @brief  Open the netlink socket and prepare for commands
  *
- *  The callback is called when a valid data is received. Otherwise,
+ *  @param  out_nlstate Output structure
+ *
+ *  @return 0=success, <0=error
+ */
+extern int  netlink_open(struct nl80211_state *out_nlstate);
+
+/** @brief  Prepare a new Netlink message to be sent
+ *
+ *  @param  nlsock  Netlink socket to use
+ *  @param  cmd     Netlink Command to initiate (See nl80211.h)
+ *  @param  flags   Optional command flags
+ *
+ *  @return 0=success, <0=error
+ */
+extern struct nl_msg*   netlink_prepare(const struct nl80211_state *nlsock,
+                            enum nl80211_commands cmd, int flags);
+
+/** @brief  Execute a netlink command
+ *
+ *  The @a cb callback is called when a valid data is received. Otherwise,
  *  internal handlers assume the error handling.
  *
+ *  @param  nlstate Netlink state & socket infos
+ *  @param  nlmsg   Netlink message to process
+ *  @param  cb      Callback to process the valid datas returned by the nlmsg
+ *  @param  cbdatas Callback's datas passed as second parameter to @a cb
+ *
  *  @return 0:success, <0:error
  */
-extern int  netlink_process(
-                enum nl80211_commands cmd,          /**< Netlink request command */
-                int device_index,                   /**< Radio index (_phy::index) */
-                int (*cb)(struct nl_msg *, void *), /**< Callback to process the datas returned by the command */
-                void *db_datas                      /**< Callback's datas */
-            );
+extern int  netlink_do(struct nl80211_state *nlstate, struct nl_msg *nlmsg,
+                int (*cb)(struct nl_msg *, void *), void *cbdatas);
+
+/** @brief  Close the netlink socket and free allocations
+ *
+ *  @param  nlstate Netlink socket state structure
+ */
+extern void netlink_close(struct nl80211_state *nlstate);
+
+/** @brief  Get the frequency of the corresponding channel
+ *
+ *  @param  chan    Channel ID
+ *  @param  band    Band this channel is from
+ *
+ *  @return Frequency (x100)
+ */
+extern int  ieee80211_channel_to_frequency(int chan, enum nl80211_band band);
+
+/** @brief  Get the channel corresponding to this frequency
+ *
+ *  @param  freq    Frequency
+ *
+ *  @return Channel id
+ */
+extern int  ieee80211_frequency_to_channel(int freq);
 
 #endif

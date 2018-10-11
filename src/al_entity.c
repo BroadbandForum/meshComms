@@ -44,6 +44,8 @@
 #include "platform_os.h"
 #include "platform_alme_server.h"
 
+#include "linux/netlink_funcs.h"
+
 #include <datamodel.h>
 
 #include <string.h> // memcmp(), memcpy(), ...
@@ -892,6 +894,15 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
                                 al_mac_address[4],
                                 al_mac_address[5],
                                 map_whole_network_flag);
+
+    // Collect all the informations about local radios throught netlink
+    //
+    PLATFORM_PRINTF_DEBUG_DETAIL("Retrieving list of local radios throught netlink...\n");
+    if (0 > netlink_collect_local_infos(local_device))
+    {
+        PLATFORM_PRINTF_DEBUG_ERROR("Failed to collect radios from netlink\n");
+        return AL_ERROR_OS;
+    } 
 
     // Obtain the list of interfaces that the AL entity is going to manage
     //

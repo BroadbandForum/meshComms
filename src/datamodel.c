@@ -58,18 +58,18 @@ struct alDevice *alDeviceAlloc(const mac_address al_mac_addr)
     dlist_add_tail(&network, &ret->l);
     memcpy(ret->al_mac_addr, al_mac_addr, 6);
     dlist_head_init(&ret->interfaces);
+    dlist_head_init(&ret->radios);
     ret->is_map_agent = false;
     return ret;
 }
 
 void alDeviceDelete(struct alDevice *alDevice)
 {
-    while (!dlist_empty(&alDevice->interfaces))
-    {
+    while (!dlist_empty(&alDevice->interfaces)) {
         struct interface *interface = container_of(dlist_get_first(&alDevice->interfaces), struct interface, l);
         interfaceDelete(interface);
     }
-    while ( ! dlist_empty(&alDevice->radios) ) {
+    while (!dlist_empty(&alDevice->radios)) {
         struct radio *radio = container_of(dlist_get_first(&alDevice->radios), struct radio, l);
         radioDelete(radio);
     }

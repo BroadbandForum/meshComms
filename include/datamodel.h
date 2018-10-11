@@ -126,6 +126,12 @@ struct interfaceWifi {
     /** @brief Radio on which this interface is active. Must not be NULL. */
     struct radio *radio;
 
+    /** @brief Channel in use
+     *
+     *  This have to be a valid channel who refers to channel::id
+     */
+    int channel;
+
     /** @brief Clients connected to this BSS.
      *
      * Only valid if this is an AP.
@@ -133,6 +139,28 @@ struct interfaceWifi {
      * These are also included in interface::neighbors.
      */
     PTRARRAY(struct interfaceWifi *) clients;
+};
+
+/** @brief Wi-Fi radio supported bands.
+ *
+ *  Typically 2.4 or 5.0 Ghz along with the supported channels.
+ */
+
+struct channel {
+    uint32_t    id;         /**< Channel id (0..255) */
+    uint32_t    freq;       /**< Frequency */
+    uint32_t    dbm;        /**< Power (value = (float) dbm * 0.01) */
+    bool        radar;      /**< Is radar detection active on this channel ? */
+    bool        disabled;   /**< Is this channel disabled ? */
+};
+
+struct band {
+    int     id;                 /**< Band ID */
+    bool    ht40;               /**< HT40 capability ? (True = HT20/40 is supported, else only HT20) */
+    int     supChannelWidth;    /**< Supported channel width */
+    int     shortGI;            /**< Short GI */
+
+    PTRARRAY(struct channel) channels;   /**< List of channels allocated for this band */
 };
 
 /** @brief Wi-Fi radio.
@@ -144,8 +172,15 @@ struct radio {
     dlist_item  l;          /**< Membership of ::alDevice */
 
     mac_address uid;        /**< Radio Unique Identifier for this radio. */
-    char        name[16];   /**< Radio's name */
-    int         index;      /**< Radio's index */
+    char        name[16];   /**< Radio's name (eg phy0) */
+    uint32_t    index;      /**< Radio's index (PHY) */
+
+    bool        splitWiphy; /**< Is the protocol has split wiphy ? */
+
+    uint8_t     conf_ant[2];/**< Configured antennas rx/tx */
+
+    /** @brief List of bands and their attributes/channels */
+    PTRARRAY(struct band *) bands;
 
     /** @brief List of BSSes configured for this radio.
      *

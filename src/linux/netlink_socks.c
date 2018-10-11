@@ -60,7 +60,7 @@
 
 static int error_handler(struct sockaddr_nl *nla, struct nlmsgerr *err, void *arg)
 {
-    PLATFORM_PRINTF_DEBUG_INFO("** error_handler() called **");
+    PLATFORM_PRINTF_DEBUG_INFO("** error_handler() called **\n");
 
     *(int *)arg = err->error;
 
@@ -100,76 +100,83 @@ static int error_handler(struct sockaddr_nl *nla, struct nlmsgerr *err, void *ar
 
 static int finish_handler(struct nl_msg *msg, void *arg)
 {
-	PLATFORM_PRINTF_DEBUG_INFO("** finish_handler() called **");
+	PLATFORM_PRINTF_DEBUG_INFO("** finish_handler() called **\n");
 	*(int *)arg = 0;
 	return NL_SKIP;
 }
 
 static int ack_handler(struct nl_msg *msg, void *arg)
 {
-	PLATFORM_PRINTF_DEBUG_INFO("== ack_handler() called **");
+	PLATFORM_PRINTF_DEBUG_INFO("** ack_handler() called **\n");
 	*(int *)arg = 0;
 	return NL_STOP;
 }
 
-static int nl80211_init(struct nl80211_state *state)
+int netlink_open(struct nl80211_state *s)
 {
     int err;
 
-    state->nl_sock = nl_socket_alloc();
-    if ( ! state->nl_sock ) {
-        PLATFORM_PRINTF("ERROR! Failed to allocate netlink socket !");
+    if ( ! (s->nl_sock = nl_socket_alloc()) ) {
+        PLATFORM_PRINTF("ERROR! Failed to allocate netlink socket !\n");
         return -ENOMEM;
     }
-
-    if ( genl_connect(state->nl_sock) ) {
-        PLATFORM_PRINTF("ERROR! Failed to connect to generic netlink !");
+    if ( genl_connect(s->nl_sock) ) {
+        PLATFORM_PRINTF("ERROR! Failed to connect to generic netlink !\n");
         err = -ENOLINK;
         goto out_handle_destroy;
     }
-    nl_socket_set_buffer_size(state->nl_sock, 8192, 8192);
+    nl_socket_set_buffer_size(s->nl_sock, 8192, 8192);
 #ifdef NETLINK_EXT_ACK
     /* try to set NETLINK_EXT_ACK to 1, ignoring errors */
     err = 1;
-    setsockopt(nl_socket_get_fd(state->nl_sock), SOL_NETLINK, NETLINK_EXT_ACK, &err, sizeof(err));
+    setsockopt(nl_socket_get_fd(s->nl_sock), SOL_NETLINK, NETLINK_EXT_ACK, &err, sizeof(err));
 #endif
-    state->nl80211_id = genl_ctrl_resolve(state->nl_sock, "nl80211");
-    if ( state->nl80211_id < 0 ) {
-        PLATFORM_PRINTF("ERROR! nl80211 not found !");
+    s->nl80211_id = genl_ctrl_resolve(s->nl_sock, "nl80211");
+    if ( s->nl80211_id < 0 ) {
+        PLATFORM_PRINTF("ERROR! nl80211 not found !\n");
         err = -ENOENT;
         goto out_handle_destroy;
     }
     return 0;
 
  out_handle_destroy:
-    nl_socket_free(state->nl_sock);
+    nl_socket_free(s->nl_sock);
     return err;
 }
 
-static void nl80211_cleanup(struct nl80211_state *s)
+void netlink_close(struct nl80211_state *s)
 {
     nl_socket_free(s->nl_sock);
 }
 
+struct nl_msg* netlink_prepare(
+        const struct nl80211_state  *s,
+        enum nl80211_commands        cmd,
+        int                          flags)
+{
+    struct nl_msg *m;
+
+    if ( ! (m = nlmsg_alloc()) )
+        return NULL;
+
+    if ( genlmsg_put(m, NL_AUTO_PORT, NL_AUTO_SEQ, s->nl80211_id, 0, flags, cmd, 0) < 0 ) {
+        nlmsg_free(m);
+        return NULL;
+    }
+    return m;
+}
+
 //#define CB_DEFAULT      NL_CB_DEFAULT
+//#define CB_DEFAULT      NL_CB_VERBOSE
 #define CB_DEFAULT      NL_CB_DEBUG
 
-int netlink_process(enum nl80211_commands cmd, int devidx,
+int netlink_do(
+        struct nl80211_state *s,
+        struct nl_msg        *m,
         int (*process)(struct nl_msg *, void *), void *process_datas)
 {
-    struct nl80211_state     nlstate;
-    struct nl_msg           *msg;
-    struct nl_cb            *cb,
-                            *s_cb;
-    int                      err;
-
-    if ( nl80211_init(&nlstate) )
-        return -1;
-
-    if ( ! (msg = nlmsg_alloc()) ) {
-        PLATFORM_PRINTF("ERROR ! Failed to allocate netlink message\n");
-        return -1;
-    }
+    struct nl_cb    *cb, *s_cb;
+    int              err;
 
     cb   = nl_cb_alloc(CB_DEFAULT);
     s_cb = nl_cb_alloc(CB_DEFAULT);
@@ -178,12 +185,9 @@ int netlink_process(enum nl80211_commands cmd, int devidx,
         PLATFORM_PRINTF("ERROR ! Failed to allocate netlink callbacks\n");
         return -1;
     }
-    genlmsg_put(msg, 0, 0, nlstate.nl80211_id, 0, 0, cmd, 0);
-    NLA_PUT_U32(msg, NL80211_ATTR_WIPHY, devidx);
+    nl_socket_set_cb(s->nl_sock, s_cb);
 
-    nl_socket_set_cb(nlstate.nl_sock, s_cb);
-
-    if ( (err = nl_send_auto_complete(nlstate.nl_sock, msg)) < 0 )
+    if ( (err = nl_send_auto_complete(s->nl_sock, m)) < 0 )
         goto out;
 
     err = 1;
@@ -192,17 +196,14 @@ int netlink_process(enum nl80211_commands cmd, int devidx,
 
     nl_cb_set(cb, NL_CB_FINISH, NL_CB_CUSTOM, finish_handler,  &err);
     nl_cb_set(cb, NL_CB_ACK,    NL_CB_CUSTOM, ack_handler,     &err);
-    nl_cb_set(cb, NL_CB_VALID,  NL_CB_CUSTOM, (void *)process, process_datas);
+    nl_cb_set(cb, NL_CB_VALID,  NL_CB_CUSTOM, process,         process_datas);
 
     while ( err > 0 )
-        nl_recvmsgs(nlstate.nl_sock, cb);
+        nl_recvmsgs(s->nl_sock, cb);
 
- nla_put_failure:
  out:
     nl_cb_put(cb);
     nl_cb_put(s_cb);
-    nlmsg_free(msg);
-    nl80211_cleanup(&nlstate);
-
+    nlmsg_free(m);
     return err;
 }
