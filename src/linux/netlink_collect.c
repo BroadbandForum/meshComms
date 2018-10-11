@@ -122,7 +122,8 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
                     ch.radar    = tb_freq[NL80211_FREQUENCY_ATTR_RADAR];
 
                     if ( tb_freq[NL80211_FREQUENCY_ATTR_MAX_TX_POWER] )
-                        ch.dbm = nla_get_u32(tb_freq[NL80211_FREQUENCY_ATTR_MAX_TX_POWER]);
+                         ch.dbm = nla_get_u32(tb_freq[NL80211_FREQUENCY_ATTR_MAX_TX_POWER]);
+                    else ch.dbm = 0;
 
                     PTRARRAY_ADD(band->channels, ch);
                 }
@@ -148,7 +149,7 @@ static int populate_radios_from_sysfs(struct alDevice *alDevice)
         mac_address mac;
         int         index;
 
-		if ( f->d_name[0] == '.' )  /* Skip '.', '..' & hidden files */
+        if ( f->d_name[0] == '.' )  /* Skip '.', '..' & hidden files */
 		    continue;
 
         if ( phy_lookup(f->d_name, &mac, &index) <= 0 ) {
@@ -158,8 +159,8 @@ static int populate_radios_from_sysfs(struct alDevice *alDevice)
         alDeviceAddRadio(alDevice, radioAlloc(mac, f->d_name, index));
         errno = 0;
     }
-	if ( !f && errno )
-		ret = -1;
+    if ( !f && errno )
+        ret = -1;
 
     closedir(d);
     return ret;
@@ -169,7 +170,7 @@ int netlink_collect_local_infos(struct alDevice *alDevice)
 {
     struct nl80211_state  nlstate;
     struct radio         *radio;
-    int                   err = 0;
+    int                   ret = 0;
 
     PLATFORM_PRINTF_DEBUG_SET_VERBOSITY_LEVEL(3);
 
@@ -184,13 +185,13 @@ int netlink_collect_local_infos(struct alDevice *alDevice)
         /* Detect how the protocol is to be handled */
         if ( ! (m = netlink_prepare(&nlstate, NL80211_CMD_GET_PROTOCOL_FEATURES, 0))
         ||   netlink_do(&nlstate, m, (void *)collect_protocol_features, radio) < 0 ) {
-            err = -1;
+            ret = -1;
             break;
         }
 
         /* Now dump all the infos for this radio */
         if ( ! (m = netlink_prepare(&nlstate, NL80211_CMD_GET_WIPHY, 0)) ) {
-            err = -1;
+            ret = -1;
             break;
         }
         if ( radio->splitWiphy ) {
@@ -200,10 +201,10 @@ int netlink_collect_local_infos(struct alDevice *alDevice)
         nla_put(m, NL80211_ATTR_WIPHY, sizeof(radio->index), &radio->index);
 
         if ( netlink_do(&nlstate, m, (void *)collect_radio_datas, radio) < 0 ) {
-            err = -1;
+            ret = -1;
             break;
         }
     }
     netlink_close(&nlstate);
-    return 0;
+    return ret;
 }
