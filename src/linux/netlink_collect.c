@@ -95,15 +95,15 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
                 PTRARRAY_ADD(radio->bands, band);
                 band->id = nl_band->nla_type;
             }
-
             nla_parse(tb_band, NL80211_BAND_ATTR_MAX, nla_data(nl_band), nla_len(nl_band), NULL);
 
+            /* band::ht40 */
             if ( tb_band[NL80211_BAND_ATTR_HT_CAPA] ) {
                 /* Band capabilities */
                 uint16_t cap = nla_get_u16(tb_band[NL80211_BAND_ATTR_HT_CAPA]);
                 band->ht40 = (cap & BIT(1) == BIT(1));
             }
-
+            /* band::channels */
             if ( tb_band[NL80211_BAND_ATTR_FREQS] ) {
                 struct nlattr   *tb_freq[NL80211_FREQUENCY_ATTR_MAX + 1], *nl_freq;
                 int              rem_freq;
@@ -127,6 +127,13 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
 
                     PTRARRAY_ADD(band->channels, ch);
                 }
+            }
+            /* VHT Capabilities */
+            if ( tb_band[NL80211_BAND_ATTR_VHT_CAPA] ) {
+                uint32_t capa = nla_get_u32(tb_band[NL80211_BAND_ATTR_VHT_CAPA]);
+
+                band->supChannelWidth = (capa >> 2) & 3;
+                band->shortGI = (capa & (BIT(5) | BIT(6))) >> 5;
             }
         }
     }

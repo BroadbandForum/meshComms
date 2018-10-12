@@ -157,8 +157,16 @@ struct channel {
 struct band {
     int     id;                 /**< Band ID */
     bool    ht40;               /**< HT40 capability ? (True = HT20/40 is supported, else only HT20) */
-    int     supChannelWidth;    /**< Supported channel width */
-    int     shortGI;            /**< Short GI */
+
+    enum {
+        BAND_SCW_160_OR_80_80 = 0,
+        BAND_SCW_160 = 1,
+        BAND_SCW_160_AND_80_80 = 2,
+        BAND_SCW_RESERVED = 3 }     supChannelWidth;    /**< Supported channel width */
+    enum {
+        BAND_SGI_NONE = 0,
+        BAND_SGI_80 = 1,
+        BAND_SGI_160_OR_80_80 = 2 } shortGI;            /**< Short GI */
 
     PTRARRAY(struct channel) channels;   /**< List of channels allocated for this band */
 };
