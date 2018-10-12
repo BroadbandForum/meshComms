@@ -87,7 +87,7 @@ int alDeviceAddRadio(struct alDevice *device, struct radio *radio)
 struct radio *  radioAlloc(const mac_address mac, const char *name, int index)
 {
     struct radio *r = zmemalloc(sizeof(*r));
-    memcpy(&r->uid, &mac, 6);
+    memcpy(&r->uid, &mac, sizeof(mac_address));
     strcpy(r->name, name);
     r->index = index;
     return r;
@@ -95,11 +95,17 @@ struct radio *  radioAlloc(const mac_address mac, const char *name, int index)
 
 void    radioDelete(struct radio *radio)
 {
+    int i;
     dlist_remove(&radio->l);
     while ( ! dlist_empty(&radio->configured_bsses) ) {
         struct interfaceWifi *ifw = container_of(dlist_get_first(&radio->configured_bsses), struct interfaceWifi, i.l);
         interfaceWifiDelete(ifw);
     }
+    for ( i=0 ; i < radio->bands.length ; i++ ) {
+        PTRARRAY_CLEAR(radio->bands.data[i]->channels);
+        free(radio->bands.data[i]);
+    }
+    PTRARRAY_CLEAR(radio->bands);
     free(radio);
 }
 
