@@ -61,15 +61,6 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
     struct nlattr       *tb_msg[NL80211_ATTR_MAX + 1];
     struct genlmsghdr   *gnlh = nlmsg_data(nlmsg_hdr(msg));
 
-    static struct nla_policy freq_policy[NL80211_FREQUENCY_ATTR_MAX + 1] = {
-        [NL80211_FREQUENCY_ATTR_FREQ]         = { .type = NLA_U32 },
-        [NL80211_FREQUENCY_ATTR_DISABLED]     = { .type = NLA_FLAG },
-        [NL80211_FREQUENCY_ATTR_NO_IR]        = { .type = NLA_FLAG },
-        [__NL80211_FREQUENCY_ATTR_NO_IBSS]    = { .type = NLA_FLAG },
-        [NL80211_FREQUENCY_ATTR_RADAR]        = { .type = NLA_FLAG },
-        [NL80211_FREQUENCY_ATTR_MAX_TX_POWER] = { .type = NLA_U32 },
-    };
-
     nla_parse(tb_msg, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0), genlmsg_attrlen(gnlh, 0), NULL);
 
     /* Configured antennas */
@@ -79,10 +70,30 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
         radio->conf_ant[1] = nla_get_u32(tb_msg[NL80211_ATTR_WIPHY_ANTENNA_TX]);
 
     /* Valid interface combinations */
+    if ( tb_msg[NL80211_ATTR_INTERFACE_COMBINATIONS] ) {
+        struct nlattr   *nl_combi;
+        int              rem_combi;
 
-    /** @todo Collect the "Valid interface combinations" from msg
-     */
+        static struct nla_policy iface_combination_policy[NUM_NL80211_IFACE_COMB] = {
+            [NL80211_IFACE_COMB_LIMITS] = { .type = NLA_NESTED },
+            [NL80211_IFACE_COMB_MAXNUM] = { .type = NLA_U32 },
+            [NL80211_IFACE_COMB_STA_AP_BI_MATCH] = { .type = NLA_FLAG },
+            [NL80211_IFACE_COMB_NUM_CHANNELS] = { .type = NLA_U32 },
+            [NL80211_IFACE_COMB_RADAR_DETECT_WIDTHS] = { .type = NLA_U32 },
+        };
+        static struct nla_policy iface_limit_policy[NUM_NL80211_IFACE_LIMIT] = {
+            [NL80211_IFACE_LIMIT_TYPES] = { .type = NLA_NESTED },
+            [NL80211_IFACE_LIMIT_MAX] = { .type = NLA_U32 },
+        };
 
+        nla_for_each_nested(nl_combi, tb_msg[NL80211_ATTR_INTERFACE_COMBINATIONS], rem_combi) {
+            struct nlattr *tb_comb[NUM_NL80211_IFACE_COMB];
+
+            /** @todo Double check what is needed here ... */
+        }
+    }
+
+    /* Bands processing */
     if ( tb_msg[NL80211_ATTR_WIPHY_BANDS] ) {
         static struct band  *band;
         struct nlattr       *tb_band[NL80211_BAND_ATTR_MAX + 1], *nl_band;
@@ -107,6 +118,15 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
             if ( tb_band[NL80211_BAND_ATTR_FREQS] ) {
                 struct nlattr   *tb_freq[NL80211_FREQUENCY_ATTR_MAX + 1], *nl_freq;
                 int              rem_freq;
+
+                static struct nla_policy freq_policy[NL80211_FREQUENCY_ATTR_MAX + 1] = {
+                    [NL80211_FREQUENCY_ATTR_FREQ]         = { .type = NLA_U32 },
+                    [NL80211_FREQUENCY_ATTR_DISABLED]     = { .type = NLA_FLAG },
+                    [NL80211_FREQUENCY_ATTR_NO_IR]        = { .type = NLA_FLAG },
+                    [__NL80211_FREQUENCY_ATTR_NO_IBSS]    = { .type = NLA_FLAG },
+                    [NL80211_FREQUENCY_ATTR_RADAR]        = { .type = NLA_FLAG },
+                    [NL80211_FREQUENCY_ATTR_MAX_TX_POWER] = { .type = NLA_U32 },
+                };
 
                 nla_for_each_nested(nl_freq, tb_band[NL80211_BAND_ATTR_FREQS], rem_freq) {
                     struct channel ch;
@@ -140,26 +160,46 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
     return NL_SKIP;
 }
 
-const char *__sysfs_ieee80211 = "/sys/class/ieee80211";
+static int populate_radios_from_dev(struct alDevice *alDevice, const char *dev)
+{
+    char        basedir[128],
+                name[T_RADIO_NAME_SZ];
+    int         index;
+    mac_address mac;
+
+    sprintf(basedir, "/sys/class/net/%s/phy80211", dev);
+
+    if ( phy_lookup(basedir, name, &mac, &index) <= 0 )
+        return -1;
+
+    alDeviceAddRadio(alDevice, radioAlloc(mac, name, index));
+    return 0;
+}
+
 
 static int populate_radios_from_sysfs(struct alDevice *alDevice)
 {
+    const char      *sysfs_ieee80211_phys = "/sys/class/ieee80211";
     DIR             *d;
     struct dirent   *f;
     int              ret = 0;
 
-    if ( ! (d = opendir(__sysfs_ieee80211)) )
+    if ( ! (d = opendir(sysfs_ieee80211_phys)) )
         return -1;
 
     errno = 0;
     while ( (f = readdir(d)) ) {
+        char        basedir[128],
+                    name[T_RADIO_NAME_SZ];
         mac_address mac;
         int         index;
 
         if ( f->d_name[0] == '.' )  /* Skip '.', '..' & hidden files */
-		    continue;
+            continue;
 
-        if ( phy_lookup(f->d_name, &mac, &index) <= 0 ) {
+        sprintf(basedir, "%s/%s", sysfs_ieee80211_phys, f->d_name);
+
+        if ( phy_lookup(basedir, name, &mac, &index) <= 0 ) {
             ret = -1;
             break;
         }
@@ -195,7 +235,6 @@ int netlink_collect_local_infos(struct alDevice *alDevice)
             ret = -1;
             break;
         }
-
         /* Now dump all the infos for this radio */
         if ( ! (m = netlink_prepare(&nlstate, NL80211_CMD_GET_WIPHY, 0)) ) {
             ret = -1;

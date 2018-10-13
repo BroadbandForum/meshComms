@@ -176,11 +176,13 @@ struct band {
  * A device may have several radios, and each radio may have several configured interfaces. Each interface is a STA or
  * AP and can join exactly one BSSID.
  */
+#define T_RADIO_NAME_SZ        16
+
 struct radio {
     dlist_item  l;          /**< Membership of ::alDevice */
 
     mac_address uid;        /**< Radio Unique Identifier for this radio. */
-    char        name[16];   /**< Radio's name (eg phy0) */
+    char        name[T_RADIO_NAME_SZ]; /**< Radio's name (eg phy0) */
     uint32_t    index;      /**< Radio's index (PHY) */
 
     bool        splitWiphy; /**< Is the protocol has split wiphy ? */

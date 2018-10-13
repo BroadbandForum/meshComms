@@ -48,17 +48,14 @@
 #include "nl80211.h"
 #include "hlist.h"
 
-extern const char *__sysfs_ieee80211;
-
-int phy_lookup(const char *name, mac_address *mac, int *index)
+int phy_lookup(const char *basedir, char *name, mac_address *mac, int *index)
 {
-    char    buf[256];
+    char    buf[128];
     int     fd, n;
 
     #define _GET_FILE_CONTENT(b) do { \
-        int fd, n; \
         if ( (fd = open((b), O_RDONLY)) < 0 ) \
-            return -1; \
+            return  0; \
         if ( (n = read(fd, (b), sizeof(b)-1)) <= 0 ) { \
             close(fd); \
             return -1; \
@@ -67,13 +64,18 @@ int phy_lookup(const char *name, mac_address *mac, int *index)
         (b)[n] = 0; \
     } while (0)
 
-    snprintf(buf, sizeof(buf), "%s/%s/index", __sysfs_ieee80211, name);
+    snprintf(buf, sizeof(buf), "%s/index", basedir);
     _GET_FILE_CONTENT(buf);
     *index = atoi(buf);
 
-    snprintf(buf, sizeof(buf), "%s/%s/macaddress", __sysfs_ieee80211, name);
+    snprintf(buf, sizeof(buf), "%s/macaddress", basedir);
     _GET_FILE_CONTENT(buf);
     asciiToMac(buf, mac);
+
+    snprintf(buf, sizeof(buf), "%s/name", basedir);
+    _GET_FILE_CONTENT(buf);
+    strncpy(name, buf, T_RADIO_NAME_SZ-1);
+    name[T_RADIO_NAME_SZ] = 0;
 
     #undef _GET_FILE_CONTENT
 

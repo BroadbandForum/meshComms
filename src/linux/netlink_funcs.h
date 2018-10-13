@@ -39,13 +39,14 @@ struct nl80211_state {
 
 /** @brief  Collect some infos from sysfs (mac, index, ...)
  *
- *  @param  name    Name of the radio interface (phy? in /sys/class/ieee80211)
+ *  @param  basedir Directory to look for phy's attributes (ex. /sys/class/net/wlan0/phy80211)
+ *  @param  name    Output name of the radio interface (phy{0..9})
  *  @param  mac     Output mac address (uid) of the radio
- *  @param  index   Index of the PHY device
+ *  @param  index   Output index of the PHY device
  *
  *  @return >0:success, 0:not found, <0:error
  */
-extern int  phy_lookup(const char *name, mac_address *mac, int *index);
+extern int  phy_lookup(const char *basedir, char *name, mac_address *mac, int *index);
 
 /** @brief  Add all the local radios found with their collected datas into the datamodel
  *
