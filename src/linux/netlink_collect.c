@@ -164,7 +164,7 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
     return NL_SKIP;
 }
 
-static int populate_radios_from_dev(struct alDevice *alDevice, const char *dev)
+static int populate_radios_from_dev(const char *dev)
 {
     char        basedir[128],
                 name[T_RADIO_NAME_SZ];
@@ -176,11 +176,11 @@ static int populate_radios_from_dev(struct alDevice *alDevice, const char *dev)
     if ( phy_lookup(basedir, name, &mac, &index) <= 0 )
         return -1;
 
-    alDeviceAddRadio(alDevice, radioAlloc(mac, name, index));
+    radioAllocLocal(mac, name, index);
     return 0;
 }
 
-static int populate_radios_from_sysfs(struct alDevice *alDevice)
+static int populate_radios_from_sysfs(void)
 {
     const char      *sysfs_ieee80211_phys = "/sys/class/ieee80211";
     DIR             *d;
@@ -206,7 +206,7 @@ static int populate_radios_from_sysfs(struct alDevice *alDevice)
             ret = -1;
             break;
         }
-        alDeviceAddRadio(alDevice, radioAlloc(mac, f->d_name, index));
+        radioAllocLocal(mac, name, index);
         errno = 0;
     }
     if ( !f && errno )
@@ -216,7 +216,7 @@ static int populate_radios_from_sysfs(struct alDevice *alDevice)
     return ret;
 }
 
-int netlink_collect_local_infos(struct alDevice *alDevice)
+int netlink_collect_local_infos(void) /* populate 'local_device' */
 {
     struct nl80211_state  nlstate;
     struct radio         *radio;
@@ -226,7 +226,7 @@ int netlink_collect_local_infos(struct alDevice *alDevice)
 
     PLATFORM_PRINTF_DEBUG_SET_VERBOSITY_LEVEL(3);
 
-    if ( populate_radios_from_sysfs(alDevice) < 0 )
+    if ( populate_radios_from_sysfs() < 0 )
         return -1;
     if ( netlink_open(&nlstate) < 0 )
         return -1;
@@ -236,7 +236,7 @@ int netlink_collect_local_infos(struct alDevice *alDevice)
     ||   netlink_do(&nlstate, m, (void *)collect_protocol_features, &splitWiphy) < 0 ) {
         ret = -1;
     }
-    else dlist_for_each(radio, alDevice->radios, l) {
+    else dlist_for_each(radio, local_device->radios, l) {
         if ( ! (m = netlink_prepare(&nlstate, NL80211_CMD_GET_WIPHY, 0)) ) {
             ret = -1;
             break;

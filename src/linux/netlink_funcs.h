@@ -48,13 +48,10 @@ struct nl80211_state {
  */
 extern int  phy_lookup(const char *basedir, char *name, mac_address *mac, int *index);
 
-/** @brief  Add all the local radios found with their collected datas into the datamodel
- *
- *  @param  aldev   Output ::alDevice on which data collection has to be performed.
- *
+/** @brief  Add all the local radios found with their collected datas into global ::local_device
  *  @return 0:success, <0:error
  */
-extern int  netlink_collect_local_infos(struct alDevice *aldev);
+extern int  netlink_collect_local_infos(void);
 
 /** @brief  Open the netlink socket and prepare for commands
  *

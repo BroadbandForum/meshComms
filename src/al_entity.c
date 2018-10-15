@@ -898,7 +898,7 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
     // Collect all the informations about local radios throught netlink
     //
     PLATFORM_PRINTF_DEBUG_DETAIL("Retrieving list of local radios throught netlink...\n");
-    if (0 > netlink_collect_local_infos(local_device))
+    if (0 > netlink_collect_local_infos())
     {
         PLATFORM_PRINTF_DEBUG_ERROR("Failed to collect radios from netlink\n");
         return AL_ERROR_OS;

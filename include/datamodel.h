@@ -326,17 +326,18 @@ struct alDevice *alDeviceAlloc(const mac_address al_mac_addr);
   */
 void alDeviceDelete(struct alDevice *alDevice);
 
-/** @brief  Add a radio into ::alDevice
- *  @return 0:success, <0:error
+/** @brief  Allocate a new ::radio on the specified @a device
+ *  @param  device  Device which owns this radio
+ *  @param  mac     Unique identifier (mac address)
  */
-int alDeviceAddRadio(struct alDevice *alDevice, struct radio *radio);
+struct radio *  radioAlloc(struct alDevice *device, const mac_address mac);
 
-/** @brief  Allocate a new ::radio
- *  @param mac      Unique identifier (mac address)
- *  @param name     Local system name
- *  @param index    Local system index
+/** @brief  Allocate a new local ::radio and add it to the global ::local_device list
+ *  @param  mac     Unique identifier (mac address)
+ *  @param  name    Local system name
+ *  @param  index   Local system index
  */
-struct radio *  radioAlloc(const mac_address mac, const char *name, int index);
+struct radio *  radioAllocLocal(const mac_address mac, const char *name, int index);
 
 /** @brief  Delete a ::radio and all its interfaces. */
 void radioDelete(struct radio *radio);

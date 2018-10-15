@@ -56,7 +56,7 @@ struct alDevice *alDeviceAlloc(const mac_address al_mac_addr)
 {
     struct alDevice *ret = zmemalloc(sizeof(struct alDevice));
     dlist_add_tail(&network, &ret->l);
-    memcpy(ret->al_mac_addr, al_mac_addr, 6);
+    memcpy(ret->al_mac_addr, al_mac_addr, sizeof(mac_address));
     dlist_head_init(&ret->interfaces);
     dlist_head_init(&ret->radios);
     ret->is_map_agent = false;
@@ -76,18 +76,20 @@ void alDeviceDelete(struct alDevice *alDevice)
     free(alDevice);
 }
 
-int alDeviceAddRadio(struct alDevice *device, struct radio *radio)
-{
-    dlist_add_tail(&device->radios, &radio->l);
-    return 0;
-}
-
 /* 'radio' related functions
  */
-struct radio *  radioAlloc(const mac_address mac, const char *name, int index)
+struct radio*   radioAlloc(struct alDevice *dev, const mac_address mac)
 {
-    struct radio *r = zmemalloc(sizeof(*r));
+    struct radio *r = zmemalloc(sizeof(struct radio));
     memcpy(&r->uid, &mac, sizeof(mac_address));
+    r->index = -1;
+    dlist_add_tail(&dev->radios, &r->l);
+    return r;
+}
+
+struct radio*   radioAllocLocal(const mac_address mac, const char *name, int index)
+{
+    struct radio *r = radioAlloc(local_device, mac);
     strcpy(r->name, name);
     r->index = index;
     return r;
