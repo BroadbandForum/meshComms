@@ -130,7 +130,7 @@ struct interfaceWifi {
      *
      *  This have to be a valid channel who refers to channel::id
      */
-    int channel;
+    struct radioChannel *channel;
 
     /** @brief Clients connected to this BSS.
      *
