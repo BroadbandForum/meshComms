@@ -30,7 +30,7 @@
 #include "nl80211.h"
 #include "platform.h"
 
-static int collect_protocol_features(struct nl_msg *msg, struct radio *radio)
+static int collect_protocol_features(struct nl_msg *msg, bool *splitWiphy)
 {
     struct nlattr       *tbm[NL80211_ATTR_MAX + 1];
     struct genlmsghdr   *gnlh = nlmsg_data(nlmsg_hdr(msg));
@@ -45,7 +45,7 @@ static int collect_protocol_features(struct nl_msg *msg, struct radio *radio)
 
         if ( feat & NL80211_PROTOCOL_FEATURE_SPLIT_WIPHY_DUMP ) {
             PLATFORM_PRINTF_DEBUG_INFO("\t* has split wiphy dump\n");
-            radio->splitWiphy = true;
+            *splitWiphy = true;
         }
     }
     return NL_SKIP;
@@ -181,7 +181,6 @@ static int populate_radios_from_dev(struct alDevice *alDevice, const char *dev)
     return 0;
 }
 
-
 static int populate_radios_from_sysfs(struct alDevice *alDevice)
 {
     const char      *sysfs_ieee80211_phys = "/sys/class/ieee80211";
@@ -222,7 +221,9 @@ int netlink_collect_local_infos(struct alDevice *alDevice)
 {
     struct nl80211_state  nlstate;
     struct radio         *radio;
+    struct nl_msg        *m;
     int                   ret = 0;
+    bool                  splitWiphy = false;
 
     PLATFORM_PRINTF_DEBUG_SET_VERBOSITY_LEVEL(3);
 
@@ -231,21 +232,17 @@ int netlink_collect_local_infos(struct alDevice *alDevice)
     if ( netlink_open(&nlstate) < 0 )
         return -1;
 
-    dlist_for_each(radio, alDevice->radios, l) {
-        struct nl_msg *m;
-
-        /* Detect how the protocol is to be handled */
-        if ( ! (m = netlink_prepare(&nlstate, NL80211_CMD_GET_PROTOCOL_FEATURES, 0))
-        ||   netlink_do(&nlstate, m, (void *)collect_protocol_features, radio) < 0 ) {
-            ret = -1;
-            break;
-        }
-        /* Now dump all the infos for this radio */
+    /* Detect how the netlink protocol is to be handled */
+    if ( ! (m = netlink_prepare(&nlstate, NL80211_CMD_GET_PROTOCOL_FEATURES, 0))
+    ||   netlink_do(&nlstate, m, (void *)collect_protocol_features, &splitWiphy) < 0 ) {
+        ret = -1;
+    }
+    else dlist_for_each(radio, alDevice->radios, l) {
         if ( ! (m = netlink_prepare(&nlstate, NL80211_CMD_GET_WIPHY, 0)) ) {
             ret = -1;
             break;
         }
-        if ( radio->splitWiphy ) {
+        if ( splitWiphy ) {
             nla_put_flag(m, NL80211_ATTR_SPLIT_WIPHY_DUMP);
             nlmsg_hdr(m)->nlmsg_flags |= NLM_F_DUMP;
         }
