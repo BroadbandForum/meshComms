@@ -63,6 +63,11 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
 
     nla_parse(tb_msg, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0), genlmsg_attrlen(gnlh, 0), NULL);
 
+    /* How many associated stations are supported in AP mode */
+    if ( tb_msg[NL80211_ATTR_MAX_AP_ASSOC_STA] ) {
+        radio->maxApStations = nla_get_u32(tb_msg[NL80211_ATTR_MAX_AP_ASSOC_STA]);
+    }
+
     /* Configured antennas */
     if ( tb_msg[NL80211_ATTR_WIPHY_ANTENNA_RX] )
         radio->conf_ant[0] = nla_get_u32(tb_msg[NL80211_ATTR_WIPHY_ANTENNA_RX]);
