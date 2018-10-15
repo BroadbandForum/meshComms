@@ -100,14 +100,14 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
 
     /* Bands processing */
     if ( tb_msg[NL80211_ATTR_WIPHY_BANDS] ) {
-        static struct band  *band;
-        struct nlattr       *tb_band[NL80211_BAND_ATTR_MAX + 1], *nl_band;
-        int                  rem_band;
+        static struct radioBand *band;
+        struct nlattr           *tb_band[NL80211_BAND_ATTR_MAX + 1], *nl_band;
+        int                      rem_band;
 
         nla_for_each_nested(nl_band, tb_msg[NL80211_ATTR_WIPHY_BANDS], rem_band) {
 
             if ( ! band || band->id != nl_band->nla_type ) {
-                band = zmemalloc(sizeof(struct band));
+                band = zmemalloc(sizeof(struct radioBand));
                 PTRARRAY_ADD(radio->bands, band);
                 band->id = nl_band->nla_type;
             }
@@ -134,7 +134,7 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
                 };
 
                 nla_for_each_nested(nl_freq, tb_band[NL80211_BAND_ATTR_FREQS], rem_freq) {
-                    struct channel ch;
+                    struct radioChannel ch;
 
                     nla_parse(tb_freq, NL80211_FREQUENCY_ATTR_MAX, nla_data(nl_freq), nla_len(nl_freq), freq_policy);
 

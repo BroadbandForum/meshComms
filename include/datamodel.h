@@ -146,7 +146,7 @@ struct interfaceWifi {
  *  Typically 2.4 or 5.0 Ghz along with the supported channels.
  */
 
-struct channel {
+struct radioChannel {
     uint32_t    id;         /**< Channel id (0..255) */
     uint32_t    freq;       /**< Frequency */
     uint32_t    dbm;        /**< Power (value = (float) dbm * 0.01) */
@@ -154,7 +154,7 @@ struct channel {
     bool        disabled;   /**< Is this channel disabled ? */
 };
 
-struct band {
+struct radioBand {
     int     id;                 /**< Band ID */
     bool    ht40;               /**< HT40 capability ? (True = HT20/40 is supported, else only HT20) */
 
@@ -168,7 +168,7 @@ struct band {
         BAND_SGI_80 = 1,
         BAND_SGI_160_OR_80_80 = 2 } shortGI;            /**< Short GI */
 
-    PTRARRAY(struct channel) channels;   /**< List of channels allocated for this band */
+    PTRARRAY(struct radioChannel) channels; /**< List of channels allocated for this band */
 };
 
 /** @brief Wi-Fi radio.
@@ -188,7 +188,7 @@ struct radio {
     uint32_t    maxApStations;          /**< How many associated stations are supported in AP mode */
 
     /** @brief List of bands and their attributes/channels */
-    PTRARRAY(struct band *) bands;
+    PTRARRAY(struct radioBand *) bands;
 
     /** @brief List of BSSes configured for this radio.
      *
