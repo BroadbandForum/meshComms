@@ -32,14 +32,13 @@
 
 static int collect_protocol_features(struct nl_msg *msg, bool *splitWiphy)
 {
-    struct nlattr       *tbm[NL80211_ATTR_MAX + 1];
     struct genlmsghdr   *gnlh = nlmsg_data(nlmsg_hdr(msg));
+    struct nlattr       *attr;
 
-    if ( nla_parse(tbm, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0), genlmsg_attrlen(gnlh, 0), NULL) < 0 )
-        return -1;
+    attr = nla_find(genlmsg_attrdata(gnlh, 0), genlmsg_attrlen(gnlh, 0), NL80211_ATTR_PROTOCOL_FEATURES);
 
-    if ( tbm[NL80211_ATTR_PROTOCOL_FEATURES] ) {
-        uint32_t feat = nla_get_u32(tbm[NL80211_ATTR_PROTOCOL_FEATURES]);
+    if ( attr ) {
+        uint32_t feat = nla_get_u32(attr);
 
         PLATFORM_PRINTF_DEBUG_INFO("nl80211 features: 0x%x\n", feat);
 
