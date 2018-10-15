@@ -70,9 +70,9 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
 
     /* Configured antennas */
     if ( tb_msg[NL80211_ATTR_WIPHY_ANTENNA_RX] )
-        radio->conf_ant[0] = nla_get_u32(tb_msg[NL80211_ATTR_WIPHY_ANTENNA_RX]);
+        radio->confAnts[T_RADIO_RX] = nla_get_u32(tb_msg[NL80211_ATTR_WIPHY_ANTENNA_RX]);
     if ( tb_msg[NL80211_ATTR_WIPHY_ANTENNA_TX] )
-        radio->conf_ant[1] = nla_get_u32(tb_msg[NL80211_ATTR_WIPHY_ANTENNA_TX]);
+        radio->confAnts[T_RADIO_TX] = nla_get_u32(tb_msg[NL80211_ATTR_WIPHY_ANTENNA_TX]);
 
     /* Valid interface combinations */
     if ( tb_msg[NL80211_ATTR_INTERFACE_COMBINATIONS] ) {

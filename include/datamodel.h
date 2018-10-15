@@ -141,11 +141,8 @@ struct interfaceWifi {
     PTRARRAY(struct interfaceWifi *) clients;
 };
 
-/** @brief Wi-Fi radio supported bands.
- *
- *  Typically 2.4 or 5.0 Ghz along with the supported channels.
+/** @brief Wi-Fi radio supported channels.
  */
-
 struct radioChannel {
     uint32_t    id;         /**< Channel id (0..255) */
     uint32_t    freq;       /**< Frequency */
@@ -154,37 +151,46 @@ struct radioChannel {
     bool        disabled;   /**< Is this channel disabled ? */
 };
 
+/** @brief Wi-Fi radio supported bands.
+ *
+ *  Typically 2.4Ghz or 5.0 Ghz along with the supported channels.
+ */
 struct radioBand {
-    int     id;                 /**< Band ID */
-    bool    ht40;               /**< HT40 capability ? (True = HT20/40 is supported, else only HT20) */
-
     enum {
-        BAND_SCW_160_OR_80_80 = 0,
+        BAND_2GHZ  = 0,
+        BAND_5GHZ  = 1,
+        BAND_60GHZ = 2 }            id; /**< Band ID */
+    enum {
+        BAND_SCW_NONE = 0,
         BAND_SCW_160 = 1,
-        BAND_SCW_160_AND_80_80 = 2,
-        BAND_SCW_RESERVED = 3 }     supChannelWidth;    /**< Supported channel width */
+        BAND_SCW_160_80P80 = 2,
+        BAND_SCW_RESERVED = 3 }     supChannelWidth; /**< Supported channel width */
     enum {
         BAND_SGI_NONE = 0,
         BAND_SGI_80 = 1,
-        BAND_SGI_160_OR_80_80 = 2 } shortGI;            /**< Short GI */
+        BAND_SGI_160_80P80 = 2 }    shortGI; /**< Short GI */
 
-    PTRARRAY(struct radioChannel) channels; /**< List of channels allocated for this band */
+    bool                            ht40; /**< HT40 capability ? (True = HT20/40 is supported, else only HT20) */
+
+    PTRARRAY(struct radioChannel)   channels; /**< List of channels allocated for this band */
 };
+
+#define T_RADIO_NAME_SZ     16
+#define T_RADIO_RX           0
+#define T_RADIO_TX           1
 
 /** @brief Wi-Fi radio.
  *
  * A device may have several radios, and each radio may have several configured interfaces. Each interface is a STA or
  * AP and can join exactly one BSSID.
  */
-#define T_RADIO_NAME_SZ        16
-
 struct radio {
     dlist_item  l; /**< Membership of ::alDevice */
 
     mac_address uid;                    /**< Radio Unique Identifier for this radio. */
     char        name[T_RADIO_NAME_SZ];  /**< Radio's name (eg phy0) */
     uint32_t    index;                  /**< Radio's index (PHY) */
-    uint8_t     conf_ant[2];            /**< Configured antennas rx/tx */
+    uint8_t     confAnts[2];            /**< Configured antennas rx/tx */
     uint32_t    maxApStations;          /**< How many associated stations are supported in AP mode */
 
     /** @brief List of bands and their attributes/channels */
