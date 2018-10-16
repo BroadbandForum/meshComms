@@ -49,7 +49,7 @@ struct nl80211_state {
 extern int  phy_lookup(const char *basedir, char *name, mac_address *mac, int *index);
 
 /** @brief  Add all the local radios found with their collected datas into global ::local_device
- *  @return 0:success, <0:error
+ *  @return >=0:Number of radios processed/found, <0:error
  */
 extern int  netlink_collect_local_infos(void);
 
