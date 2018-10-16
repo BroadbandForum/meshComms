@@ -192,6 +192,7 @@ struct radio {
     uint32_t    index;                  /**< Radio's index (PHY) */
     uint8_t     confAnts[2];            /**< Configured antennas rx/tx */
     uint32_t    maxApStations;          /**< How many associated stations are supported in AP mode */
+    uint32_t    maxBSS;                 /**< Maximum number of BSSes */
 
     /** @brief List of bands and their attributes/channels */
     PTRARRAY(struct radioBand *) bands;

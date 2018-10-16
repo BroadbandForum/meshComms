@@ -92,8 +92,36 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
 
         nla_for_each_nested(nl_combi, tb_msg[NL80211_ATTR_INTERFACE_COMBINATIONS], rem_combi) {
             struct nlattr *tb_comb[NUM_NL80211_IFACE_COMB];
+            struct nlattr *tb_limit[NUM_NL80211_IFACE_LIMIT];
+            struct nlattr *nl_limit, *nl_mode;
+            int            err, rem_limit, rem_mode;
 
-            /** @todo Double check what is needed here ... */
+            err = nla_parse_nested(tb_comb, MAX_NL80211_IFACE_COMB, nl_combi, iface_combination_policy);
+            if ( err || ! (
+                tb_comb[NL80211_IFACE_COMB_LIMITS] &&
+                tb_comb[NL80211_IFACE_COMB_MAXNUM] &&
+                tb_comb[NL80211_IFACE_COMB_NUM_CHANNELS]) ) {
+                goto broken_combination;
+            }
+
+            nla_for_each_nested(nl_limit, tb_comb[NL80211_IFACE_COMB_LIMITS], rem_limit) {
+
+                err = nla_parse_nested(tb_limit, MAX_NL80211_IFACE_LIMIT, nl_limit, iface_limit_policy);
+                if ( err
+                ||  ! tb_limit[NL80211_IFACE_LIMIT_TYPES] )
+                    goto broken_combination;
+
+                nla_for_each_nested(nl_mode, tb_limit[NL80211_IFACE_LIMIT_TYPES], rem_mode) {
+                    /* Search for max stations per AP */
+                    if ( NL80211_IFTYPE_AP == nla_type(nl_mode) ) {
+                        uint32_t tmp = nla_get_u32(tb_limit[NL80211_IFACE_LIMIT_MAX]);
+                        if ( radio->maxBSS < tmp )
+                            radio->maxBSS = tmp;
+                        break;
+                    }
+                }
+            }
+          broken_combination:;
         }
     }
 
