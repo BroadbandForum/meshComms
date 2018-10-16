@@ -66,13 +66,24 @@ static int collect_radio_datas(struct nl_msg *msg, struct radio *radio)
     if ( tb_msg[NL80211_ATTR_MAX_AP_ASSOC_STA] ) {
         radio->maxApStations = nla_get_u32(tb_msg[NL80211_ATTR_MAX_AP_ASSOC_STA]);
     }
-
     /* Configured antennas */
     if ( tb_msg[NL80211_ATTR_WIPHY_ANTENNA_RX] )
         radio->confAnts[T_RADIO_RX] = nla_get_u32(tb_msg[NL80211_ATTR_WIPHY_ANTENNA_RX]);
     if ( tb_msg[NL80211_ATTR_WIPHY_ANTENNA_TX] )
         radio->confAnts[T_RADIO_TX] = nla_get_u32(tb_msg[NL80211_ATTR_WIPHY_ANTENNA_TX]);
 
+    /* Supported interface modes */
+    if (tb_msg[NL80211_ATTR_SUPPORTED_IFTYPES]) {
+        struct nlattr *nl_mode;
+        int            rem_mode;
+
+        nla_for_each_nested(nl_mode, tb_msg[NL80211_ATTR_SUPPORTED_IFTYPES], rem_mode) {
+            if ( nla_type(nl_mode) == NL80211_IFTYPE_MONITOR ) {
+                radio->monitor = true;
+                break;
+            }
+        }
+    }
     /* Valid interface combinations */
     if ( tb_msg[NL80211_ATTR_INTERFACE_COMBINATIONS] ) {
         struct nlattr   *nl_combi;

@@ -193,6 +193,7 @@ struct radio {
     uint8_t     confAnts[2];            /**< Configured antennas rx/tx */
     uint32_t    maxApStations;          /**< How many associated stations are supported in AP mode */
     uint32_t    maxBSS;                 /**< Maximum number of BSSes */
+    bool        monitor;                /**< Is monitor mode supported on this radio ? */
 
     /** @brief List of bands and their attributes/channels */
     PTRARRAY(struct radioBand *) bands;
