@@ -203,6 +203,26 @@ struct radio {
      * Elements are of type interfaceWifi. Their interfaceWifi::radio pointer points to this object.
      */
     dlist_head configured_bsses;
+
+    /** @brief Operations on the radio.
+     *
+     * Implementing these as function pointers allows each radio to have a different driver.
+     *
+     * Note that the handlers should in general not update the data model. Instead, the data model should be updated by driver
+     * events that detect a change in the data model.
+     * @{
+     */
+
+    /** @brief Handler to add an access point interface on this radio.
+     *
+     * @param radio The radio on which the AP is to be added.
+     * @param ssid The AP's SSID.
+     * @param bssid The AP's BSSID.
+     */
+    bool (*addAP)(struct radio *radio, struct ssid ssid, mac_address bssid,
+                  uint16_t auth_type, uint16_t encryption_type, const uint8_t *key, size_t key_len);
+
+    /** @} */
 };
 
 /** @brief 1905.1 device.
@@ -344,10 +364,17 @@ struct radio *  radioAllocLocal(const mac_address mac, const char *name, int ind
 /** @brief  Delete a ::radio and all its interfaces. */
 void radioDelete(struct radio *radio);
 
+/** @brief Find the radio with a given radio-uid belonging to the given device. */
+struct radio *findDeviceRadio(const struct alDevice *device, const mac_address uid);
+
 /** @brief  Add an interface to ::radio
  *  @return 0:success, <0:error
  */
 int radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *iface);
+
+/** @brief Configure an AP on the radio. */
+void radioAddApp(struct radio *radio, struct ssid ssid, mac_address bssid,
+                 uint16_t auth_type, uint16_t encryption_type, const uint8_t *key, size_t key_len);
 
 /** @brief Allocate a new interface, with optional owning device.
  *

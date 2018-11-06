@@ -572,11 +572,11 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
 
     // "Useful data" we want to extract from M2
     //
-    uint8_t  ssid[64];                   uint8_t ssid_present;
+    struct ssid ssid;                    uint8_t ssid_present;
     uint8_t  bssid[6];                   uint8_t bssid_present;
     uint16_t auth_type;                  uint8_t auth_type_present;
     uint16_t encryption_type;            uint8_t encryption_type_present;
-    uint8_t  network_key[64];            uint8_t network_key_present;
+    uint8_t  network_key[64];            size_t network_key_len;
 
     // Keys we need to compute to authenticate and decrypt M2
     //
@@ -867,7 +867,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
         bssid_present             = 0;
         auth_type_present         = 0;
         encryption_type_present   = 0;
-        network_key_present       = 0;
+        network_key_len           = 0;
         m2_keywrap_present        = 0;
         p                         = plain;
         while (p - plain < plain_len)
@@ -880,9 +880,16 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
 
             if (ATTR_SSID == attr_type)
             {
-                _EnB(&p, ssid, attr_len);
-                ssid[attr_len] = 0x00;
-                ssid_present = 1;
+                if (attr_len <= sizeof(ssid.ssid))
+                {
+                    _EnB(&p, ssid.ssid, attr_len);
+                    ssid.length = attr_len;
+                    ssid_present = 1;
+                }
+                else
+                {
+                    PLATFORM_PRINTF_DEBUG_WARNING("Invalid SSID: too long (%u)\n", attr_len);
+                }
             }
             else if (ATTR_AUTH_TYPE == attr_type)
             {
@@ -896,9 +903,15 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             }
             else if (ATTR_NETWORK_KEY == attr_type)
             {
-                _EnB(&p, network_key, attr_len);
-                network_key[attr_len] = 0x00;
-                network_key_present = 1;
+                if (attr_len <= sizeof(network_key))
+                {
+                    _EnB(&p, network_key, attr_len);
+                    network_key_len = attr_len;
+                }
+                else
+                {
+                    PLATFORM_PRINTF_DEBUG_WARNING("Invalid SSID: too long (%u)\n", attr_len);
+                }
             }
             else if (ATTR_MAC_ADDR == attr_type)
             {
@@ -944,7 +957,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
              0 == bssid_present                 ||
              0 == auth_type_present             ||
              0 == encryption_type_present       ||
-             0 == network_key_present           ||
+             0 == network_key_len               ||
              0 == m2_keywrap_present
            )
         {
@@ -956,7 +969,17 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
     // Apply the security settings so that this AP clones the registrar
     // configuration
     //
-    PLATFORM_CONFIGURE_80211_AP(DMmacToInterfaceName(m1_mac), ssid, bssid, auth_type, encryption_type, network_key);
+    {
+        struct radio *radio = findDeviceRadio(local_device, m1_mac);
+        if (radio == NULL)
+        {
+            PLATFORM_PRINTF_DEBUG_WARNING("Got configuration for unknown radio " MACSTR "\n", MAC2STR(m1_mac));
+        }
+        else
+        {
+            radioAddApp(radio, ssid, bssid, auth_type, encryption_type, network_key, network_key_len);
+        }
+    }
 
     free(m1);      last_m1 = NULL;
     free(k->key);  k->key  = NULL;  last_key->key = NULL;

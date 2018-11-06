@@ -57,6 +57,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
          linux/platform_alme_server.c
          linux/platform_crypto.c
          linux/platform_interfaces.c
+         # @todo make these configurable
+         linux/platform_uci.c
          linux/platform_interfaces_ghnspirit.c
          linux/platform_interfaces_simulated.c
          linux/platform_interfaces_wrt1900acx.c

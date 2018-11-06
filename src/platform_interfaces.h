@@ -590,32 +590,4 @@ uint8_t PLATFORM_START_PUSH_BUTTON_CONFIGURATION(char *interface_name, uint8_t q
 #define INTERFACE_POWER_RESULT_KO           (0x03)
 uint8_t PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, uint8_t power_mode);
 
-////////////////////////////////////////////////////////////////////////////////
-/// Security configuration
-////////////////////////////////////////////////////////////////////////////////
-
-// Configure an 80211 AP interface.
-//
-// 'interface_name' is one of the names previously returned in a call to
-// "PLATFORM_GET_LIST_OF_1905_INTERFACES()".
-// It must be an 802.11 interface with the role of "AP".
-//
-// 'ssid' is a NULL terminated string containing the "friendly" name of the
-// network that the AP is going to create.
-//
-// 'bssid' is a 6 bytes long ID containing the MAC address of the "main" AP
-// (typically the registrar) on "extended" networks (where several APs share the
-// same security settings to make it easier for devices to "roam" between them).
-//
-// 'auth_mode' is the "authentication mode" the AP is going to use. It must take
-// one of the values from "IEEE80211_AUTH_MODE_*"
-//
-// 'encryption_mode' is "encryption mode" the AP is going to use. It must take
-// one of the values from "IEEE80211_ENCRYPTION_MODE_*"
-//
-// 'network_key' is a NULL terminated string representing the "network key" the
-// AP is going to use.
-//
-uint8_t PLATFORM_CONFIGURE_80211_AP(const char *interface_name, const uint8_t *ssid, const uint8_t *bssid, uint16_t auth_mode, uint16_t encryption_mode, const uint8_t *network_key);
-
 #endif

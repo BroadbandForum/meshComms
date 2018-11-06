@@ -1549,22 +1549,3 @@ uint8_t PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, uint8_t power_mo
 
     return INTERFACE_POWER_RESULT_EXPECTED;
 }
-
-uint8_t PLATFORM_CONFIGURE_80211_AP(const char *interface_name, const uint8_t *ssid, const uint8_t *bssid,
-                                    uint16_t auth_type, uint16_t encryption_type, const uint8_t *network_key)
-{
-    PLATFORM_PRINTF_DEBUG_INFO("Applying WSC configuration (%s): \n", interface_name);
-    PLATFORM_PRINTF_DEBUG_INFO("  - SSID            : %s\n", ssid);
-    PLATFORM_PRINTF_DEBUG_INFO("  - BSSID           : %02x:%02x:%02x:%02x:%02x:%02x\n", bssid[0], bssid[1], bssid[2], bssid[3], bssid[4], bssid[5]);
-    PLATFORM_PRINTF_DEBUG_INFO("  - AUTH_TYPE       : 0x%04x\n", auth_type);
-    PLATFORM_PRINTF_DEBUG_INFO("  - ENCRYPTION_TYPE : 0x%04x\n", encryption_type);
-    PLATFORM_PRINTF_DEBUG_INFO("  - NETWORK_KEY     : %s\n", network_key);
-
-#ifdef _FLAVOUR_ARM_WRT1900ACX_
-    linksys_wrt1900acx_apply_80211_configuration(interface_name, ssid, network_key);
-#else
-    PLATFORM_PRINTF_DEBUG_WARNING("[PLATFORM] Configuration has no effect on flavour-neutral platform\n");
-#endif
-
-    return 1;
-}

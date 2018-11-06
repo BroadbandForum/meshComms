@@ -40,9 +40,12 @@
 #include "al_utils.h"
 #include "al_extension.h"
 
+#include <datamodel.h>
+
 #include "platform_interfaces.h"
 #include "platform_os.h"
 #include "platform_alme_server.h"
+#include "linux/platform_uci.h"
 
 #include "linux/netlink_funcs.h"
 
@@ -903,6 +906,9 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
         PLATFORM_PRINTF_DEBUG_ERROR("Failed to collect radios from netlink\n");
         return AL_ERROR_OS;
     } 
+
+    // Register UCI as the driver for local radios.
+    uci_register_handlers();
 
     // Obtain the list of interfaces that the AL entity is going to manage
     //
