@@ -46,6 +46,12 @@ enum interfaceType {
     interface_type_other = 255,  /**< Other interfaces types, not supported by this data model. */
 };
 
+enum interfacePowerState {
+    interface_power_state_on = 0,
+    interface_power_state_save = 1,
+    interface_power_state_off = 2,
+};
+
 /** @brief Definition of an interface
  *
  * The interface stores some information, but mostly the information is retrieved through callback functions.
@@ -82,6 +88,8 @@ struct interface
     /** @brief IEEE 1905.1a Media-specific Information, as per "IEEE Std 1905.1-2013, Table 6-12 and 6-13". */
     uint8_t media_specific_info[16];
     uint8_t media_specific_info_length; /**< @brief Valid length of @a media_specific_info. */
+
+    enum interfacePowerState power_state;
 
     /** @brief Info to control discovery messages sent to this interface.
      *

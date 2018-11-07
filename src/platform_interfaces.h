@@ -340,6 +340,8 @@ struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name);
 //
 void free_1905_INTERFACE_INFO(struct interfaceInfo *i);
 
+/** @brief Populate the data model with the local interfaces. */
+void createLocalInterfaces(void);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Link metrics

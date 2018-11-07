@@ -266,7 +266,7 @@ struct interface *findLocalInterface(const char *name)
     }
     dlist_for_each(ret, local_device->interfaces, l)
     {
-        if (strcmp(ret->name, name) == 0)
+        if (ret->name && strcmp(ret->name, name) == 0)
         {
             return ret;
         }

@@ -910,6 +910,10 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
     // Register UCI as the driver for local radios.
     uci_register_handlers();
 
+    // Collect interfaces
+    PLATFORM_PRINTF_DEBUG_DETAIL("Retrieving list of local interfaces...\n");
+    createLocalInterfaces();
+
     // Obtain the list of interfaces that the AL entity is going to manage
     //
     PLATFORM_PRINTF_DEBUG_DETAIL("Retrieving list of interfaces visible to the 1905 AL entity...\n");

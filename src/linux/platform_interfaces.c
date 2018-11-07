@@ -26,6 +26,8 @@
 #include "platform_interfaces_wrt1900acx_priv.h"
 #endif
 
+#include <datamodel.h>
+
 #include <stdio.h>            // printf(), popen()
 #include <stdlib.h>           // malloc(), ssize_t
 #include <stdarg.h>           // va_*
@@ -718,13 +720,17 @@ void free_LIST_OF_1905_INTERFACES(__attribute__((unused)) char **x, __attribute_
 struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
 {
     struct interfaceInfo *m;
-
-    struct ifreq s;
-
-    uint8_t executed;
-    uint8_t i;
+    int i;
+    struct interface *interface;
 
     PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM] Retrieving info for interface %s\n", interface_name);
+
+    interface = findLocalInterface(interface_name);
+    if (interface == NULL)
+    {
+        PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Interface %s not found\n", interface_name);
+        return NULL;
+    }
 
     m = (struct interfaceInfo *)malloc(sizeof(struct interfaceInfo));
     if (NULL == m)
@@ -733,23 +739,16 @@ struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
         return NULL;
     }
 
-    // Fill the 'name' field
-    //
+    // Copy from data model
     m->name = strdup(interface_name);
+    memcpy (m->mac_address, interface->addr, 6);
+    m->power_state = (uint8_t)interface->power_state;
 
-    // Obtain the 'mac_address'
-    //
+    /* @todo handle interface_type and _data */
 
     // Give "sane" values in case any of the following parameters can not be
     // filled later
     //
-    m->mac_address[0] = 0x00;
-    m->mac_address[1] = 0x00;
-    m->mac_address[2] = 0x00;
-    m->mac_address[3] = 0x00;
-    m->mac_address[4] = 0x00;
-    m->mac_address[5] = 0x00;
-
     memcpy(m->manufacturer_name, "Unknown",          strlen("Unknown")+1);
     memcpy(m->model_name,        "Unknown",          strlen("Unknown")+1);
     memcpy(m->model_number,      "00000000",         strlen("00000000")+1);
@@ -776,7 +775,6 @@ struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
     m->push_button_new_mac_address[4] = 0x00;
     m->push_button_new_mac_address[5] = 0x00;
 
-    m->power_state                    = INTERFACE_POWER_STATE_OFF;
     m->neighbor_mac_addresses_nr      = INTERFACE_NEIGHBORS_UNKNOWN;
     m->neighbor_mac_addresses         = NULL;
 
@@ -788,75 +786,11 @@ struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
     m->vendor_specific_elements_nr    = 0;
     m->vendor_specific_elements       = NULL;
 
-    // Next, fill all the parameters we can depending on the type of interface
-    // we are dealing with:
-
-    // *********************************************************************
-    // ********************** SPECIAL INTERFACE ****************************
-    // *********************************************************************
-    //
-    // Some "special" interfaces require "special" methods to retrieve their
-    // data. These interfaces have "extended_params" associated.
-    // Let's check if this is the case.
-    //
-    executed = _executeInterfaceStub(interface_name, STUB_TYPE_GET_INFO, m);
-
-    if (0 == executed)
+    // Check extensions
+    if (0 == _executeInterfaceStub(interface_name, STUB_TYPE_GET_INFO, m))
     {
-        // *********************************************************************
-        // ********************** REGULAR INTERFACE ****************************
-        // *********************************************************************
-
-        // This is a "regular" interface. Query the Linux kernel for data
-
-        int fd;
-
-        strcpy(s.ifr_name, m->name);
-        fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
-        if (0 != ioctl(fd, SIOCGIFHWADDR, &s))
-        {
-            PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Could not obtain MAC address of interface %s\n", m->name);
-            free(m->name);
-            free(m);
-            close(fd);
-            return NULL;
-        }
-        close(fd);
-        memcpy(m->mac_address, s.ifr_addr.sa_data, 6);
-
-#ifdef _FLAVOUR_ARM_WRT1900ACX_
-        // The "linksys wrt1900ac" platform flavour uses the following flavour
-        // specific function to fill the "m" structure.
-        //
-        linksys_wrt1900acx_get_interface_info(interface_name, m);
-#else
-        // TODO: In a flavour-neutral device we don't really know how to fill
-        //       many of these things, thus we will use "default" values when
-        //       needed. This will obviously not always work!
-
-        PLATFORM_PRINTF_DEBUG_WARNING("[PLATFORM] No platform flavour defined. Using default values when needed.\n");
-
-        switch (_getInterfaceType(interface_name))
-        {
-            case INTF_TYPE_ETHERNET:
-            {
-                m->interface_type = INTERFACE_TYPE_IEEE_802_3AB_GIGABIT_ETHERNET;
-                break;
-            }
-            case INTF_TYPE_WIFI:
-            {
-                m->interface_type = INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ;
-                break;
-            }
-            default:
-            {
-                PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Unknown interface type. Assuming ethernet.\n");
-
-                m->interface_type = INTERFACE_TYPE_IEEE_802_3AB_GIGABIT_ETHERNET;
-                break;
-            }
-        }
-
+        // Next, fill all the parameters we can depending on the type of interface
+        // we are dealing with:
         // Check 'is_secured'
         //
         if (
@@ -888,35 +822,6 @@ struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
         {
             m->is_secured = 0;
         }
-
-        // Check 'push button' configuration sequence status
-        //
-        m->push_button_on_going = 2; // "2" means "not supported"
-
-        // Check the 'power_state'
-        //
-        m->power_state = INTERFACE_POWER_STATE_ON;
-
-        // Add neighbor MAC addresses
-        //
-        m->neighbor_mac_addresses_nr = INTERFACE_NEIGHBORS_UNKNOWN;
-        m->neighbor_mac_addresses    = NULL;
-
-        // Add IPv4 info
-        //
-        m->ipv4_nr = 0;
-        m->ipv4    = NULL;
-
-        // Add IPv6 info
-        //
-        m->ipv6_nr = 0;
-        m->ipv6    = NULL;
-
-        // Add vendor specific data
-        //
-        m->vendor_specific_elements_nr = 0;
-        m->vendor_specific_elements    = NULL;
-#endif
     }
 
     PLATFORM_PRINTF_DEBUG_DETAIL("[PLATFORM]   mac_address                 : %02x:%02x:%02x:%02x:%02x:%02x\n", m->mac_address[0], m->mac_address[1], m->mac_address[2], m->mac_address[3], m->mac_address[4], m->mac_address[5]);
@@ -1017,6 +922,85 @@ struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
     }
 
     return m;
+}
+
+void createLocalInterfaces(void)
+{
+    int i;
+
+    for (i = 0; i < interfaces_nr; i++)
+    {
+        const char *interface_name = interfaces_list[i];
+        struct interfaceInfo m;
+        struct interface *interface;
+        struct interfaceWifi *interface_wifi = NULL;
+
+        // *********************************************************************
+        // ********************** SPECIAL INTERFACE ****************************
+        // *********************************************************************
+        //
+        // Some "special" interfaces require "special" methods to retrieve their
+        // data. These interfaces have "extended_params" associated.
+        // Let's check if this is the case.
+        //
+        if (_executeInterfaceStub(interface_name, STUB_TYPE_GET_INFO, &m)) {
+            if ((m.interface_type & 0xFF00) == 0x0100) {
+                interface_wifi = interfaceWifiAlloc(m.mac_address, local_device);
+                interface = &interface_wifi->i;
+                /* @todo fill in bssinfo */
+            } else {
+                interface = interfaceAlloc(m.mac_address, local_device);
+                if ((m.interface_type & 0xFF00) == 0x0000) {
+                    interface->type = interface_type_ethernet;
+                } else if (m.interface_type == 0xFFFF) {
+                    interface->type = interface_type_unknown;
+                } else {
+                    interface->type = interface_type_other;
+                }
+            }
+            interface->media_type = m.interface_type;
+            interface->power_state = m.power_state;
+            interface->name = interface_name;
+            /* @todo fill in media specific info */
+            continue;
+        }
+
+        // *********************************************************************
+        // ********************** REGULAR INTERFACE ****************************
+        // *********************************************************************
+
+        // This is a "regular" interface. Query the Linux kernel for data
+        int fd;
+        struct ifreq s;
+        mac_address addr;
+
+        strcpy(s.ifr_name, interface_name);
+        fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
+        if (0 != ioctl(fd, SIOCGIFHWADDR, &s))
+        {
+            PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Could not obtain MAC address of interface %s\n", interface_name);
+            close(fd);
+            continue;
+        }
+        close(fd);
+        memcpy(addr, s.ifr_addr.sa_data, 6);
+
+        switch (_getInterfaceType(interface_name)) {
+        case INTF_TYPE_WIFI:
+            interface_wifi = interfaceWifiAlloc(addr, local_device);
+            interface = &interface_wifi->i;
+            /* @todo get correct media type */
+            interface->media_type = INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ;
+            break;
+        default:
+            interface = interfaceAlloc(addr, local_device);
+            /* @todo get correct media type */
+            interface->media_type = INTERFACE_TYPE_IEEE_802_3AB_GIGABIT_ETHERNET;
+            break;
+        }
+        interface->name = interface_name;
+        interface->power_state = interface_power_state_on;
+    }
 }
 
 void free_1905_INTERFACE_INFO(struct interfaceInfo *x)
