@@ -48,7 +48,9 @@ if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
 
     find_library(LIBRT rt)
 
-    set_property(TARGET ${libname} APPEND PROPERTY COMPILE_OPTIONS ${NL3_CFLAGS})
+    target_include_directories(${libname} PRIVATE ${OPENSSL_INCLUDE_DIR} ${NL3_INCLUDE_DIRS})
+    set_property(TARGET ${libname} APPEND PROPERTY COMPILE_OPTIONS ${NL3_CFLAGS_OTHER})
+
     target_sources(${libname} PRIVATE
          linux/netlink_collect.c
          linux/netlink_socks.c
