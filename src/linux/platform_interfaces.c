@@ -98,7 +98,7 @@ struct _stubTable
 //
 // Return '1' if the handler was executed correctly, '0' otherwise
 //
-uint8_t _executeInterfaceStub(char *interface_name, uint8_t stub_type, ...)
+uint8_t _executeInterfaceStub(const char *interface_name, uint8_t stub_type, ...)
 {
     va_list   args;
     void     *f;
@@ -206,7 +206,7 @@ uint8_t _executeInterfaceStub(char *interface_name, uint8_t stub_type, ...)
 #define INTF_TYPE_ETHERNET       (1)
 #define INTF_TYPE_WIFI           (2)
 #define INTF_TYPE_UNKNOWN        (0xFF)
-uint8_t _getInterfaceType(char *interface_name)
+uint8_t _getInterfaceType(const char *interface_name)
 {
     // According to www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net
     //
