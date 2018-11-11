@@ -22,7 +22,7 @@
 #include "../platform_os.h"
 #include "platform_os_priv.h"
 
-#ifdef _FLAVOUR_OPENWRT_
+#ifdef OPENWRT
 #include "platform_interfaces_openwrt_priv.h"
 #endif
 
