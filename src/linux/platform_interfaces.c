@@ -22,8 +22,8 @@
 #include "../platform_os.h"
 #include "platform_os_priv.h"
 
-#ifdef _FLAVOUR_ARM_WRT1900ACX_
-#include "platform_interfaces_wrt1900acx_priv.h"
+#ifdef _FLAVOUR_OPENWRT_
+#include "platform_interfaces_openwrt_priv.h"
 #endif
 
 #include <datamodel.h>

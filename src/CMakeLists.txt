@@ -63,7 +63,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
          linux/platform_uci.c
          linux/platform_interfaces_ghnspirit.c
          linux/platform_interfaces_simulated.c
-         linux/platform_interfaces_wrt1900acx.c
+         linux/platform_interfaces_openwrt.c
          linux/platform_os.c)
 
     add_executable(al_entity linux/al_entity/al_entity_main.c)
