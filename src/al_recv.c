@@ -1172,17 +1172,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 return PROCESS_CMDU_KO;
             }
 
-            /* Try to find the sender device in our database. The sender's AL MAC address is not given in the message, and the
-             * source address may be either the MAC address or the interface address. */
-            sender_device = alDeviceFind(src_addr);
-            if (sender_device == NULL)
-            {
-                struct interface *sender_interface = findDeviceInterface(src_addr);
-                if (sender_interface != NULL)
-                {
-                    sender_device = sender_interface->owner;
-                }
-            }
+            sender_device = alDeviceFindFromAnyAddress(src_addr);
 
             bool sender_is_controller = handleSupportedServiceTLV(sender_device, supportedService);
 
@@ -1243,7 +1233,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                             }
 
                             if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(),
-                                                                   dst_mac, m1, m1_size, radio, sender_is_controller))
+                                                                   dst_mac, m1, m1_size, radio, sender_is_controller, NULL, false))
                             {
                                 PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration WSC-M1' message\n");
                             }
@@ -1270,6 +1260,9 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             uint16_t  wsc_frame_size;
 
             uint8_t wsc_type;
+
+            struct apRadioBasicCapabilitiesTLV *ap_radio_basic_capabilities = NULL;
+            struct apRadioIdentifierTLV *ap_radio_identifier = NULL;
 
             // When a "AP-autoconfig WSC" is received we first have to find out
             // if the contained message is M1 or M2.
@@ -1300,6 +1293,13 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
                         break;
                     }
+                    case TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES:
+                        ap_radio_basic_capabilities = container_of(p, struct apRadioBasicCapabilitiesTLV, tlv);
+                        break;
+                    case TLV_TYPE_AP_RADIO_IDENTIFIER:
+                        ap_radio_identifier = container_of(p, struct apRadioIdentifierTLV, tlv);
+                        break;
+
                     default:
                     {
                         PLATFORM_PRINTF_DEBUG_WARNING("Unexpected TLV (%d) type inside CMDU\n", p->type);
@@ -1349,44 +1349,40 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 uint8_t   *m2;
                 uint16_t   m2_size;
 
-                uint8_t   *dst_mac;
-                uint8_t   *p;
+                bool send_radio_identifier = ap_radio_basic_capabilities != NULL;
+
+                struct alDevice *sender_device = alDeviceFindFromAnyAddress(src_addr);
+
+                if (sender_device == NULL)
+                {
+                    PLATFORM_PRINTF_DEBUG_WARNING("Received WSC M1 from undiscovered address " MACSTR "\n",
+                                                  MAC2STR(src_addr));
+                    // There should have been a discovery before, so ignore this one.
+                    break;
+                }
+
+                if (send_radio_identifier)
+                {
+                    /* Update data model with radio capabilities */
+                    struct radio *radio = findDeviceRadio(sender_device, ap_radio_basic_capabilities->radio_uid);
+                    if (radio == NULL)
+                    {
+                        radio = radioAlloc(sender_device, ap_radio_basic_capabilities->radio_uid);
+                    }
+                    radio->maxBSS = ap_radio_basic_capabilities->maxbss;
+                    /* @todo add band based on band in M1. */
+                    /* @todo add channels based on channel info in ap_radio_basic_capabilities. */
+                }
 
                 wscBuildM2(wsc_frame, wsc_frame_size, &m2, &m2_size);
 
-                // We must send M2 to the AL MAC of the node who sent M1,
-                // however, this AL MAC is *not* contained in M1.
-                // The only thing we can do at this point is try to search our
-                // AL neighbors data base for a matching MAC.
-                //
-                p = DMmacToAlMac(src_addr);
-
-                if (NULL == p)
-                {
-                    // The standard says we should always send to the AL MAC
-                    // address, however, in these cases, instead of just
-                    // dropping the packet, sending M2 to the 'src' address
-                    // from the M1 seems the right thing to do.
-                    //
-                    dst_mac = src_addr;
-                    PLATFORM_PRINTF_DEBUG_WARNING("Unknown destination AL MAC. Using the 'src' MAC from M1 (%02x:%02x:%02x:%02x:%02x:%02x)\n", dst_mac[0],dst_mac[1], dst_mac[2], dst_mac[3], dst_mac[4], dst_mac[5]);
-                }
-                else
-                {
-                    dst_mac = p;
-                }
-
                 if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(),
-                                                               dst_mac, m2, m2_size, NULL, false))
+                                                               sender_device->al_mac_addr, m2, m2_size, NULL, false,
+                                                               send_radio_identifier ? ap_radio_basic_capabilities->radio_uid : NULL,
+                                                               send_radio_identifier))
                 {
                     PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration WSC-M2' message\n");
                 }
-
-                if (NULL != p)
-                {
-                    free(p);
-                }
-
                 wscFreeM2(m2, m2_size);
             }
             else

@@ -232,6 +232,20 @@ struct alDevice *alDeviceFind(const mac_address al_mac_addr)
     return NULL;
 }
 
+struct alDevice *alDeviceFindFromAnyAddress(const mac_address sender_addr)
+{
+    struct alDevice *sender_device = alDeviceFind(sender_addr);
+    if (sender_device == NULL)
+    {
+        struct interface *sender_interface = findDeviceInterface(sender_addr);
+        if (sender_interface != NULL)
+        {
+            sender_device = sender_interface->owner;
+        }
+    }
+    return sender_device;
+}
+
 struct interface *alDeviceFindInterface(const struct alDevice *device, const mac_address addr)
 {
     struct interface *ret;

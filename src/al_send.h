@@ -347,7 +347,8 @@ uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t
 //
 uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
                                              const uint8_t *wsc_frame, uint16_t wsc_frame_size,
-                                             const struct radio *radio, bool send_radio_basic_capabilities);
+                                             const struct radio *radio, bool send_radio_basic_capabilities,
+                                             const mac_address radio_uid, bool send_radio_identifier);
 
 // This function sends a "1905 generic phy query packet" on the provided
 // interface.

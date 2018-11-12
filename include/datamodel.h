@@ -410,6 +410,9 @@ void alDeviceAddInterface(struct alDevice *device, struct interface *interface);
 /** @brief Find an alDevice based on its AL-MAC address. */
 struct alDevice *alDeviceFind(const mac_address al_mac_addr);
 
+/** @brief Find an alDevice based on an address which may be its AL-MAC address or the sending interface address. */
+struct alDevice *alDeviceFindFromAnyAddress(const mac_address sender_addr);
+
 /** @brief Find the interface belonging to a specific device. */
 struct interface *alDeviceFindInterface(const struct alDevice *device, const mac_address addr);
 

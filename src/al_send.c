@@ -3207,7 +3207,8 @@ uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t
 
 uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
                                              const uint8_t *wsc_frame, uint16_t wsc_frame_size,
-                                             const struct radio *radio, bool send_radio_basic_capabilities)
+                                             const struct radio *radio, bool send_radio_basic_capabilities,
+                                             const mac_address radio_uid, bool send_radio_identifier)
 {
     // The "AP-autoconfiguration WSC" message is a CMDU with TLVs:
     //   - One or more WSC TLVs (one per SSID to configure)
@@ -3242,6 +3243,14 @@ uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_
     if (send_radio_basic_capabilities)
     {
         data_message.list_of_TLVs[1] = _obtainLocalRadioBasicCapabilitiesTLV(radio);
+    }
+    else if (send_radio_identifier)
+    {
+        struct apRadioIdentifierTLV *apRadioIdentifier =
+                X1905_TLV_ALLOC(apRadioIdentifier, TLV_TYPE_AP_RADIO_IDENTIFIER, NULL);
+
+        memcpy(&apRadioIdentifier->radio_uid, radio_uid, sizeof(mac_address));
+        data_message.list_of_TLVs[1] = &apRadioIdentifier->tlv;
     }
 
     if (0 == send1905RawPacket(interface_name, mid, destination_al_mac_address, &data_message))

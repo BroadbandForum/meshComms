@@ -112,6 +112,7 @@ static struct CMDU aletest_send_cmdu_autoconfig_wsc_m1 = {
                         "\x04\x80\x00\x00\x01\x10\x49\x00\x06\x00\x37\x2a\x00\x01\x20\x00\x00\x00"
                 }
             },
+            NULL, /* AP Radio Basic Capabilities TLV */
             NULL,
         },
 
@@ -130,6 +131,13 @@ void initExpected()
     aletest_send_cmdu_autoconfig_search.list_of_TLVs[0] = &alMacAddressType->tlv;
     aletest_send_cmdu_autoconfig_search.list_of_TLVs[3] = &multiApAgentService->tlv;
     aletest_send_cmdu_autoconfig_search.list_of_TLVs[4] = &multiApControllerSearchedService->tlv;
+
+    struct apRadioBasicCapabilitiesTLV *apRadioBasicCapabilities =
+            X1905_TLV_ALLOC(apRadioBasicCapabilities, TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES, NULL);
+    apRadioBasicCapabilities->maxbss = 11;
+    memcpy(apRadioBasicCapabilities->radio_uid, ADDR_MAC_PEER0, 6);
+    apRadioBasicCapabilitiesTLVAddClass(apRadioBasicCapabilities, 0x01, 0x55);
+    aletest_send_cmdu_autoconfig_wsc_m1.list_of_TLVs[1] = &apRadioBasicCapabilities->tlv;
 }
 
 
@@ -163,35 +171,58 @@ int main()
 
     if (NULL != expect_autoconfig_wsc_m2)
     {
-        if (NULL == expect_autoconfig_wsc_m2->list_of_TLVs[0] ||
-            NULL != expect_autoconfig_wsc_m2->list_of_TLVs[1])
+        unsigned i;
+        bool got_wsc_tlv = false;
+        bool got_radio_identifier_tlv = false;
+        for (i = 0; expect_autoconfig_wsc_m2->list_of_TLVs[i] != NULL; i++)
         {
-            PLATFORM_PRINTF_DEBUG_ERROR("Received unexpected TLV on autoconfig wsc M2\n");
+            struct tlv *tlv = expect_autoconfig_wsc_m2->list_of_TLVs[i];
+            switch (tlv->type)
+            {
+            case TLV_TYPE_WSC:
+                {
+                    struct wscTLV *wsc = container_of(tlv, struct wscTLV, tlv);
+                    got_wsc_tlv = true;
+                    if (wsc->wsc_frame_size != 532)
+                    {
+                        PLATFORM_PRINTF_DEBUG_ERROR("Received unexpected WSC frame size on autoconfig wsc M2\n");
+                        PLATFORM_PRINTF_DEBUG_INFO("  Received CMDU:\n");
+                        visit_1905_CMDU_structure(expect_autoconfig_wsc_m2, print_callback, PLATFORM_PRINTF_DEBUG_INFO, "    ");
+                        result++;
+                    }
+                }
+                break;
+            case TLV_TYPE_AP_RADIO_IDENTIFIER:
+                {
+                    struct apRadioIdentifierTLV *ap_radio_identifier = container_of(tlv, struct apRadioIdentifierTLV, tlv);
+                    got_radio_identifier_tlv = true;
+                    if (memcmp(ap_radio_identifier->radio_uid, ADDR_MAC_PEER0, 6) != 0)
+                    {
+                        PLATFORM_PRINTF_DEBUG_ERROR("In autoconfig wsc M2, got AP radio identifier with wrong UID:\n");
+                        PLATFORM_PRINTF_DEBUG_ERROR("  Expected " MACSTR " got " MACSTR "\n",
+                                                    MAC2STR(ADDR_MAC_PEER0), MAC2STR(ap_radio_identifier->radio_uid));
+                    }
+                }
+                break;
+            default:
+                PLATFORM_PRINTF_DEBUG_ERROR("Received unexpected TLV on autoconfig wsc M2:\n");
+                visit_1905_TLV_structure(tlv, print_callback, PLATFORM_PRINTF_DEBUG_ERROR, "  ");
+                result++;
+            }
+        }
+        if (!got_radio_identifier_tlv)
+        {
+            PLATFORM_PRINTF_DEBUG_ERROR("Did not receive APRadioIdentifier TLV on autoconfig wsc M2\n");
             PLATFORM_PRINTF_DEBUG_INFO("  Received CMDU:\n");
             visit_1905_CMDU_structure(expect_autoconfig_wsc_m2, print_callback, PLATFORM_PRINTF_DEBUG_INFO, "    ");
             result++;
         }
-        else
+        if (!got_wsc_tlv)
         {
-            struct wscTLV *wsc = (struct wscTLV*)expect_autoconfig_wsc_m2->list_of_TLVs[0];
-            if (TLV_TYPE_WSC != wsc->tlv.type)
-            {
-                PLATFORM_PRINTF_DEBUG_ERROR("Received non-WSC TLV on autoconfig wsc M2\n");
-                PLATFORM_PRINTF_DEBUG_INFO("  Received CMDU:\n");
-                visit_1905_CMDU_structure(expect_autoconfig_wsc_m2, print_callback, PLATFORM_PRINTF_DEBUG_INFO, "    ");
-                result++;
-            }
-            else
-            {
-                if (wsc->wsc_frame_size != 532)
-                {
-                    PLATFORM_PRINTF_DEBUG_ERROR("Received unexpected WSC frame size on autoconfig wsc M2\n");
-                    PLATFORM_PRINTF_DEBUG_INFO("  Received CMDU:\n");
-                    visit_1905_CMDU_structure(expect_autoconfig_wsc_m2, print_callback, PLATFORM_PRINTF_DEBUG_INFO, "    ");
-                    result++;
-                }
-                /* We don't have a simple way of parsing the WSC TLVs... */
-            }
+            PLATFORM_PRINTF_DEBUG_ERROR("Did not receive WSC TLV on autoconfig wsc M2\n");
+            PLATFORM_PRINTF_DEBUG_INFO("  Received CMDU:\n");
+            visit_1905_CMDU_structure(expect_autoconfig_wsc_m2, print_callback, PLATFORM_PRINTF_DEBUG_INFO, "    ");
+            result++;
         }
     }
 
