@@ -22,6 +22,7 @@
 #include "1905_cmdus.h"
 #include "1905_tlvs.h"
 
+#include <datamodel.h> // struct radio
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions to send "raw" 1905 messages
@@ -339,10 +340,14 @@ uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t
 // The format of these messages is described in the "Wi-Fi simple configuration"
 // document (TODO: actual name of the document)
 //
+// If 'send_radio_basic_capabilities' is true, the "AP Radio Basic Capabilities"
+// TLV will be included in the message.
+//
 // Return "0" if a problem was found. "1" otherwise.
 //
 uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
-                                             const uint8_t *wsc_frame, uint16_t wsc_frame_size);
+                                             const uint8_t *wsc_frame, uint16_t wsc_frame_size,
+                                             const struct radio *radio, bool send_radio_basic_capabilities);
 
 // This function sends a "1905 generic phy query packet" on the provided
 // interface.

@@ -130,7 +130,9 @@ static const struct cmdu_info cmdu_info[] =
     },
     [CMDU_TYPE_AP_AUTOCONFIGURATION_WSC] = {
         .tlv_count_required = (const struct cmdu_tlv_count_required[]){
-            {TLV_TYPE_WSC, count_required_one},
+            {TLV_TYPE_WSC, count_required_one_or_more}, // More is only possible if sender is Multi-AP Controller
+            {TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES, count_required_zero_or_one}, // One iff sender is Multi-AP Agent
+            {TLV_TYPE_AP_RADIO_IDENTIFIER, count_required_zero_or_one}, // One iff sender is Multi-AP Controller
             {0, count_required_sentinel},
         },
     },

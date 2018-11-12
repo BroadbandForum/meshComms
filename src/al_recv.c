@@ -1184,8 +1184,11 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 }
             }
 
-            handleSupportedServiceTLV(sender_device, supportedService);
+            bool sender_is_controller = handleSupportedServiceTLV(sender_device, supportedService);
 
+            /* @todo instead of doing transmission of WSC from here, it should be repeated autonomously and repeated until we get
+             * a response from the controller.
+             */
             /* Search for all unconfigured radios that match the supported freq band, then send a WSC M1 for those radios. */
             struct radio *radio;
             dlist_for_each(radio, local_device->radios, l)
@@ -1239,7 +1242,8 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                                 dst_mac = sender_device->al_mac_addr;
                             }
 
-                            if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(), dst_mac, m1, m1_size))
+                            if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(),
+                                                                   dst_mac, m1, m1_size, radio, sender_is_controller))
                             {
                                 PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration WSC-M1' message\n");
                             }
@@ -1372,7 +1376,8 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     dst_mac = p;
                 }
 
-                if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(), dst_mac, m2, m2_size))
+                if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(),
+                                                               dst_mac, m2, m2_size, NULL, false))
                 {
                     PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration WSC-M2' message\n");
                 }

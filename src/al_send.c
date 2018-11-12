@@ -1553,6 +1553,15 @@ static struct apOperationalBssTLV *_obtainLocalApOperationalBssTLV(dlist_head *p
     return tlv;
 }
 
+static struct tlv *_obtainLocalRadioBasicCapabilitiesTLV(const struct radio *radio)
+{
+    struct apRadioBasicCapabilitiesTLV *apRadioBasicCapabilities =
+            X1905_TLV_ALLOC(apRadioBasicCapabilities, TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES, NULL);
+    apRadioBasicCapabilities->maxbss = (uint8_t) radio->maxBSS;
+    memcpy(apRadioBasicCapabilities->radio_uid, radio->uid, 6);
+    /* @todo determine classes and inoperable channels */
+}
+
 // Given a pointer to a preallocated "genericPhyDeviceInformationTypeTLV"
 // structure, fill it with all the pertaining information retrieved from the
 // local device.
@@ -3197,10 +3206,13 @@ uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t
 }
 
 uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
-                                             const uint8_t *wsc_frame, uint16_t wsc_frame_size)
+                                             const uint8_t *wsc_frame, uint16_t wsc_frame_size,
+                                             const struct radio *radio, bool send_radio_basic_capabilities)
 {
-    // The "AP-autoconfiguration WSC" message is a CMDU with just one TLVs:
-    //   - One WSC TLV
+    // The "AP-autoconfiguration WSC" message is a CMDU with TLVs:
+    //   - One or more WSC TLVs (one per SSID to configure)
+    //   - In the Multi-AP case, a AP Radio Basic Capabilities in M1 and AP Radio Identifier in M2.
+    // @todo support sending multiple WSC TLVs.
 
     uint8_t ret;
 
@@ -3222,9 +3234,15 @@ uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_
     data_message.message_type    = CMDU_TYPE_AP_AUTOCONFIGURATION_WSC;
     data_message.message_id      = mid;
     data_message.relay_indicator = 0;
-    data_message.list_of_TLVs    = (struct tlv **)memalloc(sizeof(struct tlv *)*2);
+    data_message.list_of_TLVs    = (struct tlv **)memalloc(sizeof(struct tlv *)*3);
     data_message.list_of_TLVs[0] = &wsc_tlv.tlv;
     data_message.list_of_TLVs[1] = NULL;
+    data_message.list_of_TLVs[2] = NULL;
+
+    if (send_radio_basic_capabilities)
+    {
+        data_message.list_of_TLVs[1] = _obtainLocalRadioBasicCapabilitiesTLV(radio);
+    }
 
     if (0 == send1905RawPacket(interface_name, mid, destination_al_mac_address, &data_message))
     {
