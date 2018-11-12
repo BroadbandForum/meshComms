@@ -19,7 +19,7 @@
 #ifndef _AL_WSC_H_
 #define _AL_WSC_H_
 
-#include "platform.h"
+#include <datamodel.h>
 
 // One type of 1905 CMDUs embeds "M1" and "M2" messages from the "Wi-Fi simple
 // configuration standard".
@@ -104,7 +104,7 @@
 // By the way, all the next functions return "0" if there a problem an "1"
 // otherwise (except for "wscGetType()", which returns the message type)
 
-uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void **key);
+uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void **key);
 uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m2, uint16_t m2_size);
 
 

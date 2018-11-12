@@ -25,8 +25,6 @@
 #include "platform_crypto.h"
 #include "platform_interfaces.h"
 
-#include <datamodel.h>
-
 #include <string.h> // memcmp(), memcpy(), ...
 
 
@@ -248,8 +246,9 @@ void _wps_key_derivation_function(uint8_t *key, uint8_t *label_prefix, uint32_t 
 //
 //////////////////////////////////////// Enrollee functions ////////////////////
 //
-uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void **key)
+uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void **key)
 {
+    /* @todo check how iwd gets the info over netlink and do the same */
     uint8_t  *buffer;
 
     struct interfaceInfo  *x;
@@ -262,15 +261,15 @@ uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void 
     uint16_t aux16;
     uint32_t aux32;
 
-    if (NULL == interface_name || NULL == m1 || NULL == m1_size || NULL == key)
+    if (NULL == radio || NULL == m1 || NULL == m1_size || NULL == key)
     {
         PLATFORM_PRINTF_DEBUG_WARNING("Invalid arguments to wscBuildM1()\n");
         return 0;
     }
 
-    if (NULL == (x = PLATFORM_GET_1905_INTERFACE_INFO(interface_name)))
+    if (NULL == (x = PLATFORM_GET_1905_INTERFACE_INFO(radio->name)))
     {
-        PLATFORM_PRINTF_DEBUG_WARNING("Could not retrieve info of interface %s\n", interface_name);
+        PLATFORM_PRINTF_DEBUG_WARNING("Could not retrieve info of interface %s\n", radio->name);
         return 0;
     }
 
@@ -302,7 +301,7 @@ uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void 
     {
         aux16 = ATTR_MAC_ADDR;                                            _I2B(&aux16,           &p);
         aux16 = 6;                                                        _I2B(&aux16,           &p);
-                                                                          _InB( x->mac_address,  &p, 6);
+                                                                          _InB( radio->uid,  &p, 6);
     }
 
     // ENROLLEE NONCE
@@ -333,7 +332,7 @@ uint8_t  wscBuildM1(char *interface_name, uint8_t **m1, uint16_t *m1_size, void 
         private_key->key     = (uint8_t *)memalloc(priv_len);
         private_key->key_len = priv_len;
         memcpy(private_key->key, priv, priv_len);
-        memcpy(private_key->mac, x->mac_address, 6);
+        memcpy(private_key->mac, radio->uid, 6);
     }
 
     // AUTHENTICATION TYPES

@@ -1093,9 +1093,6 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             struct tlv *supportedService = NULL;
             uint8_t i;
 
-            char **ifs_names;
-            uint8_t  ifs_nr;
-
             bool supported_role_is_present = false;
             uint8_t supported_role;
 
@@ -1189,102 +1186,74 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
             handleSupportedServiceTLV(sender_device, supportedService);
 
-            // Check our local interfaces, looking for an unconfigured AP
-            // interface that matches the freq band.
-            // If one is found, send the response.
-            //
-            ifs_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&ifs_nr);
-            for (i=0; i<ifs_nr; i++)
+            /* Search for all unconfigured radios that match the supported freq band, then send a WSC M1 for those radios. */
+            struct radio *radio;
+            dlist_for_each(radio, local_device->radios, l)
             {
-                struct interfaceInfo *x;
-
-                x = PLATFORM_GET_1905_INTERFACE_INFO(ifs_names[i]);
-                if (NULL == x)
+                /* Radio is considered unconfigured if there are no configured BSSes.
+                 *
+                 * @todo make this an explicit member; it's possible that the radio has a default configuration, or that the
+                 * configuration came over Multi-AP and was restored after reboot but should be reconfirmed.
+                 */
+                if (radio->configured_bsses.length == 0)
                 {
-                    PLATFORM_PRINTF_DEBUG_WARNING("Could not retrieve info of interface %s\n", ifs_names[i]);
-                    continue;
+                    // Check band
+                    unsigned band;
+                    for (band = 0; band < radio->bands.length; band++)
+                    {
+                        if (radio->bands.data[band]->id == supported_freq_band)
+                        {
+                            /* Band matches. Send WSC. */
+                            uint8_t   *m1;
+                            uint16_t   m1_size;
+                            void    *key;
+
+                            const uint8_t *dst_mac;
+
+                            PLATFORM_PRINTF_DEBUG_DETAIL("Radio %s is unconfigured and uses the same freq band. Sending WSC-M1...\n",
+                                                         radio->name);
+
+                            // Obtain WSC-M1 and send the WSC TLV
+                            //
+                            wscBuildM1(radio, &m1, &m1_size, &key);
+
+                            // We must send the WSC TLV to the AL MAC of the node who
+                            // sent the response, however, this AL MAC is *not*
+                            // contained in the response. The only thing we can do at
+                            // this point is try to search our AL neighbors data base
+                            // for a matching MAC.
+
+                            if (NULL == sender_device)
+                            {
+                                // The standard says we should always send to the AL
+                                // MAC address, however, in these cases, instead of
+                                // just dropping the packet, sending the response to
+                                // the 'src' address from the AUTOCONFIGURATION RESPONSE
+                                // seems the right thing to do.
+                                //
+                                dst_mac = src_addr;
+                                PLATFORM_PRINTF_DEBUG_WARNING("Unknown destination AL MAC. Using the 'src' MAC from the AUTOCONFIGURATION RESPONSE (%02x:%02x:%02x:%02x:%02x:%02x)\n", dst_mac[0],dst_mac[1], dst_mac[2], dst_mac[3], dst_mac[4], dst_mac[5]);
+                            }
+                            else
+                            {
+                                dst_mac = sender_device->al_mac_addr;
+                            }
+
+                            if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(), dst_mac, m1, m1_size))
+                            {
+                                PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration WSC-M1' message\n");
+                            }
+
+                            if (NULL != p)
+                            {
+                                free(p);
+                            }
+
+                            break; /* No need to check other bands, there can be only 1. */
+                        }
+                    }
                 }
-
-                if (
-                     IEEE80211_ROLE_AP == x->interface_type_data.ieee80211.role     &&
-                     0x00 == x->interface_type_data.ieee80211.bssid[0]              &&
-                     0x00 == x->interface_type_data.ieee80211.bssid[1]              &&
-                     0x00 == x->interface_type_data.ieee80211.bssid[2]              &&
-                     0x00 == x->interface_type_data.ieee80211.bssid[3]              &&
-                     0x00 == x->interface_type_data.ieee80211.bssid[4]              &&
-                     0x00 == x->interface_type_data.ieee80211.bssid[5]              &&
-                     (
-                       (
-                        (INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ == x->interface_type   ||
-                         INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ == x->interface_type   ||
-                         INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ == x->interface_type)  &&
-                        supported_freq_band == IEEE80211_FREQUENCY_BAND_2_4_GHZ
-                       )                                                               ||
-                       (
-                        (INTERFACE_TYPE_IEEE_802_11A_5_GHZ   == x->interface_type   ||
-                         INTERFACE_TYPE_IEEE_802_11N_5_GHZ   == x->interface_type   ||
-                         INTERFACE_TYPE_IEEE_802_11AC_5_GHZ  == x->interface_type)  &&
-                        supported_freq_band == IEEE80211_FREQUENCY_BAND_5_GHZ
-                       )                                                               ||
-                       (
-                        (INTERFACE_TYPE_IEEE_802_11AD_60_GHZ == x->interface_type)  &&
-                        supported_freq_band == IEEE80211_FREQUENCY_BAND_60_GHZ
-                       )
-                     )
-                   )
-                {
-                    uint8_t   *m1;
-                    uint16_t   m1_size;
-                    void    *key;
-
-                    const uint8_t *dst_mac;
-
-                    PLATFORM_PRINTF_DEBUG_DETAIL("Interface %s is an unconfigured AP and uses the same freq band. Sending WSC-M1...\n",ifs_names[i]);
-
-                    // Obtain WSC-M1 and send the WSC TLV
-                    //
-                    wscBuildM1(ifs_names[i], &m1, &m1_size, &key);
-
-                    // We must send the WSC TLV to the AL MAC of the node who
-                    // sent the response, however, this AL MAC is *not*
-                    // contained in the response. The only thing we can do at
-                    // this point is try to search our AL neighbors data base
-                    // for a matching MAC.
-
-                    if (NULL == sender_device)
-                    {
-                        // The standard says we should always send to the AL
-                        // MAC address, however, in these cases, instead of
-                        // just dropping the packet, sending the response to
-                        // the 'src' address from the AUTOCONFIGURATION RESPONSE
-                        // seems the right thing to do.
-                        //
-                        dst_mac = src_addr;
-                        PLATFORM_PRINTF_DEBUG_WARNING("Unknown destination AL MAC. Using the 'src' MAC from the AUTOCONFIGURATION RESPONSE (%02x:%02x:%02x:%02x:%02x:%02x)\n", dst_mac[0],dst_mac[1], dst_mac[2], dst_mac[3], dst_mac[4], dst_mac[5]);
-                    }
-                    else
-                    {
-                        dst_mac = sender_device->al_mac_addr;
-                    }
-
-                    if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(), dst_mac, m1, m1_size))
-                    {
-                        PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration WSC-M1' message\n");
-                    }
-
-                    if (NULL != p)
-                    {
-                        free(p);
-                    }
-
-                    free_1905_INTERFACE_INFO(x);
-                    break;
-                }
-
-                free_1905_INTERFACE_INFO(x);
             }
-
-            free_LIST_OF_1905_INTERFACES(ifs_names, ifs_nr);
 
             break;
         }
