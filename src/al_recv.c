@@ -39,6 +39,53 @@
 
 #include <string.h> // memcmp(), memcpy(), ...
 
+/** @brief Update the data model with the received supportedServiceTLV.
+ *
+ * @return true if the sender is a Multi-AP controller.
+ *
+ * @a sender_device may be NULL, in which case nothing is updated but the return value may still be used.
+ * @a supportedService may be NULL, in which case nothing is updated and false is returned.
+ */
+static bool handleSupportedServiceTLV(struct alDevice *sender_device, struct tlv *supportedService)
+{
+    bool sender_is_map_agent = false;
+    bool sender_is_map_controller = false;
+    struct _supportedService* service;
+
+    if (supportedService == NULL) {
+        return false;
+    }
+
+    dlist_for_each(service, supportedService->s.h.children[0], s.h.l)
+    {
+        switch (service->service)
+        {
+        case SERVICE_MULTI_AP_AGENT:
+            sender_is_map_agent = true;
+            break;
+        case SERVICE_MULTI_AP_CONTROLLER:
+            sender_is_map_controller = true;
+            break;
+        default:
+            PLATFORM_PRINTF_DEBUG_WARNING(
+                        "Received AP Autoconfiguration Search with unknown Supported Service %02x\n",
+                        service->service);
+            /* Ignore it, as required by the specification. */
+            break;
+        }
+    }
+    /* Even if we are not registrar/controller, save the supported services in the data model. */
+    if (sender_device != NULL)
+    {
+        if (sender_is_map_agent || sender_is_map_controller)
+        {
+            sender_device->is_map_agent = sender_is_map_agent;
+            sender_device->is_map_controller = sender_is_map_controller;
+        }
+    }
+    return sender_is_map_controller;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Public functions (exported only to files in this same folder)
 ////////////////////////////////////////////////////////////////////////////////
@@ -854,6 +901,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // Otherwise, the message is ignored.
 
             struct tlv *p;
+            struct tlv *supportedService = NULL;
             uint8_t i;
 
             uint8_t dummy_mac_address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -864,10 +912,10 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             uint8_t freq_band_is_present;
             uint8_t freq_band;
 
-            bool supported_service_is_present = false;
-            bool searched_service_is_present = false;
+            bool searched_service_controller = false;
 
             uint8_t  al_mac_address[6];
+            struct alDevice *sender_device;
 
             searched_role_is_present = 0;
             freq_band_is_present     = 0;
@@ -922,14 +970,28 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     case TLV_TYPE_SUPPORTED_SERVICE:
                     {
-                        /* We don't actually care about the contents. */
-                        supported_service_is_present = true;
+                        /* Delay processing so we're sure we've seen the alMacAddressTypeTLV. */
+                        supportedService = p;
                         break;
                     }
                     case TLV_TYPE_SEARCHED_SERVICE:
                     {
-                        /* We don't actually care about the contents. */
-                        searched_service_is_present = true;
+                        struct _supportedService* service;
+                        dlist_for_each(service, p->s.h.children[0], s.h.l)
+                        {
+                            switch (service->service)
+                            {
+                            case SERVICE_MULTI_AP_CONTROLLER:
+                                searched_service_controller = true;
+                                break;
+                            default:
+                                PLATFORM_PRINTF_DEBUG_WARNING(
+                                            "Received AP Autoconfiguration Search with unknown Searched Service %02x\n",
+                                            service->service);
+                                /* Ignore it, as required by the specification. */
+                                break;
+                            }
+                        }
                         break;
                     }
                     default:
@@ -956,6 +1018,19 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             if (IEEE80211_ROLE_AP != searched_role)
             {
                 PLATFORM_PRINTF_DEBUG_WARNING("Unexpected 'searched role'\n");
+                return PROCESS_CMDU_KO;
+            }
+
+            /* If the device is not yet in our database, add it now. */
+            sender_device = alDeviceFind(al_mac_address);
+            if (sender_device == NULL)
+            {
+                sender_device = alDeviceAlloc(al_mac_address);
+            }
+
+            if (handleSupportedServiceTLV(sender_device, supportedService))
+            {
+                PLATFORM_PRINTF_DEBUG_WARNING("Multi-AP Controller shouldn't send AP Autoconfiguration Search\n");
                 return PROCESS_CMDU_KO;
             }
 
@@ -986,7 +1061,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     PLATFORM_PRINTF_DEBUG_DETAIL("Local device is registrar, and has the requested freq band. Sending response...\n");
 
                     if ( 0 == send1905APAutoconfigurationResponsePacket(DMmacToInterfaceName(receiving_interface_addr), c->message_id, al_mac_address, freq_band,
-                                                                        supported_service_is_present || searched_service_is_present))
+                                                                        searched_service_controller))
                     {
                         PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration response' message\n");
                     }
@@ -1015,16 +1090,19 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // a AP-autoconfig WSC-M1
 
             struct tlv *p;
+            struct tlv *supportedService = NULL;
             uint8_t i;
 
             char **ifs_names;
             uint8_t  ifs_nr;
 
-            uint8_t supported_role_is_present;
+            bool supported_role_is_present = false;
             uint8_t supported_role;
 
-            uint8_t supported_freq_band_is_present;
+            bool supported_freq_band_is_present = false;
             uint8_t supported_freq_band;
+
+            struct alDevice *sender_device;
 
             PLATFORM_PRINTF_DEBUG_INFO("<-- CMDU_TYPE_AP_AUTOCONFIGURATION_RESPONSE (%s)\n", DMmacToInterfaceName(receiving_interface_addr));
 
@@ -1051,7 +1129,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     {
                         struct supportedRoleTLV *t = (struct supportedRoleTLV *)p;
 
-                        supported_role_is_present = 1;
+                        supported_role_is_present = true;
                         supported_role            = t->role;
 
                         break;
@@ -1060,9 +1138,15 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     {
                         struct supportedFreqBandTLV *t = (struct supportedFreqBandTLV *)p;
 
-                        supported_freq_band_is_present = 1;
+                        supported_freq_band_is_present = true;
                         supported_freq_band            = t->freq_band;
 
+                        break;
+                    }
+                    case TLV_TYPE_SUPPORTED_SERVICE:
+                    {
+                        /* Delay processing so we're sure we've seen the alMacAddressTypeTLV. */
+                        supportedService = p;
                         break;
                     }
                     default:
@@ -1077,8 +1161,8 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             // Make sure that all needed parameters were present in the message
             //
             if (
-                 0 == supported_role_is_present      ||
-                 0 == supported_freq_band_is_present
+                 !supported_role_is_present      ||
+                 !supported_freq_band_is_present
                )
             {
                 PLATFORM_PRINTF_DEBUG_WARNING("More TLVs were expected inside this CMDU\n");
@@ -1090,6 +1174,20 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 PLATFORM_PRINTF_DEBUG_WARNING("Unexpected 'searched role'\n");
                 return PROCESS_CMDU_KO;
             }
+
+            /* Try to find the sender device in our database. The sender's AL MAC address is not given in the message, and the
+             * source address may be either the MAC address or the interface address. */
+            sender_device = alDeviceFind(src_addr);
+            if (sender_device == NULL)
+            {
+                struct interface *sender_interface = findDeviceInterface(src_addr);
+                if (sender_interface != NULL)
+                {
+                    sender_device = sender_interface->owner;
+                }
+            }
+
+            handleSupportedServiceTLV(sender_device, supportedService);
 
             // Check our local interfaces, looking for an unconfigured AP
             // interface that matches the freq band.
@@ -1139,8 +1237,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     uint16_t   m1_size;
                     void    *key;
 
-                    uint8_t *dst_mac;
-                    uint8_t *p;
+                    const uint8_t *dst_mac;
 
                     PLATFORM_PRINTF_DEBUG_DETAIL("Interface %s is an unconfigured AP and uses the same freq band. Sending WSC-M1...\n",ifs_names[i]);
 
@@ -1153,10 +1250,8 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     // contained in the response. The only thing we can do at
                     // this point is try to search our AL neighbors data base
                     // for a matching MAC.
-                    //
-                    p = DMmacToAlMac(src_addr);
 
-                    if (NULL == p)
+                    if (NULL == sender_device)
                     {
                         // The standard says we should always send to the AL
                         // MAC address, however, in these cases, instead of
@@ -1169,7 +1264,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     }
                     else
                     {
-                        dst_mac = p;
+                        dst_mac = sender_device->al_mac_addr;
                     }
 
                     if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(), dst_mac, m1, m1_size))

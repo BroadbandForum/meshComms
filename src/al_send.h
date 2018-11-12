@@ -42,7 +42,7 @@
 //
 // Return '0' if there was a problem, '1' otherwise.
 //
-uint8_t send1905RawPacket(char *interface_name, uint16_t mid, uint8_t *dst_mac_address, struct CMDU *cmdu);
+uint8_t send1905RawPacket(const char *interface_name, uint16_t mid, const uint8_t *dst_mac_address, struct CMDU *cmdu);
 
 // This function sends a "1905 ALME reply" (the one represented by the provided
 // 'out' pointer, which must point to a "struct *ALME" structure).
@@ -341,7 +341,8 @@ uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905APAutoconfigurationWSCPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t *wsc_frame, uint16_t wsc_frame_size);
+uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
+                                             const uint8_t *wsc_frame, uint16_t wsc_frame_size);
 
 // This function sends a "1905 generic phy query packet" on the provided
 // interface.

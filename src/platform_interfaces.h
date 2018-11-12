@@ -494,7 +494,8 @@ void free_LIST_OF_BRIDGES(struct bridge *x, uint8_t nr);
 // If there is a problem and the packet cannot be sent, this function returns
 // "0", otherwise it returns "1"
 //
-uint8_t PLATFORM_SEND_RAW_PACKET(char *interface_name, uint8_t *dst_mac, uint8_t *src_mac, uint16_t eth_type, uint8_t *payload, uint16_t payload_len);
+uint8_t PLATFORM_SEND_RAW_PACKET(const char *interface_name, const uint8_t *dst_mac, const uint8_t *src_mac,
+                                 uint16_t eth_type, const uint8_t *payload, uint16_t payload_len);
 
 
 ////////////////////////////////////////////////////////////////////////////////

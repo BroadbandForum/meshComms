@@ -2134,7 +2134,7 @@ void _updateLocalDeviceData()
 // Public functions (exported only to files in this same folder)
 ////////////////////////////////////////////////////////////////////////////////
 
-uint8_t send1905RawPacket(char *interface_name, uint16_t mid, uint8_t *dst_mac_address, struct CMDU *cmdu)
+uint8_t send1905RawPacket(const char *interface_name, uint16_t mid, const uint8_t *dst_mac_address, struct CMDU *cmdu)
 {
     uint8_t  **streams;
     uint16_t  *streams_lens;
@@ -3196,7 +3196,8 @@ uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t
     return ret;
 }
 
-uint8_t send1905APAutoconfigurationWSCPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t *wsc_frame, uint16_t wsc_frame_size)
+uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
+                                             const uint8_t *wsc_frame, uint16_t wsc_frame_size)
 {
     // The "AP-autoconfiguration WSC" message is a CMDU with just one TLVs:
     //   - One WSC TLV

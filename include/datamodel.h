@@ -245,6 +245,7 @@ struct alDevice {
     dlist_head radios;          /**< @brief The radios belonging to this device. */
 
     bool is_map_agent; /**< @brief true if this device is a Multi-AP Agent. */
+    bool is_map_controller; /**< @brief true if this device is a Multi-AP Controller. */
 };
 
 /** @brief The local AL device.

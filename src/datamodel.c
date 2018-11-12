@@ -61,6 +61,7 @@ struct alDevice *alDeviceAlloc(const mac_address al_mac_addr)
     dlist_head_init(&ret->interfaces);
     dlist_head_init(&ret->radios);
     ret->is_map_agent = false;
+    ret->is_map_controller = false;
     return ret;
 }
 
