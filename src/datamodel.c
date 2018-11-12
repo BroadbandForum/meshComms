@@ -133,7 +133,7 @@ int     radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *ifw)
     return 0;
 }
 
-void radioAddApp(struct radio *radio, struct ssid ssid, mac_address bssid,
+void radioAddAp(struct radio *radio, struct ssid ssid, mac_address bssid,
                  uint16_t auth_type, uint16_t encryption_type, const uint8_t *key, size_t key_len)
 {
     if (radio->addAP == NULL)

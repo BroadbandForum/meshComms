@@ -382,7 +382,7 @@ struct radio *findDeviceRadio(const struct alDevice *device, const mac_address u
 int radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *iface);
 
 /** @brief Configure an AP on the radio. */
-void radioAddApp(struct radio *radio, struct ssid ssid, mac_address bssid,
+void radioAddAp(struct radio *radio, struct ssid ssid, mac_address bssid,
                  uint16_t auth_type, uint16_t encryption_type, const uint8_t *key, size_t key_len);
 
 /** @brief Allocate a new interface, with optional owning device.

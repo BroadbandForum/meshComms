@@ -977,7 +977,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
         }
         else
         {
-            radioAddApp(radio, ssid, bssid, auth_type, encryption_type, network_key, network_key_len);
+            radioAddAp(radio, ssid, bssid, auth_type, encryption_type, network_key, network_key_len);
         }
     }
 
