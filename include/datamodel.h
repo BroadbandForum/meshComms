@@ -208,9 +208,9 @@ struct radio {
 
     /** @brief List of BSSes configured for this radio.
      *
-     * Elements are of type interfaceWifi. Their interfaceWifi::radio pointer points to this object.
+     * Their interfaceWifi::radio pointer points to this object.
      */
-    dlist_head configured_bsses;
+    PTRARRAY(struct interfaceWifi *) configured_bsses;
 
     /** @brief Operations on the radio.
      *
@@ -398,8 +398,8 @@ void interfaceDelete(struct interface *interface);
 /** @brief Allocate a new interface wifi (BSS) */
 struct interfaceWifi *interfaceWifiAlloc(const mac_address addr, struct alDevice *owner);
 
-/** @brief Delete an interface wifi (bss) */
-void interfaceWifiDelete(struct interfaceWifi *interfaceWifi);
+/** @brief Remove a BSS from a radio and delete it. */
+void interfaceWifiRemove(struct interfaceWifi *interfaceWifi);
 
 /** @brief Associate an interface with an alDevice.
  *

@@ -99,12 +99,14 @@ struct radio*   radioAllocLocal(const mac_address mac, const char *name, int ind
 
 void    radioDelete(struct radio *radio)
 {
-    int i;
+    unsigned i;
     dlist_remove(&radio->l);
-    while ( ! dlist_empty(&radio->configured_bsses) ) {
-        struct interfaceWifi *ifw = container_of(dlist_get_first(&radio->configured_bsses), struct interfaceWifi, i.l);
-        interfaceWifiDelete(ifw);
+    for (i = 0; i < radio->configured_bsses.length; i++)
+    {
+        /* The interfaceWifi is deleted automatically when we delete the interface itself. */
+        interfaceDelete(&radio->configured_bsses.data[i]->i);
     }
+    PTRARRAY_CLEAR(radio->configured_bsses);
     for ( i=0 ; i < radio->bands.length ; i++ ) {
         PTRARRAY_CLEAR(radio->bands.data[i]->channels);
         free(radio->bands.data[i]);
@@ -126,9 +128,9 @@ struct radio *findDeviceRadio(const struct alDevice *device, const mac_address u
     return NULL;
 }
 
-int     radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *ifw)
+int radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *ifw)
 {
-    dlist_add_tail(&radio->configured_bsses, &ifw->i.l);
+    PTRARRAY_ADD(radio->configured_bsses, ifw);
     ifw->radio = radio;
     return 0;
 }
@@ -202,11 +204,12 @@ struct interfaceWifi *interfaceWifiAlloc(const mac_address addr, struct alDevice
     return ifw;
 }
 
-void    interfaceWifiDelete(struct interfaceWifi *ifw)
+void    interfaceWifiRemove(struct interfaceWifi *ifw)
 {
-    if ( ifw->i.l.prev )
-        dlist_remove(&ifw->i.l);
-    free(ifw);
+    PTRARRAY_REMOVE_ELEMENT(ifw->radio->configured_bsses, ifw);
+    /* Clients don't need to be deleted; they are also in the interface neighbour list, so they will be deleted or unlinked
+     * together with the interface. */
+    interfaceDelete(&ifw->i); /* This also frees interfaceWifi itself. */
 }
 
 /* 'alDevice' related functions
