@@ -213,41 +213,6 @@ uint8_t DMmapWholeNetworkGet()
     return data_model.map_whole_network_flag;
 }
 
-uint8_t DMinsertInterface(char *name, uint8_t *mac_address)
-{
-    struct interface *x;
-
-    // First, make sure this interface does not already exist
-    //
-    if (NULL != (x = findLocalInterface(name)))
-    {
-        // The interface exists!
-        //
-        // Even if it already exists, if the provided 'mac_address' and the
-        // already existing entry match, do not return an error.
-        //
-        if (0 == memcmp(x->addr, mac_address, 6))
-        {
-            // Ok
-            //
-            return 1;
-        }
-        else
-        {
-            // Interface exists and its MAC address is different from the
-            // provided one. Maybe the caller should first "remove" this
-            // interface and then try to add the new one.
-            //
-            return 0;
-        }
-    }
-
-    x = interfaceAlloc(mac_address, local_device);
-    x->name = strdup(name);
-
-    return 1;
-}
-
 const char *DMmacToInterfaceName(const uint8_t *mac_address)
 {
     struct interface *x;

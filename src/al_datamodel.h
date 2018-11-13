@@ -46,13 +46,6 @@ uint8_t *DMalMacGet(void);
 void  DMmapWholeNetworkSet(uint8_t map_whole_network_flag);
 uint8_t DMmapWholeNetworkGet(void);
 
-// When a new local interface is made available to the AL entity, this function
-// must be called to update the database.
-// Returns '0' if there was a problem (out of memory, etc...), '1' otherwise
-// (including if the interface had already been inserted)
-//
-uint8_t DMinsertInterface(char *name, uint8_t *mac_address);
-
 // These are used to convert between names (ex: "eth0", "wlan1",...) and MAC
 // addresses of local interfaces which have previously been inserted in the
 // database using "DMinsertInterface()"

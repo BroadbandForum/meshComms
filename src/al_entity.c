@@ -863,10 +863,8 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
     uint8_t   queue_id;
     uint8_t  *queue_message;
 
-    char   **interfaces_names;
-    uint8_t    interfaces_nr;
-
     uint8_t i;
+    struct interface *interface;
 
     // Initialize platform-specific code
     //
@@ -914,142 +912,120 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
     PLATFORM_PRINTF_DEBUG_DETAIL("Retrieving list of local interfaces...\n");
     createLocalInterfaces();
 
-    // Obtain the list of interfaces that the AL entity is going to manage
+    // If an interface is the designated 1905 network registrar
+    // interface, save its MAC address to the database
     //
-    PLATFORM_PRINTF_DEBUG_DETAIL("Retrieving list of interfaces visible to the 1905 AL entity...\n");
-    interfaces_names = PLATFORM_GET_LIST_OF_1905_INTERFACES(&interfaces_nr);
-    if (NULL == interfaces_names)
+    if (NULL != registrar_interface)
     {
-        PLATFORM_PRINTF_DEBUG_ERROR("No interfaces detected\n");
-        return AL_ERROR_NO_INTERFACES;
-    }
+        interface = findLocalInterface(registrar_interface);
 
-    for (i=0; i<interfaces_nr; i++)
-    {
-        struct interfaceInfo *x;
-
-        x = PLATFORM_GET_1905_INTERFACE_INFO(interfaces_names[i]);
-        if (NULL == x)
+        if (interface == NULL)
         {
-            PLATFORM_PRINTF_DEBUG_ERROR("Could not retrieve interface info for %s\n", interfaces_names[i]);
-            continue;
+            PLATFORM_PRINTF_DEBUG_ERROR("Could not find registrar interface %s\n", registrar_interface);
         }
-
-        DMinsertInterface(x->name, x->mac_address);
-
-        PLATFORM_PRINTF_DEBUG_DETAIL("    - %s --> %02x:%02x:%02x:%02x:%02x:%02x\n",
-                                   x->name,
-                                   x->mac_address[0],
-                                   x->mac_address[1],
-                                   x->mac_address[2],
-                                   x->mac_address[3],
-                                   x->mac_address[4],
-                                   x->mac_address[5]);
-
-        // If this interface is the designated 1905 network registrar
-        // interface, save its MAC address to the database
-        //
-        if (NULL != registrar_interface)
+        else
         {
-            if (0 == memcmp(x->name, registrar_interface, strlen(x->name)))
+            struct interfaceInfo *x;
+
+            x = PLATFORM_GET_1905_INTERFACE_INFO(interface->name);
+            /* x cannot be NULL because the interface exists. */
+
+            registrar.d = local_device;
+            /* For now, it is always a MAP Controller. */
+            registrar.is_map = true;
+
+            /* Copy interface info into WSC info.
+             * @todo this should come from a config file.
+             * @todo Support multiple bands.
+             */
+            struct wscDeviceData *wsc_data = &registrar.wsc_data[0];
+            /* Make sure all strings are 0-terminated. */
+            memset(wsc_data, 0, sizeof(*wsc_data));
+            memcpy(wsc_data->bssid, x->mac_address, 6);
+            strncpy(wsc_data->device_name, x->device_name, sizeof(wsc_data->device_name) - 1);
+            strncpy(wsc_data->manufacturer_name, x->manufacturer_name, sizeof(wsc_data->manufacturer_name) - 1);
+            strncpy(wsc_data->model_name, x->model_name, sizeof(wsc_data->model_name) - 1);
+            strncpy(wsc_data->model_number, x->model_number, sizeof(wsc_data->model_number) - 1);
+            strncpy(wsc_data->serial_number, x->serial_number, sizeof(wsc_data->serial_number) - 1);
+            /* @todo support UUID; for now its 0. */
+            switch(x->interface_type)
             {
-                registrar.d = local_device;
-                /* For now, it is always a MAP Controller. */
-                registrar.is_map = true;
+                case INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ:
+                case INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ:
+                case INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ:
+                    wsc_data->rf_bands = WPS_RF_24GHZ;
+                    break;
 
-                /* Copy interface info into WSC info.
-                 * @todo this should come from a config file.
-                 * @todo Support multiple bands.
-                 */
-                struct wscDeviceData *wsc_data = &registrar.wsc_data[0];
-                /* Make sure all strings are 0-terminated. */
-                memset(wsc_data, 0, sizeof(*wsc_data));
-                memcpy(wsc_data->bssid, x->mac_address, 6);
-                strncpy(wsc_data->device_name, x->device_name, sizeof(wsc_data->device_name) - 1);
-                strncpy(wsc_data->manufacturer_name, x->manufacturer_name, sizeof(wsc_data->manufacturer_name) - 1);
-                strncpy(wsc_data->model_name, x->model_name, sizeof(wsc_data->model_name) - 1);
-                strncpy(wsc_data->model_number, x->model_number, sizeof(wsc_data->model_number) - 1);
-                strncpy(wsc_data->serial_number, x->serial_number, sizeof(wsc_data->serial_number) - 1);
-                /* @todo support UUID; for now its 0. */
-                switch(x->interface_type)
-                {
-                    case INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ:
-                    case INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ:
-                    case INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ:
-                        wsc_data->rf_bands = WPS_RF_24GHZ;
-                        break;
+                case INTERFACE_TYPE_IEEE_802_11A_5_GHZ:
+                case INTERFACE_TYPE_IEEE_802_11N_5_GHZ:
+                case INTERFACE_TYPE_IEEE_802_11AC_5_GHZ:
+                    wsc_data->rf_bands = WPS_RF_50GHZ;
+                    break;
 
-                    case INTERFACE_TYPE_IEEE_802_11A_5_GHZ:
-                    case INTERFACE_TYPE_IEEE_802_11N_5_GHZ:
-                    case INTERFACE_TYPE_IEEE_802_11AC_5_GHZ:
-                        wsc_data->rf_bands = WPS_RF_50GHZ;
-                        break;
+                case INTERFACE_TYPE_IEEE_802_11AD_60_GHZ:
+                    wsc_data->rf_bands = WPS_RF_60GHZ;
+                    break;
 
-                    case INTERFACE_TYPE_IEEE_802_11AD_60_GHZ:
-                        wsc_data->rf_bands = WPS_RF_60GHZ;
-                        break;
+                case INTERFACE_TYPE_IEEE_802_11AF_GHZ:
+                    PLATFORM_PRINTF_DEBUG_ERROR("Interface %s is 802.11af which is not supported by WSC!\n",x->name);
 
-                    case INTERFACE_TYPE_IEEE_802_11AF_GHZ:
-                        PLATFORM_PRINTF_DEBUG_ERROR("Interface %s is 802.11af which is not supported by WSC!\n",x->name);
+                    free_1905_INTERFACE_INFO(x);
+                    return AL_ERROR_INTERFACE_ERROR;
 
-                        free_1905_INTERFACE_INFO(x);
-                        return AL_ERROR_INTERFACE_ERROR;
+                default:
+                    PLATFORM_PRINTF_DEBUG_ERROR("Interface %s is not a 802.11 interface and thus cannot act as a registrar!\n",x->name);
 
-                    default:
-                        PLATFORM_PRINTF_DEBUG_ERROR("Interface %s is not a 802.11 interface and thus cannot act as a registrar!\n",x->name);
+                    free_1905_INTERFACE_INFO(x);
+                    return AL_ERROR_INTERFACE_ERROR;
 
-                        free_1905_INTERFACE_INFO(x);
-                        return AL_ERROR_INTERFACE_ERROR;
-
-                }
-                copyLengthString(wsc_data->ssid.ssid, &wsc_data->ssid.length, x->interface_type_data.ieee80211.ssid,
-                                 sizeof(wsc_data->ssid.ssid));
-                copyLengthString(wsc_data->key, &wsc_data->key_len, x->interface_type_data.ieee80211.network_key,
-                                 sizeof(wsc_data->key));
-
-                // AUTHENTICATION TYPES
-                wsc_data->auth_types = 0;
-
-                if (IEEE80211_AUTH_MODE_OPEN & x->interface_type_data.ieee80211.authentication_mode)
-                {
-                    wsc_data->auth_types |= WPS_AUTH_OPEN;
-                }
-                if (IEEE80211_AUTH_MODE_WPA & x->interface_type_data.ieee80211.authentication_mode)
-                {
-                    wsc_data->auth_types |= WPS_AUTH_WPA;
-                }
-                if (IEEE80211_AUTH_MODE_WPAPSK & x->interface_type_data.ieee80211.authentication_mode)
-                {
-                    wsc_data->auth_types |= WPS_AUTH_WPAPSK;
-                }
-                if (IEEE80211_AUTH_MODE_WPA2 & x->interface_type_data.ieee80211.authentication_mode)
-                {
-                    wsc_data->auth_types |= WPS_AUTH_WPA2;
-                }
-                if (IEEE80211_AUTH_MODE_WPA2PSK & x->interface_type_data.ieee80211.authentication_mode)
-                {
-                    wsc_data->auth_types |= WPS_AUTH_WPA2PSK;
-                }
-
-                // ENCRYPTION TYPES
-                wsc_data->encr_types = 0;
-
-                if (IEEE80211_ENCRYPTION_MODE_NONE & x->interface_type_data.ieee80211.encryption_mode)
-                {
-                    wsc_data->encr_types |= WPS_ENCR_NONE;
-                }
-                if (IEEE80211_ENCRYPTION_MODE_TKIP & x->interface_type_data.ieee80211.encryption_mode)
-                {
-                    wsc_data->encr_types |= WPS_ENCR_TKIP;
-                }
-                if (IEEE80211_ENCRYPTION_MODE_AES & x->interface_type_data.ieee80211.encryption_mode)
-                {
-                    wsc_data->encr_types |= WPS_ENCR_AES;
-                }
             }
-        }
+            copyLengthString(wsc_data->ssid.ssid, &wsc_data->ssid.length, x->interface_type_data.ieee80211.ssid,
+                             sizeof(wsc_data->ssid.ssid));
+            copyLengthString(wsc_data->key, &wsc_data->key_len, x->interface_type_data.ieee80211.network_key,
+                             sizeof(wsc_data->key));
 
-        free_1905_INTERFACE_INFO(x);
+            // AUTHENTICATION TYPES
+            wsc_data->auth_types = 0;
+
+            if (IEEE80211_AUTH_MODE_OPEN & x->interface_type_data.ieee80211.authentication_mode)
+            {
+                wsc_data->auth_types |= WPS_AUTH_OPEN;
+            }
+            if (IEEE80211_AUTH_MODE_WPA & x->interface_type_data.ieee80211.authentication_mode)
+            {
+                wsc_data->auth_types |= WPS_AUTH_WPA;
+            }
+            if (IEEE80211_AUTH_MODE_WPAPSK & x->interface_type_data.ieee80211.authentication_mode)
+            {
+                wsc_data->auth_types |= WPS_AUTH_WPAPSK;
+            }
+            if (IEEE80211_AUTH_MODE_WPA2 & x->interface_type_data.ieee80211.authentication_mode)
+            {
+                wsc_data->auth_types |= WPS_AUTH_WPA2;
+            }
+            if (IEEE80211_AUTH_MODE_WPA2PSK & x->interface_type_data.ieee80211.authentication_mode)
+            {
+                wsc_data->auth_types |= WPS_AUTH_WPA2PSK;
+            }
+
+            // ENCRYPTION TYPES
+            wsc_data->encr_types = 0;
+
+            if (IEEE80211_ENCRYPTION_MODE_NONE & x->interface_type_data.ieee80211.encryption_mode)
+            {
+                wsc_data->encr_types |= WPS_ENCR_NONE;
+            }
+            if (IEEE80211_ENCRYPTION_MODE_TKIP & x->interface_type_data.ieee80211.encryption_mode)
+            {
+                wsc_data->encr_types |= WPS_ENCR_TKIP;
+            }
+            if (IEEE80211_ENCRYPTION_MODE_AES & x->interface_type_data.ieee80211.encryption_mode)
+            {
+                wsc_data->encr_types |= WPS_ENCR_AES;
+            }
+
+            free_1905_INTERFACE_INFO(x);
+        }
     }
 
     // Create a queue that will later be used by the platform code to notify us
@@ -1070,22 +1046,21 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
     // on any of those interfaces.
     //
     PLATFORM_PRINTF_DEBUG_DETAIL("Registering packet arrival event for each interface...\n");
-    for (i=0; i<interfaces_nr; i++)
+    dlist_for_each(interface, local_device->interfaces, l)
     {
         struct event1905Packet aux;
 
-                        aux.interface_name       = interfaces_names[i];
-        memcpy(aux.interface_mac_address, DMinterfaceNameToMac(aux.interface_name), 6);
-        memcpy(aux.al_mac_address,        DMalMacGet(),                             6);
+        aux.interface_name = interface->name;
+        memcpy(aux.interface_mac_address, interface->addr, 6);
+        memcpy(aux.al_mac_address,        local_device->al_mac_addr, 6);
 
         if (0 == PLATFORM_REGISTER_QUEUE_EVENT(queue_id, PLATFORM_QUEUE_EVENT_NEW_1905_PACKET, &aux))
         {
-            PLATFORM_PRINTF_DEBUG_ERROR("Could not register callback for 1905 packets in interface %s\n", interfaces_names[i]);
+            PLATFORM_PRINTF_DEBUG_ERROR("Could not register callback for 1905 packets in interface %s\n", interface->name);
             return AL_ERROR_OS;
         }
-        PLATFORM_PRINTF_DEBUG_DETAIL("    - %s --> OK\n", interfaces_names[i]);
+        PLATFORM_PRINTF_DEBUG_DETAIL("    - %s --> OK\n", interface->name);
     }
-    free_LIST_OF_1905_INTERFACES(interfaces_names, interfaces_nr);
 
     // We are also interested in processing a 60 seconds timeout event (so that
     // we can send new discovery messages into the network)
