@@ -298,10 +298,13 @@ uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void *
     }
 
     // MAC ADDRESS
+    // See "Multi-AP Specification Version 1.0" Section 7.1: "The Multi-AP Agent shall set the MAC Address attribute in M1 in
+    // the AP-Autoconfiguration WSC message to the 1905 AL MAC address of the Multi-AP device."
+    // IEEE 1905.1 does not specify which MAC address to use in M1 (only in M2, where it is the BSSID).
     {
         aux16 = ATTR_MAC_ADDR;                                            _I2B(&aux16,           &p);
         aux16 = 6;                                                        _I2B(&aux16,           &p);
-                                                                          _InB( radio->uid,  &p, 6);
+                                                                          _InB(local_device->al_mac_addr,  &p, 6);
     }
 
     // ENROLLEE NONCE
@@ -332,7 +335,8 @@ uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void *
         private_key->key     = (uint8_t *)memalloc(priv_len);
         private_key->key_len = priv_len;
         memcpy(private_key->key, priv, priv_len);
-        memcpy(private_key->mac, radio->uid, 6);
+        // mac must be the same as ATTR_MAC_ADDR
+        memcpy(private_key->mac, local_device->al_mac_addr, 6);
     }
 
     // AUTHENTICATION TYPES
