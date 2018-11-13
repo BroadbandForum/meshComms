@@ -378,7 +378,7 @@ uint8_t PLATFORM_CREATE_QUEUE(const char *name);
 
 struct event1905Packet
 {
-    char     *interface_name;
+    const char     *interface_name;
     uint8_t     interface_mac_address[6];
     uint8_t     al_mac_address[6];
 };

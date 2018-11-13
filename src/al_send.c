@@ -2240,7 +2240,7 @@ uint8_t send1905RawALME(uint8_t alme_client_id, uint8_t *alme)
     return 1;
 }
 
-uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
+uint8_t send1905TopologyDiscoveryPacket(const char *interface_name, uint16_t mid)
 {
     // The "topology discovery" message is a CMDU with two TLVs:
     //   - One AL MAC address type TLV
@@ -2290,7 +2290,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid)
     return 1;
 }
 
-uint8_t send1905TopologyQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
+uint8_t send1905TopologyQueryPacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
 {
     // The "topology query" message is a CMDU with no TLVs
 
@@ -2329,7 +2329,7 @@ uint8_t send1905TopologyQueryPacket(char *interface_name, uint16_t mid, uint8_t 
     return ret;
 }
 
-uint8_t send1905TopologyResponsePacket(char *interface_name, uint16_t mid, uint8_t* destination_al_mac_address)
+uint8_t send1905TopologyResponsePacket(const char *interface_name, uint16_t mid, uint8_t* destination_al_mac_address)
 {
     // The "topology response" message is a CMDU with the following TLVs:
     //   - One device information type TLV
@@ -2491,7 +2491,7 @@ uint8_t send1905TopologyResponsePacket(char *interface_name, uint16_t mid, uint8
     return ret;
 }
 
-uint8_t send1905TopologyNotificationPacket(char *interface_name, uint16_t mid)
+uint8_t send1905TopologyNotificationPacket(const char *interface_name, uint16_t mid)
 {
     // The "topology discovery" message is a CMDU with one TLVs:
     //   - One AL MAC address type TLV
@@ -2537,7 +2537,7 @@ uint8_t send1905TopologyNotificationPacket(char *interface_name, uint16_t mid)
     return ret;
 }
 
-uint8_t send1905MetricsQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
+uint8_t send1905MetricsQueryPacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
 {
     // The "metrics query" message is a CMDU with one TLV:
     //   - One link metric query TLV
@@ -2581,7 +2581,7 @@ uint8_t send1905MetricsQueryPacket(char *interface_name, uint16_t mid, uint8_t *
     return ret;
 }
 
-uint8_t send1905MetricsResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t destination, uint8_t *specific_neighbor, uint8_t metrics_type)
+uint8_t send1905MetricsResponsePacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t destination, uint8_t *specific_neighbor, uint8_t metrics_type)
 {
     // The "metrics response" message can be either:
     //
@@ -2675,7 +2675,7 @@ uint8_t send1905MetricsResponsePacket(char *interface_name, uint16_t mid, uint8_
     return ret;
 }
 
-uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t mid, char **all_interfaces_names, uint8_t *push_button_mask, uint8_t nr)
+uint8_t send1905PushButtonEventNotificationPacket(const char *interface_name, uint16_t mid, char **all_interfaces_names, uint8_t *push_button_mask, uint8_t nr)
 {
     // The "push button event notification" message is a CMDU with two TLVs:
     //   - One AL MAC address type TLV
@@ -3003,7 +3003,7 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
     return ret;
 }
 
-uint8_t send1905PushButtonJoinNotificationPacket(char *interface_name, uint16_t mid, uint8_t *original_al_mac_address, uint16_t original_mid, uint8_t *local_mac_address, uint8_t *new_mac_address)
+uint8_t send1905PushButtonJoinNotificationPacket(const char *interface_name, uint16_t mid, uint8_t *original_al_mac_address, uint16_t original_mid, uint8_t *local_mac_address, uint8_t *new_mac_address)
 {
     // The "push button join notification" message is a CMDU with two TLVs:
     //   - One AL MAC address type TLV
@@ -3072,7 +3072,7 @@ uint8_t send1905PushButtonJoinNotificationPacket(char *interface_name, uint16_t 
     return ret;
 }
 
-uint8_t send1905APAutoconfigurationSearchPacket(char *interface_name, uint16_t mid, uint8_t freq_band)
+uint8_t send1905APAutoconfigurationSearchPacket(const char *interface_name, uint16_t mid, uint8_t freq_band)
 {
     // The "AP-autoconfiguration search" message is a CMDU with three TLVs:
     //   - One AL MAC address type TLV
@@ -3140,7 +3140,7 @@ uint8_t send1905APAutoconfigurationSearchPacket(char *interface_name, uint16_t m
     return ret;
 }
 
-uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address,
+uint8_t send1905APAutoconfigurationResponsePacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address,
                                                 uint8_t freq_band, bool include_easymesh)
 {
     // The "AP-autoconfiguration response" message is a CMDU with two TLVs:
@@ -3271,7 +3271,7 @@ uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_
     return ret;
 }
 
-uint8_t send1905GenericPhyQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
+uint8_t send1905GenericPhyQueryPacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
 {
     // The "generic phy query" message is a CMDU with no TLVs
 
@@ -3310,7 +3310,7 @@ uint8_t send1905GenericPhyQueryPacket(char *interface_name, uint16_t mid, uint8_
     return ret;
 }
 
-uint8_t send1905GenericPhyResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
+uint8_t send1905GenericPhyResponsePacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
 {
     // The "generic phy response" message is a CMDU with the following TLVs:
     //   - One generic phy device information type TLV
@@ -3358,7 +3358,7 @@ uint8_t send1905GenericPhyResponsePacket(char *interface_name, uint16_t mid, uin
     return ret;
 }
 
-uint8_t send1905HighLayerQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
+uint8_t send1905HighLayerQueryPacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
 {
     // The "high level phy query" message is a CMDU with no TLVs
 
@@ -3397,7 +3397,7 @@ uint8_t send1905HighLayerQueryPacket(char *interface_name, uint16_t mid, uint8_t
     return ret;
 }
 
-uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
+uint8_t send1905HighLayerResponsePacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address)
 {
     // The "high layer response" message is a CMDU with the following TLVs:
     //   - One AL MAC address type TLV
@@ -3493,7 +3493,7 @@ uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint
     return 1;
 }
 
-uint8_t send1905InterfacePowerChangeRequestPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t (*remote_interfaces)[6], uint8_t *new_states, uint8_t nr)
+uint8_t send1905InterfacePowerChangeRequestPacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t (*remote_interfaces)[6], uint8_t *new_states, uint8_t nr)
 {
     // NOTE: Right now this function is *not* being used from anywhere. The
     //       reason is that the standard does not say under which circumstances
@@ -3572,7 +3572,7 @@ uint8_t send1905InterfacePowerChangeRequestPacket(char *interface_name, uint16_t
     return ret;
 }
 
-uint8_t send1905InterfacePowerChangeResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t (*local_interfaces)[6], uint8_t *results, uint8_t nr)
+uint8_t send1905InterfacePowerChangeResponsePacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t (*local_interfaces)[6], uint8_t *results, uint8_t nr)
 {
     // The "high layer response" message is a CMDU with the following TLVs:
     //   - One or more interface power change status TLVs
@@ -3644,7 +3644,7 @@ uint8_t send1905InterfacePowerChangeResponsePacket(char *interface_name, uint16_
     return ret;
 }
 
-uint8_t sendLLDPBridgeDiscoveryPacket(char *interface_name)
+uint8_t sendLLDPBridgeDiscoveryPacket(const char *interface_name)
 {
     uint8_t  al_mac_address[6];
     uint8_t  interface_mac_address[6];

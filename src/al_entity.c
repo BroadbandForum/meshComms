@@ -1234,7 +1234,7 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
                 uint16_t ether_type;
 
                 uint8_t  receiving_interface_addr[6];
-                char  *receiving_interface_name;
+                const char  *receiving_interface_name;
 
                 // The first six bytes of the message payload contain the MAC
                 // address of the interface where the packet was received

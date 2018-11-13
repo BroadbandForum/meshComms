@@ -176,7 +176,7 @@ uint8_t _executeInterfaceStub(const char *interface_name, uint8_t stub_type, ...
 
             m = va_arg(args, struct interfaceInfo *);
 
-            ((void (*)(char *, char*, struct interfaceInfo *))f)(interface_name, interfaces_list_extended_params[i], m);
+            ((void (*)(const char *, const char*, struct interfaceInfo *))f)(interface_name, interfaces_list_extended_params[i], m);
 
             break;
         }
@@ -186,13 +186,13 @@ uint8_t _executeInterfaceStub(const char *interface_name, uint8_t stub_type, ...
 
             m = va_arg(args, struct linkMetrics *);
 
-            ((void (*)(char *, char*, struct linkMetrics *))f)(interface_name, interfaces_list_extended_params[i], m);
+            ((void (*)(const char *, const char*, struct linkMetrics *))f)(interface_name, interfaces_list_extended_params[i], m);
 
             break;
         }
         case STUB_TYPE_PUSH_BUTTON_START:
         {
-            ((void (*)(char *, char*))f)(interface_name, interfaces_list_extended_params[i]);
+            ((void (*)(const char *, char*))f)(interface_name, interfaces_list_extended_params[i]);
             break;
         }
     }
@@ -641,7 +641,7 @@ void free_LIST_OF_1905_INTERFACES(__attribute__((unused)) char **x, __attribute_
     return;
 }
 
-struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name)
+struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(const char *interface_name)
 {
     struct interfaceInfo *m;
     int i;
@@ -1450,7 +1450,7 @@ uint8_t PLATFORM_START_PUSH_BUTTON_CONFIGURATION(char *interface_name, uint8_t q
 }
 
 
-uint8_t PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, uint8_t power_mode)
+uint8_t PLATFORM_SET_INTERFACE_POWER_MODE(const char *interface_name, uint8_t power_mode)
 {
     // TODO
     switch(power_mode)

@@ -333,7 +333,7 @@ void free_LIST_OF_1905_INTERFACES(char **x, uint8_t nr);
 // Once the caller is done with the returned structure, hw must call
 // "free_1905_STRUCTURE()" to dispose it
 //
-struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(char *interface_name);
+struct interfaceInfo *PLATFORM_GET_1905_INTERFACE_INFO(const char *interface_name);
 
 // Free the memory used by a "struct interfaceInfo" structure previously
 // obtained by calling "PLATFORM_GET_1905_INTERFACE_INFO()"
@@ -591,6 +591,6 @@ uint8_t PLATFORM_START_PUSH_BUTTON_CONFIGURATION(char *interface_name, uint8_t q
 #define INTERFACE_POWER_RESULT_NO_CHANGE    (0x01)
 #define INTERFACE_POWER_RESULT_ALTERNATIVE  (0x02)
 #define INTERFACE_POWER_RESULT_KO           (0x03)
-uint8_t PLATFORM_SET_INTERFACE_POWER_MODE(char *interface_name, uint8_t power_mode);
+uint8_t PLATFORM_SET_INTERFACE_POWER_MODE(const char *interface_name, uint8_t power_mode);
 
 #endif

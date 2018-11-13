@@ -75,7 +75,7 @@ uint8_t send1905RawALME(uint8_t alme_client_id, uint8_t *out);
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid);
+uint8_t send1905TopologyDiscoveryPacket(const char *interface_name, uint16_t mid);
 
 // This function sends a "1905 topology query packet" on the provided
 // interface.
@@ -94,7 +94,7 @@ uint8_t send1905TopologyDiscoveryPacket(char *interface_name, uint16_t mid);
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905TopologyQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
+uint8_t send1905TopologyQueryPacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 topology response packet" on the provided
 // interface.
@@ -116,7 +116,7 @@ uint8_t send1905TopologyQueryPacket(char *interface_name, uint16_t mid, uint8_t 
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905TopologyResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
+uint8_t send1905TopologyResponsePacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 topology notification packet" on the provided
 // interface.
@@ -132,7 +132,7 @@ uint8_t send1905TopologyResponsePacket(char *interface_name, uint16_t mid, uint8
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905TopologyNotificationPacket(char *interface_name, uint16_t mid);
+uint8_t send1905TopologyNotificationPacket(const char *interface_name, uint16_t mid);
 
 // This function sends a "1905 metrics query packet" on the provided
 // interface.
@@ -154,7 +154,7 @@ uint8_t send1905TopologyNotificationPacket(char *interface_name, uint16_t mid);
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905MetricsQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
+uint8_t send1905MetricsQueryPacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 metrics response packet" on the provided
 // interface.
@@ -192,7 +192,7 @@ uint8_t send1905MetricsQueryPacket(char *interface_name, uint16_t mid, uint8_t *
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905MetricsResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t destination, uint8_t *specific_neighbor, uint8_t metrics_type);
+uint8_t send1905MetricsResponsePacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t destination, uint8_t *specific_neighbor, uint8_t metrics_type);
 
 // This function sends a "1905 push button event notification packet" on the
 // provided interface.
@@ -224,7 +224,7 @@ uint8_t send1905MetricsResponsePacket(char *interface_name, uint16_t mid, uint8_
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t mid, char **all_interfaces_names, uint8_t *push_button_mask, uint8_t nr);
+uint8_t send1905PushButtonEventNotificationPacket(const char *interface_name, uint16_t mid, char **all_interfaces_names, uint8_t *push_button_mask, uint8_t nr);
 
 // This function sends a "1905 push join notification packet" on the provided
 // interface.
@@ -258,7 +258,7 @@ uint8_t send1905PushButtonEventNotificationPacket(char *interface_name, uint16_t
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905PushButtonJoinNotificationPacket(char *interface_name, uint16_t mid, uint8_t *original_al_mac_address, uint16_t original_mid, uint8_t *local_mac_address, uint8_t *new_mac_address);
+uint8_t send1905PushButtonJoinNotificationPacket(const char *interface_name, uint16_t mid, uint8_t *original_al_mac_address, uint16_t original_mid, uint8_t *local_mac_address, uint8_t *new_mac_address);
 
 // This function sends a "AP-autoconfiguration search packet" on the provided
 // interface.
@@ -282,7 +282,7 @@ uint8_t send1905PushButtonJoinNotificationPacket(char *interface_name, uint16_t 
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905APAutoconfigurationSearchPacket(char *interface_name, uint16_t mid, uint8_t freq_band);
+uint8_t send1905APAutoconfigurationSearchPacket(const char *interface_name, uint16_t mid, uint8_t freq_band);
 
 // This function sends a "AP-autoconfiguration response packet" on the provided
 // interface.
@@ -311,7 +311,7 @@ uint8_t send1905APAutoconfigurationSearchPacket(char *interface_name, uint16_t m
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905APAutoconfigurationResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address,
+uint8_t send1905APAutoconfigurationResponsePacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address,
                                                 uint8_t freq_band, bool include_easymesh);
 
 // This function sends a "AP-autoconfiguration WSC packet" on the provided
@@ -367,7 +367,7 @@ uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905GenericPhyQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
+uint8_t send1905GenericPhyQueryPacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 generic phy response packet" on the provided
 // interface.
@@ -389,7 +389,7 @@ uint8_t send1905GenericPhyQueryPacket(char *interface_name, uint16_t mid, uint8_
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905GenericPhyResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
+uint8_t send1905GenericPhyResponsePacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 high layer query packet" on the provided
 // interface.
@@ -408,7 +408,7 @@ uint8_t send1905GenericPhyResponsePacket(char *interface_name, uint16_t mid, uin
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905HighLayerQueryPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
+uint8_t send1905HighLayerQueryPacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends a "1905 high layer response packet" on the provided
 // interface.
@@ -430,7 +430,7 @@ uint8_t send1905HighLayerQueryPacket(char *interface_name, uint16_t mid, uint8_t
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
+uint8_t send1905HighLayerResponsePacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address);
 
 // This function sends an "interface power change information packet" on the
 // provided interface.
@@ -460,7 +460,7 @@ uint8_t send1905HighLayerResponsePacket(char *interface_name, uint16_t mid, uint
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905InterfacePowerChangeRequestPacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t (*remote_interfaces)[6], uint8_t *new_states, uint8_t nr);
+uint8_t send1905InterfacePowerChangeRequestPacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t (*remote_interfaces)[6], uint8_t *new_states, uint8_t nr);
 
 // This function sends an "interface power change request packet" on the
 // provided interface.
@@ -495,7 +495,7 @@ uint8_t send1905InterfacePowerChangeRequestPacket(char *interface_name, uint16_t
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905InterfacePowerChangeResponsePacket(char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t (*local_interfaces)[6], uint8_t *results, uint8_t nr);
+uint8_t send1905InterfacePowerChangeResponsePacket(const char *interface_name, uint16_t mid, uint8_t *destination_al_mac_address, uint8_t (*local_interfaces)[6], uint8_t *results, uint8_t nr);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions to send LLDP messages
@@ -513,7 +513,7 @@ uint8_t send1905InterfacePowerChangeResponsePacket(char *interface_name, uint16_
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t sendLLDPBridgeDiscoveryPacket(char *interface_name);
+uint8_t sendLLDPBridgeDiscoveryPacket(const char *interface_name);
 
 
 ////////////////////////////////////////////////////////////////////////////////
