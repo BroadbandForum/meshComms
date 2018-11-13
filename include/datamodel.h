@@ -33,10 +33,25 @@
  * to manipulate it.
  */
 
+/** @brief Authentication modes.
+ *
+ * These are only used in WPS exchanges, so values are taken from there.
+ *
+ * We don't support deprecated shared and WPA modes, so also their constants are not defined.
+ */
+enum auth_mode {
+    auth_mode_open = 0x0001,    /**< Open mode, no authentication. */
+    auth_mode_wpa2 = 0x0010,    /**< WPA2-Enterprise. */
+    auth_mode_wpa2psk = 0x0020, /**< WPA2-Personal. */
+};
+
 /** @brief Definition of a BSS. */
 struct bssInfo {
-    mac_address bssid;
-    struct ssid ssid;
+    mac_address bssid;          /**< BSSID (MAC address) of the BSS configured by this WSC exchange. */
+    struct ssid ssid;           /**< SSID used on this BSS. */
+    enum auth_mode auth_mode;   /**< Authentication mode. Encryption is implied (none for open, CCMP for WPA2). */
+    uint8_t key           [64]; /**< Shared key. Only valid for @a auth_mode_wpa2psk. */
+    uint8_t key_len;            /**< Length of @a key. */
 };
 
 enum interfaceType {

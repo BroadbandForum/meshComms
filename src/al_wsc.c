@@ -341,31 +341,13 @@ uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void *
 
     // AUTHENTICATION TYPES
     {
-        uint16_t  auth_types;
-
-        auth_types = 0;
-
-        if (IEEE80211_AUTH_MODE_OPEN & x->interface_type_data.ieee80211.authentication_mode)
-        {
-            auth_types |= WPS_AUTH_OPEN;
-        }
-        if (IEEE80211_AUTH_MODE_WPA & x->interface_type_data.ieee80211.authentication_mode)
-        {
-            auth_types |= WPS_AUTH_WPA;
-        }
-        if (IEEE80211_AUTH_MODE_WPAPSK & x->interface_type_data.ieee80211.authentication_mode)
-        {
-            auth_types |= WPS_AUTH_WPAPSK;
-        }
-        if (IEEE80211_AUTH_MODE_WPA2 & x->interface_type_data.ieee80211.authentication_mode)
-        {
-            auth_types |= WPS_AUTH_WPA2;
-        }
-        if (IEEE80211_AUTH_MODE_WPA2PSK & x->interface_type_data.ieee80211.authentication_mode)
-        {
-            auth_types |= WPS_AUTH_WPA2PSK;
-        }
-
+        /*
+         * See "Multi-AP Specification Version 1.0" Section 7.1: "The Multi-AP
+         * Agent shall set the Authentication Type Flags attribute in M1 in the
+         * AP-Autoconfiguration WSC message to indicate support for
+         * WPA2-Personal and Open System Authentication types."
+         */
+        uint16_t  auth_types = auth_mode_open | auth_mode_wpa2psk;
         aux16 = ATTR_AUTH_TYPE_FLAGS;                                     _I2B(&aux16,      &p);
         aux16 = 2;                                                        _I2B(&aux16,      &p);
                                                                           _I2B(&auth_types, &p);
@@ -373,22 +355,9 @@ uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void *
 
     // ENCRYPTION TYPES
     {
-        uint16_t  encryption_types;
-
-        encryption_types = 0;
-
-        if (IEEE80211_ENCRYPTION_MODE_NONE & x->interface_type_data.ieee80211.encryption_mode)
-        {
-            encryption_types |= WPS_ENCR_NONE;
-        }
-        if (IEEE80211_ENCRYPTION_MODE_TKIP & x->interface_type_data.ieee80211.encryption_mode)
-        {
-            encryption_types |= WPS_ENCR_TKIP;
-        }
-        if (IEEE80211_ENCRYPTION_MODE_AES & x->interface_type_data.ieee80211.encryption_mode)
-        {
-            encryption_types |= WPS_ENCR_AES;
-        }
+        /* Multi-AP Specification Version 1.0 says nothing about enryption
+         * types, but this is implied by the authentication types. */
+        uint16_t  encryption_types = WPS_ENCR_NONE | WPS_ENCR_AES;
 
         aux16 = ATTR_ENCR_TYPE_FLAGS;                                     _I2B(&aux16,            &p);
         aux16 = 2;                                                        _I2B(&aux16,            &p);

@@ -917,16 +917,23 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
     //
     if (NULL != registrar_interface)
     {
+        struct interfaceWifi *interface_wifi;
+
         interface = findLocalInterface(registrar_interface);
 
         if (interface == NULL)
         {
             PLATFORM_PRINTF_DEBUG_ERROR("Could not find registrar interface %s\n", registrar_interface);
         }
+        else if (interface->type != interface_type_wifi)
+        {
+            PLATFORM_PRINTF_DEBUG_ERROR("Registrar interface %s is not a Wifi interface\n", registrar_interface);
+        }
         else
         {
             struct interfaceInfo *x;
 
+            interface_wifi = container_of(interface, struct interfaceWifi, i);
             x = PLATFORM_GET_1905_INTERFACE_INFO(interface->name);
             /* x cannot be NULL because the interface exists. */
 
@@ -941,7 +948,7 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
             struct wscDeviceData *wsc_data = &registrar.wsc_data[0];
             /* Make sure all strings are 0-terminated. */
             memset(wsc_data, 0, sizeof(*wsc_data));
-            memcpy(wsc_data->bssid, x->mac_address, 6);
+            memcpy(wsc_data->bssid, interface->addr, 6);
             strncpy(wsc_data->device_name, x->device_name, sizeof(wsc_data->device_name) - 1);
             strncpy(wsc_data->manufacturer_name, x->manufacturer_name, sizeof(wsc_data->manufacturer_name) - 1);
             strncpy(wsc_data->model_name, x->model_name, sizeof(wsc_data->model_name) - 1);
@@ -979,49 +986,20 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
                     return AL_ERROR_INTERFACE_ERROR;
 
             }
-            copyLengthString(wsc_data->ssid.ssid, &wsc_data->ssid.length, x->interface_type_data.ieee80211.ssid,
-                             sizeof(wsc_data->ssid.ssid));
-            copyLengthString(wsc_data->key, &wsc_data->key_len, x->interface_type_data.ieee80211.network_key,
-                             sizeof(wsc_data->key));
-
-            // AUTHENTICATION TYPES
-            wsc_data->auth_types = 0;
-
-            if (IEEE80211_AUTH_MODE_OPEN & x->interface_type_data.ieee80211.authentication_mode)
+            memcpy (&wsc_data->ssid, &interface_wifi->bssInfo.ssid, sizeof(wsc_data->ssid));
+            memcpy (&wsc_data->key, interface_wifi->bssInfo.key, sizeof(wsc_data->key));
+            wsc_data->key_len = interface_wifi->bssInfo.key_len;
+            wsc_data->auth_types = (uint16_t)interface_wifi->bssInfo.auth_mode;
+            /* Derive encryption from auth mode */
+            switch (interface_wifi->bssInfo.auth_mode)
             {
-                wsc_data->auth_types |= WPS_AUTH_OPEN;
-            }
-            if (IEEE80211_AUTH_MODE_WPA & x->interface_type_data.ieee80211.authentication_mode)
-            {
-                wsc_data->auth_types |= WPS_AUTH_WPA;
-            }
-            if (IEEE80211_AUTH_MODE_WPAPSK & x->interface_type_data.ieee80211.authentication_mode)
-            {
-                wsc_data->auth_types |= WPS_AUTH_WPAPSK;
-            }
-            if (IEEE80211_AUTH_MODE_WPA2 & x->interface_type_data.ieee80211.authentication_mode)
-            {
-                wsc_data->auth_types |= WPS_AUTH_WPA2;
-            }
-            if (IEEE80211_AUTH_MODE_WPA2PSK & x->interface_type_data.ieee80211.authentication_mode)
-            {
-                wsc_data->auth_types |= WPS_AUTH_WPA2PSK;
-            }
-
-            // ENCRYPTION TYPES
-            wsc_data->encr_types = 0;
-
-            if (IEEE80211_ENCRYPTION_MODE_NONE & x->interface_type_data.ieee80211.encryption_mode)
-            {
-                wsc_data->encr_types |= WPS_ENCR_NONE;
-            }
-            if (IEEE80211_ENCRYPTION_MODE_TKIP & x->interface_type_data.ieee80211.encryption_mode)
-            {
-                wsc_data->encr_types |= WPS_ENCR_TKIP;
-            }
-            if (IEEE80211_ENCRYPTION_MODE_AES & x->interface_type_data.ieee80211.encryption_mode)
-            {
-                wsc_data->encr_types |= WPS_ENCR_AES;
+            case auth_mode_open:
+                wsc_data->encr_types = WPS_ENCR_NONE;
+                break;
+            case auth_mode_wpa2:
+            case auth_mode_wpa2psk:
+                wsc_data->encr_types = WPS_ENCR_AES;
+                break;
             }
 
             free_1905_INTERFACE_INFO(x);

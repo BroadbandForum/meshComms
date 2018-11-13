@@ -871,7 +871,41 @@ void createLocalInterfaces(void)
             if ((m.interface_type & 0xFF00) == 0x0100) {
                 interface_wifi = interfaceWifiAlloc(m.mac_address, local_device);
                 interface = &interface_wifi->i;
-                /* @todo fill in bssinfo */
+                memcpy(interface_wifi->bssInfo.bssid, m.interface_type_data.ieee80211.bssid, 6);
+                copyLengthString(interface_wifi->bssInfo.ssid.ssid, &interface_wifi->bssInfo.ssid.length,
+                                 m.interface_type_data.ieee80211.ssid, sizeof(interface_wifi->bssInfo.ssid.ssid));
+                switch (m.interface_type_data.ieee80211.role)
+                {
+                case IEEE80211_ROLE_AP:
+                    interface_wifi->role = interface_wifi_role_ap;
+                    break;
+                case IEEE80211_ROLE_NON_AP_NON_PCP_STA:
+                    interface_wifi->role = interface_wifi_role_sta;
+                    break;
+                default:
+                    interface_wifi->role = interface_wifi_role_other;
+                    break;
+                }
+                switch (m.interface_type_data.ieee80211.authentication_mode)
+                {
+                case IEEE80211_AUTH_MODE_OPEN:
+                    interface_wifi->bssInfo.auth_mode = auth_mode_open;
+                    break;
+                case IEEE80211_AUTH_MODE_WPA2:
+                    interface_wifi->bssInfo.auth_mode = auth_mode_wpa2;
+                    break;
+                case IEEE80211_AUTH_MODE_WPA2PSK:
+                    interface_wifi->bssInfo.auth_mode = auth_mode_wpa2psk;
+                    break;
+                default:
+                    PLATFORM_PRINTF_DEBUG_WARNING("Unsupported authentication mode: 0x%04x\n",
+                                                  m.interface_type_data.ieee80211.authentication_mode);
+                    /* Use it regardless. */
+                    interface_wifi->bssInfo.auth_mode = m.interface_type_data.ieee80211.authentication_mode;
+                    break;
+                }
+                copyLengthString(interface_wifi->bssInfo.key, &interface_wifi->bssInfo.key_len,
+                                 m.interface_type_data.ieee80211.network_key, sizeof(interface_wifi->bssInfo.key));
             } else {
                 interface = interfaceAlloc(m.mac_address, local_device);
                 if ((m.interface_type & 0xFF00) == 0x0000) {
