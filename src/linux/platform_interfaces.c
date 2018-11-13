@@ -201,82 +201,6 @@ uint8_t _executeInterfaceStub(const char *interface_name, uint8_t stub_type, ...
     return 1;
 }
 
-// This function returns '0' if there was a problem,  otherwise it returns an
-// ID identifying the interface type.
-//
-#define INTF_TYPE_ERROR          (0)
-#define INTF_TYPE_ETHERNET       (1)
-#define INTF_TYPE_WIFI           (2)
-#define INTF_TYPE_UNKNOWN        (0xFF)
-uint8_t _getInterfaceType(const char *interface_name)
-{
-    // According to www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net
-    //
-    //                                    Regular ethernet          Wifi
-    //                                    interface                 interface
-    //                                    ================          =========
-    //
-    // /sys/class/net/<iface>/type        1                         1
-    //
-    // /sys/class/net/<iface>/wireless    <Does not exist>          <Exists>
-
-    uint8_t  ret;
-
-    FILE *fp;
-
-    char sys_path[100];
-
-    ret = INTF_TYPE_ERROR;
-
-    snprintf(sys_path, sizeof(sys_path), "/sys/class/net/%s/type", interface_name);
-
-    if(NULL != (fp = fopen(sys_path, "r")))
-    {
-        char aux[30];
-
-        if (NULL != fgets(aux, sizeof(aux), fp))
-        {
-            int interface_type;
-
-            interface_type = atoi(aux);
-
-            switch (interface_type)
-            {
-                case 1:
-                {
-                    snprintf(sys_path, sizeof(sys_path), "/sys/class/net/%s/wireless", interface_name);
-
-                    if( -1 != access( sys_path, F_OK ))
-                    {
-                        // Wireless
-                        //
-                        ret = INTF_TYPE_WIFI;
-                    }
-                    else
-                    {
-                        // Ethernet
-                        //
-                        ret = INTF_TYPE_ETHERNET;
-                    }
-                    break;
-                }
-
-                default:
-                {
-                    PLATFORM_PRINTF_DEBUG_ERROR("[PLATFORM] Unknow interface type %d\n", interface_type);
-                    ret = INTF_TYPE_UNKNOWN;
-
-                    break;
-                }
-            }
-        }
-
-        fclose(fp);
-    }
-
-    return ret;
-}
-
 // These are the data structures and functions in charge of handling the press
 // of physical/virtual buttons on the platform
 //
@@ -985,19 +909,40 @@ void createLocalInterfaces(void)
         close(fd);
         memcpy(addr, s.ifr_addr.sa_data, 6);
 
-        switch (_getInterfaceType(interface_name)) {
-        case INTF_TYPE_WIFI:
+        /* Get Wifi info from sysfs */
+
+
+        char sys_path[100];
+
+        snprintf(sys_path, sizeof(sys_path), "/sys/class/net/%s/phy80211/name", interface_name);
+
+        FILE *fp = fopen(sys_path, "r");
+        if(fp == NULL)
+        {
+            /* No phy file, assume wired link */
+            interface = interfaceAlloc(addr, local_device);
+            /* @todo get correct media type */
+            interface->media_type = INTERFACE_TYPE_IEEE_802_3AB_GIGABIT_ETHERNET;
+        }
+        else
+        {
             interface_wifi = interfaceWifiAlloc(addr, local_device);
             interface = &interface_wifi->i;
             /* @todo get correct media type */
             interface->media_type = INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ;
-            break;
-        default:
-            interface = interfaceAlloc(addr, local_device);
-            /* @todo get correct media type */
-            interface->media_type = INTERFACE_TYPE_IEEE_802_3AB_GIGABIT_ETHERNET;
-            break;
+            char phy[30];
+            if (NULL != fgets(phy, sizeof(phy), fp))
+            {
+                struct radio *radio = findLocalRadio(phy);
+                radioAddInterfaceWifi(radio, interface_wifi);
+            }
+            else
+            {
+                PLATFORM_PRINTF_DEBUG_ERROR("Failed to read phy name from %s\n", sys_path);
+            }
+            fclose(fp);
         }
+
         interface->name = interface_name;
         interface->power_state = interface_power_state_on;
     }

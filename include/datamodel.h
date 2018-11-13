@@ -376,6 +376,9 @@ void radioDelete(struct radio *radio);
 /** @brief Find the radio with a given radio-uid belonging to the given device. */
 struct radio *findDeviceRadio(const struct alDevice *device, const mac_address uid);
 
+/** @brief Find the radio with the given name in the local device. */
+struct radio *findLocalRadio(const char *name);
+
 /** @brief  Add an interface to ::radio
  *  @return 0:success, <0:error
  */

@@ -128,6 +128,19 @@ struct radio *findDeviceRadio(const struct alDevice *device, const mac_address u
     return NULL;
 }
 
+struct radio *findLocalRadio(const char *name)
+{
+    struct radio *radio;
+    dlist_for_each(radio, local_device->radios, l)
+    {
+        if (strncmp(radio->name, name, sizeof(radio->name)) == 0)
+        {
+            return radio;
+        }
+    }
+    return NULL;
+}
+
 int radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *ifw)
 {
     PTRARRAY_ADD(radio->configured_bsses, ifw);
