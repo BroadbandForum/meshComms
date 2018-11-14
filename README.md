@@ -2,6 +2,11 @@
 
 See [CONTRIBUTING.md] for how you can contribute to the project.
 
+This repository is still heavily developed. You can follow the development by watching the repository. If you want to get involved, please send a mail to
+Arnout Vandecappelle &lt;arnout.vandecappelle@essensium.com&gt;.
+
+Initial integration into OpenWRT can be found at https://github.com/prplfoundation/prplMesh-openwrt. We test on a Turris Omnia and on a BL3100 router.
+
 *Below is (mostly) the README.md from the [original Broadband Forum repository](https://github.com/BroadbandForum/meshComms).
 It has not been kept up to date with recent changes in the code.*
 

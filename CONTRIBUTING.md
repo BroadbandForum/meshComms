@@ -1,5 +1,8 @@
 # Contributing Guidelines
 
+This repository is still heavily developed. You can follow the development by watching the repository. If you want to get involved, please send a mail to
+Arnout Vandecappelle &lt;arnout.vandecappelle@essensium.com&gt;.
+
 ## Reporting bugs
 
 Use [github issues](https://github.com/prplfoundation/prplMesh/issues) to report problems.
