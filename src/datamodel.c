@@ -148,16 +148,15 @@ int radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *ifw)
     return 0;
 }
 
-void radioAddAp(struct radio *radio, struct ssid ssid, mac_address bssid,
-                 uint16_t auth_type, uint16_t encryption_type, const uint8_t *key, size_t key_len)
+void radioAddAp(struct radio *radio, struct bssInfo bssInfo)
 {
     if (radio->addAP == NULL)
     {
         PLATFORM_PRINTF_DEBUG_WARNING("No addAP callback for radio " MACSTR " to be configured with ssid %.*s\n",
-                                      MAC2STR(radio->uid), ssid.length, ssid.ssid);
+                                      MAC2STR(radio->uid), bssInfo.ssid.length, bssInfo.ssid.ssid);
         return;
     }
-    radio->addAP(radio, ssid, bssid, auth_type, encryption_type, key, key_len);
+    radio->addAP(radio, bssInfo);
 }
 
 

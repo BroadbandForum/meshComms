@@ -33,8 +33,7 @@
 #include <string.h>     // strdup()
 #include <errno.h>      // errno
 
-static bool uci_create_ap(struct radio *radio, struct ssid ssid, mac_address bssid,
-                          uint16_t auth_type, uint16_t encryption_type, const uint8_t *key, size_t key_len)
+static bool uci_create_ap(struct radio *radio, struct bssInfo bssInfo)
 {
     char cmd[500];
     /* @todo set encryption */
@@ -45,18 +44,17 @@ static bool uci_create_ap(struct radio *radio, struct ssid ssid, mac_address bss
                         "\"bssid\":\"" MACSTR "\","
                         "\"ssid\":\"%.*s\"},"
                         "\"encryption\":\"none\"}'",
-                   radio->index, MAC2STR(bssid), ssid.length, ssid.ssid);
+                   radio->index, MAC2STR(bssInfo.bssid), bssInfo.ssid.length, bssInfo.ssid.ssid);
 
     system(cmd);
     system("ubus call uci commit '{\"config\":\"wireless\"}'");
 
     /* @todo The presence of the new AP should be detected through netlink. For the time being, however, we update the data model
      * straight away. */
-    struct interfaceWifi *iface = interfaceWifiAlloc(bssid, local_device);
+    struct interfaceWifi *iface = interfaceWifiAlloc(bssInfo.bssid, local_device);
     radioAddInterfaceWifi(radio, iface);
     iface->role = interface_wifi_role_ap;
-    memcpy(iface->bssInfo.bssid, bssid, 6);
-    memcpy(&iface->bssInfo.ssid, &ssid, sizeof(ssid));
+    memcpy(&iface->bssInfo, &bssInfo, sizeof(bssInfo));
     return true;
 }
 

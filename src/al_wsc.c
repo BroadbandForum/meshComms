@@ -550,11 +550,11 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
 
     // "Useful data" we want to extract from M2
     //
-    struct ssid ssid;                    uint8_t ssid_present;
-    uint8_t  bssid[6];                   uint8_t bssid_present;
-    uint16_t auth_type;                  uint8_t auth_type_present;
-    uint16_t encryption_type;            uint8_t encryption_type_present;
-    uint8_t  network_key[64];            size_t network_key_len;
+    struct bssInfo bssInfo;
+    bool ssid_present = false;
+    bool bssid_present = false;
+    bool auth_type_present = false;
+    bool encryption_type_present = false;
 
     bool multi_ap_ie_present = false;
     /* The following are only valid if multi_ap_ie_present is true */
@@ -589,6 +589,8 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
     const uint8_t  *m1_privkey;
     uint16_t  m1_privkey_len;
     const uint8_t  *m1_mac;
+
+    memset(&bssInfo, 0, sizeof(bssInfo));
 
     if (NULL == m1)
     {
@@ -852,6 +854,8 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
     {
         uint8_t   *plain;
         uint32_t  plain_len;
+        uint16_t  encryption_type;
+        uint16_t  auth_type;
 
         uint8_t m2_keywrap_present;
 
@@ -871,11 +875,6 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
 
         // Parse contents of decrypted settings
         //
-        ssid_present              = 0;
-        bssid_present             = 0;
-        auth_type_present         = 0;
-        encryption_type_present   = 0;
-        network_key_len           = 0;
         m2_keywrap_present        = 0;
         p                         = plain;
         while (p - plain < plain_len)
@@ -888,11 +887,11 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
 
             if (ATTR_SSID == attr_type)
             {
-                if (attr_len <= sizeof(ssid.ssid))
+                if (attr_len <= sizeof(bssInfo.ssid.ssid))
                 {
-                    _EnB(&p, ssid.ssid, attr_len);
-                    ssid.length = attr_len;
-                    ssid_present = 1;
+                    _EnB(&p, bssInfo.ssid.ssid, attr_len);
+                    bssInfo.ssid.length = attr_len;
+                    ssid_present = true;
                 }
                 else
                 {
@@ -902,19 +901,19 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             else if (ATTR_AUTH_TYPE == attr_type)
             {
                 _E2B(&p, &auth_type);
-                auth_type_present = 1;
+                auth_type_present = true;
             }
             else if (ATTR_ENCR_TYPE == attr_type)
             {
                 _E2B(&p, &encryption_type);
-                encryption_type_present = 1;
+                encryption_type_present = true;
             }
             else if (ATTR_NETWORK_KEY == attr_type)
             {
-                if (attr_len <= sizeof(network_key))
+                if (attr_len <= sizeof(bssInfo.key))
                 {
-                    _EnB(&p, network_key, attr_len);
-                    network_key_len = attr_len;
+                    _EnB(&p, bssInfo.key, attr_len);
+                    bssInfo.key_len = (uint8_t)attr_len;
                 }
                 else
                 {
@@ -923,8 +922,15 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             }
             else if (ATTR_MAC_ADDR == attr_type)
             {
-                _EnB(&p, bssid, attr_len);
-                bssid_present = 1;
+                if (attr_len == 6)
+                {
+                    _EnB(&p, bssInfo.bssid, 6);
+                    bssid_present = true;
+                }
+                else
+                {
+                    PLATFORM_PRINTF_DEBUG_WARNING("Invalid BSSID length: %u\n", attr_len);
+                }
             }
             else if (ATTR_KEY_WRAP_AUTH == attr_type)
             {
@@ -961,17 +967,39 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             }
         }
         if (
-             0 == ssid_present                  ||
-             0 == bssid_present                 ||
-             0 == auth_type_present             ||
-             0 == encryption_type_present       ||
-             0 == network_key_len               ||
+             !ssid_present                  ||
+             !bssid_present                 ||
+             !auth_type_present             ||
+             !encryption_type_present       ||
+             0 == bssInfo.key_len           ||
              0 == m2_keywrap_present
            )
         {
             PLATFORM_PRINTF_DEBUG_WARNING("Missing attributes in the configuration settings received in the M2 message\n");
             return 0;
         }
+        switch (auth_type)
+        {
+        case auth_mode_open:
+            if (encryption_type != IEEE80211_ENCRYPTION_MODE_NONE)
+            {
+                PLATFORM_PRINTF_DEBUG_WARNING("Invalid encryption type %u for open mode\n", encryption_type);
+                return 0;
+            }
+            break;
+        case auth_mode_wpa2:
+        case auth_mode_wpa2psk:
+            if (encryption_type != IEEE80211_ENCRYPTION_MODE_AES)
+            {
+                PLATFORM_PRINTF_DEBUG_WARNING("Invalid encryption type %u for WPA2 mode\n", encryption_type);
+                return 0;
+            }
+            break;
+        default:
+            PLATFORM_PRINTF_DEBUG_WARNING("Unsupported authentication type %u\n", auth_type);
+            return 0;
+        }
+        bssInfo.auth_mode = auth_type;
     }
 
     // Apply the security settings so that this AP clones the registrar
@@ -985,7 +1013,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
         }
         else
         {
-            radioAddAp(radio, ssid, bssid, auth_type, encryption_type, network_key, network_key_len);
+            radioAddAp(radio, bssInfo);
         }
     }
 

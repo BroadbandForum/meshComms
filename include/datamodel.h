@@ -242,8 +242,7 @@ struct radio {
      * @param ssid The AP's SSID.
      * @param bssid The AP's BSSID.
      */
-    bool (*addAP)(struct radio *radio, struct ssid ssid, mac_address bssid,
-                  uint16_t auth_type, uint16_t encryption_type, const uint8_t *key, size_t key_len);
+    bool (*addAP)(struct radio *radio, struct bssInfo bssInfo);
 
     /** @} */
 };
@@ -400,8 +399,7 @@ struct radio *findLocalRadio(const char *name);
 int radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *iface);
 
 /** @brief Configure an AP on the radio. */
-void radioAddAp(struct radio *radio, struct ssid ssid, mac_address bssid,
-                 uint16_t auth_type, uint16_t encryption_type, const uint8_t *key, size_t key_len);
+void radioAddAp(struct radio *radio, struct bssInfo bssInfo);
 
 /** @brief Allocate a new interface, with optional owning device.
  *
