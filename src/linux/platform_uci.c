@@ -32,22 +32,55 @@
 #include <stdlib.h>     // malloc(), ssize_t
 #include <string.h>     // strdup()
 #include <errno.h>      // errno
+#include <libubox/blobmsg.h>
+#include <libubus.h>
 
 static bool uci_create_ap(struct radio *radio, struct bssInfo bssInfo)
 {
-    char cmd[500];
-    /* @todo set encryption */
-    snprintf(cmd, sizeof(cmd), "ubus call uci add "
-                    "'{\"config\":\"wireless\",\"type\":\"wifi-iface\",\"values\":"
-                        "{\"device\":\"radio%u\",\"mode\":\"ap\","
-                        "\"network\":\"lan\"," /* @todo set appropriate network */
-                        "\"bssid\":\"" MACSTR "\","
-                        "\"ssid\":\"%.*s\"},"
-                        "\"encryption\":\"none\"}'",
-                   radio->index, MAC2STR(bssInfo.bssid), bssInfo.ssid.length, bssInfo.ssid.ssid);
+    char radioname[16];
+    char macstr[18];
+    struct ubus_context *ctx = ubus_connect(NULL);
+    uint32_t id;
+    struct blob_buf b;
+    void *values;
+    bool ret = true;
 
-    system(cmd);
-    system("ubus call uci commit '{\"config\":\"wireless\"}'");
+    if (!ctx) {
+        fprintf(stderr, "failed to connect to ubus.\n");
+        return false;
+    }
+
+    blob_buf_init(&b, 0);
+    blobmsg_add_string(&b, "config", "wireless");
+    blobmsg_add_string(&b, "type", "wifi-iface");
+    values = blobmsg_open_table(&b, "values");
+    // assume that radio->index is equal to the enumeration in OpenWrt,
+    // which is not necessarily always true in the way radios are
+    // currently enumerated by prplmesh
+    snprintf(radioname, sizeof(radioname), "radio%u", radio->index);
+    blobmsg_add_string(&b, "device", radioname);
+    blobmsg_add_string(&b, "mode", "ap");
+    blobmsg_add_string(&b, "network", "lan"); /* @todo set appropriate network */
+    snprintf(macstr, sizeof(macstr), MACSTR, MAC2STR(bssInfo.bssid));
+    blobmsg_add_string(&b, "bssid", macstr);
+    blobmsg_add_field(&b, BLOBMSG_TYPE_STRING, "ssid", bssInfo.ssid.ssid, bssInfo.ssid.length);
+    blobmsg_add_string(&b, "encryption", "none"); /* @todo set encryption */
+    blobmsg_close_table(&b, values);
+    if (ubus_lookup_id(ctx, "uci", &id) ||
+        ubus_invoke(ctx, id, "add", b.head, NULL, NULL, 3000)) {
+        ret = false;
+        goto out;
+    }
+
+    blob_buf_free(&b);
+    blob_buf_init(&b, 0);
+    blobmsg_add_string(&b, "config", "wireless");
+
+    if (ubus_lookup_id(ctx, "uci", &id) ||
+        ubus_invoke(ctx, id, "commit", b.head, NULL, NULL, 3000)) {
+        ret = false;
+        goto out;
+    }
 
     /* @todo The presence of the new AP should be detected through netlink. For the time being, however, we update the data model
      * straight away. */
@@ -55,7 +88,11 @@ static bool uci_create_ap(struct radio *radio, struct bssInfo bssInfo)
     radioAddInterfaceWifi(radio, iface);
     iface->role = interface_wifi_role_ap;
     memcpy(&iface->bssInfo, &bssInfo, sizeof(bssInfo));
-    return true;
+
+out:
+    blob_buf_free(&b);
+    ubus_free(ctx);
+    return ret;
 }
 
 void uci_register_handlers(void)
