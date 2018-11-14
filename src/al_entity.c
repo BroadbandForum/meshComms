@@ -905,8 +905,10 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
         return AL_ERROR_OS;
     } 
 
+#ifdef OPENWRT
     // Register UCI as the driver for local radios.
     uci_register_handlers();
+#endif
 
     // Collect interfaces
     PLATFORM_PRINTF_DEBUG_DETAIL("Retrieving list of local interfaces...\n");
