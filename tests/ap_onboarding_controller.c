@@ -183,7 +183,7 @@ int main()
                 {
                     struct wscTLV *wsc = container_of(tlv, struct wscTLV, tlv);
                     got_wsc_tlv = true;
-                    if (wsc->wsc_frame_size != 532)
+                    if (wsc->wsc_frame_size != 535)
                     {
                         PLATFORM_PRINTF_DEBUG_ERROR("Received unexpected WSC frame size on autoconfig wsc M2\n");
                         PLATFORM_PRINTF_DEBUG_INFO("  Received CMDU:\n");

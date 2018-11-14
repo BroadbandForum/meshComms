@@ -147,6 +147,12 @@
     #define WPS_VENDOR_ID_WFA_3    (0x2A)
     #define WFA_ELEM_VERSION2      (0x00)
     #define WPS_VERSION            (0x20)
+    #define WFA_ELEM_MULTI_AP_EXTENSION (0x06)
+        /* Multi-AP extension subelement values */
+        #define MULTI_AP_TEAR_DOWN      0x10
+        #define MULTI_AP_FRONTHAUL_BSS	0x20
+        #define MULTI_AP_BACKHAUL_BSS	0x40
+        #define MULTI_AP_BACKHAUL_STA	0x80
 #define ATTR_SSID              (0x1045)
 #define ATTR_AUTH_TYPE         (0x1003)
 #define ATTR_ENCR_TYPE         (0x100f)
@@ -1314,13 +1320,20 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
     // VENDOR EXTENSIONS
     {
         aux16 = ATTR_VENDOR_EXTENSION;                                    _I2B(&aux16,         &p2);
-        aux16 = 6;                                                        _I2B(&aux16,         &p2);
+        aux16 = 9;                                                        _I2B(&aux16,         &p2);
         aux8  = WPS_VENDOR_ID_WFA_1;                                      _I1B(&aux8,          &p2);
         aux8  = WPS_VENDOR_ID_WFA_2;                                      _I1B(&aux8,          &p2);
         aux8  = WPS_VENDOR_ID_WFA_3;                                      _I1B(&aux8,          &p2);
         aux8  = WFA_ELEM_VERSION2;                                        _I1B(&aux8,          &p2);
         aux8  = 1;                                                        _I1B(&aux8,          &p2);
         aux8  = WPS_VERSION;                                              _I1B(&aux8,          &p2);
+        /* Always include Multi-AP extension element, even if the enrollee is not Multi-AP - it will just ignore this.
+         * @todo that's not entirely correct: a non-Multi-AP enrollee will not understand teardown etc. so it
+         * will not behave correctly. */
+        aux8  = WFA_ELEM_MULTI_AP_EXTENSION;                              _I1B(&aux8,          &p2);
+        aux8  = 1;                                                        _I1B(&aux8,          &p2);
+        /* @todo correctly set the flags */
+        aux8  = MULTI_AP_FRONTHAUL_BSS | MULTI_AP_BACKHAUL_BSS;           _I1B(&aux8,          &p2);
     }
 
     // ENCRYPTED SETTINGS
