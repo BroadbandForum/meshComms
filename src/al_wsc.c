@@ -556,6 +556,10 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
     uint16_t encryption_type;            uint8_t encryption_type_present;
     uint8_t  network_key[64];            size_t network_key_len;
 
+    bool multi_ap_ie_present = false;
+    /* The following are only valid if multi_ap_ie_present is true */
+    bool multi_ap_bSTA, multi_ap_bBSS, multi_ap_fBSS, multi_ap_teardown;
+
     // Keys we need to compute to authenticate and decrypt M2
     //
     uint8_t authkey   [WPS_AUTHKEY_LEN];
@@ -627,7 +631,6 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             }
             m2_nonce = p;
 
-            p += attr_len;
             m2_nonce_present = 1;
         }
         else if (ATTR_PUBLIC_KEY == attr_type)
@@ -635,7 +638,6 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             m2_pubkey_len = attr_len;
             m2_pubkey     = p;
 
-            p += attr_len;
             m2_pubkey_present = 1;
         }
         else if (ATTR_ENCR_SETTINGS == attr_type)
@@ -643,7 +645,6 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             m2_encrypted_settings_len = attr_len;
             m2_encrypted_settings     = p;
 
-            p += attr_len;
             m2_encrypted_settings_present = 1;
         }
         else if (ATTR_AUTHENTICATOR == attr_type)
@@ -655,13 +656,42 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             }
             m2_authenticator = p;
 
-            p += attr_len;
             m2_authenticator_present = 1;
         }
-        else
+        else if (ATTR_VENDOR_EXTENSION == attr_type)
         {
-            p += attr_len;
+            if (attr_len < 3)
+            {
+                PLATFORM_PRINTF_DEBUG_WARNING("Vendor extension attribute too short (%u) for OUI\n", attr_len);
+                /* Ignore */
+            }
+            else if (p[0] == WPS_VENDOR_ID_WFA_1 &&
+                     p[1] == WPS_VENDOR_ID_WFA_2 &&
+                     p[2] == WPS_VENDOR_ID_WFA_3)
+            {
+                uint16_t ie_offset;
+                uint8_t ie_type, ie_len;
+                for (ie_offset = 3; ie_offset < attr_len; ie_offset += ie_len + 2)
+                {
+                    ie_type = p[ie_offset];
+                    ie_len = p[ie_offset + 1];
+                    if (ie_type == WFA_ELEM_MULTI_AP_EXTENSION)
+                    {
+                        if (ie_len != 1)
+                        {
+                            PLATFORM_PRINTF_DEBUG_WARNING("Multi-AP Extension IE with length %u\n", ie_len);
+                            continue;
+                        }
+                        multi_ap_ie_present = true;
+                        multi_ap_teardown = !!(p[ie_offset + 2] & MULTI_AP_TEAR_DOWN);
+                        multi_ap_bBSS = !!(p[ie_offset + 2] & MULTI_AP_BACKHAUL_BSS);
+                        multi_ap_bSTA = !!(p[ie_offset + 2] & MULTI_AP_BACKHAUL_STA);
+                        multi_ap_fBSS = !!(p[ie_offset + 2] & MULTI_AP_FRONTHAUL_BSS);
+                    }
+                }
+            }
         }
+        p += attr_len;
     }
     if (
          0 == m2_nonce_present              ||
