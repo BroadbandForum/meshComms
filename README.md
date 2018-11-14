@@ -1,5 +1,10 @@
 [![Build Status](https://travis-ci.org/prplfoundation/prplMesh.svg?branch=master)](https://travis-ci.org/prplfoundation/prplMesh)
 
+See [CONTRIBUTING.md] for how you can contribute to the project.
+
+*Below is (mostly) the README.md from the [original Broadband Forum repository](https://github.com/BroadbandForum/meshComms).
+It has not been kept up to date with recent changes in the code.*
+
 # Index
 
   1. What is this?
