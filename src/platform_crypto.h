@@ -58,7 +58,7 @@ uint8_t PLATFORM_GENERATE_DH_KEY_PAIR(uint8_t **priv, uint16_t *priv_len, uint8_
 //
 uint8_t PLATFORM_COMPUTE_DH_SHARED_SECRET(uint8_t **shared_secret, uint16_t *shared_secret_len,
                                           const uint8_t *remote_pub, uint16_t remote_pub_len,
-                                          const uint8_t *local_priv, uint8_t local_priv_len);
+                                          const uint8_t *local_priv, uint16_t local_priv_len);
 
 // Return the SHA256 digest of the provided input.
 //
