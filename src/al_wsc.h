@@ -34,14 +34,11 @@
 //
 //     1. When a 1905 node has an unconfigured interface, it needs to send an
 //        "M1" message. It does this by calling "wscBuildM1()", which takes the
-//        name of the unconfigured interface and returns a data buffer that can
-//        be directly embedded inside the WSC TLV/CMDU.
-//        It also returns a "key" structure that will later be need to process
-//        the response.
+//        WSC device information as argument and returns a WSC data buffer. That
+//        WSC data buffer must be stored for use when M2 is received.
 //
 //     2. When the response ("M2") is received, the enrollee calls
-//       "wscProcessM2()", which configures the interface and frees the "M1"
-//       and "key" buffers previously allocated in "wscBuildM1()"
+//       "wscProcessM2()" with the received M2 and the stored WSC data buffer.
 //
 //   * REGISTRAR:
 //
@@ -58,55 +55,32 @@
 // When receiving a WSC TLV, because its contents are opaque to the 1905 node,
 // function "wscGetType()" can be used do distinguish between "M1" and "M2".
 //
-// With all of this said, this is how you would use this API in the 1905 code:
-//
-//   - When receiving a AP search response (ie. when we want to configure an
-//     unconfigured AP interface and a registrar has been found):
-//
-//       uint8_t  *m1;
-//       uint16_t  m1_size;
-//       void   *key;
-//
-//       wscBuildM1("wlan0", &m1, &m1_size, &key);
-//       <send TVL/CMDU containing "m1">
-//       <save "m1"/"m1_size"/"key" somehow, associated to "wlan0">
-//
-//
-//   - When receiving a WSC CMDU:
-//
-//       if (WSC_TYPE_M1 == wscGetType(m, m_size))
-//       {
-//         // Registrar
-//
-//         uint8_t  *m2;
-//         uint16_t  m2_size;
-//
-//         wscBuildM2(m, m_size, &m2, &m2_size);
-//         <send TLV/CMDU containing "m2">
-//         wscFreeM2(m2, m2_size);
-//       }
-//       else
-//       {
-//         // Enrollee
-//
-//         <retrieve "m1"/"m1_size"/"key", associated to "wlan0">
-//         wscProcessM2(key, m1, m1_size, m, m_size);
-//       }
-//
-// Note that the references to "M1" and "key" must be "saved" for later use,
-// once the response is received.
-// For convenience, "wscProcessM2()" also accepts "NULL" as the 'M1'
-// arguments meaning "the last built M and its key"
-// However, if you use this shortcut, make sure you never call "wscBuildM1()"
-// more than once in a row (without calling "wscProcessM2()" in between), or
-// else the first "M1" will be lost forever.
-//
 // By the way, all the next functions return "0" if there a problem an "1"
 // otherwise (except for "wscGetType()", which returns the message type)
 
-uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void **key);
-uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m2, uint16_t m2_size);
+/** @brief Build a WSC M1 message.
+ *
+ * @param radio The radio for which we build the WSC M1 message.
+ * @param wsc_device_data The device information to be stored in the M1 message. @todo should be part of radio.
+ * @return true on success, false on failure.
+ *
+ * The M1 message to send is stored in the radio::wsc_info::m1 member of radio.
+ *
+ * If the radio already has a radio::wsc_info structure, it will be cleared.
+ */
+bool wscBuildM1(struct radio *radio, const struct wscDeviceData *wsc_device_data);
 
+/** @brief Process a WSC M2 message.
+ *
+ * @param radio The radio for which this WSC is received.
+ * @param m2 The received M2 WSC message.
+ * @param m2_size The length of @a m2.
+ * @return true on success, false on failure.
+ */
+bool wscProcessM2(struct radio *radio, const uint8_t *m2, uint16_t m2_size);
+
+/** @brief Free the radio's radio::wsc_info structure. */
+void wscInfoFree(struct radio *radio);
 
 uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_size);
 uint8_t wscFreeM2(uint8_t *m, uint16_t m_size);

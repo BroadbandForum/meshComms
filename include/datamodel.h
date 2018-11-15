@@ -54,6 +54,7 @@ struct bssInfo {
     uint8_t key_len;            /**< Length of @a key. */
 };
 
+
 enum interfaceType {
     interface_type_unknown = -1, /**< Interface was created without further information. */
     interface_type_ethernet = 0, /**< Wired ethernet interface. */
@@ -227,6 +228,22 @@ struct radio {
      */
     PTRARRAY(struct interfaceWifi *) configured_bsses;
 
+    /** @brief Information used during WSC.
+     *
+     * During WSC exchange, the enrollee has to keep some information that will be used when it receives the M2.
+     * So this is only valid for the local device, if it is an agent.
+     *
+     * The structure is dynamically allocated when the M1 message is constructed. It can be deleted after M2 has been received.
+     */
+    struct {
+        uint8_t   m1[1000]; /**< Buffer for constructing the M1 message. */
+        uint8_t   m1_len;   /**< Used length of @a m1. */
+        uint8_t  *nonce;    /**< Pointer into @a m1 to location of the nonce. Length is 16 bytes. */
+        uint8_t  *mac;      /**< Pointer into @a m1 to location of the MAC address. */
+        uint8_t  *priv_key; /**< Private key, allocated separately. */
+        uint16_t  priv_key_len;  /**< Length of @a priv_key. */
+    } *wsc_info;
+
     /** @brief Operations on the radio.
      *
      * Implementing these as function pointers allows each radio to have a different driver.
@@ -302,6 +319,8 @@ extern struct alDevice *local_device;
  * bands.
  *
  * Only PSK authentication is supported, not entreprise, so we can use a fixed-length key.
+ *
+ * @todo move bssInfo out
  */
 struct wscDeviceData {
     mac_address bssid;          /**< BSSID (MAC address) of the BSS configured by this WSC exchange. */
@@ -310,6 +329,7 @@ struct wscDeviceData {
     char model_name       [65]; /**< Model Name (0..32 octets encoded in UTF-8). */
     char model_number     [65]; /**< Model Number (0..32 octets encoded in UTF-8). */
     char serial_number    [65]; /**< Serial Number (0..32 octets encoded in UTF-8). */
+    /* @todo device type is missing */
     uint8_t uuid          [16]; /**< UUID (16 octets). */
     uint8_t rf_bands;           /**< Bitmask of WPS_RF_24GHZ, WPS_RF_50GHZ, WPS_RF_60GHZ. */
     struct ssid ssid;           /**< SSID configured by this WSC. */

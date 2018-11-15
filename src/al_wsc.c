@@ -167,19 +167,6 @@
 #define WPS_KEYWRAPKEY_LEN 16
 #define WPS_EMSK_LEN       32
 
-struct wscKey
-{
-    uint8_t  *key;
-    uint32_t  key_len;
-    uint8_t   mac[6];
-};
-
-
-// Global variable to save the latest M1 message created
-//
-uint8_t         *last_m1      = NULL;
-uint16_t         last_m1_size = 0;
-struct wscKey *last_key     = NULL;
 
 // This is the key derivation function used in the WPS standard to obtain a
 // final hash that is later used for encryption.
@@ -252,35 +239,30 @@ void _wps_key_derivation_function(uint8_t *key, uint8_t *label_prefix, uint32_t 
 //
 //////////////////////////////////////// Enrollee functions ////////////////////
 //
-uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void **key)
+bool wscBuildM1(struct radio *radio, const struct wscDeviceData *wsc_device_data)
 {
-    /* @todo check how iwd gets the info over netlink and do the same */
-    uint8_t  *buffer;
-
-    struct interfaceInfo  *x;
-
-    struct wscKey  *private_key;
-
     uint8_t *p;
 
     uint8_t  aux8;
     uint16_t aux16;
     uint32_t aux32;
 
-    if (NULL == radio || NULL == m1 || NULL == m1_size || NULL == key)
+    if (NULL == wsc_device_data || NULL == radio)
     {
         PLATFORM_PRINTF_DEBUG_WARNING("Invalid arguments to wscBuildM1()\n");
-        return 0;
+        return false;
     }
 
-    if (NULL == (x = PLATFORM_GET_1905_INTERFACE_INFO(radio->name)))
+    if (radio->wsc_info != NULL)
     {
-        PLATFORM_PRINTF_DEBUG_WARNING("Could not retrieve info of interface %s\n", radio->name);
-        return 0;
+        free(radio->wsc_info->priv_key);
+        memset(radio->wsc_info, 0, sizeof(*radio->wsc_info));
     }
-
-    buffer = (uint8_t *)memalloc(sizeof(uint8_t)*1000);
-    p      = buffer;
+    else
+    {
+        radio->wsc_info = zmemalloc(sizeof(*radio->wsc_info));
+    }
+    p      = radio->wsc_info->m1;
 
     // VERSION
     {
@@ -300,7 +282,7 @@ uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void *
     {
         aux16 = ATTR_UUID_E;                                              _I2B(&aux16,     &p);
         aux16 = 16;                                                       _I2B(&aux16,     &p);
-                                                                          _InB( x->uuid,   &p, 16);
+                                                                          _InB( wsc_device_data->uuid,   &p, 16);
     }
 
     // MAC ADDRESS
@@ -310,6 +292,7 @@ uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void *
     {
         aux16 = ATTR_MAC_ADDR;                                            _I2B(&aux16,           &p);
         aux16 = 6;                                                        _I2B(&aux16,           &p);
+        radio->wsc_info->mac = p;
                                                                           _InB(local_device->al_mac_addr,  &p, 6);
     }
 
@@ -321,28 +304,21 @@ uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void *
 
         aux16 = ATTR_ENROLLEE_NONCE;                                      _I2B(&aux16,           &p);
         aux16 = 16;                                                       _I2B(&aux16,           &p);
+        radio->wsc_info->nonce = p;
                                                                           _InB( enrollee_nonce,  &p, 16);
     }
 
     // PUBLIC KEY
     {
-        uint8_t  *priv, *pub;
-        uint16_t  priv_len, pub_len;
+        uint8_t  *pub;
+        uint16_t  pub_len;
 
-        PLATFORM_GENERATE_DH_KEY_PAIR(&priv, &priv_len, &pub, &pub_len);
+        PLATFORM_GENERATE_DH_KEY_PAIR(&radio->wsc_info->priv_key, &radio->wsc_info->priv_key_len, &pub, &pub_len);
         // TODO: ZERO PAD the pub key (doesn't seem to be really needed though)
 
         aux16 = ATTR_PUBLIC_KEY;                                          _I2B(&aux16,       &p);
         aux16 = pub_len;                                                  _I2B(&aux16,       &p);
                                                                           _InB( pub,         &p, pub_len);
-        // The private key is one of the output arguments
-        //
-        private_key          = (struct wscKey *)memalloc(sizeof(struct wscKey));
-        private_key->key     = (uint8_t *)memalloc(priv_len);
-        private_key->key_len = priv_len;
-        memcpy(private_key->key, priv, priv_len);
-        // mac must be the same as ATTR_MAC_ADDR
-        memcpy(private_key->mac, local_device->al_mac_addr, 6);
     }
 
     // AUTHENTICATION TYPES
@@ -401,30 +377,30 @@ uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void *
     // MANUFACTURER
     {
         aux16 = ATTR_MANUFACTURER;                                        _I2B(&aux16,                &p);
-        aux16 = strlen(x->manufacturer_name);                    _I2B(&aux16,                &p);
-                                                                          _InB( x->manufacturer_name, &p, strlen(x->manufacturer_name));
+        aux16 = strlen(wsc_device_data->manufacturer_name);                    _I2B(&aux16,                &p);
+                                                                          _InB( wsc_device_data->manufacturer_name, &p, strlen(wsc_device_data->manufacturer_name));
     }
 
     // MODEL NAME
     {
 
         aux16 = ATTR_MODEL_NAME;                                          _I2B(&aux16,         &p);
-        aux16 = strlen(x->model_name);                           _I2B(&aux16,         &p);
-                                                                          _InB( x->model_name, &p, strlen(x->model_name));
+        aux16 = strlen(wsc_device_data->model_name);                           _I2B(&aux16,         &p);
+                                                                          _InB( wsc_device_data->model_name, &p, strlen(wsc_device_data->model_name));
     }
 
     // MODEL NUMBER
     {
         aux16 = ATTR_MODEL_NUMBER;                                        _I2B(&aux16,           &p);
-        aux16 = strlen(x->model_number);                         _I2B(&aux16,           &p);
-                                                                          _InB( x->model_number, &p, strlen(x->model_number));
+        aux16 = strlen(wsc_device_data->model_number);                         _I2B(&aux16,           &p);
+                                                                          _InB( wsc_device_data->model_number, &p, strlen(wsc_device_data->model_number));
     }
 
     // SERIAL NUMBER
     {
         aux16 = ATTR_SERIAL_NUMBER;                                       _I2B(&aux16,            &p);
-        aux16 = strlen(x->serial_number);                        _I2B(&aux16,            &p);
-                                                                          _InB( x->serial_number, &p, strlen(x->serial_number));
+        aux16 = strlen(wsc_device_data->serial_number);                        _I2B(&aux16,            &p);
+                                                                          _InB( wsc_device_data->serial_number, &p, strlen(wsc_device_data->serial_number));
     }
 
     // PRIMARY DEVICE TYPE
@@ -445,46 +421,29 @@ uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void *
     // DEVICE NAME
     {
         aux16 = ATTR_DEV_NAME;                                            _I2B(&aux16,           &p);
-        aux16 = strlen(x->device_name);                          _I2B(&aux16,           &p);
-                                                                          _InB( x->device_name,  &p, strlen(x->device_name));
+        aux16 = strlen(wsc_device_data->device_name);                          _I2B(&aux16,           &p);
+                                                                          _InB( wsc_device_data->device_name,  &p, strlen(wsc_device_data->device_name));
     }
 
     // RF BANDS
     {
-        // TODO
-        // We should here list all supported freq bands (2.4, 5.0, 60 GHz)...
-        // however each interfaces is already "pre-configured" to one specific
-        // freq band... thus we will always report back a single value (instead
-        // of and OR'ed list).
-        // This should probably be improved in the future.
-        //
-        uint8_t  rf_bands;
-
-        rf_bands = 0;
-
-        if (
-             INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ ==  x->interface_type ||
-             INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ ==  x->interface_type ||
-             INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ ==  x->interface_type
-           )
+        unsigned i;
+        uint8_t rf_bands = 0;
+        for (i = 0; i < radio->bands.length; i++)
         {
-            rf_bands = WPS_RF_24GHZ;
+            switch (radio->bands.data[i]->id)
+            {
+            case BAND_2GHZ:
+                rf_bands |= WPS_RF_24GHZ;
+                break;
+            case BAND_5GHZ:
+                rf_bands |= WPS_RF_50GHZ;
+                break;
+            case BAND_60GHZ:
+                rf_bands |= WPS_RF_60GHZ;
+                break;
+            }
         }
-        else if (
-             INTERFACE_TYPE_IEEE_802_11A_5_GHZ  ==  x->interface_type ||
-             INTERFACE_TYPE_IEEE_802_11N_5_GHZ  ==  x->interface_type ||
-             INTERFACE_TYPE_IEEE_802_11AC_5_GHZ ==  x->interface_type
-           )
-        {
-            rf_bands = WPS_RF_50GHZ;
-        }
-        else if (
-             INTERFACE_TYPE_IEEE_802_11AD_60_GHZ ==  x->interface_type
-           )
-        {
-            rf_bands = WPS_RF_60GHZ;
-        }
-
         aux16 = ATTR_RF_BANDS;                                            _I2B(&aux16,         &p);
         aux16 = 1;                                                        _I2B(&aux16,         &p);
                                                                           _I1B(&rf_bands,      &p);
@@ -534,19 +493,12 @@ uint8_t  wscBuildM1(struct radio *radio, uint8_t **m1, uint16_t *m1_size, void *
         aux8  = WPS_VERSION;                                              _I1B(&aux8,          &p);
     }
 
-    free_1905_INTERFACE_INFO(x);
-
-    *m1      = last_m1      = buffer;
-    *m1_size = last_m1_size = p-buffer;
-    *key     = last_key     = private_key;
-
-    return 1;
+    return true;
 }
 
-uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m2, uint16_t m2_size)
+bool wscProcessM2(struct radio *radio, const uint8_t *m2, uint16_t m2_size)
 {
     const uint8_t         *p;
-    struct wscKey *k;
 
     // "Useful data" we want to extract from M2
     //
@@ -576,38 +528,18 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
     uint16_t  m2_encrypted_settings_len;
     const uint8_t  *m2_authenticator;          uint8_t m2_authenticator_present;
 
-    // "Intermediary data" we also need to extract from M1 to obtain the keys
-    // that will let us decrypt the "useful data" from M2
-    //
-    const uint8_t  *m1_nonce;                  uint8_t m1_nonce_present;
-    /*const uint8_t  *m1_pubkey;*/               uint8_t m1_pubkey_present;
-    uint16_t  m1_pubkey_len;
-
-    // "Intermediary data" contained in the "key" argument also needed to obtain
-    // the keys that will let us decrypt the "useful data" from M2
-    //
-    const uint8_t  *m1_privkey;
-    uint16_t  m1_privkey_len;
-    const uint8_t  *m1_mac;
+    if (radio == NULL || m2 == NULL)
+    {
+        PLATFORM_PRINTF_DEBUG_ERROR("Invalid parameters to wscProcessM2\n");
+        return false;
+    }
+    if (radio->wsc_info == NULL || radio->wsc_info->mac == NULL || radio->wsc_info->nonce == NULL || radio->wsc_info->priv_key == NULL)
+    {
+        PLATFORM_PRINTF_DEBUG_ERROR("Incomplete wsc_info parameter to wscProcessM2\n");
+        return false;
+    }
 
     memset(&bssInfo, 0, sizeof(bssInfo));
-
-    if (NULL == m1)
-    {
-        // Use the last M1 built message
-
-        m1              = last_m1;
-        m1_size         = last_m1_size;
-        k               = last_key;
-    }
-    else
-    {
-        k = (struct wscKey *)key;
-    }
-
-    m1_privkey      = k->key;
-    m1_privkey_len  = k->key_len;
-    m1_mac          = k->mac;
 
     // Extract "intermediary data" from M2
     //
@@ -629,7 +561,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             if (16 != attr_len)
             {
                 PLATFORM_PRINTF_DEBUG_WARNING("Incorrect length (%d) for ATTR_REGISTRAR_NONCE\n", attr_len);
-                return 0;
+                return false;
             }
             m2_nonce = p;
 
@@ -654,7 +586,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             if (8 != attr_len)
             {
                 PLATFORM_PRINTF_DEBUG_WARNING("Incorrect length (%d) for ATTR_AUTHENTICATOR\n", attr_len);
-                return 0;
+                return false;
             }
             m2_authenticator = p;
 
@@ -703,54 +635,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
        )
     {
         PLATFORM_PRINTF_DEBUG_WARNING("Missing attributes in the received M2 message\n");
-        return 0;
-    }
-
-    // Extract "intermediary data" from M1
-    //
-    m1_nonce_present  = 0;
-    m1_pubkey_present = 0;
-    p                 = m1;
-    while (p - m1 < m1_size)
-    {
-        uint16_t attr_type;
-        uint16_t attr_len;
-
-        _E2B(&p, &attr_type);
-        _E2B(&p, &attr_len);
-
-        if (ATTR_ENROLLEE_NONCE == attr_type)
-        {
-            if (16 != attr_len)
-            {
-                PLATFORM_PRINTF_DEBUG_WARNING("Incorrect length (%d) for ATTR_REGISTRAR_NONCE\n", attr_len);
-                return 0;
-            }
-            m1_nonce = p;
-
-            p += attr_len;
-            m1_nonce_present = 1;
-        }
-        else if (ATTR_PUBLIC_KEY == attr_type)
-        {
-            m1_pubkey_len = attr_len;
-            /*m1_pubkey     = p;*/
-
-            p += m1_pubkey_len;
-            m1_pubkey_present = 1;
-        }
-        else
-        {
-            p += attr_len;
-        }
-    }
-    if (
-         0 == m1_nonce_present   ||
-         0 == m1_pubkey_present
-       )
-    {
-        PLATFORM_PRINTF_DEBUG_WARNING("Missing attributes in the received M1 message\n");
-        return 0;
+        return false;
     }
 
     // With all the information we have just extracted from M1 and M2, obtain
@@ -773,7 +658,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
         // same shared secret using its private key and ou public key -contained
         // in M2-)
         //
-        PLATFORM_COMPUTE_DH_SHARED_SECRET(&shared_secret, &shared_secret_len, m2_pubkey, m2_pubkey_len, m1_privkey, m1_privkey_len);
+        PLATFORM_COMPUTE_DH_SHARED_SECRET(&shared_secret, &shared_secret_len, m2_pubkey, m2_pubkey_len, radio->wsc_info->priv_key, radio->wsc_info->priv_key_len);
         // TODO: ZERO PAD the shared_secret (doesn't seem to be really needed
         // though)
 
@@ -791,8 +676,8 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
         // calculate its HMAC (hash message authentication code) using "dhkey"
         // as the secret key.
         //
-        addr[0] = m1_nonce;
-        addr[1] = m1_mac;
+        addr[0] = radio->wsc_info->nonce;
+        addr[1] = radio->wsc_info->mac;
         addr[2] = m2_nonce;
         len[0]  = 16;
         len[1]  = 6;
@@ -812,10 +697,10 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
 
         PLATFORM_PRINTF_DEBUG_DETAIL("WPS keys: \n");
         PLATFORM_PRINTF_DEBUG_DETAIL("  Registrar pubkey  (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", m2_pubkey_len,  m2_pubkey[0], m2_pubkey[1], m2_pubkey[2], m2_pubkey[m2_pubkey_len-3], m2_pubkey[m2_pubkey_len-2], m2_pubkey[m2_pubkey_len-1]);
-        PLATFORM_PRINTF_DEBUG_DETAIL("  Enrollee privkey  (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", m1_privkey_len,  m1_privkey[0], m1_privkey[1], m1_privkey[2], m1_privkey[m1_privkey_len-3], m1_privkey[m1_privkey_len-2], m1_privkey[m1_privkey_len-1]);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  Enrollee privkey  (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", radio->wsc_info->priv_key_len,  radio->wsc_info->priv_key[0], radio->wsc_info->priv_key[1], radio->wsc_info->priv_key[2], radio->wsc_info->priv_key[radio->wsc_info->priv_key_len-3], radio->wsc_info->priv_key[radio->wsc_info->priv_key_len-2], radio->wsc_info->priv_key[radio->wsc_info->priv_key_len-1]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  Shared secret     (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", shared_secret_len, shared_secret[0], shared_secret[1], shared_secret[2], shared_secret[shared_secret_len-3], shared_secret[shared_secret_len-2], shared_secret[shared_secret_len-1]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  DH key            ( 32 bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", dhkey[0], dhkey[1], dhkey[2], dhkey[29], dhkey[30], dhkey[31]);
-        PLATFORM_PRINTF_DEBUG_DETAIL("  Enrollee nonce    ( 16 bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", m1_nonce[0], m1_nonce[1], m1_nonce[2], m1_nonce[13], m1_nonce[14], m1_nonce[15]);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  Enrollee nonce    ( 16 bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", radio->wsc_info->nonce[0], radio->wsc_info->nonce[1], radio->wsc_info->nonce[2], radio->wsc_info->nonce[13], radio->wsc_info->nonce[14], radio->wsc_info->nonce[15]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  Registrar nonce   ( 16 bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", m2_nonce[0], m2_nonce[1], m2_nonce[2], m2_nonce[13], m2_nonce[14], m2_nonce[15]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  KDK               ( 32 bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", kdk[0], kdk[1], kdk[2], kdk[29], kdk[30], kdk[31]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  authkey           (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", WPS_AUTHKEY_LEN, authkey[0], authkey[1], authkey[2], authkey[WPS_AUTHKEY_LEN-3], authkey[WPS_AUTHKEY_LEN-2], authkey[WPS_AUTHKEY_LEN-1]);
@@ -835,9 +720,9 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
         const uint8_t  *addr[2];
         uint32_t  len[2];
 
-        addr[0] = m1;
+        addr[0] = radio->wsc_info->m1;
         addr[1] = m2;
-        len[0]  = m1_size;
+        len[0]  = radio->wsc_info->m1_len;
         len[1]  = m2_size-12;
 
         PLATFORM_HMAC_SHA256(authkey, WPS_AUTHKEY_LEN, 2, addr, len, hash);
@@ -845,7 +730,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
         if (memcmp(m2_authenticator, hash, 8) != 0)
         {
             PLATFORM_PRINTF_DEBUG_WARNING("Message M2 authentication failed\n");
-            return 0;
+            return false;
         }
     }
 
@@ -955,7 +840,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
                 if (memcmp(p, hash, 8) != 0)
                 {
                     PLATFORM_PRINTF_DEBUG_WARNING("Message M2 keywrap failed\n");
-                    return 0;
+                    return false;
                 }
 
                 p += attr_len;
@@ -976,7 +861,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
            )
         {
             PLATFORM_PRINTF_DEBUG_WARNING("Missing attributes in the configuration settings received in the M2 message\n");
-            return 0;
+            return false;
         }
         switch (auth_type)
         {
@@ -984,7 +869,7 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             if (encryption_type != IEEE80211_ENCRYPTION_MODE_NONE)
             {
                 PLATFORM_PRINTF_DEBUG_WARNING("Invalid encryption type %u for open mode\n", encryption_type);
-                return 0;
+                return false;
             }
             break;
         case auth_mode_wpa2:
@@ -992,12 +877,12 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
             if (encryption_type != IEEE80211_ENCRYPTION_MODE_AES)
             {
                 PLATFORM_PRINTF_DEBUG_WARNING("Invalid encryption type %u for WPA2 mode\n", encryption_type);
-                return 0;
+                return false;
             }
             break;
         default:
             PLATFORM_PRINTF_DEBUG_WARNING("Unsupported authentication type %u\n", auth_type);
-            return 0;
+            return false;
         }
         bssInfo.auth_mode = auth_type;
     }
@@ -1005,23 +890,9 @@ uint8_t  wscProcessM2(void *key, uint8_t *m1, uint16_t m1_size, const uint8_t *m
     // Apply the security settings so that this AP clones the registrar
     // configuration
     //
-    {
-        struct radio *radio = findDeviceRadio(local_device, m1_mac);
-        if (radio == NULL)
-        {
-            PLATFORM_PRINTF_DEBUG_WARNING("Got configuration for unknown radio " MACSTR "\n", MAC2STR(m1_mac));
-        }
-        else
-        {
-            radioAddAp(radio, bssInfo);
-        }
-    }
+    radioAddAp(radio, bssInfo);
 
-    free(m1);      last_m1 = NULL;
-    free(k->key);  k->key  = NULL;  last_key->key = NULL;
-    free(k);       k       = NULL;  last_key      = NULL;
-
-    return 1;
+    return true;
 }
 
 //
@@ -1532,6 +1403,16 @@ uint8_t wscFreeM2(uint8_t *m, uint16_t m_size)
 
     free(m);
     return 1;
+}
+
+void wscInfoFree(struct radio *radio)
+{
+    if (radio->wsc_info)
+    {
+        free(radio->wsc_info->priv_key);
+    }
+    free(radio->wsc_info);
+    radio->wsc_info = NULL;
 }
 
 //

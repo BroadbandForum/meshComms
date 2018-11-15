@@ -1197,9 +1197,15 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                         if (radio->bands.data[band]->id == supported_freq_band)
                         {
                             /* Band matches. Send WSC. */
-                            uint8_t   *m1;
-                            uint16_t   m1_size;
-                            void    *key;
+                            /* @todo get actual device info */
+                            struct wscDeviceData device_data = {
+                                .manufacturer_name = "prpl Foundation",
+                                .device_name = "Multi-AP",
+                                .model_name = " ",
+                                .model_number = "0",
+                                .serial_number = "0",
+                                .uuid = "abcdefghijklmnop",
+                            };
 
                             const uint8_t *dst_mac;
 
@@ -1208,7 +1214,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
                             // Obtain WSC-M1 and send the WSC TLV
                             //
-                            wscBuildM1(radio, &m1, &m1_size, &key);
+                            wscBuildM1(radio, &device_data);
 
                             // We must send the WSC TLV to the AL MAC of the node who
                             // sent the response, however, this AL MAC is *not*
@@ -1233,14 +1239,10 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                             }
 
                             if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(),
-                                                                   dst_mac, m1, m1_size, radio, sender_is_controller, NULL, false))
+                                                                           dst_mac, radio->wsc_info->m1, radio->wsc_info->m1_len,
+                                                                           radio, sender_is_controller, NULL, false))
                             {
                                 PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration WSC-M1' message\n");
-                            }
-
-                            if (NULL != p)
-                            {
-                                free(p);
                             }
 
                             break; /* No need to check other bands, there can be only 1. */
@@ -1321,11 +1323,40 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
             if (WSC_TYPE_M2 == wsc_type)
             {
+                struct radio *radio = NULL;
+
+                if (ap_radio_identifier != NULL)
+                {
+                    radio = findDeviceRadio(local_device, ap_radio_identifier->radio_uid);
+                    if (radio == NULL)
+                    {
+                        PLATFORM_PRINTF_DEBUG_WARNING("Received AP radio identifier for unknown radio " MACSTR "\n",
+                                                      MAC2STR(ap_radio_identifier->radio_uid));
+                        return PROCESS_CMDU_KO;
+                    }
+                }
+                else
+                {
+                    /* For non-multi-AP, we don't have a radio identifier. Just take the last radio for which we sent an M1.
+                     * @todo There must be a better way to do this. */
+                    dlist_for_each(radio, local_device->radios, l)
+                    {
+                        if (radio->wsc_info)
+                        {
+                            break;
+                        }
+                    }
+                    if (radio == NULL)
+                    {
+                        PLATFORM_PRINTF_DEBUG_WARNING("Received M2 but no corresponding M1 found.\n");
+                        return PROCESS_CMDU_KO;
+                    }
+                }
                 // Process it and apply the configuration to the corresponding
                 // interface.
                 //
-                wscProcessM2(NULL, NULL, 0, wsc_frame, wsc_frame_size);
-                  // NOTE: this function will automatically free M1.
+                wscProcessM2(radio, wsc_frame, wsc_frame_size);
+                wscInfoFree(radio);
 
                 // One more thing: This node *might* have other unconfigured AP
                 // interfaces (in addition to the one we have just configured),
