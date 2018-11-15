@@ -82,7 +82,7 @@ bool wscProcessM2(struct radio *radio, const uint8_t *m2, uint16_t m2_size);
 /** @brief Free the radio's radio::wsc_info structure. */
 void wscInfoFree(struct radio *radio);
 
-uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_size);
+uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, const struct wscRegistrarInfo *wsc_info, uint8_t **m2, uint16_t *m2_size);
 uint8_t wscFreeM2(uint8_t *m, uint16_t m_size);
 
 

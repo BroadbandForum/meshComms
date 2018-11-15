@@ -945,32 +945,30 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
              * @todo this should come from a config file.
              * @todo Support multiple bands.
              */
-            struct wscDeviceData *wsc_data = &registrar.wsc_data[0];
-            /* Make sure all strings are 0-terminated. */
-            memset(wsc_data, 0, sizeof(*wsc_data));
-            memcpy(wsc_data->bssid, interface->addr, 6);
-            strncpy(wsc_data->device_name, x->device_name, sizeof(wsc_data->device_name) - 1);
-            strncpy(wsc_data->manufacturer_name, x->manufacturer_name, sizeof(wsc_data->manufacturer_name) - 1);
-            strncpy(wsc_data->model_name, x->model_name, sizeof(wsc_data->model_name) - 1);
-            strncpy(wsc_data->model_number, x->model_number, sizeof(wsc_data->model_number) - 1);
-            strncpy(wsc_data->serial_number, x->serial_number, sizeof(wsc_data->serial_number) - 1);
+            struct wscRegistrarInfo *wsc_info = zmemalloc(sizeof(struct wscRegistrarInfo));
+            memcpy(&wsc_info->bss_info, &interface_wifi->bssInfo, sizeof(wsc_info->bss_info));
+            strncpy(wsc_info->device_data.device_name, x->device_name, sizeof(wsc_info->device_data.device_name) - 1);
+            strncpy(wsc_info->device_data.manufacturer_name, x->manufacturer_name, sizeof(wsc_info->device_data.manufacturer_name) - 1);
+            strncpy(wsc_info->device_data.model_name, x->model_name, sizeof(wsc_info->device_data.model_name) - 1);
+            strncpy(wsc_info->device_data.model_number, x->model_number, sizeof(wsc_info->device_data.model_number) - 1);
+            strncpy(wsc_info->device_data.serial_number, x->serial_number, sizeof(wsc_info->device_data.serial_number) - 1);
             /* @todo support UUID; for now its 0. */
             switch(x->interface_type)
             {
                 case INTERFACE_TYPE_IEEE_802_11B_2_4_GHZ:
                 case INTERFACE_TYPE_IEEE_802_11G_2_4_GHZ:
                 case INTERFACE_TYPE_IEEE_802_11N_2_4_GHZ:
-                    wsc_data->rf_bands = WPS_RF_24GHZ;
+                    wsc_info->rf_bands = WPS_RF_24GHZ;
                     break;
 
                 case INTERFACE_TYPE_IEEE_802_11A_5_GHZ:
                 case INTERFACE_TYPE_IEEE_802_11N_5_GHZ:
                 case INTERFACE_TYPE_IEEE_802_11AC_5_GHZ:
-                    wsc_data->rf_bands = WPS_RF_50GHZ;
+                    wsc_info->rf_bands = WPS_RF_50GHZ;
                     break;
 
                 case INTERFACE_TYPE_IEEE_802_11AD_60_GHZ:
-                    wsc_data->rf_bands = WPS_RF_60GHZ;
+                    wsc_info->rf_bands = WPS_RF_60GHZ;
                     break;
 
                 case INTERFACE_TYPE_IEEE_802_11AF_GHZ:
@@ -982,26 +980,13 @@ uint8_t start1905AL(uint8_t *al_mac_address, uint8_t map_whole_network_flag, cha
                 default:
                     PLATFORM_PRINTF_DEBUG_ERROR("Interface %s is not a 802.11 interface and thus cannot act as a registrar!\n",x->name);
 
+                    free(wsc_info);
                     free_1905_INTERFACE_INFO(x);
                     return AL_ERROR_INTERFACE_ERROR;
 
             }
-            memcpy (&wsc_data->ssid, &interface_wifi->bssInfo.ssid, sizeof(wsc_data->ssid));
-            memcpy (&wsc_data->key, interface_wifi->bssInfo.key, sizeof(wsc_data->key));
-            wsc_data->key_len = interface_wifi->bssInfo.key_len;
-            wsc_data->auth_types = (uint16_t)interface_wifi->bssInfo.auth_mode;
-            /* Derive encryption from auth mode */
-            switch (interface_wifi->bssInfo.auth_mode)
-            {
-            case auth_mode_open:
-                wsc_data->encr_types = WPS_ENCR_NONE;
-                break;
-            case auth_mode_wpa2:
-            case auth_mode_wpa2psk:
-                wsc_data->encr_types = WPS_ENCR_AES;
-                break;
-            }
 
+            registrarAddWsc(wsc_info);
             free_1905_INTERFACE_INFO(x);
         }
     }

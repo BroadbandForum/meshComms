@@ -86,6 +86,20 @@ static bool handleSupportedServiceTLV(struct alDevice *sender_device, struct tlv
     return sender_is_map_controller;
 }
 
+static struct wscRegistrarInfo *findWscInfoForBand(uint8_t freq_band)
+{
+    struct wscRegistrarInfo *wsc_info;
+    dlist_for_each(wsc_info, registrar.wsc, l)
+    {
+        if ((wsc_info->rf_bands & freq_band) != 0)
+        {
+            /* Found corresponding WSC. */
+            return wsc_info;
+        }
+    }
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Public functions (exported only to files in this same folder)
 ////////////////////////////////////////////////////////////////////////////////
@@ -1038,25 +1052,8 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             //
             if (registrarIsLocal())
             {
-                // Only send response if we support the requested band.
-                bool bandIsSupported;
-                /* @todo support multiple bands */
-                switch (freq_band)
-                {
-                    case IEEE80211_FREQUENCY_BAND_2_4_GHZ:
-                        bandIsSupported = (registrar.wsc_data[0].rf_bands | WPS_RF_24GHZ) == WPS_RF_24GHZ;
-                        break;
-                    case IEEE80211_FREQUENCY_BAND_5_GHZ:
-                        bandIsSupported = (registrar.wsc_data[0].rf_bands | WPS_RF_24GHZ) == WPS_RF_24GHZ;
-                        break;
-                    case IEEE80211_FREQUENCY_BAND_60_GHZ:
-                        bandIsSupported = (registrar.wsc_data[0].rf_bands | WPS_RF_24GHZ) == WPS_RF_24GHZ;
-                        break;
-                    default:
-                        assert(false);
-                        break;
-                }
-                if (bandIsSupported)
+                struct wscRegistrarInfo *wsc_info = findWscInfoForBand(freq_band);
+                if (wsc_info != NULL)
                 {
                     PLATFORM_PRINTF_DEBUG_DETAIL("Local device is registrar, and has the requested freq band. Sending response...\n");
 
@@ -1065,8 +1062,6 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     {
                         PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration response' message\n");
                     }
-
-                    break;
                 }
                 else
                 {
@@ -1384,6 +1379,8 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
                 struct alDevice *sender_device = alDeviceFindFromAnyAddress(src_addr);
 
+                struct wscRegistrarInfo *wsc_info;
+
                 if (sender_device == NULL)
                 {
                     PLATFORM_PRINTF_DEBUG_WARNING("Received WSC M1 from undiscovered address " MACSTR "\n",
@@ -1405,7 +1402,9 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     /* @todo add channels based on channel info in ap_radio_basic_capabilities. */
                 }
 
-                wscBuildM2(wsc_frame, wsc_frame_size, &m2, &m2_size);
+                /* @todo find WSC based on band in M1. */
+                wsc_info = container_of(registrar.wsc.next, struct wscRegistrarInfo, l);
+                wscBuildM2(wsc_frame, wsc_frame_size, wsc_info, &m2, &m2_size);
 
                 if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(),
                                                                sender_device->al_mac_addr, m2, m2_size, NULL, false,

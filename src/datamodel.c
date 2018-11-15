@@ -29,20 +29,7 @@ struct alDevice *local_device = NULL;
 struct registrar registrar = {
     .d = NULL,
     .is_map = false,
-    .wsc_data = {
-        {
-            .bssid = EMPTY_MAC_ADDRESS,
-            .rf_bands = 0,
-        },
-        {
-            .bssid = EMPTY_MAC_ADDRESS,
-            .rf_bands = 0,
-        },
-        {
-            .bssid = EMPTY_MAC_ADDRESS,
-            .rf_bands = 0,
-        },
-    }
+    .wsc = {&registrar.wsc, &registrar.wsc},
 };
 
 DEFINE_DLIST_HEAD(network);
@@ -304,3 +291,7 @@ struct interface *findLocalInterface(const char *name)
     return NULL;
 }
 
+void registrarAddWsc(struct wscRegistrarInfo *wsc)
+{
+    dlist_add_head(&registrar.wsc, &wsc->l);
+}

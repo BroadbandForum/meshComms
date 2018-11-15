@@ -54,6 +54,17 @@ struct bssInfo {
     uint8_t key_len;            /**< Length of @a key. */
 };
 
+/** @brief WSC device information. */
+struct wscDeviceData {
+    char device_name      [33]; /**< Device Name (0..32 octets encoded in UTF-8). */
+    char manufacturer_name[65]; /**< Manufacturer (0..64 octets encoded in UTF-8). */
+    char model_name       [65]; /**< Model Name (0..32 octets encoded in UTF-8). */
+    char model_number     [65]; /**< Model Number (0..32 octets encoded in UTF-8). */
+    char serial_number    [65]; /**< Serial Number (0..32 octets encoded in UTF-8). */
+    /* @todo device type is missing */
+    uint8_t uuid          [16]; /**< UUID (16 octets). */
+};
+
 
 enum interfaceType {
     interface_type_unknown = -1, /**< Interface was created without further information. */
@@ -118,6 +129,12 @@ struct interface
     uint32_t              last_topology_discovery_ts;
     uint32_t              last_bridge_discovery_ts;
     /** @} */
+
+    /** @brief Some interfaces may have additional information that can be used in some 1905.1a messages.
+     *
+     * @todo actually use these instead of going through interfaceData.
+     */
+    struct wscDeviceData *device_data;
 
     /** @brief Neighbour interfaces. */
     PTRARRAY(struct interface *) neighbors;
@@ -244,6 +261,10 @@ struct radio {
         uint16_t  priv_key_len;  /**< Length of @a priv_key. */
     } *wsc_info;
 
+    /** @brief Device identification, used in WSC exchanges.
+     */
+    struct wscDeviceData device_data;
+
     /** @brief Operations on the radio.
      *
      * Implementing these as function pointers allows each radio to have a different driver.
@@ -319,26 +340,13 @@ extern struct alDevice *local_device;
  * bands.
  *
  * Only PSK authentication is supported, not entreprise, so we can use a fixed-length key.
- *
- * @todo move bssInfo out
  */
-struct wscDeviceData {
-    mac_address bssid;          /**< BSSID (MAC address) of the BSS configured by this WSC exchange. */
-    char device_name      [33]; /**< Device Name (0..32 octets encoded in UTF-8). */
-    char manufacturer_name[65]; /**< Manufacturer (0..64 octets encoded in UTF-8). */
-    char model_name       [65]; /**< Model Name (0..32 octets encoded in UTF-8). */
-    char model_number     [65]; /**< Model Number (0..32 octets encoded in UTF-8). */
-    char serial_number    [65]; /**< Serial Number (0..32 octets encoded in UTF-8). */
-    /* @todo device type is missing */
-    uint8_t uuid          [16]; /**< UUID (16 octets). */
+struct wscRegistrarInfo {
+    dlist_item l;
+    struct bssInfo bss_info;
+    struct wscDeviceData device_data;
     uint8_t rf_bands;           /**< Bitmask of WPS_RF_24GHZ, WPS_RF_50GHZ, WPS_RF_60GHZ. */
-    struct ssid ssid;           /**< SSID configured by this WSC. */
-    uint16_t auth_types;        /**< Bitmask of WPS_AUTH_NONE, WPS_AUTH_WPA2PSK. */
-    uint16_t encr_types;        /**< Bitmask of WPS_ENCR_NONE, WPS_ENCR_TKIP, WPS_ENCR_AES. */
-    uint8_t key           [64]; /**< Enryption key. */
-    uint8_t key_len;            /**< Length of @a key. */
 };
-
 
 /** @brief The discovered/configured Multi-AP controller or 1905.1 AP-Autoconfiguration Registrar.
  *
@@ -353,16 +361,15 @@ extern struct registrar {
     struct alDevice *d; /**< If non-NULL, a controller/registrar was configured/discovered. */
     bool is_map; /**< If true, it is a Multi-AP Controller. If it is false, it is only a 1905.1 Registrar. */
 
-    /** @brief List of wscDeviceData objects received or configured.
-     *
-     * Since there can be only one WSC per band, the three bands are included explicitly. If a WSC covers multiple
-     * bands, it is duplicated. Note that this makes it redundant with wscDeviceData::rf_band; however, a wscDeviceData
-     * structure can also be built up independently (e.g. in WSC exchange).
-     *
-     * Unconfigured bands have wscDeviceData::bssid and wscDeviceData::rf_band set to 0.
-     */
-    struct wscDeviceData wsc_data[3];
+    /** @brief List of configured wscDeviceInfo objects. */
+    dlist_head wsc;
 } registrar;
+
+/** @brief Add a WSC definition to the registrar.
+ *
+ * Ownership transfers to the registrar object so the @a wsc must be dynamically allocated and must not be freed.
+ */
+void registrarAddWsc(struct wscRegistrarInfo *wsc);
 
 /** @brief The network, i.e. a list of all discovered devices.
  *

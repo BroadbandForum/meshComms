@@ -898,7 +898,7 @@ bool wscProcessM2(struct radio *radio, const uint8_t *m2, uint16_t m2_size)
 //
 //////////////////////////////////////// Registrar functions ///////////////////
 //
-uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_size)
+uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, const struct wscRegistrarInfo *wsc_info, uint8_t **m2, uint16_t *m2_size)
 {
     uint8_t  *buffer;
 
@@ -908,6 +908,8 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
     uint8_t  aux8;
     uint16_t aux16;
     uint32_t aux32;
+
+    uint16_t encr_types;
 
     const uint8_t  *m1_mac_address;      uint8_t m1_mac_address_present;
     const uint8_t  *m1_nonce;            uint8_t m1_nonce_present;
@@ -922,9 +924,6 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
     uint8_t emsk      [WPS_EMSK_LEN];
 
     uint8_t  registrar_nonce[16];
-
-    /* @todo Support multiple bands. */
-    struct wscDeviceData *wsc_data = &registrar.wsc_data[0];
 
     if (!registrarIsLocal())
     {
@@ -997,6 +996,18 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
         return 0;
     }
 
+    /* Derive encryption from auth mode */
+    switch (wsc_info->bss_info.auth_mode)
+    {
+    case auth_mode_open:
+        encr_types = WPS_ENCR_NONE;
+        break;
+    case auth_mode_wpa2:
+    case auth_mode_wpa2psk:
+        encr_types = WPS_ENCR_AES;
+        break;
+    }
+
     // Now we can build "M2"
     //
 
@@ -1037,7 +1048,7 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
     {
         aux16 = ATTR_UUID_R;                                              _I2B(&aux16,     &p2);
         aux16 = 16;                                                       _I2B(&aux16,     &p2);
-                                                                          _InB( wsc_data->uuid,   &p2, 16);
+                                                                          _InB( wsc_info->device_data.uuid,   &p2, 16);
     }
 
     // PUBLIC KEY
@@ -1132,11 +1143,10 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
 
     aux16 = ATTR_AUTH_TYPE_FLAGS;                                     _I2B(&aux16,                &p2);
     aux16 = 2;                                                        _I2B(&aux16,                &p2);
-                                                                      _I2B(&wsc_data->auth_types, &p2);
-
-    aux16 = ATTR_ENCR_TYPE_FLAGS;                                     _I2B(&aux16,                &p2);
-    aux16 = 2;                                                        _I2B(&aux16,                &p2);
-                                                                      _I2B(&wsc_data->encr_types, &p2);
+    aux16 = wsc_info->bss_info.auth_mode;                             _I2B(&aux16,                &p2);
+    aux16 = ATTR_ENCR_TYPE_FLAGS;                                     _I2B(&aux16,      &p2);
+    aux16 = 2;                                                        _I2B(&aux16,      &p2);
+                                                                      _I2B(&encr_types, &p2);
 
     // CONNECTION TYPES
     {
@@ -1163,29 +1173,29 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
     // MANUFACTURER
     {
         aux16 = ATTR_MANUFACTURER;                                        _I2B(&aux16,                &p2);
-        aux16 = strlen(wsc_data->manufacturer_name);                    _I2B(&aux16,                &p2);
-                                                                          _InB( wsc_data->manufacturer_name, &p2, strlen(wsc_data->manufacturer_name));
+        aux16 = strlen(wsc_info->device_data.manufacturer_name);          _I2B(&aux16,                &p2);
+                                                                          _InB( wsc_info->device_data.manufacturer_name, &p2, strlen(wsc_info->device_data.manufacturer_name));
     }
 
     // MODEL NAME
     {
         aux16 = ATTR_MODEL_NAME;                                          _I2B(&aux16,         &p2);
-        aux16 = strlen(wsc_data->model_name);                           _I2B(&aux16,         &p2);
-                                                                          _InB( wsc_data->model_name, &p2, strlen(wsc_data->model_name));
+        aux16 = strlen(wsc_info->device_data.model_name);                           _I2B(&aux16,         &p2);
+                                                                          _InB( wsc_info->device_data.model_name, &p2, strlen(wsc_info->device_data.model_name));
     }
 
     // MODEL NUMBER
     {
         aux16 = ATTR_MODEL_NUMBER;                                        _I2B(&aux16,           &p2);
-        aux16 = strlen(wsc_data->model_number);                         _I2B(&aux16,           &p2);
-                                                                          _InB( wsc_data->model_number, &p2, strlen(wsc_data->model_number));
+        aux16 = strlen(wsc_info->device_data.model_number);                         _I2B(&aux16,           &p2);
+                                                                          _InB( wsc_info->device_data.model_number, &p2, strlen(wsc_info->device_data.model_number));
     }
 
     // SERIAL NUMBER
     {
         aux16 = ATTR_SERIAL_NUMBER;                                       _I2B(&aux16,            &p2);
-        aux16 = strlen(wsc_data->serial_number);                        _I2B(&aux16,            &p2);
-                                                                          _InB( wsc_data->serial_number, &p2, strlen(wsc_data->serial_number));
+        aux16 = strlen(wsc_info->device_data.serial_number);                        _I2B(&aux16,            &p2);
+                                                                          _InB( wsc_info->device_data.serial_number, &p2, strlen(wsc_info->device_data.serial_number));
     }
 
     // PRIMARY DEVICE TYPE
@@ -1206,13 +1216,13 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
     // DEVICE NAME
     {
         aux16 = ATTR_DEV_NAME;                                            _I2B(&aux16,          &p2);
-        aux16 = strlen(wsc_data->device_name);                          _I2B(&aux16,          &p2);
-                                                                          _InB( wsc_data->device_name, &p2, strlen(wsc_data->device_name));
+        aux16 = strlen(wsc_info->device_data.device_name);                          _I2B(&aux16,          &p2);
+                                                                          _InB( wsc_info->device_data.device_name, &p2, strlen(wsc_info->device_data.device_name));
     }
 
     aux16 = ATTR_RF_BANDS;                                            _I2B(&aux16,         &p2);
     aux16 = 1;                                                        _I2B(&aux16,         &p2);
-                                                                      _I1B(&wsc_data->rf_bands,      &p2);
+                                                                      _I1B(&wsc_info->rf_bands,      &p2);
 
     // ASSOCIATION STATE
     {
@@ -1293,35 +1303,35 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, uint8_t **m2, uint16_t *m2_siz
 
         // SSID
         aux16 = ATTR_SSID;                                                _I2B(&aux16,         &r);
-        aux16 = wsc_data->ssid.length;                                    _I2B(&aux16,         &r);
-                                                                          _InB( wsc_data->ssid.ssid, &r, wsc_data->ssid.length);
+        aux16 = wsc_info->bss_info.ssid.length;                                    _I2B(&aux16,         &r);
+                                                                          _InB( wsc_info->bss_info.ssid.ssid, &r, wsc_info->bss_info.ssid.length);
 
         // AUTH TYPE
         aux16 = ATTR_AUTH_TYPE;                                           _I2B(&aux16,         &r);
         aux16 = 2;                                                        _I2B(&aux16,         &r);
-        aux16 = wsc_data->auth_types;                                     _I2B(&aux16,         &r);
+        aux16 = wsc_info->bss_info.auth_mode;                                     _I2B(&aux16,         &r);
 
         // ENCRYPTION TYPE
         aux16 = ATTR_ENCR_TYPE;                                           _I2B(&aux16,         &r);
         aux16 = 2;                                                        _I2B(&aux16,         &r);
-        aux16 = wsc_data->encr_types;                                     _I2B(&aux16,         &r);
+        aux16 = encr_types;                                               _I2B(&aux16,         &r);
 
         // NETWORK KEY
         aux16 = ATTR_NETWORK_KEY;                                         _I2B(&aux16,         &r);
-        aux16 = wsc_data->key_len;                                        _I2B(&aux16,         &r);
-                                                                          _InB( wsc_data->key, &r, wsc_data->key_len);
+        aux16 = wsc_info->bss_info.key_len;                                        _I2B(&aux16,         &r);
+                                                                          _InB( wsc_info->bss_info.key, &r, wsc_info->bss_info.key_len);
 
         // MAC ADDR
         aux16 = ATTR_MAC_ADDR;                                            _I2B(&aux16,           &r);
         aux16 = 6;                                                        _I2B(&aux16,           &r);
-                                                                          _InB( wsc_data->bssid, &r, 6);
+                                                                          _InB( wsc_info->bss_info.bssid, &r, 6);
 
         PLATFORM_PRINTF_DEBUG_DETAIL("AP configuration settings that we are going to send:\n");
-        PLATFORM_PRINTF_DEBUG_DETAIL("  - SSID            : %.*s\n", wsc_data->ssid.length, wsc_data->ssid.ssid);
-        PLATFORM_PRINTF_DEBUG_DETAIL("  - BSSID           : " MACSTR "\n", MAC2STR(wsc_data->bssid));
-        PLATFORM_PRINTF_DEBUG_DETAIL("  - AUTH_TYPE       : 0x%04x\n", wsc_data->auth_types);
-        PLATFORM_PRINTF_DEBUG_DETAIL("  - ENCRYPTION_TYPE : 0x%04x\n", wsc_data->encr_types);
-        PLATFORM_PRINTF_DEBUG_DETAIL("  - NETWORK_KEY     : %.*s\n", wsc_data->key_len, wsc_data->key);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  - SSID            : %.*s\n", wsc_info->bss_info.ssid.length, wsc_info->bss_info.ssid.ssid);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  - BSSID           : " MACSTR "\n", MAC2STR(wsc_info->bss_info.bssid));
+        PLATFORM_PRINTF_DEBUG_DETAIL("  - AUTH_TYPE       : 0x%04x\n", wsc_info->bss_info.auth_mode);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  - ENCRYPTION_TYPE : 0x%04x\n", encr_types);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  - NETWORK_KEY     : %.*s\n", wsc_info->bss_info.key_len, wsc_info->bss_info.key);
 
         // Obtain the HMAC of the whole plain buffer using "authkey" as the
         // secret key.
