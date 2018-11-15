@@ -115,11 +115,13 @@ static inline dlist_item *dlist_get_first(const dlist_head *list)
  * @param item the iterator variable. This must be a pointer to a struct that contains a dlist_item.
  * @param head the head of the dlist.
  * @param dlist_member the member of @a type that is of type dlist_item.
+ *
+ * If the loop runs to completion, @a item is NULL after the loop.
  */
 #define dlist_for_each(item, head, dlist_member) \
-    for ((item) = container_of((head).next, typeof(*item), dlist_member); \
-         &(item)->dlist_member != &(head); \
-         (item) = container_of((item)->dlist_member.next, typeof(*item), dlist_member))
+    for ((item) = container_of((head).next, typeof(*(item)), dlist_member); \
+         (&(item)->dlist_member != &(head)) || (((item) = NULL), false); \
+         (item) = container_of((item)->dlist_member.next, typeof(*(item)), dlist_member))
 
 /** @brief Iterate over a dlist (non-recursively)
  *
@@ -127,7 +129,7 @@ static inline dlist_item *dlist_get_first(const dlist_head *list)
  */
 #define dlist_for_each_item(item, head) \
     for ((item) = (head).next; \
-         (item) != &(head); \
+         ((item) != &(head)) || (((item) = NULL), false); \
          (item) = (item)->next)
 
 static inline unsigned dlist_count(const dlist_head *list)
