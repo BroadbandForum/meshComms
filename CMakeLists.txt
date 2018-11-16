@@ -24,6 +24,8 @@ set(LIB_INSTALL_DIR lib/ CACHE PATH
     "Installation directory for the library (relative to CMAKE_INSTALL_PREFIX)")
 set(CMAKE_INSTALL_DIR ${LIB_INSTALL_DIR}/cmake CACHE PATH
     "Installation directory for CMake files (relative to CMAKE_INSTALL_PREFIX)")
+set(OPENWRT FALSE CACHE BOOL
+    "Enable OpenWrt integration")
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -45,6 +47,10 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
     SPEED_UP_DISCOVERY
     REGISTER_EXTENSION_BBF
     )
+
+if (OPENWRT)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS OPENWRT)
+endif (OPENWRT)
 
 include_directories(include)
 

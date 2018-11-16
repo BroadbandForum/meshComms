@@ -63,3 +63,4 @@ In addition to the above Developer's Certificate of Origin, I submit my contribu
 can be distributed under either the license indicated in the file, or the BSD-2-Clause-Patent license.
 
 Arnout Vandecappelle <arnout.vandecappelle@essensium.com>
+Daniel Golle <daniel@makrotopia.org>

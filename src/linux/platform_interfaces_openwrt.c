@@ -185,10 +185,10 @@ static void _get_wifi_connected_devices(char *interface_name, struct interfaceIn
 
 ////////////////////////////////////////////////////////////////////////////////
 // Internal API: to be used by other platform-specific files (functions
-// declaration is found in "./platform_interfaces_wrt1900acx_priv.h")
+// declaration is found in "./platform_interfaces_openwrt_priv.h")
 ////////////////////////////////////////////////////////////////////////////////
 
-uint8_t linksys_wrt1900acx_get_interface_info(char *interface_name, struct interfaceInfo *m)
+uint8_t openwrt_get_interface_info(char *interface_name, struct interfaceInfo *m)
 {
     // Check interface name
     //
@@ -282,7 +282,7 @@ uint8_t linksys_wrt1900acx_get_interface_info(char *interface_name, struct inter
     return 1;
 }
 
-uint8_t linksys_wrt1900acx_apply_80211_configuration(char *interface_name, uint8_t *ssid, uint8_t *network_key)
+uint8_t openwrt_apply_80211_configuration(char *interface_name, uint8_t *ssid, uint8_t *network_key)
 {
     _set_uci_parameter_value("wireless.@wifi-iface[1].ssid=",ssid);
     _set_uci_parameter_value("wireless.@wifi-iface[1].key=",network_key);

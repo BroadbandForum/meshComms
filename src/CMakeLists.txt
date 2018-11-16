@@ -60,11 +60,16 @@ if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
          linux/platform_crypto.c
          linux/platform_interfaces.c
          # @todo make these configurable
-         linux/platform_uci.c
          linux/platform_interfaces_ghnspirit.c
          linux/platform_interfaces_simulated.c
-         linux/platform_interfaces_wrt1900acx.c
          linux/platform_os.c)
+
+    if (OPENWRT)
+     target_sources(${libname} PRIVATE
+         linux/platform_uci.c
+         linux/platform_interfaces_openwrt.c)
+     target_link_libraries(${libname} ubox ubus)
+    endif (OPENWRT)
 
     add_executable(al_entity linux/al_entity/al_entity_main.c)
     target_link_libraries(al_entity ${libname} OpenSSL::Crypto Threads::Threads ${NL3_LIBRARIES})

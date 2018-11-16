@@ -16,19 +16,19 @@
  *  limitations under the License.
  */
 
-#ifndef _PLATFORM_INTERFACES_WRT1900ACX_PRIV_H_
-#define _PLATFORM_INTERFACES_WRT1900ACX_PRIV_H_
+#ifndef _PLATFORM_INTERFACES_OPENWRT_PRIV_H_
+#define _PLATFORM_INTERFACES_OPENWRT_PRIV_H_
 
 
 // Fill the "interfaceInfo" structure (associated to the provided
 // "interface_name") by obtaining information from the OpenWRT UCI subsystem.
 //
 //
-uint8_t linksys_wrt1900acx_get_interface_info(char *interface_name, struct interfaceInfo *m);
+uint8_t openwrt_get_interface_info(char *interface_name, struct interfaceInfo *m);
 
 // Modify the current Wifi configuration according to the values passed as
 // parameters. Modifications take effect immediately.
 //
-uint8_t linksys_wrt1900acx_apply_80211_configuration(char *interface_name, uint8_t *ssid, uint8_t *network_key);
+uint8_t openwrt_apply_80211_configuration(char *interface_name, uint8_t *ssid, uint8_t *network_key);
 
 #endif
