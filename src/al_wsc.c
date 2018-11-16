@@ -898,11 +898,55 @@ bool wscProcessM2(struct radio *radio, const uint8_t *m2, uint16_t m2_size)
 //
 //////////////////////////////////////// Registrar functions ///////////////////
 //
-uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, const struct wscRegistrarInfo *wsc_info, uint8_t **m2, uint16_t *m2_size)
+bool wscParseM1(const uint8_t *m1, uint16_t m1_size, struct wscM1Info *m1_info)
+{
+    const uint8_t *p1 = m1;
+
+    memset(m1_info, 0, sizeof(*m1_info));
+    m1_info->m1 = m1;
+    m1_info->m1_size = m1_size;
+
+    while (p1 - m1 < m1_size)
+    {
+        uint16_t attr_type;
+        uint16_t attr_len;
+
+        _E2B(&p1, &attr_type);
+        _E2B(&p1, &attr_len);
+
+        if (ATTR_MAC_ADDR == attr_type)
+        {
+            if (6 != attr_len)
+            {
+                PLATFORM_PRINTF_DEBUG_WARNING("Incorrect length (%d) for ATTR_MAC_ADDR\n", attr_len);
+                return false;
+            }
+            m1_info->mac_address = p1;
+        }
+        else if (ATTR_ENROLLEE_NONCE == attr_type)
+        {
+            if (16 != attr_len)
+            {
+                PLATFORM_PRINTF_DEBUG_WARNING("Incorrect length (%d) for ATTR_ENROLLEE_NONCE\n", attr_len);
+                return false;
+            }
+            m1_info->nonce = p1;
+        }
+        else if (ATTR_PUBLIC_KEY == attr_type)
+        {
+            m1_info->pubkey_len = attr_len;
+            m1_info->pubkey = p1;
+        }
+        p1 += attr_len;
+    }
+
+    return true;
+}
+
+uint8_t wscBuildM2(struct wscM1Info *m1_info, const struct wscRegistrarInfo *wsc_info, uint8_t **m2, uint16_t *m2_size)
 {
     uint8_t  *buffer;
 
-    const uint8_t *p1;
     uint8_t *p2;
 
     uint8_t  aux8;
@@ -910,11 +954,6 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, const struct wscRegistrarInfo 
     uint32_t aux32;
 
     uint16_t encr_types;
-
-    const uint8_t  *m1_mac_address;      uint8_t m1_mac_address_present;
-    const uint8_t  *m1_nonce;            uint8_t m1_nonce_present;
-    const uint8_t  *m1_pubkey;           uint8_t m1_pubkey_present;
-    uint16_t  m1_pubkey_len;
 
     uint8_t  *local_privkey;
     uint16_t  local_privkey_len;
@@ -931,68 +970,9 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, const struct wscRegistrarInfo 
         return 0;
     }
 
-    // We first need to extract the following parameters contained in "M1":
-    //
-    //   - Mac address
-    //   - Nounce
-    //   - Public key
-    //
-    m1_mac_address_present = 0;
-    m1_nonce_present       = 0;
-    m1_pubkey_present      = 0;
-    p1                      = m1;
-    while (p1 - m1 < m1_size)
+    if (m1_info->mac_address == NULL || m1_info->nonce == NULL || m1_info->pubkey == NULL)
     {
-        uint16_t attr_type;
-        uint16_t attr_len;
-
-        _E2B(&p1, &attr_type);
-        _E2B(&p1, &attr_len);
-
-        if (ATTR_MAC_ADDR == attr_type)
-        {
-            if (6 != attr_len)
-            {
-                PLATFORM_PRINTF_DEBUG_WARNING("Incorrect length (%d) for ATTR_MAC_ADDR\n", attr_len);
-                return 0;
-            }
-            m1_mac_address = p1;
-
-            p1 += attr_len;
-            m1_mac_address_present = 1;
-        }
-        else if (ATTR_ENROLLEE_NONCE == attr_type)
-        {
-            if (16 != attr_len)
-            {
-                PLATFORM_PRINTF_DEBUG_WARNING("Incorrect length (%d) for ATTR_ENROLLEE_NONCE\n", attr_len);
-                return 0;
-            }
-            m1_nonce = p1;
-
-            p1 += attr_len;
-            m1_nonce_present = 1;
-        }
-        else if (ATTR_PUBLIC_KEY == attr_type)
-        {
-            m1_pubkey_len = attr_len;
-            m1_pubkey = p1;
-
-            p1 += attr_len;
-            m1_pubkey_present = 1;
-        }
-        else
-        {
-            p1 += attr_len;
-        }
-    }
-    if (
-         0 == m1_mac_address_present ||
-         0 == m1_nonce_present       ||
-         0 == m1_pubkey_present
-       )
-    {
-        PLATFORM_PRINTF_DEBUG_WARNING("Imcomplete M1 message received\n");
+        PLATFORM_PRINTF_DEBUG_WARNING("Incomplete M1 message received\n");
         return 0;
     }
 
@@ -1032,7 +1012,7 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, const struct wscRegistrarInfo 
     {
         aux16 = ATTR_ENROLLEE_NONCE;                                      _I2B(&aux16,     &p2);
         aux16 = 16;                                                       _I2B(&aux16,     &p2);
-                                                                          _InB( m1_nonce,  &p2, 16);
+                                                                          _InB( m1_info->nonce,  &p2, 16);
     }
 
     // REGISTRAR NONCE
@@ -1090,7 +1070,9 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, const struct wscRegistrarInfo 
         // same shared secret using its private key and our public key
         // -contained in M2-)
         //
-        PLATFORM_COMPUTE_DH_SHARED_SECRET(&shared_secret, &shared_secret_len, m1_pubkey, m1_pubkey_len, local_privkey, local_privkey_len);
+        PLATFORM_COMPUTE_DH_SHARED_SECRET(&shared_secret, &shared_secret_len,
+                                          m1_info->pubkey, m1_info->pubkey_len,
+                                          local_privkey, local_privkey_len);
         // TODO: ZERO PAD the shared_secret (doesn't seem to be really needed
         // though)
 
@@ -1107,8 +1089,8 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, const struct wscRegistrarInfo 
         // generated before and calculate its HMAC (hash message authentication
         // code) using "dhkey" as the secret key.
         //
-        addr[0] = m1_nonce;
-        addr[1] = m1_mac_address;
+        addr[0] = m1_info->nonce;
+        addr[1] = m1_info->mac_address;
         addr[2] = registrar_nonce;
         len[0]  = 16;
         len[1]  = 6;
@@ -1127,11 +1109,11 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, const struct wscRegistrarInfo 
         memcpy(emsk,       keys + WPS_AUTHKEY_LEN + WPS_KEYWRAPKEY_LEN, WPS_EMSK_LEN);
 
         PLATFORM_PRINTF_DEBUG_DETAIL("WPS keys: \n");
-        PLATFORM_PRINTF_DEBUG_DETAIL("  Enrollee pubkey   (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", m1_pubkey_len,  m1_pubkey[0], m1_pubkey[1], m1_pubkey[2], m1_pubkey[m1_pubkey_len-3], m1_pubkey[m1_pubkey_len-2], m1_pubkey[m1_pubkey_len-1]);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  Enrollee pubkey   (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", m1_info->pubkey_len,  m1_info->pubkey[0], m1_info->pubkey[1], m1_info->pubkey[2], m1_info->pubkey[m1_info->pubkey_len-3], m1_info->pubkey[m1_info->pubkey_len-2], m1_info->pubkey[m1_info->pubkey_len-1]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  Registrar privkey (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", local_privkey_len,  local_privkey[0], local_privkey[1], local_privkey[2], local_privkey[local_privkey_len-3], local_privkey[local_privkey_len-2], local_privkey[local_privkey_len-1]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  Shared secret     (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", shared_secret_len, shared_secret[0], shared_secret[1], shared_secret[2], shared_secret[shared_secret_len-3], shared_secret[shared_secret_len-2], shared_secret[shared_secret_len-1]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  DH key            ( 32 bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", dhkey[0], dhkey[1], dhkey[2], dhkey[29], dhkey[30], dhkey[31]);
-        PLATFORM_PRINTF_DEBUG_DETAIL("  Enrollee nonce    ( 16 bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", m1_nonce[0], m1_nonce[1], m1_nonce[2], m1_nonce[13], m1_nonce[14], m1_nonce[15]);
+        PLATFORM_PRINTF_DEBUG_DETAIL("  Enrollee nonce    ( 16 bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", m1_info->nonce[0], m1_info->nonce[1], m1_info->nonce[2], m1_info->nonce[13], m1_info->nonce[14], m1_info->nonce[15]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  Registrar nonce   ( 16 bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", registrar_nonce[0], registrar_nonce[1], registrar_nonce[2], registrar_nonce[13], registrar_nonce[14], registrar_nonce[15]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  KDK               ( 32 bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", kdk[0], kdk[1], kdk[2], kdk[29], kdk[30], kdk[31]);
         PLATFORM_PRINTF_DEBUG_DETAIL("  authkey           (%3d bytes): 0x%02x, 0x%02x, 0x%02x, ..., 0x%02x, 0x%02x, 0x%02x\n", WPS_AUTHKEY_LEN, authkey[0], authkey[1], authkey[2], authkey[WPS_AUTHKEY_LEN-3], authkey[WPS_AUTHKEY_LEN-2], authkey[WPS_AUTHKEY_LEN-1]);
@@ -1386,9 +1368,9 @@ uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, const struct wscRegistrarInfo 
         const uint8_t  *addr[2];
         uint32_t  len[2];
 
-        addr[0] = m1;
+        addr[0] = m1_info->m1;
         addr[1] = buffer;
-        len[0]  = m1_size;
+        len[0]  = m1_info->m1_size;
         len[1]  = p2-buffer;
 
         PLATFORM_HMAC_SHA256(authkey, WPS_AUTHKEY_LEN, 2, addr, len, hash);

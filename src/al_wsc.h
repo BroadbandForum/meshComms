@@ -82,7 +82,37 @@ bool wscProcessM2(struct radio *radio, const uint8_t *m2, uint16_t m2_size);
 /** @brief Free the radio's radio::wsc_info structure. */
 void wscInfoFree(struct radio *radio);
 
-uint8_t wscBuildM2(uint8_t *m1, uint16_t m1_size, const struct wscRegistrarInfo *wsc_info, uint8_t **m2, uint16_t *m2_size);
+/** @brief Parsed M1 information.
+ *
+ * This structure collects the information parsed out of a M1 message. The pointers point into the @a m1 buffer, so this structure must no
+ * longer be used when that buffer is freed. If some attribute is missing, the corresponding pointer is NULL.
+ */
+struct wscM1Info {
+    const uint8_t *m1;           /**< M1 buffer parsed in this structure. */
+    uint16_t       m1_size;      /**< Length of @a m1. */
+    const uint8_t  *mac_address; /**< MAC Address (6 bytes). */
+    const uint8_t  *nonce;       /**< Enrollee Nonce (16 bytes). */
+    const uint8_t  *pubkey;      /**< Public Key. */
+    uint16_t        pubkey_len;  /**< Length of @a pubkey. */
+    uint16_t        auth_types;  /**< Authentication Type bitmask, 0 if the attribute is missing. */
+    uint16_t        encr_types;  /**< Encryption Type bitmask, 0 if the attribute is missing. */
+    uint8_t         rf_bands;    /**< RF Bands bitmask, 0 if the attribute is missing. */
+};
+
+/** @brief Parse M1.
+ *
+ * Find the interesting attributes in the M1 message @a m1, and write them to @a m1_info. The returned structure
+ * must be freed. @a m1 is still used by it, so @a m1 may only be freed when @a m1_info is no longer used.
+ *
+ * No check is done if the required attributes are present; missing attributes remain NULL or 0 in @a m1_info.
+ *
+ * @return true on success, false on failure. @a m1_info may be inconsistent on failure.
+ *
+ * @todo Also parse device info, which can be stored in the datamodel.
+ */
+bool wscParseM1(const uint8_t *m1, uint16_t m1_size, struct wscM1Info *m1_info);
+
+uint8_t wscBuildM2(struct wscM1Info *m1_info, const struct wscRegistrarInfo *wsc_info, uint8_t **m2, uint16_t *m2_size);
 uint8_t wscFreeM2(uint8_t *m, uint16_t m_size);
 
 

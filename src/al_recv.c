@@ -1374,12 +1374,19 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 //
                 uint8_t   *m2;
                 uint16_t   m2_size;
+                struct wscM1Info m1_info;
 
                 bool send_radio_identifier = ap_radio_basic_capabilities != NULL;
 
                 struct alDevice *sender_device = alDeviceFindFromAnyAddress(src_addr);
 
                 struct wscRegistrarInfo *wsc_info;
+
+                if (!wscParseM1(wsc_frame, wsc_frame_size, &m1_info))
+                {
+                    // wscParseM1 already printed an error message.
+                    break;
+                }
 
                 if (sender_device == NULL)
                 {
@@ -1404,7 +1411,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
                 /* @todo find WSC based on band in M1. */
                 wsc_info = container_of(registrar.wsc.next, struct wscRegistrarInfo, l);
-                wscBuildM2(wsc_frame, wsc_frame_size, wsc_info, &m2, &m2_size);
+                wscBuildM2(&m1_info, wsc_info, &m2, &m2_size);
 
                 if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(),
                                                                sender_device->al_mac_addr, m2, m2_size, NULL, false,
