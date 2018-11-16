@@ -65,10 +65,18 @@ if (${CMAKE_SYSTEM_NAME} MATCHES Linux)
          linux/platform_os.c)
 
     if (OPENWRT)
-     target_sources(${libname} PRIVATE
-         linux/platform_uci.c
-         linux/platform_interfaces_openwrt.c)
-     target_link_libraries(${libname} ubox ubus)
+        find_library(UBOX ubox)
+        if (NOT UBOX)
+            message(SEND_ERROR "OpenWRT integration requires ubox")
+        endif (NOT UBOX)
+        find_library(UBUS ubus)
+        if (NOT UBUS)
+            message(SEND_ERROR "OpenWRT integration requires ubus")
+        endif (NOT UBUS)
+        target_sources(${libname} PRIVATE
+            linux/platform_uci.c
+            linux/platform_interfaces_openwrt.c)
+        target_link_libraries(${libname} ubox ubus)
     endif (OPENWRT)
 
     add_executable(al_entity linux/al_entity/al_entity_main.c)
