@@ -1253,10 +1253,9 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
             struct tlv *p;
             uint8_t i;
 
-            uint8_t  *wsc_frame;
-            uint16_t  wsc_frame_size;
-
-            uint8_t wsc_type;
+            /* Collected list of WSCs. Note that these will point into the TLV structures, so don't use wscM2Free()! */
+            wscM2List wsc_list = {0, NULL};
+            uint8_t wsc_type = WSC_TYPE_UNKNOWN;
 
             struct apRadioBasicCapabilitiesTLV *ap_radio_basic_capabilities = NULL;
             struct apRadioIdentifierTLV *ap_radio_identifier = NULL;
@@ -1274,8 +1273,6 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 break;
             }
 
-            wsc_frame      = NULL;
-            wsc_frame_size = 0;
             i = 0;
             while (NULL != (p = c->list_of_TLVs[i]))
             {
@@ -1283,11 +1280,23 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 {
                     case TLV_TYPE_WSC:
                     {
-                        struct wscTLV *t = (struct wscTLV *)p;
+                        struct wscTLV *t = (struct wscTLV *)p;                        
+                        struct wscM2Buf m;
 
-                        wsc_frame      = t->wsc_frame;
-                        wsc_frame_size = t->wsc_frame_size;
-
+                        if (wsc_type == WSC_TYPE_M1)
+                        {
+                            PLATFORM_PRINTF_DEBUG_WARNING("Only a single M2 TLV is allowed.\n");
+                            return PROCESS_CMDU_KO;
+                        }
+                        if (wscGetType(m.m2, m.m2_size) != WSC_TYPE_M2)
+                        {
+                            PLATFORM_PRINTF_DEBUG_WARNING("Only M2 TLVs are allowed in M2 CMDU.\n");
+                            return PROCESS_CMDU_KO;
+                        }
+                        m.m2 = t->wsc_frame;
+                        m.m2_size = t->wsc_frame_size;
+                        PTRARRAY_ADD(wsc_list, m);
+                        wsc_type = WSC_TYPE_M2;
                         break;
                     }
                     case TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES:
@@ -1308,13 +1317,11 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
             // Make sure there was a WSC TLV in the message
             //
-            if ( NULL == wsc_frame)
+            if (wsc_list.length == 0)
             {
-                PLATFORM_PRINTF_DEBUG_WARNING("More TLVs were expected inside this CMDU\n");
+                PLATFORM_PRINTF_DEBUG_WARNING("At least one WSC TLV expected inside WSC CMDU\n");
                 return PROCESS_CMDU_KO;
             }
-
-            wsc_type = wscGetType(wsc_frame, wsc_frame_size);
 
             if (WSC_TYPE_M2 == wsc_type)
             {
@@ -1326,6 +1333,12 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     if (radio == NULL)
                     {
                         PLATFORM_PRINTF_DEBUG_WARNING("Received AP radio identifier for unknown radio " MACSTR "\n",
+                                                      MAC2STR(ap_radio_identifier->radio_uid));
+                        return PROCESS_CMDU_KO;
+                    }
+                    if (radio->wsc_info == NULL)
+                    {
+                        PLATFORM_PRINTF_DEBUG_WARNING("Received WSC M2 for radio " MACSTR " which didn't send M1\n",
                                                       MAC2STR(ap_radio_identifier->radio_uid));
                         return PROCESS_CMDU_KO;
                     }
@@ -1350,7 +1363,10 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 // Process it and apply the configuration to the corresponding
                 // interface.
                 //
-                wscProcessM2(radio, wsc_frame, wsc_frame_size);
+                for (i = 0; i < wsc_list.length; i++)
+                {
+                    wscProcessM2(radio, wsc_list.data[i].m2, wsc_list.data[i].m2_size);
+                }
                 wscInfoFree(radio);
 
                 // One more thing: This node *might* have other unconfigured AP
@@ -1381,7 +1397,8 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
 
                 struct wscRegistrarInfo *wsc_info;
 
-                if (!wscParseM1(wsc_frame, wsc_frame_size, &m1_info))
+                /* wsc_list will have length 1, checked above (implicitly) */
+                if (!wscParseM1(wsc_list.data[0].m2, wsc_list.data[0].m2_size, &m1_info))
                 {
                     // wscParseM1 already printed an error message.
                     break;
