@@ -112,8 +112,14 @@ struct wscM1Info {
  */
 bool wscParseM1(const uint8_t *m1, uint16_t m1_size, struct wscM1Info *m1_info);
 
-uint8_t wscBuildM2(struct wscM1Info *m1_info, const struct wscRegistrarInfo *wsc_info, uint8_t **m2, uint16_t *m2_size);
-uint8_t wscFreeM2(uint8_t *m, uint16_t m_size);
+struct wscM2Buf {
+    uint8_t *m2;
+    uint16_t  m2_size;
+};
+typedef PTRARRAY(struct wscM2Buf) wscM2List;
+
+bool wscBuildM2(struct wscM1Info *m1_info, const struct wscRegistrarInfo *wsc_info, struct wscM2Buf *m2);
+void wscFreeM2List(wscM2List m2_list);
 
 
 #define WSC_TYPE_M1      (0x00)

@@ -3205,22 +3205,20 @@ uint8_t send1905APAutoconfigurationResponsePacket(const char *interface_name, ui
     return ret;
 }
 
-uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
-                                             const uint8_t *wsc_frame, uint16_t wsc_frame_size,
-                                             const struct radio *radio, bool send_radio_basic_capabilities,
-                                             const mac_address radio_uid, bool send_radio_identifier)
+uint8_t send1905APAutoconfigurationWSCM1Packet(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
+                                               const uint8_t *wsc_frame, uint16_t wsc_frame_size,
+                                               const struct radio *radio, bool send_radio_basic_capabilities)
 {
-    // The "AP-autoconfiguration WSC" message is a CMDU with TLVs:
-    //   - One or more WSC TLVs (one per SSID to configure)
-    //   - In the Multi-AP case, a AP Radio Basic Capabilities in M1 and AP Radio Identifier in M2.
-    // @todo support sending multiple WSC TLVs.
+    // The "AP-autoconfiguration WSC" M1 message is a CMDU with TLVs:
+    //   - One WSC M1 TLV
+    //   - In the Multi-AP case, a AP Radio Basic Capabilities
 
     uint8_t ret;
 
     struct CMDU     data_message;
     struct wscTLV   wsc_tlv;
 
-    PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (%s)\n", interface_name);
+    PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_AP_AUTOCONFIGURATION_WSC M1 (%s)\n", interface_name);
 
     // Fill the WSC TLV
     //
@@ -3244,14 +3242,6 @@ uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_
     {
         data_message.list_of_TLVs[1] = _obtainLocalRadioBasicCapabilitiesTLV(radio);
     }
-    else if (send_radio_identifier)
-    {
-        struct apRadioIdentifierTLV *apRadioIdentifier =
-                X1905_TLV_ALLOC(apRadioIdentifier, TLV_TYPE_AP_RADIO_IDENTIFIER, NULL);
-
-        memcpy(&apRadioIdentifier->radio_uid, radio_uid, sizeof(mac_address));
-        data_message.list_of_TLVs[1] = &apRadioIdentifier->tlv;
-    }
 
     if (0 == send1905RawPacket(interface_name, mid, destination_al_mac_address, &data_message))
     {
@@ -3266,6 +3256,82 @@ uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_
     // Free memory
     //
     free(wsc_tlv.wsc_frame);
+    if (send_radio_basic_capabilities)
+    {
+        free_1905_TLV_structure(data_message.list_of_TLVs[1]);
+    }
+    free(data_message.list_of_TLVs);
+
+    return ret;
+}
+
+
+uint8_t send1905APAutoconfigurationWSCM2Packet(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
+                                               wscM2List wsc_frames,
+                                               const mac_address radio_uid, bool send_radio_identifier)
+{
+    // The "AP-autoconfiguration WSC" M2 message is a CMDU with TLVs:
+    //   - One or more WSC TLVs (one per SSID to configure)
+    //   - In the Multi-AP case, an AP Radio Identifier.
+
+    uint8_t ret;
+
+    struct CMDU     data_message;
+    unsigned num_tlvs;
+    unsigned i;
+
+    PLATFORM_PRINTF_DEBUG_INFO("--> CMDU_TYPE_AP_AUTOCONFIGURATION_WSC (%s)\n", interface_name);
+
+    num_tlvs = wsc_frames.length;
+    if (send_radio_identifier)
+    {
+        num_tlvs++;
+    }
+
+    // Build the CMDU
+    //
+    data_message.message_version = CMDU_MESSAGE_VERSION_1905_1_2013;
+    data_message.message_type    = CMDU_TYPE_AP_AUTOCONFIGURATION_WSC;
+    data_message.message_id      = mid;
+    data_message.relay_indicator = 0;
+    data_message.list_of_TLVs    = (struct tlv **)memalloc(sizeof(struct tlv *)*(num_tlvs+1));
+
+    // Fill the WSC TLVs
+    //
+    for (i = 0; i < wsc_frames.length; i++)
+    {
+        struct wscTLV *wsc_tlv = X1905_TLV_ALLOC(wsc, TLV_TYPE_WSC, NULL);
+        data_message.list_of_TLVs[i] = &wsc_tlv->tlv;
+        wsc_tlv->wsc_frame_size = wsc_frames.data[i].m2_size;
+        wsc_tlv->wsc_frame      = (uint8_t *)memalloc(wsc_frames.data[i].m2_size);
+        memcpy(wsc_tlv->wsc_frame, wsc_frames.data[i].m2, wsc_frames.data[i].m2_size);
+    }
+
+    if (send_radio_identifier)
+    {
+        struct apRadioIdentifierTLV *apRadioIdentifier =
+                X1905_TLV_ALLOC(apRadioIdentifier, TLV_TYPE_AP_RADIO_IDENTIFIER, NULL);
+
+        memcpy(&apRadioIdentifier->radio_uid, radio_uid, sizeof(mac_address));
+        data_message.list_of_TLVs[num_tlvs - 1] = &apRadioIdentifier->tlv;
+    }
+
+    if (0 == send1905RawPacket(interface_name, mid, destination_al_mac_address, &data_message))
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("Could not send packet\n");
+        ret = 0;
+    }
+    else
+    {
+        ret = 1;
+    }
+
+    // Free memory
+    //
+    for (i = 0; i < num_tlvs; i++)
+    {
+        free_1905_TLV_structure(data_message.list_of_TLVs[i]);
+    }
     free(data_message.list_of_TLVs);
 
     return ret;

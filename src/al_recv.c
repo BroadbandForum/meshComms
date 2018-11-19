@@ -1233,9 +1233,9 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                                 dst_mac = sender_device->al_mac_addr;
                             }
 
-                            if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(),
-                                                                           dst_mac, radio->wsc_info->m1, radio->wsc_info->m1_len,
-                                                                           radio, sender_is_controller, NULL, false))
+                            if ( 0 == send1905APAutoconfigurationWSCM1Packet(DMmacToInterfaceName(receiving_interface_addr), getNextMid(),
+                                                                             dst_mac, radio->wsc_info->m1, radio->wsc_info->m1_len,
+                                                                             radio, sender_is_controller))
                             {
                                 PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration WSC-M1' message\n");
                             }
@@ -1372,8 +1372,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 //
                 // Process it and send an M2 response.
                 //
-                uint8_t   *m2;
-                uint16_t   m2_size;
+                wscM2List m2_list;
                 struct wscM1Info m1_info;
 
                 bool send_radio_identifier = ap_radio_basic_capabilities != NULL;
@@ -1409,18 +1408,28 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     /* @todo add channels based on channel info in ap_radio_basic_capabilities. */
                 }
 
-                /* @todo find WSC based on band in M1. */
-                wsc_info = container_of(registrar.wsc.next, struct wscRegistrarInfo, l);
-                wscBuildM2(&m1_info, wsc_info, &m2, &m2_size);
+                PTRARRAY_CLEAR(m2_list);
+                dlist_for_each(wsc_info, registrar.wsc, l)
+                {
+                    if ((m1_info.rf_bands | wsc_info->rf_bands) != 0 &&
+                        (m1_info.auth_types | wsc_info->bss_info.auth_mode) != 0)
+                    {
+                        struct wscM2Buf new_m2;
 
-                if ( 0 == send1905APAutoconfigurationWSCPacket(DMmacToInterfaceName(receiving_interface_addr), getNextMid(),
-                                                               sender_device->al_mac_addr, m2, m2_size, NULL, false,
-                                                               send_radio_identifier ? ap_radio_basic_capabilities->radio_uid : NULL,
-                                                               send_radio_identifier))
+                        wscBuildM2(&m1_info, wsc_info, &new_m2);
+                        PTRARRAY_ADD(m2_list, new_m2);
+                    }
+                }
+
+
+                if ( 0 == send1905APAutoconfigurationWSCM2Packet(DMmacToInterfaceName(receiving_interface_addr), getNextMid(),
+                                                                 sender_device->al_mac_addr, m2_list,
+                                                                 send_radio_identifier ? ap_radio_basic_capabilities->radio_uid : NULL,
+                                                                 send_radio_identifier))
                 {
                     PLATFORM_PRINTF_DEBUG_WARNING("Could not send 'AP autoconfiguration WSC-M2' message\n");
                 }
-                wscFreeM2(m2, m2_size);
+                wscFreeM2List(m2_list);
             }
             else
             {

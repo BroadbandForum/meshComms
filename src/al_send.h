@@ -23,6 +23,7 @@
 #include "1905_tlvs.h"
 
 #include <datamodel.h> // struct radio
+#include "al_wsc.h"   // wscM2List
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions to send "raw" 1905 messages
@@ -345,10 +346,13 @@ uint8_t send1905APAutoconfigurationResponsePacket(const char *interface_name, ui
 //
 // Return "0" if a problem was found. "1" otherwise.
 //
-uint8_t send1905APAutoconfigurationWSCPacket(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
-                                             const uint8_t *wsc_frame, uint16_t wsc_frame_size,
-                                             const struct radio *radio, bool send_radio_basic_capabilities,
-                                             const mac_address radio_uid, bool send_radio_identifier);
+uint8_t send1905APAutoconfigurationWSCM1Packet(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
+                                               const uint8_t *wsc_frame, uint16_t wsc_frame_size,
+                                               const struct radio *radio, bool send_radio_basic_capabilities);
+
+uint8_t send1905APAutoconfigurationWSCM2Packet(const char *interface_name, uint16_t mid, const uint8_t *destination_al_mac_address,
+                                               wscM2List wsc_frames,
+                                               const mac_address radio_uid, bool send_radio_identifier);
 
 // This function sends a "1905 generic phy query packet" on the provided
 // interface.

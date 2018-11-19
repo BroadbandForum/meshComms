@@ -943,7 +943,7 @@ bool wscParseM1(const uint8_t *m1, uint16_t m1_size, struct wscM1Info *m1_info)
     return true;
 }
 
-uint8_t wscBuildM2(struct wscM1Info *m1_info, const struct wscRegistrarInfo *wsc_info, uint8_t **m2, uint16_t *m2_size)
+bool wscBuildM2(struct wscM1Info *m1_info, const struct wscRegistrarInfo *wsc_info, struct wscM2Buf *m2)
 {
     uint8_t  *buffer;
 
@@ -967,13 +967,13 @@ uint8_t wscBuildM2(struct wscM1Info *m1_info, const struct wscRegistrarInfo *wsc
     if (!registrarIsLocal())
     {
         PLATFORM_PRINTF_DEBUG_WARNING("We are not a registrar. Ignoring M1 message.\n");
-        return 0;
+        return false;
     }
 
     if (m1_info->mac_address == NULL || m1_info->nonce == NULL || m1_info->pubkey == NULL)
     {
         PLATFORM_PRINTF_DEBUG_WARNING("Incomplete M1 message received\n");
-        return 0;
+        return false;
     }
 
     /* Derive encryption from auth mode */
@@ -1380,21 +1380,19 @@ uint8_t wscBuildM2(struct wscM1Info *m1_info, const struct wscRegistrarInfo *wsc
                                                                           _InB( hash,          &p2,  8);
     }
 
-    *m2      = buffer;
-    *m2_size = p2-buffer;
-
-    return 1;
+    m2->m2 = buffer;
+    m2->m2_size = p2 - buffer;
+    return true;
 }
 
-uint8_t wscFreeM2(uint8_t *m, uint16_t m_size)
+void wscFreeM2List(wscM2List m2_list)
 {
-    if (0 == m_size || NULL == m)
+    unsigned i;
+    for (i = 0; i < m2_list.length; i++)
     {
-        return 1;
+        free(m2_list.data[i].m2);
     }
-
-    free(m);
-    return 1;
+    PTRARRAY_CLEAR(m2_list);
 }
 
 void wscInfoFree(struct radio *radio)
