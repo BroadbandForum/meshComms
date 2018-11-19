@@ -281,6 +281,10 @@ struct radio {
      */
     struct wscDeviceData device_data;
 
+    /** @brief Pointer to driver private data.
+     */
+    void *priv;
+
     /** @brief Operations on the radio.
      *
      * Implementing these as function pointers allows each radio to have a different driver.

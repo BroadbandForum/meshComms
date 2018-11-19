@@ -85,7 +85,6 @@ static bool uci_teardown_iface(struct interface *interface)
 
 static bool uci_create_iface(struct radio *radio, struct bssInfo bssInfo, bool ap)
 {
-    char radioname[16];
     char macstr[18];
     struct ubus_context *ctx = ubus_connect(NULL);
     uint32_t id;
@@ -102,11 +101,7 @@ static bool uci_create_iface(struct radio *radio, struct bssInfo bssInfo, bool a
     blobmsg_add_string(&b, "config", "wireless");
     blobmsg_add_string(&b, "type", "wifi-iface");
     values = blobmsg_open_table(&b, "values");
-    // assume that radio->index is equal to the enumeration in OpenWrt,
-    // which is not necessarily always true in the way radios are
-    // currently enumerated by prplmesh
-    snprintf(radioname, sizeof(radioname), "radio%u", radio->index);
-    blobmsg_add_string(&b, "device", radioname);
+    blobmsg_add_string(&b, "device", (char *)radio->priv);
     blobmsg_add_string(&b, "mode", ap ? "ap" : "sta");
     blobmsg_add_string(&b, "network", "lan"); /* @todo set appropriate network */
     snprintf(macstr, sizeof(macstr), MACSTR, MAC2STR(bssInfo.bssid));
@@ -118,7 +113,7 @@ static bool uci_create_iface(struct radio *radio, struct bssInfo bssInfo, bool a
     if (ubus_lookup_id(ctx, "uci", &id) ||
         ubus_invoke(ctx, id, "add", b.head, NULL, NULL, 3000)) {
         ret = false;
-        goto out;
+        goto create_ap_out;
     }
 
     blob_buf_free(&b);
@@ -128,7 +123,7 @@ static bool uci_create_iface(struct radio *radio, struct bssInfo bssInfo, bool a
     if (ubus_lookup_id(ctx, "uci", &id) ||
         ubus_invoke(ctx, id, "commit", b.head, NULL, NULL, 3000)) {
         ret = false;
-        goto out;
+        goto create_ap_out;
     }
 
     /* @todo The presence of the new AP should be detected through netlink. For the time being, however, we update the data model
@@ -139,7 +134,7 @@ static bool uci_create_iface(struct radio *radio, struct bssInfo bssInfo, bool a
     memcpy(&iface->bssInfo, &bssInfo, sizeof(bssInfo));
     iface->i.tearDown = uci_teardown_iface;
 
-out:
+create_ap_out:
     blob_buf_free(&b);
     ubus_free(ctx);
     return ret;
@@ -155,14 +150,152 @@ static bool uci_create_sta(struct radio *radio, struct bssInfo bssInfo)
     return uci_create_iface(radio, bssInfo, false);
 }
 
+/*
+ * policy for UCI get
+ */
+enum {
+    UCI_GET_VALUES,
+    __UCI_GET_MAX,
+};
+
+static const struct blobmsg_policy uciget_policy[__UCI_GET_MAX] = {
+    [UCI_GET_VALUES] = { .name = "values", .type = BLOBMSG_TYPE_TABLE },
+};
+
+/* dlist to store uci wifi-device section names */
+struct uciradiolist {
+    dlist_item l;
+    char *section;
+    char *phyname;
+};
+
+/*
+ * called by UCI get ubus call with all wifi-device sections
+ * populates dlist with uci config names of wifi radios
+ */
+static void radiolist_cb(struct ubus_request *req, int type, struct blob_attr *msg)
+{
+    dlist_head *list = (dlist_head *)req->priv;
+    struct blob_attr *tb[__UCI_GET_MAX];
+    struct blob_attr *cur;
+    struct uciradiolist *item;
+    int rem;
+
+    blobmsg_parse(uciget_policy, __UCI_GET_MAX, tb, blob_data(msg), blob_len(msg));
+
+    if (!tb[UCI_GET_VALUES]) {
+        fprintf(stderr, "No radios found\n");
+        return;
+    }
+
+    blobmsg_for_each_attr(cur, tb[UCI_GET_VALUES], rem) {
+        item = zmemalloc(sizeof(struct uciradiolist));
+        item->section = strdup(blobmsg_name(cur));
+        dlist_add_tail(list, &item->l);
+    }
+}
+
+/*
+ * policy for iwinfo phyname
+ */
+enum {
+    IWINFO_PHYNAME_PHYNAME,
+    __IWINFO_PHYNAME_MAX,
+};
+
+static const struct blobmsg_policy phyname_policy[__IWINFO_PHYNAME_MAX] = {
+    [IWINFO_PHYNAME_PHYNAME] = { .name = "phyname", .type = BLOBMSG_TYPE_STRING },
+};
+
+/*
+ * called by iwinfo phyname ubus call with resolved phyname
+ * copies phyname to result pointer
+ */
+static void phyname_cb(struct ubus_request *req, int type, struct blob_attr *msg)
+{
+    char **phyname = (char **)req->priv;
+    struct blob_attr *tb[__IWINFO_PHYNAME_MAX];
+    blobmsg_parse(phyname_policy, __IWINFO_PHYNAME_MAX, tb, blob_data(msg), blob_len(msg));
+
+    if (!tb[IWINFO_PHYNAME_PHYNAME]) {
+        fprintf(stderr, "No phyname returned\n");
+        return;
+    }
+
+    *phyname = strdup(blobmsg_get_string(tb[IWINFO_PHYNAME_PHYNAME]));
+}
 
 void uci_register_handlers(void)
 {
+    struct ubus_context *ctx = ubus_connect(NULL);
+    uint32_t id;
+    static struct blob_buf req;
+    static dlist_head uciradios;
     struct radio *radio;
+    struct blob_attr *cur;
+    int rem;
+    struct uciradiolist *uciphymatch;
+    char *phyname;
+
+    if (!ctx) {
+        fprintf(stderr, "failed to connect to ubus.\n");
+        return;
+    }
+
+    blob_buf_init(&req, 0);
+    blobmsg_add_string(&req, "config", "wireless");
+    blobmsg_add_string(&req, "type", "wifi-device");
+
+    dlist_head_init(&uciradios);
+
+    /* get radios from UCI */
+    if (ubus_lookup_id(ctx, "uci", &id) ||
+        ubus_invoke(ctx, id, "get", req.head, radiolist_cb, &uciradios, 3000))
+        goto reghandlers_out;
+
+    blob_buf_free(&req);
+
+    /* populate phyname for each UCI wifi-device section */
+    dlist_for_each(uciphymatch, uciradios, l)
+    {
+        blob_buf_init(&req, 0);
+        blobmsg_add_string(&req, "section", uciphymatch->section);
+        /* get phyname from iwinfo */
+        if (ubus_lookup_id(ctx, "iwinfo", &id) ||
+            ubus_invoke(ctx, id, "phyname", req.head, phyname_cb, &phyname, 3000))
+            goto reghandlers_out;
+
+        blob_buf_free(&req);
+        uciphymatch->phyname = phyname;
+    }
+
+    /* register handlers for phy matching wifi-device UCI section */
     dlist_for_each(radio, local_device->radios, l)
     {
-        /* @todo check if the radio exists in UCI */
-        radio->addAP = uci_create_ap;
-        radio->addSTA = uci_create_sta;
+        dlist_for_each(uciphymatch, uciradios, l)
+        {
+            /*
+             * register handlers if there is an UCI config section for
+             * a discovered phy.
+             * work-around new-line character at the end of radio->name
+             */
+            if(!strncmp(radio->name, uciphymatch->phyname, strlen(radio->name)-1)) {
+                radio->addAP = uci_create_ap;
+                radio->addSTA = uci_create_sta;
+                radio->priv = (void *)strdup(uciphymatch->section);
+                PLATFORM_PRINTF_DEBUG_DETAIL("registered UCI wifi-device %s (%s)\n",
+                                             uciphymatch->section, uciphymatch->phyname);
+                break;
+            }
+        }
     }
+
+reghandlers_out:
+    dlist_for_each(uciphymatch, uciradios, l)
+    {
+            free(uciphymatch->section);
+            free(uciphymatch->phyname);
+    }
+    /* TODO: free dlist */
+    ubus_free(ctx);
 }
