@@ -59,9 +59,10 @@ static bool uci_teardown_iface(struct interface *interface)
     match = blobmsg_open_table(&b, "match");
     snprintf(macstr, sizeof(macstr), MACSTR, MAC2STR(interface_wifi->bssInfo.bssid));
     blobmsg_add_string(&b, "bssid", macstr);
+    blobmsg_add_string(&b, "device", (char *)interface_wifi->radio->priv);
     blobmsg_close_table(&b, match);
     if (ubus_lookup_id(ctx, "uci", &id) ||
-        ubus_invoke(ctx, id, "add", b.head, NULL, NULL, 3000)) {
+        ubus_invoke(ctx, id, "delete", b.head, NULL, NULL, 3000)) {
         ret = false;
         goto out;
     }
