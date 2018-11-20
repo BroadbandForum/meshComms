@@ -627,6 +627,25 @@ bool wscProcessM2(struct radio *radio, const uint8_t *m2, uint16_t m2_size)
         }
         p += attr_len;
     }
+
+    /* Short-circuit here the case when the Multi-AP IE is present and the teardown bit is set. In that case, the encrypted settings
+     * etc. are probably not present, since we don't need them.
+     *
+     * Note: we don't check for consistency (e.g. when teardown bit is set, there should be only one M2 and it should not have
+     * any other bit set).
+     */
+    if (multi_ap_ie_present && multi_ap_teardown)
+    {
+        unsigned i;
+        PLATFORM_PRINTF_DEBUG_DETAIL("Multi-AP M2 WSC with tear-down bit set.\n");
+        for (i = 0; i < radio->configured_bsses.length; i++)
+        {
+            /* @todo Only tear down multi-AP configured BSSes, not locally configured ones. */
+            interfaceTearDown(&radio->configured_bsses.data[i]->i);
+        }
+        return true;
+    }
+
     if (
          0 == m2_nonce_present              ||
          0 == m2_pubkey_present             ||
@@ -887,10 +906,29 @@ bool wscProcessM2(struct radio *radio, const uint8_t *m2, uint16_t m2_size)
         bssInfo.auth_mode = auth_type;
     }
 
-    // Apply the security settings so that this AP clones the registrar
-    // configuration
-    //
-    radioAddAp(radio, bssInfo);
+    /* Take action depending on the multi_ap bits. */
+    if (multi_ap_ie_present)
+    {
+        /* Note: we don't check for consistency. If bSTA is set, we ignore the other bits. */
+        if (multi_ap_bSTA)
+        {
+            radioAddSta(radio, bssInfo);
+        }
+        else if (!multi_ap_bBSS && !multi_ap_fBSS)
+        {
+            PLATFORM_PRINTF_DEBUG_WARNING("Multi-AP IE present in WSC but no bits are set.\n");
+        }
+        else
+        {
+            bssInfo.backhaul = multi_ap_bBSS;
+            bssInfo.backhaul_only = !multi_ap_fBSS;
+            radioAddAp(radio, bssInfo);
+        }
+    }
+    else
+    {
+        radioAddAp(radio, bssInfo);
+    }
 
     return true;
 }

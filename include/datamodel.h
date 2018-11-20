@@ -52,6 +52,8 @@ struct bssInfo {
     enum auth_mode auth_mode;   /**< Authentication mode. Encryption is implied (none for open, CCMP for WPA2). */
     uint8_t key           [64]; /**< Shared key. Only valid for @a auth_mode_wpa2psk. */
     uint8_t key_len;            /**< Length of @a key. */
+    bool backhaul;              /**< True if this BSS is used for backhaul. */
+    bool backhaul_only;         /**< True if this BSS is *only* used for backhaul, not for fronthaul. Only relevant for AP, if @a backhaul is true. */
 };
 
 /** @brief WSC device information. */
@@ -138,6 +140,20 @@ struct interface
 
     /** @brief Neighbour interfaces. */
     PTRARRAY(struct interface *) neighbors;
+
+    /** @brief Operations on the interface.
+     *
+     * Implementing these as function pointers allows each interface to have a different driver.
+     *
+     * Note that the handlers should in general not update the data model. Instead, the data model should be updated by driver
+     * events that detect a change in the data model.
+     * @{
+     */
+
+    /** @brief Handler to bring this interface down. */
+    bool (*tearDown)(struct interface *interface);
+
+    /** @} */
 };
 
 enum interfaceWifiRole {
@@ -277,10 +293,16 @@ struct radio {
     /** @brief Handler to add an access point interface on this radio.
      *
      * @param radio The radio on which the AP is to be added.
-     * @param ssid The AP's SSID.
-     * @param bssid The AP's BSSID.
+     * @param bss_info The AP's BSS info.
      */
-    bool (*addAP)(struct radio *radio, struct bssInfo bssInfo);
+    bool (*addAP)(struct radio *radio, struct bssInfo bss_info);
+
+    /** @brief Handler to add an station interface on this radio.
+     *
+     * @param radio The radio on which the STA is to be added.
+     * @param bss_info The STA's BSS info.
+     */
+    bool (*addSTA)(struct radio *radio, struct bssInfo bss_info);
 
     /** @} */
 };
@@ -426,7 +448,16 @@ struct radio *findLocalRadio(const char *name);
 int radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *iface);
 
 /** @brief Configure an AP on the radio. */
-void radioAddAp(struct radio *radio, struct bssInfo bssInfo);
+void radioAddAp(struct radio *radio, struct bssInfo bss_info);
+
+/** @brief Configure a STA on the radio. */
+void radioAddSta(struct radio *radio, struct bssInfo bss_info);
+
+/** @brief Deconfigure an interface.
+ *
+ * After tear-down completes, the interface will have been deleted.
+ */
+void interfaceTearDown(struct interface *iface);
 
 /** @brief Allocate a new interface, with optional owning device.
  *

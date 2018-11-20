@@ -135,15 +135,45 @@ int radioAddInterfaceWifi(struct radio *radio, struct interfaceWifi *ifw)
     return 0;
 }
 
-void radioAddAp(struct radio *radio, struct bssInfo bssInfo)
+void radioAddAp(struct radio *radio, struct bssInfo bss_info)
 {
     if (radio->addAP == NULL)
     {
         PLATFORM_PRINTF_DEBUG_WARNING("No addAP callback for radio " MACSTR " to be configured with ssid %.*s\n",
-                                      MAC2STR(radio->uid), bssInfo.ssid.length, bssInfo.ssid.ssid);
+                                      MAC2STR(radio->uid), bss_info.ssid.length, bss_info.ssid.ssid);
         return;
     }
-    radio->addAP(radio, bssInfo);
+    radio->addAP(radio, bss_info);
+}
+
+void radioAddSta(struct radio *radio, struct bssInfo bss_info)
+{
+    if (radio->addSTA == NULL)
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("No addSTA callback for radio " MACSTR " to be configured with ssid %.*s\n",
+                                      MAC2STR(radio->uid), bss_info.ssid.length, bss_info.ssid.ssid);
+        return;
+    }
+    radio->addSTA(radio, bss_info);
+}
+
+void interfaceTearDown(struct interface *iface)
+{
+    if (iface->tearDown == NULL)
+    {
+        PLATFORM_PRINTF_DEBUG_WARNING("No tearDown callback for interface %s\n", iface->name);
+        /* Just destroy the interface instead. */
+        if (iface->type == interface_type_wifi)
+        {
+            interfaceWifiRemove(container_of(iface, struct interfaceWifi, i));
+        }
+        else
+        {
+            interfaceDelete(iface);
+        }
+        return;
+    }
+    iface->tearDown(iface);
 }
 
 
