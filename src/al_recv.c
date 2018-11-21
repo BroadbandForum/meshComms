@@ -1288,13 +1288,13 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                             PLATFORM_PRINTF_DEBUG_WARNING("Only a single M2 TLV is allowed.\n");
                             return PROCESS_CMDU_KO;
                         }
+                        m.m2 = t->wsc_frame;
+                        m.m2_size = t->wsc_frame_size;
                         if (wscGetType(m.m2, m.m2_size) != WSC_TYPE_M2)
                         {
                             PLATFORM_PRINTF_DEBUG_WARNING("Only M2 TLVs are allowed in M2 CMDU.\n");
                             return PROCESS_CMDU_KO;
                         }
-                        m.m2 = t->wsc_frame;
-                        m.m2_size = t->wsc_frame_size;
                         PTRARRAY_ADD(wsc_list, m);
                         wsc_type = WSC_TYPE_M2;
                         break;
