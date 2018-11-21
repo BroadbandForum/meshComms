@@ -278,9 +278,8 @@ void uci_register_handlers(void)
             /*
              * register handlers if there is an UCI config section for
              * a discovered phy.
-             * work-around new-line character at the end of radio->name
              */
-            if(!strncmp(radio->name, uciphymatch->phyname, strlen(radio->name)-1)) {
+            if(!strcmp(radio->name, uciphymatch->phyname)) {
                 radio->addAP = uci_create_ap;
                 radio->addSTA = uci_create_sta;
                 radio->priv = (void *)strdup(uciphymatch->section);

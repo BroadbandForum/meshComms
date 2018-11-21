@@ -62,6 +62,10 @@ int phy_lookup(const char *basedir, char *name, mac_address *mac, int *index)
         } \
         close(fd); \
         (b)[n] = 0; \
+        /* strip trailing newline, if present */ \
+        if ((b)[n-1] == '\n') { \
+            (b)[n-1] = 0; \
+        } \
     } while (0)
 
     snprintf(buf, sizeof(buf), "%s/index", basedir);

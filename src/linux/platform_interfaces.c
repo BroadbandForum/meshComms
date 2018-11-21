@@ -967,6 +967,8 @@ void createLocalInterfaces(void)
             char phy[30];
             if (NULL != fgets(phy, sizeof(phy), fp))
             {
+                /* Strip trailing newline */
+                phy[strlen(phy) - 1] = '\0';
                 struct radio *radio = findLocalRadio(phy);
                 radioAddInterfaceWifi(radio, interface_wifi);
             }
