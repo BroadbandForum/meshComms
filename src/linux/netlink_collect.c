@@ -266,8 +266,6 @@ int netlink_collect_local_infos(void) /* populate 'local_device' */
     int                   ret = 0;
     bool                  splitWiphy = false;
 
-    PLATFORM_PRINTF_DEBUG_SET_VERBOSITY_LEVEL(3);
-
     if ( (ret = populate_radios_from_sysfs()) < 0 )
         return -1;
     if ( ! ret )

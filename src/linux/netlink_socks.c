@@ -166,9 +166,9 @@ struct nl_msg* netlink_prepare(
     return m;
 }
 
-//#define CB_DEFAULT      NL_CB_DEFAULT
+#define CB_DEFAULT      NL_CB_DEFAULT
 //#define CB_DEFAULT      NL_CB_VERBOSE
-#define CB_DEFAULT      NL_CB_DEBUG
+//#define CB_DEFAULT      NL_CB_DEBUG
 
 int netlink_do(
         struct nl80211_state *s,
