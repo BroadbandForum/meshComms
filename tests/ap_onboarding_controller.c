@@ -225,6 +225,10 @@ int main()
             result++;
         }
     }
+    else
+    {
+        result++;
+    }
 
     close(s0);
     return result;
