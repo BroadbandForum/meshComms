@@ -47,7 +47,10 @@ done
 # Generate 8MB core files
 ulimit -c 8000
 
-"$al_entity_exec" -m 02:ee:ff:33:44:00 -i "$interfaces" -r aletest2 -v &
+"$al_entity_exec" -m 02:ee:ff:33:44:00 -i "$interfaces" -r aletest2 -v -v &
 
 "$@" || exit $?
+
+# Test that background job is still running.
+jobs %1 >/dev/null 2>&1 || exit 1
 
