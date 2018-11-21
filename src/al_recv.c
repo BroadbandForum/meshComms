@@ -1282,6 +1282,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     {
                         struct wscTLV *t = (struct wscTLV *)p;                        
                         struct wscM2Buf m;
+                        uint8_t new_wsc_type;
 
                         if (wsc_type == WSC_TYPE_M1)
                         {
@@ -1290,13 +1291,14 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                         }
                         m.m2 = t->wsc_frame;
                         m.m2_size = t->wsc_frame_size;
-                        if (wscGetType(m.m2, m.m2_size) != WSC_TYPE_M2)
+                        new_wsc_type = wscGetType(m.m2, m.m2_size);
+                        if (new_wsc_type == WSC_TYPE_M1 && wsc_type == WSC_TYPE_M2)
                         {
                             PLATFORM_PRINTF_DEBUG_WARNING("Only M2 TLVs are allowed in M2 CMDU.\n");
                             return PROCESS_CMDU_KO;
                         }
                         PTRARRAY_ADD(wsc_list, m);
-                        wsc_type = WSC_TYPE_M2;
+                        wsc_type = new_wsc_type;
                         break;
                     }
                     case TLV_TYPE_AP_RADIO_BASIC_CAPABILITIES:
@@ -1388,7 +1390,7 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                 //
                 // Process it and send an M2 response.
                 //
-                wscM2List m2_list;
+                wscM2List m2_list = {0, NULL};
                 struct wscM1Info m1_info;
 
                 bool send_radio_identifier = ap_radio_basic_capabilities != NULL;
@@ -1425,7 +1427,6 @@ uint8_t process1905Cmdu(struct CMDU *c, uint8_t *receiving_interface_addr, uint8
                     /* @todo add channels based on channel info in ap_radio_basic_capabilities. */
                 }
 
-                PTRARRAY_CLEAR(m2_list);
                 dlist_for_each(wsc_info, registrar.wsc, l)
                 {
                     if ((m1_info.rf_bands | wsc_info->rf_bands) != 0 &&
