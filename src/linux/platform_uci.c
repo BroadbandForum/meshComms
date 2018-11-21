@@ -291,11 +291,13 @@ void uci_register_handlers(void)
     }
 
 reghandlers_out:
-    dlist_for_each(uciphymatch, uciradios, l)
+    while ((uciphymatch = container_of(dlist_get_first(uciradios), struct uciradiolist, l)))
     {
-            free(uciphymatch->section);
-            free(uciphymatch->phyname);
+        dlist_remove(&uciphymatch->l);
+        free(uciphymatch->section);
+        free(uciphymatch->phyname);
+        free(uciphymatch);
     }
-    /* TODO: free dlist */
+
     ubus_free(ctx);
 }
