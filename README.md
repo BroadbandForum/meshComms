@@ -1,3 +1,7 @@
+#Prelude
+
+meshComms is an open source implementation of IEEE 1905.1a that is an output of the Broadband Forum Open Broadband - Multi Access Point (OB-MAP) project. For an overview and information on contributing to the OB-MAP project, please see the [github Wiki page for the meshComms repository](https://github.com/BroadbandForum/meshComms/wiki).
+
 # Index
 
   1. What is this?
