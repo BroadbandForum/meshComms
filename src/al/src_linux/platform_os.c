@@ -61,6 +61,7 @@
 #include "platform_alme_server_priv.h"
 #include "1905_l2.h"
 
+#include <signal.h>      // SEGEV_THREAD
 #include <stdlib.h>      // free(), malloc(), ...
 #include <string.h>      // memcpy(), memcmp(), ...
 #include <pthread.h>     // threads and mutex functions
