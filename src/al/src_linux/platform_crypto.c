@@ -144,6 +144,53 @@ INT8U PLATFORM_GENERATE_DH_KEY_PAIR(INT8U **priv, INT16U *priv_len, INT8U **pub,
         return 0;
     }
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    BIGNUM *dhp_bn, *dhg_bn;
+    if (NULL == (dhp_bn = BN_bin2bn(dh1536_p,sizeof(dh1536_p),NULL)))
+    {
+        DH_free(dh);
+        return 0;
+    }
+    if (NULL == (dhg_bn = BN_bin2bn(dh1536_g,sizeof(dh1536_g),NULL)))
+    {
+        DH_free(dh);
+        BN_free(dhp_bn);
+        return 0;
+    }
+    if (!DH_set0_pqg(dh, dhp_bn, NULL, dhg_bn)) {
+        DH_free(dh);
+        BN_free(dhp_bn);
+        BN_free(dhg_bn);
+        return 0;
+    }
+
+    // Obtain key pair
+    //
+    if (0 == DH_generate_key(dh))
+    {
+        DH_free(dh);
+        BN_free(dhp_bn);
+        BN_free(dhg_bn);
+        return 0;
+    }
+
+    const BIGNUM *priv_key, *pub_key;
+    DH_get0_key(dh, &priv_key, &pub_key);
+
+    *priv_len = BN_num_bytes(priv_key);
+    *priv     = (INT8U *)malloc(*priv_len);
+    BN_bn2bin(priv_key, *priv);
+
+    *pub_len = BN_num_bytes(pub_key);
+    *pub     = (INT8U *)malloc(*pub_len);
+    BN_bn2bin(pub_key, *pub);
+
+    DH_set0_key(dh, (BIGNUM *) priv_key, (BIGNUM *) pub_key);
+
+    DH_free(dh);
+    BN_free(dhp_bn);
+    BN_free(dhg_bn);
+#else
     // Convert binary to BIGNUM format
     //
     if (NULL == (dh->p = BN_bin2bn(dh1536_p,sizeof(dh1536_p),NULL)))
@@ -174,6 +221,7 @@ INT8U PLATFORM_GENERATE_DH_KEY_PAIR(INT8U **priv, INT16U *priv_len, INT8U **pub,
     BN_bn2bin(dh->pub_key, *pub);
 
     DH_free(dh);
+#endif
       // NOTE: This internally frees "dh->p" and "dh->q", thus no need for us
       // to do anything else.
 
@@ -206,6 +254,41 @@ INT8U PLATFORM_COMPUTE_DH_SHARED_SECRET(INT8U **shared_secret, INT16U *shared_se
 
     // Convert binary to BIGNUM format
     //
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    BIGNUM *dhp_bn, *dhg_bn;
+    if (NULL == (dhp_bn = BN_bin2bn(dh1536_p,sizeof(dh1536_p),NULL)))
+    {
+        DH_free(dh);
+        return 0;
+    }
+    if (NULL == (dhg_bn = BN_bin2bn(dh1536_g,sizeof(dh1536_g),NULL)))
+    {
+        DH_free(dh);
+        BN_free(dhp_bn);
+        return 0;
+    }
+    if (!DH_set0_pqg(dh, dhp_bn, NULL, dhg_bn)) {
+        DH_free(dh);
+        BN_free(dhp_bn);
+        BN_free(dhg_bn);
+        return 0;
+    }
+    if (NULL == (pub_key = BN_bin2bn(remote_pub, remote_pub_len, NULL)))
+    {
+        DH_free(dh);
+        return 0;
+    }
+
+    BIGNUM *priv_key;
+
+    if (NULL == (priv_key = BN_bin2bn(local_priv, local_priv_len, NULL)))
+    {
+        BN_clear_free(pub_key);
+        DH_free(dh);
+        return 0;
+    }
+    DH_set0_key(dh, (BIGNUM *) priv_key, NULL);
+#else
     if (NULL == (dh->p = BN_bin2bn(dh1536_p,sizeof(dh1536_p),NULL)))
     {
         DH_free(dh);
@@ -227,6 +310,7 @@ INT8U PLATFORM_COMPUTE_DH_SHARED_SECRET(INT8U **shared_secret, INT16U *shared_se
         DH_free(dh);
         return 0;
     }
+#endif
 
     // Allocate output buffer
     //
@@ -354,60 +438,101 @@ INT8U PLATFORM_HMAC_SHA256(INT8U *key, INT32U keylen, INT8U num_elem, INT8U **ad
 
 INT8U PLATFORM_AES_ENCRYPT(INT8U *key, INT8U *iv, INT8U *data, INT32U data_len)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    EVP_CIPHER_CTX * pCtx = EVP_CIPHER_CTX_new();
+    if (!pCtx) {
+        return 0;
+    }
+#else
     EVP_CIPHER_CTX ctx;
+    EVP_CIPHER_CTX * pCtx = &ctx;
+#endif
+
 
     int clen, len;
     INT8U buf[AES_BLOCK_SIZE];
 
-    EVP_CIPHER_CTX_init(&ctx);
-    if (EVP_EncryptInit_ex(&ctx, EVP_aes_128_cbc(), NULL, key, iv) != 1)
+    EVP_CIPHER_CTX_init(pCtx);
+    if (EVP_EncryptInit_ex(pCtx, EVP_aes_128_cbc(), NULL, key, iv) != 1)
     {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        EVP_CIPHER_CTX_free(pCtx);
+#endif
         return 0;
     }
-    EVP_CIPHER_CTX_set_padding(&ctx, 0);
+    EVP_CIPHER_CTX_set_padding(pCtx, 0);
 
     clen = data_len;
-    if (EVP_EncryptUpdate(&ctx, data, &clen, data, data_len) != 1 || clen != (int) data_len)
+    if (EVP_EncryptUpdate(pCtx, data, &clen, data, data_len) != 1 || clen != (int) data_len)
     {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        EVP_CIPHER_CTX_free(pCtx);
+#endif
         return 0;
     }
 
     len = sizeof(buf);
-    if (EVP_EncryptFinal_ex(&ctx, buf, &len) != 1 || len != 0)
+    if (EVP_EncryptFinal_ex(pCtx, buf, &len) != 1 || len != 0)
     {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        EVP_CIPHER_CTX_free(pCtx);
+#endif
         return 0;
     }
-    EVP_CIPHER_CTX_cleanup(&ctx);
+    EVP_CIPHER_CTX_cleanup(pCtx);
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    EVP_CIPHER_CTX_free(pCtx);
+#endif
 
     return 1;
 }
 
 INT8U PLATFORM_AES_DECRYPT(INT8U *key, INT8U *iv, INT8U *data, INT32U data_len)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    EVP_CIPHER_CTX * pCtx = EVP_CIPHER_CTX_new();
+    if (!pCtx) {
+        return 0;
+    }
+#else
     EVP_CIPHER_CTX ctx;
+    EVP_CIPHER_CTX * pCtx = &ctx;
+#endif
 
     int plen, len;
     INT8U buf[AES_BLOCK_SIZE];
 
-    EVP_CIPHER_CTX_init(&ctx);
-    if (EVP_DecryptInit_ex(&ctx, EVP_aes_128_cbc(), NULL, key, iv) != 1)
+    EVP_CIPHER_CTX_init(pCtx);
+    if (EVP_DecryptInit_ex(pCtx, EVP_aes_128_cbc(), NULL, key, iv) != 1)
     {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        EVP_CIPHER_CTX_free(pCtx);
+#endif
         return 0;
     }
-    EVP_CIPHER_CTX_set_padding(&ctx, 0);
+    EVP_CIPHER_CTX_set_padding(pCtx, 0);
 
     plen = data_len;
-    if (EVP_DecryptUpdate(&ctx, data, &plen, data, data_len) != 1 || plen != (int) data_len)
+    if (EVP_DecryptUpdate(pCtx, data, &plen, data, data_len) != 1 || plen != (int) data_len)
     {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        EVP_CIPHER_CTX_free(pCtx);
+#endif
         return 0;
     }
 
     len = sizeof(buf);
-    if (EVP_DecryptFinal_ex(&ctx, buf, &len) != 1 || len != 0)
+    if (EVP_DecryptFinal_ex(pCtx, buf, &len) != 1 || len != 0)
     {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        EVP_CIPHER_CTX_free(pCtx);
+#endif
         return 0;
     }
-    EVP_CIPHER_CTX_cleanup(&ctx);
+    EVP_CIPHER_CTX_cleanup(pCtx);
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    EVP_CIPHER_CTX_free(pCtx);
+#endif
 
     return 1;
 }
